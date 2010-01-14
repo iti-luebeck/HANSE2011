@@ -4,6 +4,7 @@ RobotModule::RobotModule(QString newId)
     : QObject(), id(newId), settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse")
 {
     settings.beginGroup(id);
+    logger = Log4Qt::Logger::logger(id);
 }
 
 void RobotModule::enabled(bool value)

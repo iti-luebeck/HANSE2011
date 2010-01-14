@@ -5,8 +5,7 @@
 #include <QString>
 #include <QSettings>
 #include "Framework_global.h"
-
-
+#include <log4qt/logger.h>
 
 class FRAMEWORKSHARED_EXPORT RobotModule : public QObject
 {
@@ -65,6 +64,11 @@ protected:
       * All persistent configuration of the module is stored in here
       */
     QSettings settings;
+
+    /**
+      * Logger instance for this module
+      */
+    Log4Qt::Logger *logger;
 
 private:
     /**

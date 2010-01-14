@@ -4,9 +4,10 @@
 QT -= gui
 TARGET = Framework
 TEMPLATE = lib
+#CONFIG += staticlib
 DEFINES += FRAMEWORK_LIBRARY
 DESTDIR = ../build
-#include(../log4qt/src/log4qt/log4qt.pri)
+include(log4qt/log4qt.pri)
 SOURCES += robotmodule.cpp
 HEADERS += framework.h \
     Framework_global.h \
