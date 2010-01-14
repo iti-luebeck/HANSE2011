@@ -6,6 +6,7 @@
 
 TARGET = Module_ScanningSonar
 TEMPLATE = lib
+#CONFIG += staticlib
 
 DEFINES += MODULE_SCANNINGSONAR_LIBRARY
 
@@ -20,5 +21,8 @@ LIBPATH += ../build
 INCLUDEPATH += ../Framework
 LIBS += -lFramework
 
-INCLUDEPATH += ../Module_SerialPort
-LIBS += -lModule_SerialPort
+#INCLUDEPATH += ../Module_SerialPort
+#LIBS += -lModule_SerialPort
+
+INCLUDEPATH += ../qextserialport
+LIBS += -lqextserialportd
