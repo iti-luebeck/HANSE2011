@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <robotmodule.h>
+#include <log4qt/logger.h>
 
 class ModulesGraph : public QObject
 {
@@ -19,6 +20,11 @@ private:
       * List of modules (won't change after init)
       */
     QList<RobotModule*> modules;
+
+    /**
+      * Logger
+      */
+    Log4Qt::Logger* logger;
 
     /**
       * Create all modules

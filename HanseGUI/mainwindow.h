@@ -24,6 +24,7 @@ private:
     ModulesGraph graph;
     void readSettings();
     void writeSettings();
+    void setupLog4Qt();
 
 
 //private slots:
