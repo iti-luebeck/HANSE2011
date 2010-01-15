@@ -2,14 +2,25 @@
 #include <QWidget>
 #include <QMessageBox>
 #include <stdio.h>
+#include "form.h"
+
+class SleeperThread : public QThread
+{
+public:
+static void msleep(unsigned long msecs)
+{
+QThread::msleep(msecs);
+}
+};
+
 
 Module_ScanningSonar::Module_ScanningSonar(QString id)
     : RobotModule(id)
 {
     configurePort();
 
-    connect(&timer, SIGNAL(timeout()), this, SLOT(doNextScan()));
-    timer.start(settings.value("period", 1000).toInt());
+    //connect(&timer, SIGNAL(timeout()), this, SLOT(doNextScan()));
+    //timer.start(settings.value("period", 1000).toInt());
 }
 
 Module_ScanningSonar::~Module_ScanningSonar()
@@ -21,21 +32,45 @@ Module_ScanningSonar::~Module_ScanningSonar()
 
 void Module_ScanningSonar::doNextScan()
 {
+    logger->debug("Sending switch data command.");
     QByteArray sendArray = buildSwitchDataCommand();
+    logger->debug("Sending: " + QString(sendArray.toHex()));
     port.write(sendArray);
-    port.read(513); // XXX: return bytes differ on request!
+
+    QByteArray retData;
+    SleeperThread t;
+
+    int expectedLength;
+    if (settings.value("dataPoints", 50).toInt())
+        expectedLength = 513;
+    else
+        expectedLength = 265;
+
+    // TODO: add some kind of timeout to handle communication errors
+    while(retData.length() < expectedLength) {
+        QByteArray ret = port.read(expectedLength - retData.length());
+        retData.append(ret);
+        t.msleep(50);
+        //logger->debug("Partial receive: " + QString(ret.toHex()));
+    }
+    logger->debug("Received in total: " + QString(retData.toHex()));
+
+    // TODO: parse data
+
 }
 
 void Module_ScanningSonar::configurePort()
 {
-    /*
     port.setPortName(settings.value("port", "COM1").toString());
     port.setBaudRate(BAUD115200);
     port.setDataBits(DATA_8);
     port.setStopBits(STOP_1);
     port.setParity(PAR_NONE);
-    port.open(QextSerialPort::ReadWrite);
-    */
+    bool ret = port.open(QextSerialPort::ReadWrite);
+    if (ret)
+        logger->info("Opened Serial Port!");
+    else
+        logger->error("Could not open serial port :(");
 }
 
 void Module_ScanningSonar::reset()
@@ -52,7 +87,7 @@ QList<RobotModule*> Module_ScanningSonar::getDependencies()
 
 QWidget* Module_ScanningSonar::createView(QWidget* parent)
 {
-    return new QWidget(parent);
+    return new Form(this, parent);
 }
 
 QByteArray Module_ScanningSonar::buildSwitchDataCommand()

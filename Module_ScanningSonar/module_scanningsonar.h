@@ -18,7 +18,7 @@ public:
     // TODO: getView();
     QList<RobotModule*> getDependencies();
 
-private slots:
+public slots:
     void doNextScan();
 
 public slots:
