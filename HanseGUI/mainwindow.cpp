@@ -10,6 +10,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+
+    logger = Log4Qt::Logger::logger("MainWindow");
+
     ui->setupUi(this);
 
     setupLog4Qt();
@@ -63,8 +66,11 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    logger->info("Closing application...");
+    graph.HastaLaVista();
     writeSettings();
     event->accept();
+    logger->info("Have a nice day!");
 }
 
 void MainWindow::writeSettings()

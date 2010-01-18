@@ -26,6 +26,10 @@ private:
     void writeSettings();
     void setupLog4Qt();
 
+    /**
+      * Logger instance for this module
+      */
+    Log4Qt::Logger *logger;
 
 //private slots:
 //    void resetAll();

@@ -15,6 +15,11 @@ public:
       */
     QList<RobotModule*> getModules();
 
+    /**
+      * Terminates all active modules in reverse creation order.
+      */
+    void HastaLaVista(void);
+
 private:
     /**
       * List of modules (won't change after init)

@@ -26,3 +26,13 @@ QList<RobotModule*> ModulesGraph::getModules()
 {
     return QList<RobotModule*>(modules);
 }
+
+void ModulesGraph::HastaLaVista()
+{
+    logger->info("Terminating all modules...");
+    // go backwards through the module list
+    for (int i = modules.size()-1; i==0; i--) {
+        modules[i]->terminate();
+    }
+    logger->info("All modules terminated.");
+}
