@@ -55,6 +55,20 @@ public slots:
     virtual void reset() = 0;
 
     /**
+      * This method is called when the module is destroyed (in other words:
+      * the program terminates)
+      *
+      * The module should clean its mess up in this method; close/flush open
+      * files, close serial ports and of cource terminate any threads it started.
+      *
+      * This method is called exactly once during the lifetime of a module.
+      * The modules are terminated in reversed order of creation: It is guaranteed
+      * that all dependencies of a module A remain alive until this module A is
+      * terminated.
+      */
+    virtual void terminate() = 0;
+
+    /**
       * Enabled/disables this module
       */
     void enabled(bool value);
