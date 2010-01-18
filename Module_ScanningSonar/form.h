@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "module_scanningsonar.h"
+#include <QGraphicsScene>
 
 namespace Ui {
     class Form;
@@ -20,9 +21,10 @@ protected:
 private:
     Ui::Form *ui;
     Module_ScanningSonar* sonar;
+    QGraphicsScene scene;
 
 private slots:
-    void on_pushButton_clicked();
+    void updateSonarView();
 };
 
 #endif // FORM_H

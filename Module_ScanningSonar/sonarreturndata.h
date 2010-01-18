@@ -2,6 +2,7 @@
 #define SONARRETURNDATA_H
 
 #include <QObject>
+#include <QGraphicsItem>
 
 class SonarReturnData : public QObject
 {
@@ -35,40 +36,31 @@ public:
     bool isPacketValid();
 
     /**
-      * (XXX: redundant and pretty useless)
-      */
-    //HeaderType getHeaderType();
-
-    /**
-      * Return true if this is an echo sounder??
-      */
-    //bool isEchoSounder();
-
-    /**
       * XXX: Some kind of error code?
       */
-    //bool isSwitchesAccepted();
+    bool isSwitchesAccepted();
 
     /**
       * XXX: Another error code?
       */
-    //bool isCharacterOverrun();
+    bool isCharacterOverrun();
 
     /**
       * Returns the sensor range in meters.
       */
     int getRange();
 
-    /**
-      * XXX??
-      * First digitized range value above threshold in centi meters.
-      */
-    int getProfilerRange();
+    double getHeadPosition();
 
     /**
       * Number of Data points in this packet.
       */
     int getDataBytes();
+
+    /**
+      * Returns true if the sonar head is currently moving in a clockwise direction
+      */
+    bool isCWDirection();
 
     /**
       * The actual echo data. XXX: actual format??
@@ -92,6 +84,14 @@ private:
       * details.)
       */
     int THCDecoder(char byteLO, char byteHI);
+
+    /**
+      * Decodes the Head Position from two packet bytes.
+      * very similar to THCDecoder(), only difference is that this
+      * method masks another bit.
+      */
+    int THCHeadPosDecoder(char byteLO, char byteHI);
+
 };
 
 #endif // SONARRETURNDATA_H

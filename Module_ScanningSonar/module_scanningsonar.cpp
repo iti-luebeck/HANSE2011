@@ -15,19 +15,45 @@ QThread::msleep(msecs);
 
 
 Module_ScanningSonar::Module_ScanningSonar(QString id)
-    : RobotModule(id)
+    : reader(this), RobotModule(id)
 {
     configurePort();
 
-    //connect(&timer, SIGNAL(timeout()), this, SLOT(doNextScan()));
-    //timer.start(settings.value("period", 1000).toInt());
+    reader.start();
 }
 
 Module_ScanningSonar::~Module_ScanningSonar()
 {
-    timer.stop();
-    port.close();
+}
 
+Module_ScanningSonar::ThreadedReader::ThreadedReader(Module_ScanningSonar* m)
+{
+    this->m = m;
+    running = true;
+}
+
+void Module_ScanningSonar::ThreadedReader::pleaseStop()
+{
+    running = false;
+}
+
+void Module_ScanningSonar::terminate()
+{
+    logger->debug("Asking Sonar Reading Thread to stop.");
+    reader.pleaseStop();
+    logger->debug("Waiting for Sonar Reading Thread to terminate.");
+    reader.wait();
+    logger->debug("Closing serial port.");
+    port.close();
+    logger->debug("Finished.");
+}
+
+void Module_ScanningSonar::ThreadedReader::run(void)
+{
+    while(running)
+    {
+        m->doNextScan();
+    }
 }
 
 void Module_ScanningSonar::doNextScan()
@@ -47,25 +73,35 @@ void Module_ScanningSonar::doNextScan()
         expectedLength = 265;
 
     // TODO: add some kind of timeout to handle communication errors
-    while(retData.length() < expectedLength) {
+    int timeout = 1000;
+//    while(retData.length() < expectedLength && timeout>0) {
+    while(timeout>0 && (retData.length()==0 || retData[retData.length()-1] != 0xFC)) {
         QByteArray ret = port.read(expectedLength - retData.length());
         retData.append(ret);
-        t.msleep(50);
+        t.msleep(5); timeout -= 5;
         //logger->debug("Partial receive: " + QString(ret.toHex()));
     }
     logger->debug("Received in total: " + QString(retData.toHex()));
 
     // TODO: parse data
+    SonarReturnData* d = new SonarReturnData(retData);
+
+    if (d->isPacketValid()) {
+        data.append(d);
+        emit newSonarData();
+    }
 
 }
 
 void Module_ScanningSonar::configurePort()
 {
+    // TODO: something missing!
     port.setPortName(settings.value("port", "COM1").toString());
     port.setBaudRate(BAUD115200);
     port.setDataBits(DATA_8);
     port.setStopBits(STOP_1);
     port.setParity(PAR_NONE);
+    port.setFlowControl(FLOW_OFF);
     bool ret = port.open(QextSerialPort::ReadWrite);
     if (ret)
         logger->info("Opened Serial Port!");
@@ -94,11 +130,11 @@ QByteArray Module_ScanningSonar::buildSwitchDataCommand()
 {
     char range = settings.value("range", 50).toInt();
     char gain = settings.value("gain", 20).toInt();
-    char trainAngle = settings.value("trainAngle", 70).toInt();
+    int trainAngle = settings.value("trainAngle", 70).toInt();
     char sectorWidth = settings.value("sectorWidth", 120).toInt();
     char stepSize = settings.value("stepSize", 1).toInt();
     char pulseLength = settings.value("pulseLength", 127).toInt();
-    char dataPoints = settings.value("dataPoints", 50).toInt();
+    char dataPoints = settings.value("dataPoints", 25).toInt();
     char switchDelay = settings.value("switchDelay", 0).toInt();
     char frequency = settings.value("frequency", 0).toInt();
 

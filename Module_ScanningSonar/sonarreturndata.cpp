@@ -10,7 +10,6 @@ QByteArray SonarReturnData::getEchoData()
     QByteArray clone = QByteArray(packet);
     clone.remove(0,12); // remove header
     clone.remove(getDataBytes(), 1); // remove termination byte
-    Q_ASSERT(clone.length()==getDataBytes());
     return clone;
 }
 
@@ -22,9 +21,33 @@ int SonarReturnData::THCDecoder(char byteLO, char byteHI)
     return high << 8 | low;
 }
 
-int SonarReturnData::getProfilerRange()
+int SonarReturnData::THCHeadPosDecoder(char byteLO, char byteHI)
 {
-    return THCDecoder(packet[8], packet[9]);
+    int high =   (byteHI & 0x3E) >> 1;
+    int low = ( ((byteHI & 0x01) << 7) | (byteLO & 0x7F) );
+
+    return high << 8 | low;
+}
+
+bool SonarReturnData::isSwitchesAccepted()
+{
+    return (packet[4] & 0x40) >> 6;
+}
+
+bool SonarReturnData::isCharacterOverrun()
+{
+    return (packet[4] & 0x80) >> 7;
+}
+
+bool SonarReturnData::isCWDirection()
+{
+    return (packet[6] & 0x40) >> 6;
+}
+
+double SonarReturnData::getHeadPosition()
+{
+    int headPos = THCHeadPosDecoder(packet[5], packet[6]);
+    return 0.15*(headPos - 1400);
 }
 
 int SonarReturnData::getDataBytes()
@@ -39,28 +62,29 @@ int SonarReturnData::getRange()
 
 bool SonarReturnData::isPacketValid()
 {
+    // ID Bytes
     Q_ASSERT(packet[0] == 'I');
     Q_ASSERT(packet[2] == 'X');
 
-    if (packet.length()==13) {
-        Q_ASSERT(packet[1] == 'P');
-        Q_ASSERT(getDataBytes() == 0);
-    }
     if (packet.length()==265) {
         Q_ASSERT(packet[1] == 'M');
-        Q_ASSERT(getDataBytes() == 265);
+        Q_ASSERT(getDataBytes() == 252);
     }
     if (packet.length()==513) {
         Q_ASSERT(packet[1] == 'G');
-        Q_ASSERT(getDataBytes() == 513);
+        Q_ASSERT(getDataBytes() == 500);
     }
 
-    // todo: check serial status
+    Q_ASSERT(isSwitchesAccepted());
+    Q_ASSERT(!isCharacterOverrun());
 
     // todo: maybe, actually, return false???
 
-    // always the same
-    Q_ASSERT((char)packet[3] == 0x11);
+    // HeadID
+    Q_ASSERT((char)packet[3] == 0x10);
+
+    // Termination byte
+    Q_ASSERT(packet[packet.length()-1] == 0xFC);
 
     return true;
 }
