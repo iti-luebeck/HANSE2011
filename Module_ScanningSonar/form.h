@@ -24,6 +24,7 @@ private:
     QGraphicsScene scene;
 
 private slots:
+    void on_save_clicked();
     void updateSonarView();
 };
 

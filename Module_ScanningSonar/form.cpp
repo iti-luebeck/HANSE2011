@@ -13,6 +13,8 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
 
     connect(sonar, SIGNAL(newSonarData()), this, SLOT(updateSonarView()));
 
+    //ui->frequency->setText();
+
 }
 
 Form::~Form()
@@ -45,4 +47,9 @@ void Form::updateSonarView()
             QGraphicsEllipseItem *point = new QGraphicsEllipseItem(0,i, 1,1,it);
     }
     it->setRotation(data->getHeadPosition());
+}
+
+void Form::on_save_clicked()
+{
+    //sonar->settings.setValue();
 }
