@@ -3,9 +3,6 @@
 #include <iostream>
 #include <form.h>
 #include <qextserialenumerator.h>
-#include <QDebug>
-
-#define DEBUG   1
 
 Module_UID::Module_UID(QString moduleId, QString deviceID)
     :RobotModule(moduleId)
@@ -30,50 +27,45 @@ QextSerialPort* Module_UID::ScanForUIDs(QString Id) {
     char id[9];
 
     for (int i=0; i<ports.size(); i++) {
-        if (DEBUG) {
-            printf("\r\nport name: %s\r\n", ports.at(i).portName.toLocal8Bit().constData());
-            printf("friendly name: %s\n", ports.at(i).friendName.toLocal8Bit().constData());
-            printf("physical name: %s\n", ports.at(i).physName.toLocal8Bit().constData());
-            printf("enumerator name: %s\n", ports.at(i).enumName.toLocal8Bit().constData());
-            printf("===================================\n");
-        }
+        logger->debug("port name: " + ports.at(i).portName);
+        logger->debug("friendly name: " + ports.at(i).friendName);
+        logger->debug("physical name: " + ports.at(i).physName);
+        logger->debug("enumerator name: " + ports.at(i).enumName);
+        logger->debug("===================================");
         port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, portSettings);
 
         if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
-            if (DEBUG) {
-                std::cout << "Could not connec" << std::endl;
-                std::cout << port->errorString().toStdString() << std::endl;
-            }
+            logger->debug("Could not connect to " + port->errorString());
             port->close();
             continue;
         }
 
-        if (DEBUG) std::cout << "connected successfully" << std::endl;
+        logger->debug("connected successfully");
 
         port->flush();
 
         if ( (port->write(sequence, 1)) == -1) {
-            if (DEBUG) std::cout << "Writing Opcode successfully" << std::endl;
+            logger->debug("Writing Opcode successfully");
             port->close();
             continue;
         }
 
-        if (DEBUG) std::cout << "Could write to port" << std::endl;
+        logger->debug("Could write to port");
 
         if ( (port->read(id, sizeof(id))) == -1 ) {
-            if (DEBUG) printf("No Id received\r\n");
+            logger->debug("No Id received");
             port->close();
             continue;
         }
 
         if (QString::fromAscii(id,sizeof(id)) == Id) {
-            if (DEBUG) std::cout << "\nFound UID with id " << QString::fromAscii(id,8).toStdString() << " on " << ports.at(i).portName.toLocal8Bit().constData() << std::endl;
+            logger->info("Found UID with id " + QString::fromAscii(id,8) + " on " + ports.at(i).portName);
             UID_available = true;
             port->flush();
             return port;
         }
         else {
-            if (DEBUG) std::cout << "Wrong Id\r\nReceived: " << QString::fromUtf8(id,8).toStdString() << std::endl;
+            logger->debug("Wrong Id; Received: " + QString::fromUtf8(id,8));
         }
         port->close();
 
