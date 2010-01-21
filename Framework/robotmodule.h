@@ -73,6 +73,8 @@ public slots:
       */
     void enabled(bool value);
 
+    QSettings& getSettings();
+
 protected:
     /**
       * All persistent configuration of the module is stored in here

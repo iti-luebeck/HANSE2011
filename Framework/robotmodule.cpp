@@ -19,3 +19,8 @@ QString RobotModule::getTabName()
 {
     return id;
 }
+
+QSettings& RobotModule::getSettings()
+{
+    return settings;
+}
