@@ -63,28 +63,34 @@ int SonarReturnData::getRange()
 bool SonarReturnData::isPacketValid()
 {
     // ID Bytes
-    Q_ASSERT(packet[0] == 'I');
-    Q_ASSERT(packet[2] == 'X');
+    if (packet[0] != 'I' || packet[2] != 'X')
+        return false;
 
     if (packet.length()==265) {
-        Q_ASSERT(packet[1] == 'M');
-        Q_ASSERT(getDataBytes() == 252);
+        if (packet[1] != 'M')
+            return false;
+        if (getDataBytes() != 252)
+            return false;
     }
     if (packet.length()==513) {
-        Q_ASSERT(packet[1] == 'G');
-        Q_ASSERT(getDataBytes() == 500);
+        if (packet[1] != 'G')
+            return false;
+        if (getDataBytes() != 500)
+            return false;
     }
 
-    Q_ASSERT(isSwitchesAccepted());
-    Q_ASSERT(!isCharacterOverrun());
-
-    // todo: maybe, actually, return false???
+    if (!isSwitchesAccepted())
+        return false;
+    if (isCharacterOverrun())
+        return false;
 
     // HeadID
-    Q_ASSERT((char)packet[3] == 0x10);
+    if ((char)packet[3] != 0x10)
+        return false;
 
     // Termination byte
-    Q_ASSERT(packet[packet.length()-1] == 0xFC);
+    if (packet[packet.length()-1] != 0xFC)
+        return false;
 
     return true;
 }
