@@ -7,6 +7,8 @@ Form::Form(Module_UID* module, QWidget *parent) :
 {
     ui->setupUi(this);
     this->module = module;
+
+    ui->uidId->setText(module->getSettings().value("uidId", DEFAULT_UID_ID).toString());
 }
 
 Form::~Form()
@@ -24,4 +26,9 @@ void Form::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void Form::on_save_clicked()
+{
+    module->getSettings().setValue("uidId", ui->uidId->text());
 }

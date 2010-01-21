@@ -10,6 +10,8 @@
 #include <QString>
 #include <QtGlobal>
 
+#define DEFAULT_UID_ID "UID0001"
+
 class MODULE_UIDSHARED_EXPORT Module_UID : public RobotModule {
     Q_OBJECT
 public:
@@ -21,6 +23,7 @@ public:
         khz400 = 0xFF
     };
 
+    Module_UID(QString moduleId);
     Module_UID(QString moduleId, QString deviceId);
     bool UID_Available();
 
@@ -90,6 +93,10 @@ private:
     QextSerialPort* port;
     PortSettings portSettings;
 
+    /**
+      * Set Port configuration
+      */
+    void init();
     QextSerialPort* ScanForUIDs( QString Id );
     void ClosePort();
     QString IdentifyCommand(unsigned char* sequence);

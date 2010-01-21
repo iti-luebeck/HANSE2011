@@ -15,7 +15,7 @@ void ModulesGraph::build()
 
     logger->info("Loading all Modules...");
 
-    Module_UID* uid1 = new Module_UID("uid0","UID0001");
+    Module_UID* uid1 = new Module_UID("uid0");
     this->modules.append(uid1);
 
     Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar0");

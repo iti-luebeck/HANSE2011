@@ -4,8 +4,23 @@
 #include <form.h>
 #include <qextserialenumerator.h>
 
+Module_UID::Module_UID(QString moduleId)
+    :RobotModule(moduleId)
+{
+    init();
+
+    ScanForUIDs( settings.value("uidId", DEFAULT_UID_ID).toString() );
+}
+
 Module_UID::Module_UID(QString moduleId, QString deviceID)
     :RobotModule(moduleId)
+{
+    init();
+
+    ScanForUIDs( deviceID );
+}
+
+void Module_UID::init()
 {
     portSettings.BaudRate = BAUD115200;
     portSettings.DataBits = DATA_8;
@@ -13,8 +28,6 @@ Module_UID::Module_UID(QString moduleId, QString deviceID)
     portSettings.StopBits = STOP_1;
     portSettings.FlowControl = FLOW_OFF;
     portSettings.Timeout_Millisec = 200;
-
-    ScanForUIDs( deviceID );
 }
 
 QextSerialPort* Module_UID::ScanForUIDs(QString Id) {

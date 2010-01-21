@@ -20,6 +20,9 @@ protected:
 private:
     Ui::Form *ui;
     Module_UID *module;
+
+private slots:
+    void on_save_clicked();
 };
 
 #endif // FORM_H
