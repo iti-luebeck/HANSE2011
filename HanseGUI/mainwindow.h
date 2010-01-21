@@ -22,6 +22,7 @@ protected:
 private:
     Ui::MainWindow *ui;
     ModulesGraph graph;
+    QSettings settings;
     void readSettings();
     void writeSettings();
     void setupLog4Qt();
