@@ -15,11 +15,9 @@ LIBS += -lFramework
 INCLUDEPATH += ../qextserialport
 LIBS += -lqextserialportd
 SOURCES += module_uid.cpp \
-    form.cpp
+    form_uid.cpp
 HEADERS += module_uid.h \
     Module_UID_global.h \
-    form.h
-FORMS += form.ui
-
-unix:DEFINES   = _TTY_POSIX_
-
+    form_uid.h
+FORMS += form_uid.ui
+unix:DEFINES = _TTY_POSIX_

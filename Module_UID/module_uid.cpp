@@ -1,12 +1,15 @@
 #include "module_uid.h"
 
 #include <iostream>
-#include <form.h>
+#include <form_uid.h>
 #include <qextserialenumerator.h>
 
 Module_UID::Module_UID(QString moduleId)
     :RobotModule(moduleId)
 {
+    if (!settings.value("enabled").toBool() || 1==1)
+        return;
+
     init();
 
     ScanForUIDs( settings.value("uidId", DEFAULT_UID_ID).toString() );
@@ -15,6 +18,9 @@ Module_UID::Module_UID(QString moduleId)
 Module_UID::Module_UID(QString moduleId, QString deviceID)
     :RobotModule(moduleId)
 {
+    if (!settings.value("enabled").toBool() || 1==1)
+        return;
+
     init();
 
     ScanForUIDs( deviceID );
@@ -259,7 +265,7 @@ QList<RobotModule*> Module_UID::getDependencies()
 
 QWidget* Module_UID::createView(QWidget* parent)
 {
-    return new Form(this, parent);
+    return new FormUID(this, parent);
 }
 
 void Module_UID::terminate()

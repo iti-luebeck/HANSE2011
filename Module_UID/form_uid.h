@@ -5,20 +5,20 @@
 #include "module_uid.h"
 
 namespace Ui {
-    class Form;
+    class Form_UID;
 }
 
-class Form : public QWidget {
+class FormUID : public QWidget {
     Q_OBJECT
 public:
-    Form(Module_UID* module, QWidget *parent = 0);
-    ~Form();
+    FormUID(Module_UID* module, QWidget *parent = 0);
+    ~FormUID();
 
 protected:
     void changeEvent(QEvent *e);
 
 private:
-    Ui::Form *ui;
+    Ui::Form_UID *ui;
     Module_UID *module;
 
 private slots:

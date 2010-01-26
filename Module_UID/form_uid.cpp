@@ -1,9 +1,9 @@
-#include "form.h"
-#include "ui_form.h"
+#include "form_uid.h"
+#include "ui_form_uid.h"
 
-Form::Form(Module_UID* module, QWidget *parent) :
+FormUID::FormUID(Module_UID* module, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Form)
+    ui(new Ui::Form_UID)
 {
     ui->setupUi(this);
     this->module = module;
@@ -11,12 +11,12 @@ Form::Form(Module_UID* module, QWidget *parent) :
     ui->uidId->setText(module->getSettings().value("uidId", DEFAULT_UID_ID).toString());
 }
 
-Form::~Form()
+FormUID::~FormUID()
 {
     delete ui;
 }
 
-void Form::changeEvent(QEvent *e)
+void FormUID::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
     switch (e->type()) {
@@ -28,7 +28,7 @@ void Form::changeEvent(QEvent *e)
     }
 }
 
-void Form::on_save_clicked()
+void FormUID::on_save_clicked()
 {
     module->getSettings().setValue("uidId", ui->uidId->text());
 }
