@@ -17,6 +17,9 @@ QThread::msleep(msecs);
 Module_ScanningSonar::Module_ScanningSonar(QString id)
     : reader(this), RobotModule(id)
 {
+    if (!settings.contains("serialPort"))
+        settings.setValue("serialPort", "COM1");
+
     configurePort();
 
     reader.start();
@@ -44,7 +47,7 @@ void Module_ScanningSonar::terminate()
     logger->debug("Waiting for Sonar Reading Thread to terminate.");
     reader.wait();
     logger->debug("Closing serial port.");
-    port.close();
+    port->close();
     logger->debug("Finished.");
 }
 
@@ -61,7 +64,7 @@ void Module_ScanningSonar::doNextScan()
     logger->debug("Sending switch data command.");
     QByteArray sendArray = buildSwitchDataCommand();
     logger->debug("Sending: " + QString(sendArray.toHex()));
-    port.write(sendArray);
+    port->write(sendArray);
 
     QByteArray retData;
     SleeperThread t;
@@ -72,18 +75,14 @@ void Module_ScanningSonar::doNextScan()
     else
         expectedLength = 265;
 
-    // TODO: add some kind of timeout to handle communication errors
     int timeout = 1000;
-//    while(retData.length() < expectedLength && timeout>0) {
-    while(timeout>0 && (retData.length()==0 || retData[retData.length()-1] != 0xFC)) {
-        QByteArray ret = port.read(expectedLength - retData.length());
+    while(timeout>0 && (retData.length()==0 || retData[retData.length()-1] != (char)0xFC)) {
+        QByteArray ret = port->read(expectedLength - retData.length());
         retData.append(ret);
         t.msleep(5); timeout -= 5;
-        //logger->debug("Partial receive: " + QString(ret.toHex()));
     }
     logger->debug("Received in total: " + QString(retData.toHex()));
 
-    // TODO: parse data
     SonarReturnData* d = new SonarReturnData(retData);
 
     if (d->isPacketValid()) {
@@ -95,14 +94,16 @@ void Module_ScanningSonar::doNextScan()
 
 void Module_ScanningSonar::configurePort()
 {
-    // TODO: something missing!
-    port.setPortName(settings.value("port", "COM1").toString());
-    port.setBaudRate(BAUD115200);
-    port.setDataBits(DATA_8);
-    port.setStopBits(STOP_1);
-    port.setParity(PAR_NONE);
-    port.setFlowControl(FLOW_OFF);
-    bool ret = port.open(QextSerialPort::ReadWrite);
+    logger->info("Configuring serial port");
+    PortSettings s;
+    s.BaudRate = BAUD115200;
+    s.DataBits = DATA_8;
+    s.StopBits = STOP_1;
+    s.Parity = PAR_NONE;
+    s.FlowControl = FLOW_OFF;
+    s.Timeout_Millisec = 1;
+    port = new QextSerialPort(settings.value("serialPort").toString(), s);
+    bool ret = port->open(QextSerialPort::ReadWrite);
     if (ret)
         logger->info("Opened Serial Port!");
     else
@@ -112,7 +113,7 @@ void Module_ScanningSonar::configurePort()
 void Module_ScanningSonar::reset()
 {
     QMessageBox::information(0, "Resetting sonar...", "Reset", QMessageBox::Ok);
-    port.reset();
+    port->reset();
 }
 
 QList<RobotModule*> Module_ScanningSonar::getDependencies()

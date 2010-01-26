@@ -89,7 +89,7 @@ bool SonarReturnData::isPacketValid()
         return false;
 
     // Termination byte
-    if (packet[packet.length()-1] != 0xFC)
+    if ((char)packet[packet.length()-1] != 0xFC)
         return false;
 
     return true;

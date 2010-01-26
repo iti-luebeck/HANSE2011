@@ -49,7 +49,7 @@ signals:
 
 private:
     ThreadedReader reader;
-    QextSerialPort port;
+    QextSerialPort* port;
     QTimer timer;
     void configurePort();
     QByteArray buildSwitchDataCommand();

@@ -23,3 +23,6 @@ LIBS += -lFramework
 INCLUDEPATH += ../qextserialport
 LIBS += -lqextserialportd
 FORMS += form.ui
+
+unix:DEFINES   = _TTY_POSIX_
+
