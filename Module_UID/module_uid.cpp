@@ -7,9 +7,6 @@
 Module_UID::Module_UID(QString moduleId)
     :RobotModule(moduleId)
 {
-    if (!settings.value("enabled").toBool() || 1==1)
-        return;
-
     init();
 
     ScanForUIDs( settings.value("uidId", DEFAULT_UID_ID).toString() );
@@ -18,9 +15,6 @@ Module_UID::Module_UID(QString moduleId)
 Module_UID::Module_UID(QString moduleId, QString deviceID)
     :RobotModule(moduleId)
 {
-    if (!settings.value("enabled").toBool() || 1==1)
-        return;
-
     init();
 
     ScanForUIDs( deviceID );
