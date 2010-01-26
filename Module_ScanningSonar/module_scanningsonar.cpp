@@ -17,8 +17,17 @@ QThread::msleep(msecs);
 Module_ScanningSonar::Module_ScanningSonar(QString id)
     : reader(this), RobotModule(id)
 {
-    if (!settings.contains("serialPort"))
-        settings.setValue("serialPort", "COM1");
+    setDefaultValue("serialPort", "COM1");
+
+    setDefaultValue("range", 50);
+    setDefaultValue("gain", 20);
+    setDefaultValue("trainAngle", 70);
+    setDefaultValue("sectorWidth", 120);
+    setDefaultValue("stepSize", 1);
+    setDefaultValue("pulseLength", 127);
+    setDefaultValue("dataPoints", 25);
+    setDefaultValue("switchDelay", 0);
+    setDefaultValue("frequency", 0);
 
     configurePort();
 
@@ -55,7 +64,10 @@ void Module_ScanningSonar::ThreadedReader::run(void)
 {
     while(running)
     {
-        m->doNextScan();
+        if (m->getSettings().value("enabled").toBool())
+            m->doNextScan();
+        else
+            msleep(500);
     }
 }
 
@@ -129,15 +141,15 @@ QWidget* Module_ScanningSonar::createView(QWidget* parent)
 
 QByteArray Module_ScanningSonar::buildSwitchDataCommand()
 {
-    char range = settings.value("range", 50).toInt();
-    char gain = settings.value("gain", 20).toInt();
-    int trainAngle = settings.value("trainAngle", 70).toInt();
-    char sectorWidth = settings.value("sectorWidth", 120).toInt();
-    char stepSize = settings.value("stepSize", 1).toInt();
-    char pulseLength = settings.value("pulseLength", 127).toInt();
-    char dataPoints = settings.value("dataPoints", 25).toInt();
-    char switchDelay = settings.value("switchDelay", 0).toInt();
-    char frequency = settings.value("frequency", 0).toInt();
+    char range = settings.value("range").toInt();
+    char gain = settings.value("gain").toInt();
+    int trainAngle = settings.value("trainAngle").toInt();
+    char sectorWidth = settings.value("sectorWidth").toInt();
+    char stepSize = settings.value("stepSize").toInt();
+    char pulseLength = settings.value("pulseLength").toInt();
+    char dataPoints = settings.value("dataPoints").toInt();
+    char switchDelay = settings.value("switchDelay").toInt();
+    char frequency = settings.value("frequency").toInt();
 
     QByteArray a;
     a.resize(27);

@@ -14,7 +14,14 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     connect(sonar, SIGNAL(newSonarData()), this, SLOT(updateSonarView()));
 
     ui->serialPort->setText(sonar->getSettings().value("serialPort").toString());
-
+    ui->frequency->setText(sonar->getSettings().value("frequency").toString());
+    ui->gain->setValue(sonar->getSettings().value("gain").toInt());
+    ui->pulseLength->setValue(sonar->getSettings().value("pulseLength").toInt());
+    ui->range->setValue(sonar->getSettings().value("range").toInt());
+    ui->sectorWidth->setValue(sonar->getSettings().value("sectorWidth").toInt());
+    ui->stepSize->setValue(sonar->getSettings().value("stepSize").toInt());
+    ui->switchDelay->setText(sonar->getSettings().value("switchDelay").toString());
+    ui->trainAngle->setText(sonar->getSettings().value("trainAngle").toString());
 }
 
 Form::~Form()
@@ -52,6 +59,13 @@ void Form::updateSonarView()
 
 void Form::on_save_clicked()
 {
-    //sonar->settings.setValue();
     sonar->getSettings().setValue("serialPort", ui->serialPort->text());
+    sonar->getSettings().setValue("frequency", ui->frequency->text().toInt());
+    sonar->getSettings().setValue("gain", ui->gain->value());
+    sonar->getSettings().setValue("pulseLength", ui->pulseLength->value());
+    sonar->getSettings().setValue("range", ui->range->value());
+    sonar->getSettings().setValue("sectorWidth", ui->sectorWidth->value());
+    sonar->getSettings().setValue("stepSize", ui->stepSize->value());
+    sonar->getSettings().setValue("switchDelay", ui->switchDelay->text().toInt());
+    sonar->getSettings().setValue("trainAngle", ui->trainAngle->text().toInt());
 }
