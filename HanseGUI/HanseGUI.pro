@@ -19,3 +19,5 @@ SOURCES += main.cpp \
 HEADERS += mainwindow.h \
     modulesgraph.h
 FORMS += mainwindow.ui
+
+unix:DEFINES   = _TTY_POSIX_
