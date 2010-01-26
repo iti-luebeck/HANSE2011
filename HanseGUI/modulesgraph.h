@@ -31,6 +31,7 @@ private:
       */
     Log4Qt::Logger* logger;
 
+public:
     /**
       * Create all modules
       */

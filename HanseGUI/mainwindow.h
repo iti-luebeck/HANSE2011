@@ -32,8 +32,9 @@ private:
       */
     Log4Qt::Logger *logger;
 
-//private slots:
-//    void resetAll();
+private slots:
+    void disableAll();
+    void enableAll();
 };
 
 #endif // MAINWINDOW_H

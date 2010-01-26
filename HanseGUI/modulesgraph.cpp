@@ -6,8 +6,6 @@
 ModulesGraph::ModulesGraph()
 {
     logger = Log4Qt::Logger::logger("ModulesGraph");
-
-    build();
 }
 
 void ModulesGraph::build()

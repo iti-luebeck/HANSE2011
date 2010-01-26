@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     logger = Log4Qt::Logger::logger("MainWindow");
 
+    graph.build();
+
     ui->setupUi(this);
 
     QList<RobotModule*> list = graph.getModules();
@@ -31,9 +33,11 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->menuEnabled->addAction(action2);
         connect(action2, SIGNAL(triggered(bool)), m, SLOT(enabled(bool)));
         connect(m, SIGNAL(isEnabled(bool)), action2, SLOT(setChecked(bool)));
-
         // TODO: enable/disable all
     }
+
+    connect(ui->actionDisable_All, SIGNAL(triggered()), this, SLOT(disableAll()));
+    connect(ui->actionEnable_All, SIGNAL(triggered()), this, SLOT(enableAll()));
 
     readSettings();
 }
@@ -78,3 +82,25 @@ void MainWindow::readSettings()
     move(pos);
 }
 
+void MainWindow::disableAll()
+{
+    QList<RobotModule*> list = graph.getModules();
+
+    for (int i = 0; i < list.size(); ++i) {
+        RobotModule* m = list.at(i);
+
+        m->enabled(false);
+    }
+}
+
+
+void MainWindow::enableAll()
+{
+    QList<RobotModule*> list = graph.getModules();
+
+    for (int i = 0; i < list.size(); ++i) {
+        RobotModule* m = list.at(i);
+
+        m->enabled(true);
+    }
+}
