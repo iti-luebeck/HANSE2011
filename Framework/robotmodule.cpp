@@ -24,3 +24,9 @@ QSettings& RobotModule::getSettings()
 {
     return settings;
 }
+
+void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
+{
+    if (!settings.contains(key))
+        settings.setValue(key, value);
+}

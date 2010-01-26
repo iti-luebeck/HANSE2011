@@ -86,6 +86,11 @@ protected:
       */
     Log4Qt::Logger *logger;
 
+    /**
+      * Sets the config value of "key" to "value" if it is not already set.
+      */
+    void setDefaultValue(const QString &key, const QVariant &value);
+
 private:
     /**
       * ID of the module. must be unique across all robot instances. won't change at runtime.
