@@ -8,11 +8,17 @@ TEMPLATE = lib
 DEFINES += MODULE_SCANNINGSONAR_LIBRARY
 SOURCES += module_scanningsonar.cpp \
     form.cpp \
-    sonarreturndata.cpp
+    sonarreturndata.cpp \
+    sonardatasource.cpp \
+    sonardatasourceserial.cpp \
+    sonardatasourcefile.cpp
 HEADERS += module_scanningsonar.h \
     Module_ScanningSonar_global.h \
     form.h \
-    sonarreturndata.h
+    sonarreturndata.h \
+    sonardatasource.h \
+    sonardatasourceserial.h \
+    sonardatasourcefile.h
 DESTDIR = ../build
 LIBPATH += ../build
 INCLUDEPATH += ../Framework
@@ -23,6 +29,4 @@ LIBS += -lFramework
 INCLUDEPATH += ../qextserialport
 LIBS += -lqextserialportd
 FORMS += form.ui
-
-unix:DEFINES   = _TTY_POSIX_
-
+unix:DEFINES = _TTY_POSIX_

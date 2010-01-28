@@ -7,6 +7,7 @@
 
 class QextSerialPort;
 class SonarReturnData;
+class SonarDataSource;
 
 class MODULE_SCANNINGSONARSHARED_EXPORT Module_ScanningSonar : public RobotModule {
     Q_OBJECT
@@ -21,6 +22,7 @@ class MODULE_SCANNINGSONARSHARED_EXPORT Module_ScanningSonar : public RobotModul
 
     private:
         Module_ScanningSonar* m;
+        QTextStream* fileStream;
         bool running; // XXX: volatile
 
 
@@ -49,10 +51,8 @@ signals:
 
 private:
     ThreadedReader reader;
-    QextSerialPort* port;
     QTimer timer;
-    void configurePort();
-    QByteArray buildSwitchDataCommand();
+    SonarDataSource* source;
 
 };
 
