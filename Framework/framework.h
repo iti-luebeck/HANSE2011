@@ -7,5 +7,4 @@
 #include "Framework_global.h"
 #include "robotmodule.h"
 
-
 #endif // FRAMEWORK_H

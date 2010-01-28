@@ -3,6 +3,8 @@
 #include <QMessageBox>
 #include <stdio.h>
 #include "form.h"
+#include <qextserialport.h>
+#include <sonarreturndata.h>
 
 class SleeperThread : public QThread
 {
@@ -100,6 +102,8 @@ void Module_ScanningSonar::doNextScan()
     if (d->isPacketValid()) {
         data.append(d);
         emit newSonarData();
+    } else {
+        logger->warn("Received bullshit. Dropping packet.");
     }
 
 }

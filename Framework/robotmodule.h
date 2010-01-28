@@ -1,9 +1,7 @@
 #ifndef ROBOTMODULE_H
 #define ROBOTMODULE_H
 
-#include <QObject>
-#include <QString>
-#include <QSettings>
+#include <QtCore>
 #include "Framework_global.h"
 #include <log4qt/logger.h>
 

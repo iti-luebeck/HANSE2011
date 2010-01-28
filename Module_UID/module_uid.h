@@ -3,14 +3,11 @@
 
 #include "robotmodule.h"
 #include "Module_UID_global.h"
-#include <string>
-#include <QtCore/QObject>
-#include <qextserialport.h>
-#include <QVector>
-#include <QString>
-#include <QtGlobal>
 
 #define DEFAULT_UID_ID "UID0001"
+
+class QextSerialPort;
+class PortSettings;
 
 class MODULE_UIDSHARED_EXPORT Module_UID : public RobotModule {
     Q_OBJECT
@@ -26,6 +23,7 @@ public:
     Module_UID(QString moduleId);
     Module_UID(QString moduleId, QString deviceId);
     bool UID_Available();
+    ~Module_UID();
 
     QString UID_Identify();
     QString UID_Revision();
@@ -91,7 +89,7 @@ private:
     };
 
     QextSerialPort* port;
-    PortSettings portSettings;
+    PortSettings* portSettings;
 
     /**
       * Set Port configuration

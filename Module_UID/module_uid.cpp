@@ -3,11 +3,19 @@
 #include <iostream>
 #include <form_uid.h>
 #include <qextserialenumerator.h>
+#include <qextserialport.h>
+#include <string>
+#include <QtCore/QObject>
+#include <QVector>
+#include <QString>
+#include <QtGlobal>
 
 Module_UID::Module_UID(QString moduleId)
     :RobotModule(moduleId)
 {
     init();
+
+    portSettings = new PortSettings();
 
     ScanForUIDs( settings.value("uidId", DEFAULT_UID_ID).toString() );
 }
@@ -20,14 +28,19 @@ Module_UID::Module_UID(QString moduleId, QString deviceID)
     ScanForUIDs( deviceID );
 }
 
+Module_UID::~Module_UID()
+{
+    delete portSettings;
+}
+
 void Module_UID::init()
 {
-    portSettings.BaudRate = BAUD115200;
-    portSettings.DataBits = DATA_8;
-    portSettings.Parity = PAR_NONE;
-    portSettings.StopBits = STOP_1;
-    portSettings.FlowControl = FLOW_OFF;
-    portSettings.Timeout_Millisec = 200;
+    portSettings->BaudRate = BAUD115200;
+    portSettings->DataBits = DATA_8;
+    portSettings->Parity = PAR_NONE;
+    portSettings->StopBits = STOP_1;
+    portSettings->FlowControl = FLOW_OFF;
+    portSettings->Timeout_Millisec = 200;
 }
 
 QextSerialPort* Module_UID::ScanForUIDs(QString Id) {
@@ -45,7 +58,7 @@ QextSerialPort* Module_UID::ScanForUIDs(QString Id) {
         logger->debug("physical name: " + ports.at(i).physName);
         logger->debug("enumerator name: " + ports.at(i).enumName);
         logger->debug("===================================");
-        port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, portSettings);
+        port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, *portSettings);
 
         if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
             logger->debug("Could not connect to " + port->errorString());

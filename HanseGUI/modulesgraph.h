@@ -1,9 +1,11 @@
 #ifndef MODULESGRAPH_H
 #define MODULESGRAPH_H
 
-#include <QObject>
+#include <QtCore>
 #include <robotmodule.h>
 #include <log4qt/logger.h>
+
+class RobotModule;
 
 class ModulesGraph : public QObject
 {

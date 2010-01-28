@@ -20,4 +20,5 @@ INCLUDEPATH += ../Framework
 LIBS += -lFramework
 INCLUDEPATH += ../Module_UID
 LIBS += -lModule_UID
-INCLUDEPATH += ../qextserialport
+LIBS += -lqextserialportd
+unix:DEFINES   = _TTY_POSIX_

@@ -11,7 +11,6 @@ INCLUDEPATH += ../Module_ScanningSonar
 LIBS += -lModule_ScanningSonar
 INCLUDEPATH += ../Module_UID
 LIBS += -lModule_UID
-INCLUDEPATH += ../qextserialport
 LIBS += -lqextserialportd
 SOURCES += main.cpp \
     mainwindow.cpp \

@@ -3,10 +3,10 @@
 
 #include "Module_ScanningSonar_global.h"
 #include "robotmodule.h"
-#include <qextserialport.h>
-#include <QTimer>
-#include <sonarreturndata.h>
-#include <QList>
+#include <QtCore>
+
+class QextSerialPort;
+class SonarReturnData;
 
 class MODULE_SCANNINGSONARSHARED_EXPORT Module_ScanningSonar : public RobotModule {
     Q_OBJECT
