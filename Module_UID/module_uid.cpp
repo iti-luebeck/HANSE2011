@@ -13,9 +13,9 @@
 Module_UID::Module_UID(QString moduleId)
     :RobotModule(moduleId)
 {
-    init();
-
     portSettings = new PortSettings();
+
+    init();
 
     ScanForUIDs( settings.value("uidId", DEFAULT_UID_ID).toString() );
 }
