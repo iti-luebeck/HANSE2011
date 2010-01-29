@@ -22,6 +22,8 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     ui->stepSize->setValue(sonar->getSettings().value("stepSize").toInt());
     ui->switchDelay->setText(sonar->getSettings().value("switchDelay").toString());
     ui->trainAngle->setText(sonar->getSettings().value("trainAngle").toString());
+    ui->checkBox->setChecked(sonar->getSettings().value("readFromFile").toBool());
+    ui->fileName->setText(sonar->getSettings().value("filename").toString());
 }
 
 Form::~Form()
@@ -68,4 +70,8 @@ void Form::on_save_clicked()
     sonar->getSettings().setValue("stepSize", ui->stepSize->value());
     sonar->getSettings().setValue("switchDelay", ui->switchDelay->text().toInt());
     sonar->getSettings().setValue("trainAngle", ui->trainAngle->text().toInt());
+    sonar->getSettings().setValue("readFromFile", ui->checkBox->isChecked());
+    sonar->getSettings().setValue("filename", ui->fileName->text());
+
+    sonar->reset();
 }

@@ -1,8 +1,8 @@
 #ifndef SONARRETURNDATA_H
 #define SONARRETURNDATA_H
 
-#include <QObject>
-#include <QGraphicsItem>
+#include <QtCore>
+#include <QtGui>
 
 class SonarReturnData : public QObject
 {
@@ -26,6 +26,8 @@ public:
     };
 
 public:
+
+    SonarReturnData(QByteArray& returnDataPacket, QDateTime& date);
 
     SonarReturnData(QByteArray& returnDataPacket);
 
@@ -66,6 +68,8 @@ public:
       * The actual echo data. XXX: actual format??
       */
     QByteArray getEchoData();
+
+    QDateTime dateTime;
 
 private:
 

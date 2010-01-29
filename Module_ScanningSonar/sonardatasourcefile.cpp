@@ -32,18 +32,41 @@ SonarReturnData* SonarDataSourceFile::getNextPacket()
         return NULL;
     }
 
-    stream->skipRawData(100);
+    stream->skipRawData(3);
+    quint16 totalBytes;
+    quint8 nToReadIndex;
+    quint16 nToRead;
+    char date[12];
+    char time[9];
+    char hs[4];
+    *stream >> nToReadIndex >> totalBytes >> nToRead;
+    stream->readRawData(date, 12);
+    stream->readRawData(time, 9);
+    stream->readRawData(hs, 4);
 
-    int expectedLength;
-    if (parent.getSettings().value("dataPoints", 50).toInt())
-        expectedLength = 513;
-    else
-        expectedLength = 265;
+    QString fullString(date);
+    fullString.append(time);
+    fullString.append(hs);
 
-    char a[expectedLength];
-    int r = stream->readRawData(a, expectedLength);
-    QByteArray array(a,expectedLength);
+    QDateTime dt = QDateTime::fromString(fullString, "dd-MMM-yyyyHH:mm:ss.z");
 
-    return new SonarReturnData(array);
+    stream->skipRawData(100 - 33);
+
+    logger->trace("totalBytes=" + QString::number(totalBytes));
+    logger->trace("nToReadIndex=" + QString::number(nToReadIndex));
+    logger->trace("nToRead=" + QString::number(nToRead));
+    logger->trace("DateTime=" + dt.toString("ddd MMM d yyyy HH:mm:ss.zzz"));
+
+    char remainingData[totalBytes - 100];
+    stream->readRawData(remainingData, totalBytes - 100);
+    QByteArray remainingDataArray(remainingData, totalBytes - 100);
+
+    // chop of trailing zero fill
+    remainingDataArray.chop(totalBytes - 100 - nToRead);
+
+    logger->trace("Read packet with content " + (QString)remainingDataArray.toHex());
+
+    SleeperThread::msleep(500);
+    return new SonarReturnData(remainingDataArray, dt);
 }
 

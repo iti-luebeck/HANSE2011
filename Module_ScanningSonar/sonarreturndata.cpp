@@ -1,8 +1,16 @@
 #include "sonarreturndata.h"
+#include "QtCore"
 
-SonarReturnData::SonarReturnData(QByteArray &returnDataPacket)
+SonarReturnData::SonarReturnData(QByteArray& returnDataPacket, QDateTime& date)
 {
     this->packet = returnDataPacket;
+    dateTime = date;
+}
+
+SonarReturnData::SonarReturnData(QByteArray& returnDataPacket)
+{
+    this->packet = returnDataPacket;
+    dateTime = QDateTime::currentDateTime();
 }
 
 QByteArray SonarReturnData::getEchoData()
