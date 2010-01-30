@@ -3,11 +3,13 @@
 
 #include "Module_ScanningSonar_global.h"
 #include "robotmodule.h"
+#include <sonarreturndata.h>
 #include <QtCore>
 
 class QextSerialPort;
-class SonarReturnData;
+//class SonarReturnData;
 class SonarDataSource;
+class SonarDataRecorder;
 
 class MODULE_SCANNINGSONARSHARED_EXPORT Module_ScanningSonar : public RobotModule {
     Q_OBJECT
@@ -47,12 +49,13 @@ public slots:
     //void enabled(bool value);
 
 signals:
-    void newSonarData(void);
+    void newSonarData(SonarReturnData data);
 
 private:
     ThreadedReader reader;
     QTimer timer;
     SonarDataSource* source;
+    SonarDataRecorder* recorder;
 
 };
 

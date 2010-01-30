@@ -1,10 +1,11 @@
 #ifndef SONARRETURNDATA_H
 #define SONARRETURNDATA_H
 
+#include <Module_ScanningSonar_global.h>
 #include <QtCore>
 #include <QtGui>
 
-class SonarReturnData : public QObject
+class MODULE_SCANNINGSONARSHARED_EXPORT SonarReturnData : public QObject
 {
 public:
     enum HeaderType
@@ -30,6 +31,9 @@ public:
     SonarReturnData(QByteArray& returnDataPacket, QDateTime& date);
 
     SonarReturnData(QByteArray& returnDataPacket);
+
+    SonarReturnData();
+    SonarReturnData(const SonarReturnData& c);
 
     /**
       * Checks if this packet is valid, i.e. if the packet fulfills the spec

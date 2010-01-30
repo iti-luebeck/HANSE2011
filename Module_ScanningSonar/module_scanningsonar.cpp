@@ -5,6 +5,7 @@
 #include <sonarreturndata.h>
 #include <sonardatasourceserial.h>
 #include <sonardatasourcefile.h>
+#include <sonardatarecorder.h>
 
 Module_ScanningSonar::Module_ScanningSonar(QString id)
     : reader(this), RobotModule(id)
@@ -21,6 +22,13 @@ Module_ScanningSonar::Module_ScanningSonar(QString id)
     setDefaultValue("switchDelay", 0);
     setDefaultValue("frequency", 0);
     setDefaultValue("readFromFile", false);
+    setDefaultValue("recorderFilename", "output.txt");
+    setDefaultValue("fileReaderDelay", 100);
+
+    qRegisterMetaType<SonarReturnData>("SonarReturnData");
+    recorder = new SonarDataRecorder(*this);
+    recorder->start();
+    connect(this, SIGNAL(newSonarData(SonarReturnData)), recorder, SLOT(newData(SonarReturnData)));
 
     if (settings.value("readFromFile").toBool())
         source = new SonarDataSourceFile(*this, settings.value("filename").toString());
@@ -52,6 +60,7 @@ void Module_ScanningSonar::terminate()
     logger->debug("Waiting for Sonar Reading Thread to terminate.");
     reader.wait();
     logger->debug("Finished.");
+    recorder->stop();
 }
 
 void Module_ScanningSonar::ThreadedReader::run(void)
@@ -72,7 +81,7 @@ void Module_ScanningSonar::doNextScan()
 
     if (d && d->isPacketValid()) {
         data.append(d);
-        emit newSonarData();
+        emit newSonarData(*d);
     } else {
         logger->warn("Received bullshit. Dropping packet.");
     }

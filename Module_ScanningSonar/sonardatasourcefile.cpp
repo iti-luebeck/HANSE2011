@@ -14,7 +14,7 @@ QThread::msleep(msecs);
 SonarDataSourceFile::SonarDataSourceFile(Module_ScanningSonar& parent, QString path)
     : SonarDataSource(parent)
 {
-    logger = Log4Qt::Logger::logger("sonar");
+    logger = Log4Qt::Logger::logger("SonarFileReader");
 
     this->file = new QFile(path);
     file->open(QIODevice::ReadOnly);
@@ -66,7 +66,7 @@ SonarReturnData* SonarDataSourceFile::getNextPacket()
 
     logger->trace("Read packet with content " + (QString)remainingDataArray.toHex());
 
-    SleeperThread::msleep(500);
+    SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
     return new SonarReturnData(remainingDataArray, dt);
 }
 

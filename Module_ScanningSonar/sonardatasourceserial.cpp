@@ -15,7 +15,7 @@ QThread::msleep(msecs);
 SonarDataSourceSerial::SonarDataSourceSerial(Module_ScanningSonar& parent, QString port)
     : SonarDataSource(parent)
 {
-    logger = Log4Qt::Logger::logger("sonar");
+    logger = Log4Qt::Logger::logger("SonarSerialReader");
     configurePort();
 }
 

@@ -11,14 +11,16 @@ SOURCES += module_scanningsonar.cpp \
     sonarreturndata.cpp \
     sonardatasource.cpp \
     sonardatasourceserial.cpp \
-    sonardatasourcefile.cpp
+    sonardatasourcefile.cpp \
+    sonardatarecorder.cpp
 HEADERS += module_scanningsonar.h \
     Module_ScanningSonar_global.h \
     form.h \
     sonarreturndata.h \
     sonardatasource.h \
     sonardatasourceserial.h \
-    sonardatasourcefile.h
+    sonardatasourcefile.h \
+    sonardatarecorder.h
 DESTDIR = ../build
 LIBPATH += ../build
 INCLUDEPATH += ../Framework

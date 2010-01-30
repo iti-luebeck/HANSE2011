@@ -1,6 +1,16 @@
 #include "sonarreturndata.h"
 #include "QtCore"
 
+SonarReturnData::SonarReturnData()
+{
+}
+
+SonarReturnData::SonarReturnData(const SonarReturnData& c)
+    : QObject()
+{
+    this->packet = c.packet;
+    dateTime = c.dateTime;
+}
 SonarReturnData::SonarReturnData(QByteArray& returnDataPacket, QDateTime& date)
 {
     this->packet = returnDataPacket;

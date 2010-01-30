@@ -11,7 +11,7 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
 
     this->ui->graphicsView->setScene(&scene);
 
-    connect(sonar, SIGNAL(newSonarData()), this, SLOT(updateSonarView()));
+    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(updateSonarView(SonarReturnData)));
 
     ui->serialPort->setText(sonar->getSettings().value("serialPort").toString());
     ui->frequency->setText(sonar->getSettings().value("frequency").toString());
@@ -22,8 +22,10 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     ui->stepSize->setValue(sonar->getSettings().value("stepSize").toInt());
     ui->switchDelay->setText(sonar->getSettings().value("switchDelay").toString());
     ui->trainAngle->setText(sonar->getSettings().value("trainAngle").toString());
-    ui->checkBox->setChecked(sonar->getSettings().value("readFromFile").toBool());
+
+    ui->readFileCheckbox->setChecked(sonar->getSettings().value("readFromFile").toBool());
     ui->fileName->setText(sonar->getSettings().value("filename").toString());
+    ui->recorderFilename->setText(sonar->getSettings().value("recorderFilename").toString());
 }
 
 Form::~Form()
@@ -43,20 +45,19 @@ void Form::changeEvent(QEvent *e)
     }
 }
 
-void Form::updateSonarView()
+void Form::updateSonarView(SonarReturnData data)
 {
-    SonarReturnData* data = sonar->data[sonar->data.length()-1];
     QGraphicsItem* it = scene.addText("");
 
     int th = 50;
-    int r = data->getRange();
-    for (int i = 0; i < data->getEchoData().length(); ++i) {
-        char b = data->getEchoData()[i];
+    int r = data.getRange();
+    for (int i = 0; i < data.getEchoData().length(); ++i) {
+        char b = data.getEchoData()[i];
         if (b>th)
             QGraphicsEllipseItem *point = new QGraphicsEllipseItem(0,i, 1,1,it);
     }
 
-    it->setRotation(data->getHeadPosition());
+    it->setRotation(data.getHeadPosition());
 }
 
 void Form::on_save_clicked()
@@ -70,8 +71,18 @@ void Form::on_save_clicked()
     sonar->getSettings().setValue("stepSize", ui->stepSize->value());
     sonar->getSettings().setValue("switchDelay", ui->switchDelay->text().toInt());
     sonar->getSettings().setValue("trainAngle", ui->trainAngle->text().toInt());
-    sonar->getSettings().setValue("readFromFile", ui->checkBox->isChecked());
-    sonar->getSettings().setValue("filename", ui->fileName->text());
+    sonar->reset();
+}
 
+void Form::on_pushButton_clicked()
+{
+
+}
+
+void Form::on_fileCfgApply_clicked()
+{
+    sonar->getSettings().setValue("recorderFilename", ui->recorderFilename->text());
+    sonar->getSettings().setValue("readFromFile", ui->readFileCheckbox->isChecked());
+    sonar->getSettings().setValue("filename", ui->fileName->text());
     sonar->reset();
 }

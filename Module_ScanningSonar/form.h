@@ -24,8 +24,10 @@ private:
     QGraphicsScene scene;
 
 private slots:
+    void on_fileCfgApply_clicked();
+    void on_pushButton_clicked();
     void on_save_clicked();
-    void updateSonarView();
+    void updateSonarView(SonarReturnData data);
 };
 
 #endif // FORM_H
