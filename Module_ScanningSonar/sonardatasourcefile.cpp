@@ -29,6 +29,13 @@ SonarReturnData* SonarDataSourceFile::getNextPacket()
 {
     if (!stream) {
         logger->error("Stream not open!");
+        SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
+        return NULL;
+    }
+
+    if (stream->atEnd()) {
+        logger->error("Reached end of file!");
+        SleeperThread::msleep(1000);
         return NULL;
     }
 

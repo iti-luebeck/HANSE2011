@@ -22,10 +22,12 @@ private:
     Ui::Form *ui;
     Module_ScanningSonar* sonar;
     QGraphicsScene scene;
+    QMap<double, QGraphicsItem*> map;
+    QGraphicsItem* scanLine;
+
 
 private slots:
     void on_fileCfgApply_clicked();
-    void on_pushButton_clicked();
     void on_save_clicked();
     void updateSonarView(SonarReturnData data);
 };

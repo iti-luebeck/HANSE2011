@@ -10,6 +10,7 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     this->sonar = sonar;
 
     this->ui->graphicsView->setScene(&scene);
+    scanLine = scene.addLine(0,0,0,500, QPen(QColor("red")));
 
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(updateSonarView(SonarReturnData)));
 
@@ -27,6 +28,7 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     ui->fileName->setText(sonar->getSettings().value("filename").toString());
     ui->recorderFilename->setText(sonar->getSettings().value("recorderFilename").toString());
     ui->enableRecording->setChecked(sonar->getSettings().value("enableRecording").toBool());
+    ui->fileReaderDelay->setValue(sonar->getSettings().value("fileReaderDelay").toInt());
 
 }
 
@@ -51,6 +53,15 @@ void Form::updateSonarView(SonarReturnData data)
 {
     QGraphicsItem* it = scene.addText("");
 
+    // TODO: this won't work when the scanning parameters are changed at runtime
+    if (map.contains(data.getHeadPosition())) {
+        scene.removeItem(map[data.getHeadPosition()]);
+        map.remove(data.getHeadPosition());
+        // TODO: do i have to free this?
+    }
+
+    map[data.getHeadPosition()] = it;
+
     int th = 50;
     int r = data.getRange();
     for (int i = 0; i < data.getEchoData().length(); ++i) {
@@ -59,6 +70,7 @@ void Form::updateSonarView(SonarReturnData data)
             QGraphicsEllipseItem *point = new QGraphicsEllipseItem(0,i, 1,1,it);
     }
 
+    scanLine->setRotation(data.getHeadPosition());
     it->setRotation(data.getHeadPosition());
 }
 
@@ -76,16 +88,12 @@ void Form::on_save_clicked()
     sonar->reset();
 }
 
-void Form::on_pushButton_clicked()
-{
-
-}
-
 void Form::on_fileCfgApply_clicked()
 {
     sonar->getSettings().setValue("recorderFilename", ui->recorderFilename->text());
     sonar->getSettings().setValue("readFromFile", ui->readFileCheckbox->isChecked());
     sonar->getSettings().setValue("filename", ui->fileName->text());
+    sonar->getSettings().setValue("fileReaderDelay", ui->fileReaderDelay->value());
     sonar->getSettings().setValue("enableRecording", ui->enableRecording->isChecked());
     sonar->reset();
 }
