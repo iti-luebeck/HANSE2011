@@ -19,7 +19,6 @@ public:
 
 public slots:
     void newData(SonarReturnData data);
-    void setEnabled(bool enabled);
 
 private:
     Module_ScanningSonar& sonar;

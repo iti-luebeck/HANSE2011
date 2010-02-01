@@ -37,11 +37,21 @@ public:
       */
     virtual QList<RobotModule*> getDependencies() = 0;
 
+    /**
+      * Returns true if this module is currently enabled
+      */
+    bool isEnabled();
+
+    /**
+      * The settings of this module
+      */
+    QSettings& getSettings();
+
 signals:
     /**
       * Sends a signal when this module gets activated/deactivated
       */
-    void isEnabled(bool value);
+    void enabled(bool value);
 
 public slots:
 
@@ -67,11 +77,9 @@ public slots:
     virtual void terminate() = 0;
 
     /**
-      * Enabled/disables this module
+      * Enable/disable this module
       */
-    void enabled(bool value);
-
-    QSettings& getSettings();
+    void setEnabled(bool value);
 
 protected:
     /**

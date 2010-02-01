@@ -19,21 +19,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < list.size(); ++i) {
         RobotModule* m = list.at(i);
+
+        // create widget
         QWidget* w = m->createView(ui->tabWidget);
         ui->tabWidget->addTab(w, m->getTabName());
 
-        // TODO: free action later
-        QAction *action = new QAction(m->getTabName(), ui->menuReset);
-        ui->menuReset->addAction(action);
-        connect(action, SIGNAL(triggered()), m, SLOT(reset()));
+        // TODO: free actions later
+
+        QAction *actionReset = new QAction(m->getTabName(), ui->menuReset);
+        ui->menuReset->addAction(actionReset);
+        connect(actionReset, SIGNAL(triggered()), m, SLOT(reset()));
         connect(ui->actionAll_Modules, SIGNAL(triggered()), m, SLOT(reset()));
 
-        QAction *action2 = new QAction(m->getTabName(), ui->menuEnabled);
-        action2->setCheckable(true);
-        ui->menuEnabled->addAction(action2);
-        connect(action2, SIGNAL(triggered(bool)), m, SLOT(enabled(bool)));
-        connect(m, SIGNAL(isEnabled(bool)), action2, SLOT(setChecked(bool)));
-        // TODO: enable/disable all
+        QAction *actionEnabled = new QAction(m->getTabName(), ui->menuEnabled);
+        actionEnabled->setCheckable(true);
+        ui->menuEnabled->addAction(actionEnabled);
+        actionEnabled->setChecked(m->isEnabled());
+        connect(actionEnabled, SIGNAL(triggered(bool)), m, SLOT(setEnabled(bool)));
+        connect(m, SIGNAL(enabled(bool)), actionEnabled, SLOT(setChecked(bool)));
     }
 
     connect(ui->actionDisable_All, SIGNAL(triggered()), this, SLOT(disableAll()));
@@ -89,7 +92,7 @@ void MainWindow::disableAll()
     for (int i = 0; i < list.size(); ++i) {
         RobotModule* m = list.at(i);
 
-        m->enabled(false);
+        m->setEnabled(false);
     }
 }
 
@@ -101,6 +104,6 @@ void MainWindow::enableAll()
     for (int i = 0; i < list.size(); ++i) {
         RobotModule* m = list.at(i);
 
-        m->enabled(true);
+        m->setEnabled(true);
     }
 }

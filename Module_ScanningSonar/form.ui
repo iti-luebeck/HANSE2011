@@ -31,7 +31,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Configuration</string>
+       <string>SonarCfg</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <property name="fieldGrowthPolicy">
@@ -145,7 +145,7 @@
        <item row="14" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Dats Points</string>
+          <string>Data Points</string>
          </property>
         </widget>
        </item>
@@ -216,10 +216,17 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QPushButton" name="fileCfgApply">
          <property name="text">
           <string>Apply</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QCheckBox" name="enableRecording">
+         <property name="text">
+          <string>Enable recording</string>
          </property>
         </widget>
        </item>

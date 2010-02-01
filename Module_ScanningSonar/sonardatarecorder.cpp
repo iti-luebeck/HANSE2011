@@ -26,11 +26,14 @@ void SonarDataRecorder::stop()
 
 void SonarDataRecorder::newData(SonarReturnData data)
 {
-    logger->debug("Writing packet to file");
-    *stream << data.getRange() << "," << data.getHeadPosition();
-    for (int i=0; i<data.getEchoData().length(); i++) {
-        *stream << "," << (int)data.getEchoData().at(i);
+    if (sonar.getSettings().value("enableRecording").toBool()) {
+
+        logger->debug("Writing packet to file");
+        *stream << data.getRange() << "," << data.getHeadPosition();
+        for (int i=0; i<data.getEchoData().length(); i++) {
+            *stream << "," << (int)data.getEchoData().at(i);
+        }
+        *stream << "\n";
+        stream->flush();
     }
-    *stream << "\n";
-    stream->flush();
 }

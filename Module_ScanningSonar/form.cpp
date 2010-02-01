@@ -26,6 +26,8 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     ui->readFileCheckbox->setChecked(sonar->getSettings().value("readFromFile").toBool());
     ui->fileName->setText(sonar->getSettings().value("filename").toString());
     ui->recorderFilename->setText(sonar->getSettings().value("recorderFilename").toString());
+    ui->enableRecording->setChecked(sonar->getSettings().value("enableRecording").toBool());
+
 }
 
 Form::~Form()
@@ -84,5 +86,6 @@ void Form::on_fileCfgApply_clicked()
     sonar->getSettings().setValue("recorderFilename", ui->recorderFilename->text());
     sonar->getSettings().setValue("readFromFile", ui->readFileCheckbox->isChecked());
     sonar->getSettings().setValue("filename", ui->fileName->text());
+    sonar->getSettings().setValue("enableRecording", ui->enableRecording->isChecked());
     sonar->reset();
 }

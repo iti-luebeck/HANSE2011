@@ -46,7 +46,6 @@ public slots:
 public slots:
     void reset();
     void terminate();
-    //void enabled(bool value);
 
 signals:
     void newSonarData(SonarReturnData data);
