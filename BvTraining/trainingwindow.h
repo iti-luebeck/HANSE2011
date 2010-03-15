@@ -2,6 +2,8 @@
 #define TRAININGWINDOW_H
 
 #include <QMainWindow>
+#include "imageprocessor.h"
+#include "SVMClassifier.h"
 
 namespace Ui {
     class TrainingWindow;
@@ -19,7 +21,15 @@ protected:
 private:
     Ui::TrainingWindow *ui;
 
+    QString videoFile;
+    ImageProcessor ip;
+    QList<int> frameList;
+    SVMClassifier *svm;
+
 private slots:
+    void on_testButton_clicked();
+    void on_selectButton_clicked();
+    void on_loadButton_clicked();
     void on_trainButton_clicked();
 };
 
