@@ -38,7 +38,14 @@ void TrainingWindow::changeEvent(QEvent *e)
 
 void TrainingWindow::on_trainButton_clicked()
 {
-    blobTraining.train(videoFile);
+    if (ui->blobRadioButton->isChecked())
+    {
+        blobTraining.train(frameList, videoFile);
+    }
+    else if (ui->surfRadioButton->isChecked())
+    {
+        surfTraining.train(frameList, videoFile);
+    }
 }
 
 void TrainingWindow::on_loadButton_clicked()
@@ -48,22 +55,77 @@ void TrainingWindow::on_loadButton_clicked()
 
 void TrainingWindow::on_selectButton_clicked()
 {
-    blobTraining.select(videoFile);
+    Mat frame;
+    VideoCapture vc(videoFile.toStdString());
+    if (vc.isOpened())
+    {
+        frameList.clear();
+
+        namedWindow("Press [s] to select image", 1);
+        bool running = true;
+        while (running)
+        {
+            vc >> frame;
+            if (!frame.empty())
+            {
+                imshow("Press [s] to select image", frame);
+                int key = waitKey(500);
+                switch (key)
+                {
+                case 'q':
+                    running = false;
+                    break;
+                case 's':
+                    frameList.append((int) vc.get(CV_CAP_PROP_POS_FRAMES));
+                    break;
+                case '+':
+                    vc.set(CV_CAP_PROP_POS_FRAMES, vc.get(CV_CAP_PROP_POS_FRAMES) + 10);
+                    break;
+                case '-':
+                    vc.set(CV_CAP_PROP_POS_FRAMES, vc.get(CV_CAP_PROP_POS_FRAMES) - 10);
+                    break;
+                }
+            }
+        }
+    }
+    vc.release();
+    cvDestroyWindow("Press [s] to select image");
 }
 
 void TrainingWindow::on_testButton_clicked()
 {
-    blobTraining.test(videoFile);
+    if (ui->blobRadioButton->isChecked())
+    {
+        blobTraining.test(videoFile);
+    }
+    else if (ui->surfRadioButton->isChecked())
+    {
+        surfTraining.test(videoFile);
+    }
 }
 
 void TrainingWindow::on_loadBlobButton_clicked()
 {
-    QString loadFile = QFileDialog::getOpenFileName(this, tr("Save Classifier"), "", tr("Classifier Files (*.xml)"));
-    blobTraining.load(loadFile);
+    QString loadFile = QFileDialog::getOpenFileName(this, tr("Load Classifier"), "", tr("Classifier Files (*.xml)"));
+    if (ui->blobRadioButton->isChecked())
+    {
+        blobTraining.load(loadFile);
+    }
+    else if (ui->surfRadioButton->isChecked())
+    {
+        surfTraining.load(loadFile);
+    }
 }
 
 void TrainingWindow::on_saveBlobButton_clicked()
 {
     QString saveFile = QFileDialog::getSaveFileName(this, tr("Save Classifier"), "", tr("Classifier Files (*.xml)"));
-    blobTraining.save(saveFile);
+    if (ui->blobRadioButton->isChecked())
+    {
+        blobTraining.save(saveFile);
+    }
+    else if (ui->surfRadioButton->isChecked())
+    {
+        surfTraining.save(saveFile);
+    }
 }

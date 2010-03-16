@@ -3,30 +3,18 @@
 #include <highgui.h>
 #include <blob.h>
 #include <BlobResult.h>
+#include "helpers.h"
 
 ImageProcessor::ImageProcessor()
 {
-}
-
-void ImageProcessor::my_convert(Mat rgb, Mat &gray)
-{
-
-    for (int i = 0; i < rgb.rows; i++)
-    {
-        for (int j = 0; j < rgb.cols; j++)
-        {
-            Vec<unsigned char, 3> v = rgb.at<Vec<unsigned char, 3> >(i, j);
-            gray.at<unsigned char>(i, j) = 0.299 * v[0] + 0.587 * v[1] + 0.114 * v[2];
-        }
-    }
 }
 
 void ImageProcessor::threshold(Mat img, Mat &thresh)
 {
     // medianBlur(img, img, 3);
 
-    Mat imgGray(img.size(), CV_8UC1, Scalar(0));
-    my_convert(img, imgGray);
+    Mat imgGray;
+    Helpers::convertBGR2Gray(img, imgGray);
 
     thresh.create(imgGray.size(), CV_8UC1);
     thresh.setTo(Scalar(0));

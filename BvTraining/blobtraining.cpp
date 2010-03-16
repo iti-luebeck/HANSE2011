@@ -9,38 +9,7 @@ BlobTraining::BlobTraining()
 {
 }
 
-void BlobTraining::select(QString videoFile)
-{
-    Mat frame;
-    VideoCapture vc(videoFile.toStdString());
-    if (vc.isOpened())
-    {
-        frameList.clear();
-
-        namedWindow("Press [s] to select image", 1);
-        while (true)
-        {
-            vc >> frame;
-            if (!frame.empty())
-            {
-                imshow("Press [s] to select image", frame);
-                int key = waitKey(500);
-                if (key == 'q')
-                {
-                    break;
-                }
-                else if (key == 's')
-                {
-                    frameList.append((int) vc.get(CV_CAP_PROP_POS_FRAMES));
-                }
-            }
-        }
-    }
-    vc.release();
-    cvDestroyWindow("Press [s] to select image");
-}
-
-void BlobTraining::train(QString videoFile)
+void BlobTraining::train(QList<int> frameList, QString videoFile)
 {
     QList<Mat> featureList;
     QList<Mat> classesList;

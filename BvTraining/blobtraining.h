@@ -10,14 +10,12 @@ class BlobTraining
 {
 private:
     ImageProcessor ip;
-    QList<int> frameList;
     SVMClassifier svm;
 
 public:
     BlobTraining();
 
-    void select(QString videoFile);
-    void train(QString videoFile);
+    void train(QList<int> frameList, QString videoFile);
     void test(QString videoFile);
     void save(QString saveFile);
     void load(QString loadFile);

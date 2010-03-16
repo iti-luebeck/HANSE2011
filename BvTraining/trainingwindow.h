@@ -5,6 +5,7 @@
 #include "imageprocessor.h"
 #include "SVMClassifier.h"
 #include "blobtraining.h"
+#include "surftraining.h"
 
 namespace Ui {
     class TrainingWindow;
@@ -23,7 +24,9 @@ private:
     Ui::TrainingWindow *ui;
 
     QString videoFile;
+    QList<int> frameList;
     BlobTraining blobTraining;
+    SurfTraining surfTraining;
 
 
 private slots:
