@@ -13,7 +13,7 @@ public:
 
     void my_convert(Mat rgb, Mat &gray);
     void threshold(Mat img, Mat &thresh);
-    void features(Mat &thresh, Mat &features, SVMClassifier *svm);
+    void features(Mat &thresh, Mat &features, SVMClassifier &svm);
     void features(Mat &thresh, Mat &features, Mat &classes);
 };
 

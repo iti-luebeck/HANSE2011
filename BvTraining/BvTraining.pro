@@ -12,7 +12,7 @@ SOURCES += main.cpp \
     Blobs/BlobOperators.cpp \
     Blobs/BlobContour.cpp \
     Blobs/blob.cpp \
-    imageselector.cpp
+    blobtraining.cpp
 HEADERS += trainingwindow.h \
     imageprocessor.h \
     SVMClassifier.h \
@@ -23,7 +23,7 @@ HEADERS += trainingwindow.h \
     Blobs/BlobLibraryConfiguration.h \
     Blobs/BlobContour.h \
     Blobs/blob.h \
-    imageselector.h
+    blobtraining.h
 FORMS += trainingwindow.ui
 DESTDIR = ../build
 INCLUDEPATH += "..\OpenCV\include\opencv" \

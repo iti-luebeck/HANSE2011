@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "imageprocessor.h"
 #include "SVMClassifier.h"
+#include "blobtraining.h"
 
 namespace Ui {
     class TrainingWindow;
@@ -22,11 +23,12 @@ private:
     Ui::TrainingWindow *ui;
 
     QString videoFile;
-    ImageProcessor ip;
-    QList<int> frameList;
-    SVMClassifier *svm;
+    BlobTraining blobTraining;
+
 
 private slots:
+    void on_saveBlobButton_clicked();
+    void on_loadBlobButton_clicked();
     void on_testButton_clicked();
     void on_selectButton_clicked();
     void on_loadButton_clicked();

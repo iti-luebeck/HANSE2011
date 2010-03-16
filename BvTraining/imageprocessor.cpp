@@ -68,7 +68,7 @@ void ImageProcessor::features(Mat &thresh, Mat &features, Mat &classes)
     }
 }
 
-void ImageProcessor::features(Mat &thresh, Mat &features, SVMClassifier *svm)
+void ImageProcessor::features(Mat &thresh, Mat &features, SVMClassifier &svm)
 {
     IplImage *iplThresh = new IplImage(thresh);
     IplImage *disp = cvCreateImage(cvSize(iplThresh->width, iplThresh->height), IPL_DEPTH_8U, 3);
@@ -89,7 +89,7 @@ void ImageProcessor::features(Mat &thresh, Mat &features, SVMClassifier *svm)
         }
 
         CvMat *f = new CvMat(features);
-        CvMat *c = svm->classify(f);
+        CvMat *c = svm.classify(f);
 
         for (int i = 0; i < blobs.GetNumBlobs(); i++)
         {
