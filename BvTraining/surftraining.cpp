@@ -16,7 +16,7 @@ SurfTraining::SurfTraining()
 void SurfTraining::train(QList<int> frameList, QString videoFile)
 {
     QList<Mat> featureList;
-    SURF surf(2.0);
+    SURF surf(4.0);
 
     VideoCapture vc(videoFile.toStdString());
     if (vc.isOpened())
@@ -34,24 +34,20 @@ void SurfTraining::train(QList<int> frameList, QString videoFile)
                 vector<KeyPoint> keyPoints;
                 vector<float> descriptors;
 
-                IplImage *iplFrame = new IplImage(frame);
-                IplImage *bla = cvCreateImage(cvSize(iplFrame->width, iplFrame->height), IPL_DEPTH_8U, 1);
-                cvCvtColor(iplFrame, bla, CV_BGR2GRAY);
-                cvShowImage("Image", bla);
-
                 Helpers::convertBGR2Gray(frame, frameGray);
 
                 surf(frameGray, Mat::ones(frameGray.size(), CV_8UC1), keyPoints, descriptors);
 
                 for (int i = 0; i < keyPoints.size(); i++)
                 {
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y), 10, Scalar(0,0,255), 1, CV_FILLED);
+                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y), keyPoints[i].size, Scalar(0,0,255), 2, CV_FILLED);
                 }
-                imshow("Image", frame);
 
                 //featureList.append(features);
                 //totalFeatures += features.rows;
             }
+            imshow("Image", frame);
+            waitKey();
         }
     }
     vc.release();
