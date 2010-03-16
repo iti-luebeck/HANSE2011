@@ -3,9 +3,14 @@
 
 #include <QString>
 #include <QList>
+#include <cxcore.h>
+
+using namespace cv;
 
 class SurfTraining
 {
+private:
+    Mat features;
 public:
     SurfTraining();
 

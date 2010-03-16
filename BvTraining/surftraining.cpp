@@ -6,8 +6,10 @@
 #include "helpers.h"
 #include "surf/surflib.h"
 #include <iostream>
+#include <vector>
 
 using namespace cv;
+using namespace std;
 
 SurfTraining::SurfTraining()
 {
@@ -16,7 +18,7 @@ SurfTraining::SurfTraining()
 void SurfTraining::train(QList<int> frameList, QString videoFile)
 {
     QList<Mat> featureList;
-    SURF surf(4.0);
+    SURF surf(500.0);
 
     VideoCapture vc(videoFile.toStdString());
     if (vc.isOpened())
@@ -40,14 +42,40 @@ void SurfTraining::train(QList<int> frameList, QString videoFile)
 
                 for (int i = 0; i < keyPoints.size(); i++)
                 {
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y), keyPoints[i].size, Scalar(0,0,255), 2, CV_FILLED);
+                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(255,0,0), 1, CV_FILLED);
+                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(255,0,0), 2, CV_FILLED);
                 }
 
-                //featureList.append(features);
-                //totalFeatures += features.rows;
+                for (int i = 0; i < keyPoints.size(); i++)
+                {
+                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(0,0,255), 1, CV_FILLED);
+                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(0,0,255), 2, CV_FILLED);
+
+                    imshow("Image", frame);
+
+                    int key = waitKey();
+                    if (key == 's')
+                    {
+                        Mat feature(64, 1, CV_32F);
+                        for (int k = i*64; k < (i+1)*64; k++)
+                        {
+                            feature.at<float>(k % 64, 0) = descriptors[k];
+                        }
+
+                        featureList.append(feature);
+                    }
+
+                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(255,0,0), 1, CV_FILLED);
+                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(255,0,0), 2, CV_FILLED);
+                }
             }
-            imshow("Image", frame);
-            waitKey();
+        }
+
+        features.create(64, featureList.count(), CV_32F);
+        features.setTo(Scalar(0));
+        for (int i = 0; i < featureList.count(); i++)
+        {
+            features.col(i) = features.col(i) + featureList.at(i);
         }
     }
     vc.release();
@@ -60,6 +88,8 @@ void SurfTraining::test(QString videoFile)
 
 void SurfTraining::save(QString saveFile)
 {
+    FileStorage storage(saveFile.toStdString(), CV_STORAGE_WRITE);
+    storage.writeObj("Matrix", new CvMat(features));
 }
 
 void SurfTraining::load(QString loadFile)
