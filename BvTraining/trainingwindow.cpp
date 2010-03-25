@@ -100,6 +100,17 @@ void TrainingWindow::on_testButton_clicked()
     }
     else if (ui->surfRadioButton->isChecked())
     {
+        bool ok;
+        double thresh = ui->threshEdit->text().toDouble(&ok);
+        if (ok)
+        {
+            surfTraining.setThresh(thresh);
+        }
+        else
+        {
+            qDebug("Threshold ist kein double.");
+            surfTraining.setThresh(0.7);
+        }
         surfTraining.test(videoFile);
     }
 }

@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     surf/surf.cpp \
     surf/ipoint.cpp \
     surf/integral.cpp \
-    surf/fasthessian.cpp
+    surf/fasthessian.cpp \
+    surfclassifier.cpp
 HEADERS += trainingwindow.h \
     imageprocessor.h \
     SVMClassifier.h \
@@ -42,7 +43,8 @@ HEADERS += trainingwindow.h \
     surf/kmeans.h \
     surf/ipoint.h \
     surf/integral.h \
-    surf/fasthessian.h
+    surf/fasthessian.h \
+    surfclassifier.h
 FORMS += trainingwindow.ui
 DESTDIR = ../build
 INCLUDEPATH += "..\OpenCV\include\opencv" \

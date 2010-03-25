@@ -4,6 +4,7 @@
 #include <QString>
 #include <QList>
 #include <cxcore.h>
+#include "surfclassifier.h"
 
 using namespace cv;
 
@@ -11,6 +12,9 @@ class SurfTraining
 {
 private:
     Mat features;
+    SURFClassifier sc;
+    double thresh;
+
 public:
     SurfTraining();
 
@@ -18,6 +22,8 @@ public:
     void test(QString videoFile);
     void save(QString saveFile);
     void load(QString loadFile);
+
+    void setThresh(double thresh);
 };
 
 #endif // SURFTRAINING_H

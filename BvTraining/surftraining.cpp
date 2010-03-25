@@ -42,16 +42,11 @@ void SurfTraining::train(QList<int> frameList, QString videoFile)
 
                 for (int i = 0; i < keyPoints.size(); i++)
                 {
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(255,0,0), 1, CV_FILLED);
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(255,0,0), 2, CV_FILLED);
-                }
+                    Mat temp = frame.clone();
+                    circle(temp, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(0,0,255), 1, CV_FILLED);
+                    circle(temp, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(0,0,255), 2, CV_FILLED);
 
-                for (int i = 0; i < keyPoints.size(); i++)
-                {
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(0,0,255), 1, CV_FILLED);
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(0,0,255), 2, CV_FILLED);
-
-                    imshow("Image", frame);
+                    imshow("Image", temp);
 
                     int key = waitKey();
                     if (key == 's')
@@ -64,9 +59,6 @@ void SurfTraining::train(QList<int> frameList, QString videoFile)
 
                         featureList.append(feature);
                     }
-
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(255,0,0), 1, CV_FILLED);
-                    circle(frame, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(255,0,0), 2, CV_FILLED);
                 }
             }
         }
@@ -84,14 +76,54 @@ void SurfTraining::train(QList<int> frameList, QString videoFile)
 
 void SurfTraining::test(QString videoFile)
 {
+    QList<Mat> objects;
+    objects.append(features);
+    sc.setObjects(objects);
+    sc.setThresh(thresh);
+
+    VideoCapture vc(videoFile.toStdString());
+    if (vc.isOpened())
+    {
+        namedWindow("Image", 1);
+        for (;;)
+        {
+            Mat frame;
+            vc >> frame;
+            if (!frame.empty())
+            {
+                QList<FoundObject> matches;
+                sc.classify(frame, matches);
+                for (int i = 0; i < matches.size(); i++)
+                {
+                    rectangle(frame, Point(matches.at(i).left, matches.at(i).top),
+                              Point(matches.at(i).right, matches.at(i).bottom), Scalar(255,0,0), 5);
+                }
+                imshow("Image", frame);
+            }
+
+            int key = waitKey(200);
+            if (key == 'q') break;
+        }
+    }
+    vc.release();
+    cvDestroyWindow("Image");
 }
 
 void SurfTraining::save(QString saveFile)
 {
     FileStorage storage(saveFile.toStdString(), CV_STORAGE_WRITE);
     storage.writeObj("Matrix", new CvMat(features));
+    storage.release();
 }
 
 void SurfTraining::load(QString loadFile)
 {
+    FileStorage storage(loadFile.toStdString(), CV_STORAGE_READ);
+    storage.release();
+}
+
+
+void SurfTraining::setThresh(double thresh)
+{
+    SurfTraining::thresh = thresh;
 }
