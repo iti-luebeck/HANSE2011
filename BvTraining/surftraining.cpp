@@ -4,7 +4,6 @@
 #include <cxcore.h>
 #include <highgui.h>
 #include "helpers.h"
-#include "surf/surflib.h"
 #include <iostream>
 #include <vector>
 
