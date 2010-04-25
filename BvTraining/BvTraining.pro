@@ -35,13 +35,13 @@ HEADERS += trainingwindow.h \
     surfclassifier.h
 FORMS += trainingwindow.ui
 DESTDIR = ../build
-INCLUDEPATH += "..\OpenCV\include\opencv" \
-    "..\OpenCV\include\blobs"
-LIBPATH += "..\OpenCV\lib"
+INCLUDEPATH += "../OpenCV/include/opencv" \
+    "../OpenCV\include/blobs"
+LIBPATH += "../OpenCV/lib"
 LIBPATH += ../build
-LIBS += -lcv200 \
-    -lcxcore200 \
-    -lcvaux200 \
-    -lml200 \
-    -lcxts200 \
-    -lhighgui200
+LIBS += -lcv210 \
+    -lcxcore210 \
+    -lcvaux210 \
+    -lml210 \
+    -lcxts210 \
+    -lhighgui210
