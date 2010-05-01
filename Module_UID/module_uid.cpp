@@ -1,14 +1,7 @@
-#include "module_uid.h"
 
-#include <iostream>
-#include <form_uid.h>
-#include <qextserialenumerator.h>
-#include <qextserialport.h>
-#include <string>
-#include <QtCore/QObject>
-#include <QVector>
-#include <QString>
-#include <QtGlobal>
+#include <QtCore>
+#include "module_uid.h"
+#include "form_uid.h"
 #include "QtUID.h"
 
 Module_UID::Module_UID(QString moduleId)
