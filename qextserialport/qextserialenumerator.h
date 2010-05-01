@@ -64,7 +64,14 @@ class QextSerialEnumerator
 			static void setupAPIScan(QList<QextPortInfo> & infoList);
 		#endif /*_TTY_WIN_*/
 
-	public:
+                #ifdef _TTY_POSIX_
+                        /**
+                          * Return a list of all serial ports found. This search is really hacky
+                          * and may not find all ports and possible some extra ones.
+                          */
+                        static QList<QextPortInfo> enumLinuxPorts();
+                #endif /*_TTY_POSIX_*/
+        public:
 		/*!
 		 * Get list of ports.
 		 * 	\return list of ports currently available in the system.

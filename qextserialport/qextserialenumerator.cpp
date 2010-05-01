@@ -3,7 +3,9 @@
  * @author Michał Policht
  * @see QextSerialEnumerator
  */
- 
+
+#include <QtCore>
+
 #include "qextserialenumerator.h"
 
 #ifdef _TTY_WIN_
@@ -126,6 +128,30 @@
 
 #endif /*_TTY_WIN_*/
 
+#ifdef _TTY_POSIX_
+
+        //static
+        QList<QextPortInfo> QextSerialEnumerator::enumLinuxPorts()
+        {
+            QList<QextPortInfo> ports;
+
+            QDir dev("/dev", "", QDir::Name, QDir::System | QDir::CaseSensitive);
+            QStringList filters;
+            filters << "ttyUSB*" << "ttyS*";
+            dev.setNameFilters(filters);
+
+            QStringList nodes = dev.entryList();
+            foreach(QString node, nodes) {
+                QString fullPath = "/dev/"+node;
+                QextPortInfo info;
+                info.portName = fullPath;
+                ports.append(info);
+            }
+
+            return ports;
+        }
+
+#endif /* _TTY_POSIX_ */
 
 //static
 QList<QextPortInfo> QextSerialEnumerator::getPorts()
@@ -150,7 +176,7 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
 			setupAPIScan(ports);
 	#endif /*_TTY_WIN_*/
 	#ifdef _TTY_POSIX_
-		qCritical("Enumeration for POSIX systems is not implemented yet.");
+                return enumLinuxPorts();
 	#endif /*_TTY_POSIX_*/
 	
 	return ports;
