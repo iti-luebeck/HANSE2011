@@ -15,6 +15,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
+    healthModel = new HealthModel(&graph);
+
+    ui->healthView->setModel(healthModel);
+
     QList<RobotModule*> list = graph.getModules();
 
     for (int i = 0; i < list.size(); ++i) {

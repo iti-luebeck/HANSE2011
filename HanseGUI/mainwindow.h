@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include "modulesgraph.h"
+#include "healthmodel.h"
 
 namespace Ui {
     class MainWindow;
@@ -22,6 +23,7 @@ protected:
 private:
     Ui::MainWindow *ui;
     ModulesGraph graph;
+    HealthModel *healthModel;
     QSettings settings;
     void readSettings();
     void writeSettings();

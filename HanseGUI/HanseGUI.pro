@@ -20,9 +20,10 @@ LIBS += -lModule_ThrusterControlLoop
 LIBS += -lqextserialportd
 SOURCES += main.cpp \
     mainwindow.cpp \
-    modulesgraph.cpp
+    modulesgraph.cpp \
+    healthmodel.cpp
 HEADERS += mainwindow.h \
-    modulesgraph.h
+    modulesgraph.h \
+    healthmodel.h
 FORMS += mainwindow.ui
-
-unix:DEFINES   = _TTY_POSIX_
+unix:DEFINES = _TTY_POSIX_
