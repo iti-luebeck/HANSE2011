@@ -13,6 +13,8 @@ INCLUDEPATH += ../Module_Thruster
 LIBS += -lModule_Thruster
 INCLUDEPATH += ../Module_UID
 LIBS += -lModule_UID
+LIBS += -lModule_PressureSensor
+INCLUDEPATH += ../Module_PressureSensor
 LIBS += -lqextserialportd
 SOURCES += main.cpp \
     mainwindow.cpp \

@@ -3,6 +3,7 @@
 #include <module_scanningsonar.h>
 #include <module_uid.h>
 #include <module_thruster.h>
+#include <module_pressuresensor.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -26,6 +27,9 @@ void ModulesGraph::build()
     this->modules.append(thrusterLeft);
     Module_Thruster* thrusterDown = new Module_Thruster("thrusterDown",uid);
     this->modules.append(thrusterDown);
+
+    Module_PressureSensor* pressure = new Module_PressureSensor("pressure",uid);
+    this->modules.append(pressure);
 
     logger->info("Loading all Modules... Done");
 }
