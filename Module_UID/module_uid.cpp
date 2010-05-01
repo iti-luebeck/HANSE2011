@@ -26,6 +26,9 @@ Module_UID::~Module_UID()
 
 void Module_UID::reset()
 {
+    uid->ClosePort();
+    delete uid;
+    uid = new UID(settings.value("uidId").toString());
 }
 
 QList<RobotModule*> Module_UID::getDependencies()
