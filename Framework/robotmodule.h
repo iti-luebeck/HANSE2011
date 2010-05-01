@@ -56,7 +56,6 @@ signals:
       */
     void enabled(bool value);
 
-signals:
     void healthStatusChanged(HealthStatus data);
 
 public slots:
