@@ -5,8 +5,6 @@
 #include "Module_UID_global.h"
 #include "QtUID.h"
 
-#define DEFAULT_UID_ID "UID0001"
-
 class MODULE_UIDSHARED_EXPORT Module_UID : public RobotModule {
     Q_OBJECT
 public:

@@ -8,7 +8,7 @@ FormUID::FormUID(Module_UID* module, QWidget *parent) :
     ui->setupUi(this);
     this->module = module;
 
-    ui->uidId->setText(module->getSettings().value("uidId", DEFAULT_UID_ID).toString());
+    ui->uidId->setText(module->getSettings().value("uidId").toString());
 }
 
 FormUID::~FormUID()

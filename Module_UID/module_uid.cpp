@@ -14,7 +14,9 @@
 Module_UID::Module_UID(QString moduleId)
     :RobotModule(moduleId)
 {
-    uid = new UID(settings.value("uidId", DEFAULT_UID_ID).toString());
+    setDefaultValue("uidId", "UID0001");
+
+    uid = new UID(settings.value("uidId").toString());
 }
 
 Module_UID::~Module_UID()
