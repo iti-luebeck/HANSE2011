@@ -11,7 +11,7 @@ UID::UID(QString Id)
     portSettings.Parity = PAR_NONE;
     portSettings.StopBits = STOP_1;
     portSettings.FlowControl = FLOW_OFF;
-    portSettings.Timeout_Millisec = 200;
+    portSettings.Timeout_Millisec = 100;
 
     ScanForUIDs( Id );
 }
@@ -35,9 +35,10 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
         }
         port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, portSettings);
 
-        if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
+        //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
+        if ( !(port->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
             if (DEBUG) {
-                std::cout << "Could not connec" << std::endl;
+                std::cout << "Could not connect" << std::endl;
                 std::cout << port->errorString().toStdString() << std::endl;
             }
             port->close();
@@ -49,7 +50,7 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
         port->flush();
 
         if ( (port->write(sequence, 1)) == -1) {
-            if (DEBUG) std::cout << "Writing Opcode successfully" << std::endl;
+            if (DEBUG) std::cout << "Writing Opcode failed" << std::endl;
             port->close();
             continue;
         }
@@ -62,7 +63,7 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
             continue;
         }
 
-        if (QString::fromAscii(id,sizeof(id)) == Id) {
+        if (QString::fromAscii(id,sizeof(id)-1) == Id) {
             if (DEBUG) std::cout << "\nFound UID with id " << QString::fromAscii(id,8).toStdString() << " on " << ports.at(i).portName.toLocal8Bit().constData() << std::endl;
             UID_available = true;
             port->flush();
@@ -92,6 +93,7 @@ unsigned char UID::countBitsSet( unsigned char bitmask ) {
 
 bool UID::SendCommand(unsigned char* sequence, unsigned char length, int msec) {
     if ( (port->write( (const char*)sequence, length )) == -1 ) return false;
+    port->flush();
     return true;
 }
 
@@ -168,18 +170,34 @@ bool UID::I2C_Speed(UID::I2CSpeed speed) {
 }
 
 bool UID::I2C_TestSRF08Ready(unsigned char address) {
-    return true;
+    unsigned char sequence[] = {UID::I2C_TESTSRF08READY, address};
+    if (!SendCommand(sequence, sizeof(sequence), 0)) return false;
+    char res[] = {0x00};
+    if (port->read(res, 1) == -1) return false;
+    if (res[0]!=0) return true;
+    return false;
 }
 
 bool UID::I2C_Write(unsigned char address, unsigned char* data, short byteCount) {
-    unsigned char sequence[] = {UID::I2C_WRITE, address};
+    unsigned char sequence[] = {UID::I2C_WRITE, address, byteCount};
     if (!SendCommand(sequence, sizeof(sequence), 0)) return false;
     if (!SendCommand(data, byteCount, 0)) return false;
     return true;
 }
 
 bool UID::I2C_WriteRegister(unsigned char address, unsigned char reg, unsigned char* data, short byteCount) {
-    unsigned char sequence[] = {UID::I2C_WRITE, address, reg};
+    //unsigned char sequence[4+byteCount];// = {UID::I2C_WRITEREGISTER, address, reg, (unsigned char)byteCount};
+    unsigned char sequence[] = {UID::I2C_WRITEREGISTER, address, reg, (unsigned char)byteCount};
+    /*
+    int pos = 0;
+    sequence[pos++] = UID::I2C_WRITEREGISTER;
+    sequence[pos++] = address;
+    sequence[pos++] = reg;
+    sequence[pos++] = (unsigned char)byteCount;
+
+    for (int i=0; i<byteCount; i++)
+        sequence[pos++]=data[i];
+        */
     if (!SendCommand(sequence, sizeof(sequence), 0)) return false;
     if (!SendCommand(data, byteCount, 0)) return false;
     return true;
@@ -205,17 +223,17 @@ bool UID::I2C_DA_RepStart() {
     return SendCommand(sequence, sizeof(sequence), 0);
 }
 
-bool UID::I2C_DA_SendAck(unsigned char address) {
+bool UID::I2C_DA_SendAck() {
     unsigned char sequence[] = {UID::I2C_DA_SENDACK};
     return SendCommand(sequence, sizeof(sequence), 0);
 }
 
-bool UID::I2C_DA_SendByteAck(unsigned char address, unsigned char data) {
+bool UID::I2C_DA_SendByteAck(unsigned char data) {
     unsigned char sequence[] = {UID::I2C_DA_SENDBYTEACK};
     return SendCommand(sequence, sizeof(sequence), 0);
 }
 
-bool UID::I2C_DA_SendByteNoAck(unsigned char address, unsigned char data) {
+bool UID::I2C_DA_SendByteNoAck(unsigned char data) {
     unsigned char sequence[] = {UID::I2C_DA_RECEIVEBYTENOACK};
     return SendCommand(sequence, sizeof(sequence), 0);
 }
@@ -231,9 +249,50 @@ bool UID::I2C_DA_Stop() {
 }
 
 bool UID::UID_ADC(unsigned char bitmask, unsigned char* result) {
-    unsigned char sequence[] = {UID::ADC_ADC};
-    unsigned char values[countBitsSet(bitmask)];
+    unsigned char sequence[] = {UID::ADC_ADC, bitmask};
+    unsigned char values = countBitsSet(bitmask);
+
     if ( !(SendCommand(sequence, sizeof(sequence), 0)) ) return false;
-    if (port->read((char*)result,sizeof(values)) == -1) return false;
+
+    qint64 res = port->read((char*)result,values);
+    if (res==-1 || res<values) return false;
+
+    return true;
+}
+
+bool UID::SPI_Speed(unsigned char speed) {
+    unsigned char sequence[] = {UID::SPI_SPEED, speed};
+    return SendCommand(sequence, sizeof(sequence), 0);
+}
+
+bool UID::SPI_SetPHA(bool phase) {
+    unsigned char sequence[] = {UID::SPI_SETPHA, phase};
+    return SendCommand(sequence, sizeof(sequence), 0);
+}
+
+bool UID::SPI_SetPOL(bool pol){
+    unsigned char sequence[] = {UID::SPI_SETPOL, pol};
+    return SendCommand(sequence, sizeof(sequence), 0);
+}
+
+bool UID::SPI_Read(unsigned char address, short byteCount, unsigned char* result) {
+    unsigned char sequence[] = {UID::SPI_READ, address, byteCount};
+    if (!SendCommand(sequence, sizeof(sequence) , 0)) return false;
+    if ( (port->read((char*)result, byteCount)) == -1) return false;
+    return true;
+}
+
+bool UID::SPI_Write(unsigned char address, unsigned char* data, short byteCount) {
+    unsigned char sequence[] = {UID::SPI_WRITE, address, byteCount};
+    if (!SendCommand(sequence, sizeof(sequence), 0)) return false;
+    if (!SendCommand(data, byteCount, 0)) return false;
+    return true;
+}
+
+bool UID::SPI_WriteRead(unsigned char address, unsigned char* data, short byteCount, unsigned char* result) {
+    unsigned char sequence[] = {UID::SPI_WRITE, address, byteCount};
+    if (!SendCommand(sequence, sizeof(sequence), 0)) return false;
+    if (!SendCommand(data, byteCount, 0)) return false;
+    if ( (port->read((char*)result, byteCount)) == -1) return false;
     return true;
 }
