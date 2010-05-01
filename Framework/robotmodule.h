@@ -4,6 +4,7 @@
 #include <QtCore>
 #include "Framework_global.h"
 #include <log4qt/logger.h>
+#include "healthstatus.h"
 
 class FRAMEWORKSHARED_EXPORT RobotModule : public QObject
 {
@@ -47,11 +48,16 @@ public:
       */
     QSettings& getSettings();
 
+    HealthStatus getHealthStatus();
+
 signals:
     /**
       * Sends a signal when this module gets activated/deactivated
       */
     void enabled(bool value);
+
+signals:
+    void healthStatusChanged(HealthStatus data);
 
 public slots:
 
@@ -97,11 +103,28 @@ protected:
       */
     void setDefaultValue(const QString &key, const QVariant &value);
 
+    /**
+      * Mark this module as faulty. The error message will be logged and displayed
+      * to the user. The error counter will be incremented.
+      */
+    void setHealthToSick(QString errorMsg);
+
+    /**
+      * Return health status to healthy, i.e. the module has no known problems.
+      *
+      */
+    void setHealthToOk();
+
 private:
     /**
       * ID of the module. must be unique across all robot instances. won't change at runtime.
       */
     const QString id;
+
+    /**
+      * Current health status
+      */
+    HealthStatus healthStatus;
 
 };
 

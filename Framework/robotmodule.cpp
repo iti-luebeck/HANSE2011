@@ -36,3 +36,20 @@ void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
     if (!settings.contains(key))
         settings.setValue(key, value);
 }
+
+void RobotModule::setHealthToOk()
+{
+    logger->info("Health status changed: Back to healthy!");
+    healthStatus.healthOk = true;
+    emit healthStatusChanged(healthStatus);
+}
+
+void RobotModule::setHealthToSick(QString errorMsg)
+{
+    logger->error("Health status changed: Sick!");
+    logger->error("Health status: Last error message: "+errorMsg);
+    healthStatus.healthOk = false;
+    healthStatus.errorCount++;
+    healthStatus.lastError = errorMsg;
+    emit healthStatusChanged(healthStatus);
+}
