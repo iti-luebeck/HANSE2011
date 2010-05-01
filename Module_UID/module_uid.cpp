@@ -10,6 +10,8 @@ Module_UID::Module_UID(QString moduleId)
     setDefaultValue("uidId", "UID0001");
 
     uid = new UID(settings.value("uidId").toString());
+    if (!uid->UID_Available())
+        setHealthToSick("UID not available.");
 }
 
 Module_UID::~Module_UID()

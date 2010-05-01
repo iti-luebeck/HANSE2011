@@ -12,7 +12,7 @@ Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
     setDefaultValue("channel", 1);
     setDefaultValue("multiplicator", 127);
 
-    //initController();
+    initController();
 }
 
 void Module_Thruster::initController()
@@ -21,9 +21,10 @@ void Module_Thruster::initController()
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
     bool ret = uid->getUID()->I2C_WriteRegister(address,0x00,sendValue,0x01);
-    if (!ret) {
-        // TODO: Set Health Status
-    }
+    if (!ret)
+        setHealthToSick("UID reported error.");
+    else
+        setHealthToOk();
 }
 
 Module_Thruster::~Module_Thruster()
@@ -54,9 +55,10 @@ void Module_Thruster::setSpeed(float speed)
     unsigned char channel = getSettings().value("channel").toInt();
 
     bool ret = uid->getUID()->I2C_WriteRegister(address,channel,sendValue,0x01);
-    if (!ret) {
-        // TODO: Set Health Status
-    }
+    if (!ret)
+        setHealthToSick("UID reported error.");
+    else
+        setHealthToOk();
 
 }
 
@@ -70,4 +72,13 @@ QList<RobotModule*> Module_Thruster::getDependencies()
 QWidget* Module_Thruster::createView(QWidget* parent)
 {
     return new Thruster_Form(this, parent);
+}
+
+void Module_Thruster::doHealthCheck()
+{
+    int address = getSettings().value("i2cAddress").toInt();
+    if (uid->getUID()->I2C_Scan().contains(address))
+        setHealthToOk();
+    else
+        setHealthToSick("Couldn't find i2c slave on bus.");
 }

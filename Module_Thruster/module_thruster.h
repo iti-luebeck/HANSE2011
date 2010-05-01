@@ -34,6 +34,10 @@ public slots:
       */
     void setSpeed(float speed);
 
+protected slots:
+
+    virtual void doHealthCheck();
+
 signals:
     void healthStatusChanged(HealthStatus data);
 

@@ -81,9 +81,11 @@ void Module_ScanningSonar::doNextScan()
 
     if (d && d->isPacketValid()) {
         data.append(d);
+        setHealthToOk();
         emit newSonarData(*d);
     } else {
-        logger->warn("Received bullshit. Dropping packet.");
+
+        setHealthToSick("Received bullshit. Dropping packet.");
     }
 }
 
