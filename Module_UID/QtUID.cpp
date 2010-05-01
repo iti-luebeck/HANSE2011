@@ -1,17 +1,20 @@
 #include "QtUID.h"
 
 #include <iostream>
+#include <qextserialport.h>
+#include <qextserialenumerator.h>
 
 #define DEBUG   1
 
 UID::UID(QString Id)
 {
-    portSettings.BaudRate = BAUD115200;
-    portSettings.DataBits = DATA_8;
-    portSettings.Parity = PAR_NONE;
-    portSettings.StopBits = STOP_1;
-    portSettings.FlowControl = FLOW_OFF;
-    portSettings.Timeout_Millisec = 100;
+    portSettings = new PortSettings();
+    portSettings->BaudRate = BAUD115200;
+    portSettings->DataBits = DATA_8;
+    portSettings->Parity = PAR_NONE;
+    portSettings->StopBits = STOP_1;
+    portSettings->FlowControl = FLOW_OFF;
+    portSettings->Timeout_Millisec = 100;
 
     ScanForUIDs( Id );
 }
@@ -33,7 +36,7 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
             printf("enumerator name: %s\n", ports.at(i).enumName.toLocal8Bit().constData());
             printf("===================================\n");
         }
-        port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, portSettings);
+        port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, *portSettings);
 
         //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
         if ( !(port->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {

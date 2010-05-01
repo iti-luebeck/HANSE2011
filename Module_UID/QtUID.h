@@ -18,12 +18,13 @@
 #include <string>
 #include <QtCore/QObject>
 #include <QTime>
-#include <qextserialport.h>
-#include <qextserialenumerator.h>
 #include <QVector>
 #include <QString>
 #include <QtGlobal>
 #include <QDebug>
+
+class PortSettings;
+class QextSerialPort;
 
 typedef unsigned char byte;
 
@@ -348,7 +349,7 @@ private:
     };
 
     QextSerialPort* port;
-    PortSettings portSettings;
+    PortSettings* portSettings;
 
     QextSerialPort* ScanForUIDs( QString Id );
     QString IdentifyCommand(unsigned char* sequence);
