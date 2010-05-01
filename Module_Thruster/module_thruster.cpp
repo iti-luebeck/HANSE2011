@@ -1,5 +1,7 @@
 #include "module_thruster.h"
 #include "thruster_form.h"
+#include "module_uid.h"
+
 
 Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
     : RobotModule(id)
@@ -18,7 +20,7 @@ void Module_Thruster::initController()
     unsigned char sendValue[] = { 0x01 };
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
-    bool ret = uid->I2C_WriteRegister(address,0x00,sendValue,0x01);
+    bool ret = uid->getUID()->I2C_WriteRegister(address,0x00,sendValue,0x01);
     if (!ret) {
         // TODO: Set Health Status
     }
@@ -51,7 +53,7 @@ void Module_Thruster::setSpeed(float speed)
     unsigned char address = getSettings().value("i2cAddress").toInt();
     unsigned char channel = getSettings().value("channel").toInt();
 
-    bool ret = uid->I2C_WriteRegister(address,channel,sendValue,0x01);
+    bool ret = uid->getUID()->I2C_WriteRegister(address,channel,sendValue,0x01);
     if (!ret) {
         // TODO: Set Health Status
     }
@@ -69,4 +71,3 @@ QWidget* Module_Thruster::createView(QWidget* parent)
 {
     return new Thruster_Form(this, parent);
 }
-

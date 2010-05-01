@@ -4,8 +4,9 @@
 #include <QtCore>
 #include "Module_PressureSensor_global.h"
 #include "robotmodule.h"
-#include "module_uid.h"
 #include "inttypes.h"
+
+class Module_UID;
 
 class MODULE_PRESSURESENSORSHARED_EXPORT Module_PressureSensor : public RobotModule {
     Q_OBJECT
@@ -19,20 +20,27 @@ public:
     // TODO: getView();
     QList<RobotModule*> getDependencies();
 
-public slots:
-    void reset();
-    void terminate();
-
     /**
       * Return depth below the surface in meters.
       *
-      * Range: -infinity to 0
+      * Range: 0 to infinity
       *
       */
     float getDepth();
 
+public slots:
+    void reset();
+    void terminate();
+
+
 signals:
     void healthStatusChanged(HealthStatus data);
+
+    /**
+      * This signal is emmited whenever there a new messurement is available.
+      *
+      */
+    void newDepthData(float depth);
 
 private slots:
     void refreshData();

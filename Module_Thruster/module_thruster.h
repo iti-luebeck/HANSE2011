@@ -4,7 +4,8 @@
 #include "Module_Thruster_global.h"
 #include "healthstatus.h"
 #include "robotmodule.h"
-#include "module_uid.h"
+
+class Module_UID;
 
 class MODULE_THRUSTERSHARED_EXPORT Module_Thruster : public RobotModule {
     Q_OBJECT

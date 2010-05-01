@@ -1,5 +1,6 @@
 #include "module_pressuresensor.h"
 #include "pressure_form.h"
+#include "module_uid.h"
 
 #define REGISTER_PRESSURE 0x12
 #define REGISTER_TEMP 0x14
