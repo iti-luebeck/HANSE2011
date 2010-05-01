@@ -28,6 +28,12 @@ public:
       */
     float getDepth();
 
+    /**
+      * Return temperature of the pressure sensor in degree celsius
+      *
+      */
+    float getTemperature();
+
 public slots:
     void reset();
     void terminate();
@@ -49,7 +55,18 @@ private:
     Module_UID *uid;
     QTimer timer;
 
-    uint16_t depth;
+    /**
+      * Depth in meters
+      */
+    float depth;
+
+    /**
+      * Temperature of the pressure sensor in degree celsius
+      */
+    float temperature;
+
+    void readPressure();
+    void readTemperature();
 
 };
 
