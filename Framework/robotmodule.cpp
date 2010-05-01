@@ -6,6 +6,10 @@ RobotModule::RobotModule(QString newId)
     settings.beginGroup(id);
     setDefaultValue("enabled", true);
     logger = Log4Qt::Logger::logger(id);
+
+    // perform a health check once a second
+    connect(&healthCheckTimer, SIGNAL(timeout()), this, SLOT(doHealthCheck()));
+    healthCheckTimer.start(1000);
 }
 
 void RobotModule::setEnabled(bool value)
@@ -41,7 +45,7 @@ void RobotModule::setHealthToOk()
 {
     logger->info("Health status changed: Back to healthy!");
     healthStatus.healthOk = true;
-    emit healthStatusChanged(healthStatus);
+    emit healthStatusChanged(this);
 }
 
 void RobotModule::setHealthToSick(QString errorMsg)
@@ -51,5 +55,15 @@ void RobotModule::setHealthToSick(QString errorMsg)
     healthStatus.healthOk = false;
     healthStatus.errorCount++;
     healthStatus.lastError = errorMsg;
-    emit healthStatusChanged(healthStatus);
+    emit healthStatusChanged(this);
+}
+
+HealthStatus RobotModule::getHealthStatus()
+{
+    return healthStatus;
+}
+
+void RobotModule::doHealthCheck()
+{
+    printf("YYYYYYY\n");
 }

@@ -56,7 +56,8 @@ signals:
       */
     void enabled(bool value);
 
-    void healthStatusChanged(HealthStatus data);
+    //void healthStatusChanged(HealthStatus data);
+    void healthStatusChanged(RobotModule *module);
 
 public slots:
 
@@ -114,6 +115,17 @@ protected:
       */
     void setHealthToOk();
 
+protected slots:
+    /**
+      * Do a health check.
+      *
+      * This method is called every once in a while (e.g. one second) and allows you
+      * to perform some checks to see if your module is working properly.
+      *
+      * The default implementation will do no checks.
+      */
+    virtual void doHealthCheck();
+
 private:
     /**
       * ID of the module. must be unique across all robot instances. won't change at runtime.
@@ -124,6 +136,8 @@ private:
       * Current health status
       */
     HealthStatus healthStatus;
+
+    QTimer healthCheckTimer;
 
 };
 

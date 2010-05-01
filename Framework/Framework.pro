@@ -15,3 +15,4 @@ HEADERS += framework.h \
     Framework_global.h \
     robotmodule.h \
     healthstatus.h
+FORMS += 
