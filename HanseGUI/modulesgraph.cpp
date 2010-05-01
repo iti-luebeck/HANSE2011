@@ -4,6 +4,7 @@
 #include <module_uid.h>
 #include <module_thruster.h>
 #include <module_pressuresensor.h>
+#include <module_thrustercontrolloop.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -30,6 +31,9 @@ void ModulesGraph::build()
 
     Module_PressureSensor* pressure = new Module_PressureSensor("pressure",uid);
     this->modules.append(pressure);
+
+    Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown);
+    this->modules.append(controlLoop);
 
     logger->info("Loading all Modules... Done");
 }
