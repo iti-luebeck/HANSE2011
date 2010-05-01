@@ -28,6 +28,12 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
     const char sequence[] = {UID::UID_IDENTIFY};
     char id[9];
 
+    printf("Trying out all available serial ports\r\n");
+
+    // make sure that the pointer always points to something. otherwise
+    // we will segfault on machines without any serial ports.
+    port = new QextSerialPort(  "", *portSettings);
+
     for (int i=0; i<ports.size(); i++) {
         if (DEBUG) {
             printf("\r\nport name: %s\r\n", ports.at(i).portName.toLocal8Bit().constData());
