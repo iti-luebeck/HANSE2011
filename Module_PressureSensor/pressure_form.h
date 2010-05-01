@@ -19,6 +19,10 @@ protected:
 
 private:
     Ui::Pressure_Form *ui;
+    Module_PressureSensor *module;
+
+private slots:
+    void on_save_clicked();
 };
 
 #endif // PRESSURE_FORM_H

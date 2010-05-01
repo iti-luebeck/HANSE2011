@@ -42,7 +42,7 @@ void Module_PressureSensor::refreshData()
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
     unsigned char readBuffer[2];
-    bool ret = uid->I2C_ReadRegisters(address, REGISTER_PRESSURE, 2, readBuffer);
+    bool ret = uid->getUID()->I2C_ReadRegisters(address, REGISTER_PRESSURE, 2, readBuffer);
     if (!ret) {
         setHealthToSick("UID reported error.");
         return;
