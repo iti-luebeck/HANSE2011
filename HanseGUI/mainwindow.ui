@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>708</width>
-    <height>455</height>
+    <height>448</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="overviewTab">
        <attribute name="title">
@@ -44,6 +44,35 @@
         </property>
        </widget>
       </widget>
+      <widget class="QWidget" name="dataTab">
+       <attribute name="title">
+        <string>Data</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QTableView" name="dataView">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>300</number>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>300</number>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="healthTab">
        <attribute name="title">
         <string>Health</string>
@@ -60,24 +89,6 @@
          </widget>
         </item>
        </layout>
-      </widget>
-      <widget class="QWidget" name="logTab">
-       <attribute name="title">
-        <string>Log</string>
-       </attribute>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>70</x>
-          <y>40</y>
-          <width>231</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>TODO: Display logfile or something?</string>
-        </property>
-       </widget>
       </widget>
      </widget>
     </item>

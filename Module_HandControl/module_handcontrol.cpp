@@ -54,6 +54,10 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     if (!getSettings().value("enabled").toBool())
         return;
 
+    data["forwardSpeed"] = forwardSpeed;
+    data["angularSpeed"] = angularSpeed;
+    data["speedUpDown"] = speedUpDown;
+
     float div = settings.value("divisor").toFloat();
 
     if (settings.value("receiver").toString()=="thruster") {

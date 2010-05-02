@@ -61,7 +61,7 @@ void Module_PressureSensor::readPressure()
     uint16_t pressure = (int)readBuffer[0] << 8 | (int)readBuffer[1];
 
     // 100 mBar == ca. 1m wassersäule
-    this->depth = ((float)pressure)/100;
+    data["depth"] =  ((float)pressure)/100;
 
 }
 
@@ -79,17 +79,17 @@ void Module_PressureSensor::readTemperature()
     // this is the temperature in 10/degree celsius
     uint16_t temp = (int)readBuffer[0] << 8 | (int)readBuffer[1];
 
-    this->temperature = ((float)temp)/10;
+    data["temperature"] = ((float)temp)/10;
 }
 
 float Module_PressureSensor::getDepth()
 {
-    return depth;
+    return data["depth"].toFloat();
 }
 
 float Module_PressureSensor::getTemperature()
 {
-    return temperature;
+    return data["temperature"].toFloat();
 }
 
 QList<RobotModule*> Module_PressureSensor::getDependencies()

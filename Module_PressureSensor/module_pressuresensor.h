@@ -55,16 +55,6 @@ private:
     Module_UID *uid;
     QTimer timer;
 
-    /**
-      * Depth in meters
-      */
-    float depth;
-
-    /**
-      * Temperature of the pressure sensor in degree celsius
-      */
-    float temperature;
-
     void readPressure();
     void readTemperature();
 

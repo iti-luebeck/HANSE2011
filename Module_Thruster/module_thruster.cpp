@@ -46,6 +46,8 @@ void Module_Thruster::setSpeed(float speed)
     if (!getSettings().value("enabled").toBool())
         return;
 
+    data["speed"] = speed;
+
     if (speed > 1)
         speed = 1;
 

@@ -2,6 +2,7 @@
 #define ROBOTMODULE_H
 
 #include <QtCore>
+#include <QMap>
 #include "Framework_global.h"
 #include <log4qt/logger.h>
 #include "healthstatus.h"
@@ -48,6 +49,8 @@ public:
       */
     QSettings& getSettings();
 
+    const QMap<QString,QVariant> getData();
+
     HealthStatus getHealthStatus();
 
 signals:
@@ -92,6 +95,8 @@ protected:
       * All persistent configuration of the module is stored in here
       */
     QSettings settings;
+
+    QMap<QString,QVariant> data;
 
     /**
       * Logger instance for this module

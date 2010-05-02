@@ -23,9 +23,11 @@ LIBS += -lqextserialportd
 SOURCES += main.cpp \
     mainwindow.cpp \
     modulesgraph.cpp \
-    healthmodel.cpp
+    healthmodel.cpp \
+    datamodel.cpp
 HEADERS += mainwindow.h \
     modulesgraph.h \
-    healthmodel.h
+    healthmodel.h \
+    datamodel.h
 FORMS += mainwindow.ui
 unix:DEFINES = _TTY_POSIX_

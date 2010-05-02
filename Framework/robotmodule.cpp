@@ -67,3 +67,7 @@ void RobotModule::doHealthCheck()
 {
     // Needs to be reimplemented in subclasses
 }
+
+const QMap<QString,QVariant> RobotModule::getData() {
+    return data;
+}
