@@ -23,6 +23,7 @@ private:
 
 private slots:
     void healthStatusChanged(RobotModule *module);
+    void moduleEnabled(bool);
 };
 
 #endif // HEALTHMODEL_H

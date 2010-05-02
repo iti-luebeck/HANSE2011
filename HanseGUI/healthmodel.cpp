@@ -9,13 +9,21 @@ HealthModel::HealthModel(ModulesGraph* graph)
 
     foreach (RobotModule *module, graph->getModules()) {
         connect(module, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(healthStatusChanged(RobotModule*)));
+        connect(module,SIGNAL(enabled(bool)), this, SLOT(moduleEnabled(bool)));
     }
+}
+
+void HealthModel::moduleEnabled(bool)
+{
+    // we don't easily know which module changed, so just refresh the whole table
+    int size = graph->getModules().size();
+    emit dataChanged(index(0,0), index(size,3));
 }
 
 void HealthModel::healthStatusChanged(RobotModule *module)
 {
     int mi = graph->getModules().indexOf(module);
-    emit dataChanged(index(mi,0), index(mi,2));
+    emit dataChanged(index(mi,0), index(mi,3));
 }
 
 int HealthModel::rowCount(const QModelIndex &parent) const
