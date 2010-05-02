@@ -65,5 +65,5 @@ HealthStatus RobotModule::getHealthStatus()
 
 void RobotModule::doHealthCheck()
 {
-    printf("YYYYYYY\n");
+    // Needs to be reimplemented in subclasses
 }
