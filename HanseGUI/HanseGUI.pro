@@ -17,6 +17,8 @@ INCLUDEPATH += ../Module_PressureSensor
 LIBS += -lModule_PressureSensor
 INCLUDEPATH += ../Module_ThrusterControlLoop
 LIBS += -lModule_ThrusterControlLoop
+INCLUDEPATH += ../Module_HandControl
+LIBS += -lModule_HandControl
 LIBS += -lqextserialportd
 SOURCES += main.cpp \
     mainwindow.cpp \
