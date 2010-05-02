@@ -2,8 +2,10 @@
 #define MODULE_THRUSTERCONTROLLOOP_H
 
 #include "Module_ThrusterControlLoop_global.h"
-#include "module_pressuresensor.h"
-#include "module_thruster.h"
+#include "robotmodule.h"
+
+class Module_PressureSensor;
+class Module_Thruster;
 
 class MODULE_THRUSTERCONTROLLOOPSHARED_EXPORT Module_ThrusterControlLoop : public RobotModule {
     Q_OBJECT

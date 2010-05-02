@@ -1,4 +1,6 @@
 #include "module_thrustercontrolloop.h"
+#include "module_thruster.h"
+#include "module_pressuresensor.h"
 #include "tcl_form.h"
 
 Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_PressureSensor *pressure, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown)
@@ -29,6 +31,9 @@ void Module_ThrusterControlLoop::reset()
 
 void Module_ThrusterControlLoop::newDepthData(float depth)
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     float p = getSettings().value("p").toFloat();
     float i = getSettings().value("i").toFloat();
     float d = getSettings().value("d").toFloat();
@@ -42,16 +47,25 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
 
 void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     // TODO
 }
 
 void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     // TODO
 }
 
 void Module_ThrusterControlLoop::setDepth(float depth)
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     // TODO
 }
 

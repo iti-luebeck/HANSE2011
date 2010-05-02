@@ -43,6 +43,8 @@ void Module_Thruster::reset()
 
 void Module_Thruster::setSpeed(float speed)
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
 
     if (speed > 1)
         speed = 1;
@@ -76,6 +78,9 @@ QWidget* Module_Thruster::createView(QWidget* parent)
 
 void Module_Thruster::doHealthCheck()
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     int address = getSettings().value("i2cAddress").toInt();
     if (uid->getUID()->I2C_Scan().contains(address))
         setHealthToOk();

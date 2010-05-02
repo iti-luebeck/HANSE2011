@@ -39,6 +39,9 @@ void Module_PressureSensor::reset()
 
 void Module_PressureSensor::refreshData()
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     readPressure();
     readTemperature();
 }
