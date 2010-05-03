@@ -4,7 +4,12 @@
 
 #define REGISTER_PRESSURE 0x12
 #define REGISTER_TEMP 0x14
-#define REGISTER_CALIB 0x01
+#define REGISTER_CALIB 0x00 // 8 byte
+#define REGISTER_STATUS 0x55 // TODO: correct!
+
+#define STATUS_MAGIC_VALUE 0x10 // TODO: correct!
+
+#define CALIB_MAGIC_VALUE 0x10 // TODO: correct!
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     : RobotModule(id)
@@ -104,3 +109,26 @@ QWidget* Module_PressureSensor::createView(QWidget* parent)
     return new Pressure_Form(this, parent);
 }
 
+void Module_PressureSensor::doHealthCheck()
+{
+    unsigned char address = getSettings().value("i2cAddress").toInt();
+
+    unsigned char readBuffer[1];
+
+    if (!uid->getUID()->I2C_ReadRegisters(address, REGISTER_CALIB, 1, readBuffer)) {
+        setHealthToSick("UID reported error.");
+        return;
+    }
+    if (readBuffer[0] != CALIB_MAGIC_VALUE) {
+        setHealthToSick("First calibration byte doesn't match.");
+        return;
+    }
+
+    if (!uid->getUID()->I2C_ReadRegisters(address, REGISTER_STATUS, 1, readBuffer)) {
+        setHealthToSick("UID reported error.");
+        return;
+    }
+    if (readBuffer[0] != STATUS_MAGIC_VALUE) {
+        setHealthToSick("Status register doesn't match magic value.");
+    }
+}

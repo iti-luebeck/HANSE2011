@@ -48,6 +48,9 @@ signals:
       */
     void newDepthData(float depth);
 
+protected:
+    virtual void doHealthCheck();
+
 private slots:
     void refreshData();
 
