@@ -2,6 +2,16 @@
 #include "thruster_form.h"
 #include "module_uid.h"
 
+/* see http://www.robot-electronics.co.uk/htm/md22tech.htm for details */
+#define REG_MODE 0x00
+#define REG_CHAN1 0x01
+#define REG_CHAN2 0x02
+#define REG_ACCEL 0x03
+/* Regs 4-6: unused */
+#define REG_SWREV 0x07
+
+// expected value from the "software revision" register
+#define MAGIC_SWREV 7
 
 Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
     : RobotModule(id)
@@ -25,7 +35,7 @@ void Module_Thruster::initController()
     unsigned char sendValue[] = { 0x01 };
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
-    bool ret = uid->getUID()->I2C_WriteRegister(address,0x00,sendValue,0x01);
+    bool ret = uid->getUID()->I2C_WriteRegister(address,REG_MODE,sendValue,0x01);
     if (!ret)
         setHealthToSick("UID reported error.");
     else
@@ -63,6 +73,11 @@ void Module_Thruster::setSpeed(float speed)
     unsigned char address = getSettings().value("i2cAddress").toInt();
     unsigned char channel = getSettings().value("channel").toInt();
 
+    if (channel != 1 && channel != 2) {
+        setHealthToSick("thruster configured to an illegal channel.");
+        return;
+    }
+
     bool ret = uid->getUID()->I2C_WriteRegister(address,channel,sendValue,0x01);
     if (!ret)
         setHealthToSick("UID reported error.");
@@ -89,13 +104,18 @@ void Module_Thruster::doHealthCheck()
         return;
 
     int address = getSettings().value("i2cAddress").toInt();
-    if (uid->getUID()->I2C_Scan().contains(address))
-        setHealthToOk();
+    unsigned char data[1];
+    bool ret = uid->getUID()->I2C_ReadRegisters(address,REG_SWREV,1,data);
+    if (!ret)
+        setHealthToSick("UID reported error.");
+    else if (data[0] != MAGIC_SWREV)
+        setHealthToSick("sw revision register doesn't match magic value.");
     else
-        setHealthToSick("Couldn't find i2c slave on bus.");
+        setHealthToOk();
 }
 
 void Module_Thruster::gotEnabled(bool value)
 {
-    initController();
+    if (value)
+        initController();
 }
