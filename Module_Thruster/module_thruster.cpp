@@ -12,11 +12,16 @@ Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
     setDefaultValue("channel", 1);
     setDefaultValue("multiplicator", 127);
 
+    connect(this,SIGNAL(enabled(bool)), this, SLOT(gotEnabled(bool)));
+
     initController();
 }
 
 void Module_Thruster::initController()
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     unsigned char sendValue[] = { 0x01 };
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
@@ -88,4 +93,9 @@ void Module_Thruster::doHealthCheck()
         setHealthToOk();
     else
         setHealthToSick("Couldn't find i2c slave on bus.");
+}
+
+void Module_Thruster::gotEnabled(bool value)
+{
+    initController();
 }

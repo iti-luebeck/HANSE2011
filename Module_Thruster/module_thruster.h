@@ -37,6 +37,7 @@ public slots:
 protected slots:
 
     virtual void doHealthCheck();
+    void gotEnabled(bool value);
 
 signals:
     void healthStatusChanged(HealthStatus data);
