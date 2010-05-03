@@ -19,9 +19,8 @@ class Posix_QextSerialPort:public QextSerialBase
 	    void init();
 
 	protected:
-	    int fd;
+	    QFile* Posix_File;
 	    struct termios Posix_CommConfig;
-	    struct termios old_termios;
 	    struct timeval Posix_Timeout;
 	    struct timeval Posix_Copy_Timeout;
 	
@@ -29,11 +28,11 @@ class Posix_QextSerialPort:public QextSerialBase
 	    virtual qint64 writeData(const char * data, qint64 maxSize);
 
 	public:
-	    Posix_QextSerialPort(QextSerialBase::QueryMode mode);
+	    Posix_QextSerialPort();
 	    Posix_QextSerialPort(const Posix_QextSerialPort& s);
-	    Posix_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode);
-	    Posix_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode);
-	    Posix_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode);
+	    Posix_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
+	    Posix_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
+	    Posix_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
 	    Posix_QextSerialPort& operator=(const Posix_QextSerialPort& s);
 	    virtual ~Posix_QextSerialPort();
 	
@@ -49,7 +48,7 @@ class Posix_QextSerialPort:public QextSerialBase
 	    virtual void flush();
 	
 	    virtual qint64 size() const;
-	    virtual qint64 bytesAvailable() const;
+	    virtual qint64 bytesAvailable();
 	
 	    virtual void ungetChar(char c);
 	

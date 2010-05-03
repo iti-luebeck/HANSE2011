@@ -26,9 +26,6 @@ QextSerialBase::QextSerialBase()
 #elif defined(_TTY_FREEBSD_)
     setPortName("/dev/ttyd1");
 
-#elif defined(_TTY_OPENBSD_)
-    setPortName("/dev/tty00");
-
 #else
     setPortName("/dev/ttyS0");
 #endif
@@ -63,7 +60,6 @@ Common constructor function for setting up default port settings.
 */
 void QextSerialBase::construct()
 {
-	lastErr = E_NO_ERROR;
     Settings.BaudRate=BAUD115200;
     Settings.DataBits=DATA_8;
     Settings.Parity=PAR_NONE;

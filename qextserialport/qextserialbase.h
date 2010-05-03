@@ -66,7 +66,6 @@ enum NamingConvention
     SUN_NAMES,
     DIGITAL_NAMES,
     FREEBSD_NAMES,
-    OPENBSD_NAMES,
     LINUX_NAMES
 };
 
@@ -204,6 +203,8 @@ class QextSerialBase : public QIODevice
 		 */
 		virtual void setQueryMode(QueryMode mode);
 
+//		virtual void setBlockingRead(bool block) = 0; ///< @todo implement.
+
 	    virtual void setBaudRate(BaudRateType)=0;
 	    virtual BaudRateType baudRate() const;
 	    virtual void setDataBits(DataBitsType)=0;
@@ -221,8 +222,8 @@ class QextSerialBase : public QIODevice
 	    virtual void close()=0;
 	    virtual void flush()=0;
 	
-	    virtual qint64 size() const = 0;
-	    virtual qint64 bytesAvailable() const = 0;
+	    virtual qint64 size() const=0;
+	    virtual qint64 bytesAvailable()=0;
 	    virtual bool atEnd() const;
 	
 	    virtual void ungetChar(char c)=0;

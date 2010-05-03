@@ -30,11 +30,10 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 This constructor associates the object with the first port on the system, e.g. COM1 for Windows
 platforms.  See the other constructor if you need a port other than the first.
 */
-Win_QextSerialPort::Win_QextSerialPort(QextSerialBase::QueryMode mode):
+Win_QextSerialPort::Win_QextSerialPort():
 	QextSerialBase() 
 {
     Win_Handle=INVALID_HANDLE_VALUE;
-    setQueryMode(mode);
     init();
 }
 
@@ -84,9 +83,7 @@ Win_QextSerialPort::Win_QextSerialPort(const QString & name, QextSerialBase::Que
 \fn Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings)
 Constructs a port with default name and specified settings.
 */
-Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode):
-	QextSerialBase() 
-{
+Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode) {
     Win_Handle=INVALID_HANDLE_VALUE;
     setBaudRate(settings.BaudRate);
     setDataBits(settings.DataBits);
@@ -102,9 +99,7 @@ Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialB
 \fn Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings)
 Constructs a port with specified name and settings.
 */
-Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode):
-	QextSerialBase(name) 
-{
+Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode) {
     Win_Handle=INVALID_HANDLE_VALUE;
     setPortName(name);
     setBaudRate(settings.BaudRate);
@@ -219,7 +214,7 @@ bool Win_QextSerialPort::open(OpenMode mode) {
 				Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
 				SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
             	if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
-            		qWarning("failed to set Comm Mask. Error code: %ld", GetLastError());
+            		qWarning("Failed to set Comm Mask. Error code: %ld", GetLastError());
 					UNLOCK_MUTEX();
             		return false;
             	}
@@ -292,19 +287,23 @@ qint64 Win_QextSerialPort::size() const {
 /*!
 \fn qint64 Win_QextSerialPort::bytesAvailable()
 Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
-the port is not currently open, or -1 on error.
+the port is not currently open, or -1 on error.  Error information can be retrieved by calling
+Win_QextSerialPort::getLastError().
 */
-qint64 Win_QextSerialPort::bytesAvailable() const {
+qint64 Win_QextSerialPort::bytesAvailable() {
     LOCK_MUTEX();
     if (isOpen()) {
         DWORD Errors;
         COMSTAT Status;
-        if (ClearCommError(Win_Handle, &Errors, &Status)) {
+        bool success=ClearCommError(Win_Handle, &Errors, &Status);
+        translateError(Errors);
+        if (success) {
+            lastErr=E_NO_ERROR;
             UNLOCK_MUTEX();
             return Status.cbInQue + QIODevice::bytesAvailable();
         }
         UNLOCK_MUTEX();
-        return (qint64)-1;
+        return (unsigned int)-1;
     }
     UNLOCK_MUTEX();
     return 0;
@@ -970,7 +969,7 @@ void Win_QextSerialPort::monitorCommEvent()
 		//overlap event occured
 		DWORD undefined;
 		if (!GetOverlappedResult(Win_Handle, & overlap, & undefined, false)) {
-			qWarning("CommEvent overlapped error %ld", GetLastError());
+			qWarning("Comm event overlapped error %ld", GetLastError());
 			return;
 		}
 		if (eventMask & EV_RXCHAR) {
@@ -986,11 +985,12 @@ void Win_QextSerialPort::monitorCommEvent()
 			_bytesToWrite = 0;
 			bytesToWriteLock->unlock();
 		}
-		if (eventMask & EV_DSR)
+                if (eventMask & EV_DSR) {
 			if (lineStatus() & LS_DSR)
 				emit dsrChanged(true);
 			else
 				emit dsrChanged(false);
+                }
 	}
 }
 
@@ -1003,9 +1003,8 @@ void Win_QextSerialPort::terminateCommWait()
 /*!
 \fn void Win_QextSerialPort::setTimeout(ulong millisec);
 Sets the read and write timeouts for the port to millisec milliseconds.
-Setting 0 indicates that timeouts are not used for read nor write operations; 
-however read() and write() functions will still block. Set -1 to provide
-non-blocking behaviour (read() and write() will return immediately).
+Setting 0 for both sec and millisec indicates that timeouts are not used for read nor
+write operations. Setting -1 indicates that read and write should return immediately.
 
 \note this function does nothing in event driven mode.
 */
