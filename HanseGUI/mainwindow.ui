@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="overviewTab">
        <attribute name="title">
@@ -80,6 +80,15 @@
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QTableView" name="healthView">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
           <attribute name="horizontalHeaderStretchLastSection">
            <bool>true</bool>
           </attribute>
