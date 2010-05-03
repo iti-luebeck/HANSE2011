@@ -2,11 +2,12 @@
 #define HEALTHSTATUS_H
 
 #include <QtCore>
+#include "Framework_global.h"
 
 class RobotModule;
 
 
-class HealthStatus
+class FRAMEWORKSHARED_EXPORT HealthStatus
 {
     friend class RobotModule;
 public:

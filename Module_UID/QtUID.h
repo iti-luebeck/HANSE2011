@@ -22,13 +22,14 @@
 #include <QString>
 #include <QtGlobal>
 #include <QDebug>
+#include "Module_UID_global.h"
 
 class PortSettings;
 class QextSerialPort;
 
 typedef unsigned char byte;
 
-class UID
+class MODULE_UIDSHARED_EXPORT UID
 {
 public:
 
