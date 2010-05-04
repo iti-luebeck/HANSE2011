@@ -3,6 +3,7 @@
 #include <iostream>
 #include <qextserialport.h>
 #include <qextserialenumerator.h>
+#include <log4qt/logger.h>
 
 #define DEBUG   1
 
@@ -19,7 +20,16 @@ UID::UID(QString Id)
     ScanForUIDs( Id );
 }
 
-QextSerialPort* UID::ScanForUIDs(QString Id) {
+void UID::MyThread::mySleep(long msec)
+{
+    msleep(msec);
+}
+
+QextSerialPort* UID::ScanForUIDs(QString IdBla) {
+
+    QString Id = "UIDC0001";
+
+    Log4Qt::Logger *l = Log4Qt::Logger::logger("uid");
 
     UID_available = false;
 
@@ -42,7 +52,8 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
             printf("enumerator name: %s\n", ports.at(i).enumName.toLocal8Bit().constData());
             printf("===================================\n");
         }
-        port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, *portSettings);
+ //       port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, *portSettings);
+        port = new QextSerialPort( ports.at(i).portName, *portSettings);
 
         //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
         if ( !(port->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
@@ -65,8 +76,11 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
         }
 
         if (DEBUG) std::cout << "Could write to port" << std::endl;
+        MyThread::mySleep(10);
+        int bytesRead = port->read(id, sizeof(id));
+        l->debug("Read " + QString::number(bytesRead)+" bytes.");
 
-        if ( (port->read(id, sizeof(id))) == -1 ) {
+        if ( bytesRead < sizeof(id)) {
             if (DEBUG) printf("No Id received\r\n");
             port->close();
             continue;
@@ -76,9 +90,10 @@ QextSerialPort* UID::ScanForUIDs(QString Id) {
             if (DEBUG) std::cout << "\nFound UID with id " << QString::fromAscii(id,8).toStdString() << " on " << ports.at(i).portName.toLocal8Bit().constData() << std::endl;
             UID_available = true;
             port->flush();
-            return port;
+            //return port;
         }
         else {
+            l->debug("Received id: " + QString::fromUtf8(id,8)+"; expected: "+Id);
             if (DEBUG) std::cout << "Wrong Id\r\nReceived: " << QString::fromUtf8(id,8).toStdString() << std::endl;
         }
         port->close();

@@ -13,7 +13,7 @@ LIBS += -lFramework
 
 # use qextserialport
 INCLUDEPATH += ../qextserialport
-LIBS += -lqextserialportd
+LIBS += -lqextserialportd1
 SOURCES += module_uid.cpp \
     form_uid.cpp \
     QtUID.cpp

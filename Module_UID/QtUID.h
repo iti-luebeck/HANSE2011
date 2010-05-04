@@ -22,6 +22,7 @@
 #include <QString>
 #include <QtGlobal>
 #include <QDebug>
+#include <QThread>
 #include "Module_UID_global.h"
 
 class PortSettings;
@@ -31,6 +32,13 @@ typedef unsigned char byte;
 
 class MODULE_UIDSHARED_EXPORT UID
 {
+
+    class MyThread: QThread
+    {
+    public:
+        static void mySleep(long msec);
+    };
+
 public:
 
     /**
