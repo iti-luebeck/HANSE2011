@@ -111,6 +111,9 @@ QWidget* Module_PressureSensor::createView(QWidget* parent)
 
 void Module_PressureSensor::doHealthCheck()
 {
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
     unsigned char readBuffer[1];
