@@ -24,6 +24,7 @@
 #include <QDebug>
 #include <QThread>
 #include "Module_UID_global.h"
+#include <log4qt/logger.h>
 
 class PortSettings;
 class QextSerialPort;
@@ -367,6 +368,8 @@ private:
     unsigned char countBitsSet( unsigned char bitmask );
 
     bool UID_available;
+
+    Log4Qt::Logger *l;
 
 };
 

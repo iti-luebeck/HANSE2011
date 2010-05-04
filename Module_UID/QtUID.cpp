@@ -17,6 +17,8 @@ UID::UID(QString Id)
     portSettings->FlowControl = FLOW_OFF;
     portSettings->Timeout_Millisec = 100;
 
+    l = Log4Qt::Logger::logger("QtUID");
+
     ScanForUIDs( Id );
 }
 
@@ -29,8 +31,6 @@ QextSerialPort* UID::ScanForUIDs(QString IdBla) {
 
     QString Id = "UIDC0001";
 
-    Log4Qt::Logger *l = Log4Qt::Logger::logger("uid");
-
     UID_available = false;
 
     QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
@@ -38,7 +38,7 @@ QextSerialPort* UID::ScanForUIDs(QString IdBla) {
     const char sequence[] = {UID::UID_IDENTIFY};
     char id[9];
 
-    printf("Trying out all available serial ports\r\n");
+    l->info("Trying out all available serial ports");
 
     // make sure that the pointer always points to something. otherwise
     // we will segfault on machines without any serial ports.
@@ -46,55 +46,50 @@ QextSerialPort* UID::ScanForUIDs(QString IdBla) {
 
     for (int i=0; i<ports.size(); i++) {
         if (DEBUG) {
-            printf("\r\nport name: %s\r\n", ports.at(i).portName.toLocal8Bit().constData());
-            printf("friendly name: %s\n", ports.at(i).friendName.toLocal8Bit().constData());
-            printf("physical name: %s\n", ports.at(i).physName.toLocal8Bit().constData());
-            printf("enumerator name: %s\n", ports.at(i).enumName.toLocal8Bit().constData());
-            printf("===================================\n");
+            l->debug("port name: "+ports.at(i).portName);
+            l->debug("friendly name: "+ ports.at(i).friendName);
+            l->debug("physical name: "+ ports.at(i).physName);
+            l->debug("enumerator name: "+ ports.at(i).enumName);
+            l->debug("===================================");
         }
  //       port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, *portSettings);
         port = new QextSerialPort( ports.at(i).portName, *portSettings);
 
         //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
         if ( !(port->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
-            if (DEBUG) {
-                std::cout << "Could not connect" << std::endl;
-                std::cout << port->errorString().toStdString() << std::endl;
-            }
+            l->debug("Could not connect: "+port->errorString());
             port->close();
             continue;
         }
 
-        if (DEBUG) std::cout << "connected successfully" << std::endl;
+        l->debug("connected successfully");
 
         port->flush();
 
         if ( (port->write(sequence, 1)) == -1) {
-            if (DEBUG) std::cout << "Writing Opcode failed" << std::endl;
+            l->debug("Writing Opcode failed");
             port->close();
             continue;
         }
 
-        if (DEBUG) std::cout << "Could write to port" << std::endl;
-        MyThread::mySleep(10);
+        l->debug("Could write to port");
+        MyThread::mySleep(1);
         int bytesRead = port->read(id, sizeof(id));
-        l->debug("Read " + QString::number(bytesRead)+" bytes.");
-
         if ( bytesRead < sizeof(id)) {
-            if (DEBUG) printf("No Id received\r\n");
+            l->debug("No Id received, read only "+QString::number(bytesRead)+ " bytes.");
             port->close();
             continue;
         }
 
         if (QString::fromAscii(id,sizeof(id)-1) == Id) {
-            if (DEBUG) std::cout << "\nFound UID with id " << QString::fromAscii(id,8).toStdString() << " on " << ports.at(i).portName.toLocal8Bit().constData() << std::endl;
+            l->debug("Found UID with id " + QString::fromAscii(id,8) + " on " + ports.at(i).portName);
             UID_available = true;
             port->flush();
-            //return port;
+            return port;
         }
         else {
             l->debug("Received id: " + QString::fromUtf8(id,8)+"; expected: "+Id);
-            if (DEBUG) std::cout << "Wrong Id\r\nReceived: " << QString::fromUtf8(id,8).toStdString() << std::endl;
+            l->debug("Wrong Id\r\nReceived: " + QString::fromUtf8(id,8));
         }
         port->close();
 
