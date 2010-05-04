@@ -1,49 +1,39 @@
 PROJECT                 = qextserialport
 TEMPLATE                = lib
+VERSION                 = 1.2.0
+DESTDIR                 = ../build
+CONFIG                 += qt warn_on debug_and_release
+CONFIG                  += dll
+DEFINES                 += QEXTSERIALPORT_LIB
+#CONFIG                 += staticlib
 
-CONFIG                 += debug_and_release
+# event driven device enumeration on windows requires the gui module
+!win32:QT               -= gui
 
-CONFIG                 += qt
-CONFIG                 += warn_on
-CONFIG                 += thread
-
-CONFIG			+= dll
-#CONFIG			+= staticlib
-
-QT                     -= gui
-
-OBJECTS_DIR             = build/obj
-MOC_DIR                 = build/moc
+OBJECTS_DIR             = tmp
+MOC_DIR                 = tmp
 DEPENDDIR               = .
 INCLUDEDIR              = .
-HEADERS                 = qextserialbase.h \
-                          qextserialport.h \
-                          qextserialenumerator.h
-SOURCES                 = qextserialbase.cpp \
-                          qextserialport.cpp \
-                          qextserialenumerator.cpp
+HEADERS                 = qextserialport.h \
+                          qextserialenumerator.h \
+                          qextserialport_global.h
+SOURCES                 = qextserialport.cpp
 
-unix:HEADERS           += posix_qextserialport.h
 unix:SOURCES           += posix_qextserialport.cpp
-unix:DEFINES           += _TTY_POSIX_
-
-
-win32:HEADERS          += win_qextserialport.h
-win32:SOURCES          += win_qextserialport.cpp
-win32:DEFINES          += _TTY_WIN_
-
-win32:LIBS             += -lsetupapi
-
-
-DESTDIR                 = ../build
-#DESTDIR				= examples/enumerator/debug
-#DESTDIR				= examples/qespta/debug
-#DESTDIR				= examples/event/debug
-
-CONFIG(debug, debug|release) {
-	TARGET = qextserialportd
-} else {
-	TARGET = qextserialport
+unix:!macx:SOURCES     += qextserialenumerator_unix.cpp
+macx {
+  SOURCES          += qextserialenumerator_osx.cpp
+  LIBS             += -framework IOKit -framework CoreFoundation
 }
 
-unix:VERSION            = 1.2.0
+win32 {
+  SOURCES          += win_qextserialport.cpp qextserialenumerator_win.cpp
+  DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business...probably a better way to do this
+  LIBS             += -lsetupapi
+}
+
+CONFIG(debug, debug|release) {
+    TARGET = qextserialportd
+} else {
+    TARGET = qextserialport
+}
