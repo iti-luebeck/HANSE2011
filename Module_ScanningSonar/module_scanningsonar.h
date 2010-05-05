@@ -36,9 +36,8 @@ public:
 
     QWidget* createView(QWidget* parent);
 
-    // TODO: getView();
     QList<RobotModule*> getDependencies();
-    QList<SonarReturnData*> data;
+    QList<SonarReturnData*> retData;
 
 public slots:
     void doNextScan();

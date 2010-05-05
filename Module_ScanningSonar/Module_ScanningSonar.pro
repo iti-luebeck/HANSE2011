@@ -12,7 +12,8 @@ SOURCES += module_scanningsonar.cpp \
     sonardatasource.cpp \
     sonardatasourceserial.cpp \
     sonardatasourcefile.cpp \
-    sonardatarecorder.cpp
+    sonardatarecorder.cpp \
+    qsonarview.cpp
 HEADERS += module_scanningsonar.h \
     Module_ScanningSonar_global.h \
     form.h \
@@ -20,7 +21,8 @@ HEADERS += module_scanningsonar.h \
     sonardatasource.h \
     sonardatasourceserial.h \
     sonardatasourcefile.h \
-    sonardatarecorder.h
+    sonardatarecorder.h \
+    qsonarview.h
 DESTDIR = ../build
 LIBPATH += ../build
 INCLUDEPATH += ../Framework
@@ -29,6 +31,6 @@ LIBS += -lFramework
 # INCLUDEPATH += ../Module_SerialPort
 # LIBS += -lModule_SerialPort
 INCLUDEPATH += ../qextserialport
-LIBS += -lqextserialportd1
+LIBS += -lqextserialportd
 FORMS += form.ui
 unix:DEFINES = _TTY_POSIX_

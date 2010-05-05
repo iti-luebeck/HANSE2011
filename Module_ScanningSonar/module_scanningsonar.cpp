@@ -80,13 +80,12 @@ void Module_ScanningSonar::doNextScan()
     SonarReturnData* d = source->getNextPacket();
 
     if (d && d->isPacketValid()) {
-        data.append(d);
+        retData.append(d);
         setHealthToOk();
         data["currentHeading"] = d->getHeadPosition();
         data["range"] = d->getRange();
         emit newSonarData(*d);
     } else {
-
         setHealthToSick("Received bullshit. Dropping packet.");
     }
 }
