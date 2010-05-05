@@ -2,14 +2,14 @@
 #include "pressure_form.h"
 #include "module_uid.h"
 
-#define REGISTER_PRESSURE 0x12
-#define REGISTER_TEMP 0x14
-#define REGISTER_CALIB 0x00 // 8 byte
-#define REGISTER_STATUS 0x55 // TODO: correct!
+#define REGISTER_PRESSURE 12
+#define REGISTER_TEMP 14
+#define REGISTER_CALIB 00 // 8 byte
+#define REGISTER_STATUS 17 // TODO: correct!
 
-#define STATUS_MAGIC_VALUE 0x10 // TODO: correct!
+#define STATUS_MAGIC_VALUE 0x55 // TODO: correct!
 
-#define CALIB_MAGIC_VALUE 0x10 // TODO: correct!
+#define CALIB_MAGIC_VALUE 224 // TODO: correct!
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     : RobotModule(id)
@@ -53,11 +53,9 @@ void Module_PressureSensor::refreshData()
 
 void Module_PressureSensor::readPressure()
 {
-    unsigned char address = getSettings().value("i2cAddress").toInt();
-
     unsigned char readBuffer[2];
-    bool ret = uid->getUID()->I2C_ReadRegisters(address, REGISTER_PRESSURE, 2, readBuffer);
-    if (!ret) {
+
+    if (!readRegister(REGISTER_PRESSURE, 2, readBuffer)) {
         setHealthToSick("UID reported error.");
         return;
     }
@@ -65,18 +63,18 @@ void Module_PressureSensor::readPressure()
     // this is the pressure in mBar
     uint16_t pressure = (int)readBuffer[0] << 8 | (int)readBuffer[1];
 
-    // 100 mBar == ca. 1m wassersäule
-    data["depth"] =  ((float)pressure)/100;
+    data["pressure"] =  pressure;
+
+    // 100 mBar == ca. 1m wassersäule - druck an der luft
+    data["depth"] =  ((float)pressure-1000)/100;
 
 }
 
 void Module_PressureSensor::readTemperature()
 {
-    unsigned char address = getSettings().value("i2cAddress").toInt();
 
     unsigned char readBuffer[2];
-    bool ret = uid->getUID()->I2C_ReadRegisters(address, REGISTER_TEMP, 2, readBuffer);
-    if (!ret) {
+    if (!readRegister(REGISTER_TEMP, 2, readBuffer)) {
         setHealthToSick("UID reported error.");
         return;
     }
@@ -114,24 +112,37 @@ void Module_PressureSensor::doHealthCheck()
     if (!getSettings().value("enabled").toBool())
         return;
 
-    unsigned char address = getSettings().value("i2cAddress").toInt();
+    unsigned char readBuffer[2] = { 0,'\n'};
 
-    unsigned char readBuffer[1];
-
-    if (!uid->getUID()->I2C_ReadRegisters(address, REGISTER_CALIB, 1, readBuffer)) {
+    if (!readRegister(REGISTER_CALIB, 1, readBuffer)) {
         setHealthToSick("UID reported error.");
         return;
     }
     if (readBuffer[0] != CALIB_MAGIC_VALUE) {
-        setHealthToSick("First calibration byte doesn't match.");
+        setHealthToSick("First calibration byte doesn't match: is="+QString::number(readBuffer[0]));
         return;
     }
 
-    if (!uid->getUID()->I2C_ReadRegisters(address, REGISTER_STATUS, 1, readBuffer)) {
+    if (!readRegister(REGISTER_STATUS, 1, readBuffer)) {
         setHealthToSick("UID reported error.");
         return;
     }
     if (readBuffer[0] != STATUS_MAGIC_VALUE) {
-        setHealthToSick("Status register doesn't match magic value.");
+        setHealthToSick("Status register doesn't match magic value: is="+QString::number(readBuffer[0]));
     }
+}
+
+bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned char *ret_buf)
+{
+    unsigned char address = getSettings().value("i2cAddress").toInt();
+
+    if (!uid->getUID()->I2C_Write(address, &reg, 1)) {
+        setHealthToSick("UID reported error.");
+        return false;
+    }
+    if (!uid->getUID()->I2C_Read(address, size, ret_buf)) {
+        setHealthToSick("UID reported error.");
+        return false;
+    }
+    return true;
 }

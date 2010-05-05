@@ -61,6 +61,8 @@ private:
     void readPressure();
     void readTemperature();
 
+    bool readRegister(unsigned char reg, int size, unsigned char *ret_buf);
+
 };
 
 #endif // MODULE_PRESSURESENSOR_H
