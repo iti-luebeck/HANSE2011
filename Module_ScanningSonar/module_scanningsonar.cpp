@@ -82,6 +82,8 @@ void Module_ScanningSonar::doNextScan()
     if (d && d->isPacketValid()) {
         data.append(d);
         setHealthToOk();
+        data["currentHeading"] = d->getHeadPosition();
+        data["range"] = d->getRange();
         emit newSonarData(*d);
     } else {
 
