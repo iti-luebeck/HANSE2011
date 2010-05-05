@@ -11,10 +11,18 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     this->thrusterRight = thrusterRight;
     this->pressure = pressure;
 
-    setDefaultValue("p", 5);
-    setDefaultValue("i", 0);
-    setDefaultValue("d", 42);
-    setDefaultValue("gap", 1);
+    setDefaultValue("p_up",     1.0);
+    setDefaultValue("p_down",   1.0);
+    setDefaultValue("maxSpU",   0.3);
+    setDefaultValue("maxSpD",   -0.3);
+    setDefaultValue("neutrSpD", 0.0);
+    setDefaultValue("maxDepthError", 0.1);
+
+    setDefaultValue("horizSpM_exp", false);
+
+    actualForwardSpeed=0.0;
+    actualAngularSpeed=0.0;
+    setvalueDepth=0.0;
 
     connect(pressure, SIGNAL(newDepthData(float)), this, SLOT(newDepthData(float)));
 }
@@ -29,20 +37,93 @@ void Module_ThrusterControlLoop::reset()
     // TODO
 }
 
+void Module_ThrusterControlLoop::updateConstantsFromInitNow()
+{
+    p_down    = getSettings().value("p_down").toFloat();
+    p_up      = getSettings().value("p_up").toFloat();
+    maxSpD    = getSettings().value("maxSpD").toFloat();
+    maxSpU    = getSettings().value("maxSpU").toFloat();
+    neutrSpD  = getSettings().value("neutrSpD").toFloat();
+    maxDepthError = getSettings().value("maxDepthError").toFloat();
+
+    horizSpM_exp = getSettings().value("horizSpM_exp").toBool();
+}
+
+
+
 void Module_ThrusterControlLoop::newDepthData(float depth)
 {
     if (!getSettings().value("enabled").toBool())
         return;
 
-    float p = getSettings().value("p").toFloat();
-    float i = getSettings().value("i").toFloat();
-    float d = getSettings().value("d").toFloat();
+    // Speed of the UpDownThruster:
+    // TODO: PRESUMPTION: speed>0.0 means UP
+    float speed = neutrSpD;
+    float error = depth-setvalueDepth;
 
-    thrusterLeft->setSpeed(0.5);
-    thrusterRight->setSpeed(0.5);
-    thrusterDown->setSpeed(0);
+    // control-loop step:
+    if (fabs(error) > maxDepthError) {
+        if (error > 0.0) {
+            // We are to deep => go UP:
+            speed += p_up*error;
+        } else {
+            // We are not deep enough
+            speed += p_down*error;
+        }
+    }
 
-    // TODO
+    // limit the speed:
+    if (speed>maxSpU) { speed=maxSpU; }
+    if (speed<maxSpD) { speed=maxSpD; }
+
+    thrusterDown->setSpeed(speed);
+}
+
+void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
+{
+    float speedL=0.0;
+    float speedR=0.0;
+#define MINSP 0.01
+
+    if (fabs(actualForwardSpeed)<MINSP) {
+        // just turn:
+        speedL =  actualAngularSpeed;
+        speedR = -actualAngularSpeed;
+
+    } else if (fabs(actualAngularSpeed)<MINSP) {
+        // just go forward:
+        speedL = actualForwardSpeed;
+        speedR = actualForwardSpeed;
+
+    } else {
+        // combine 'forward' and 'angular' speed:
+
+        if (!horizSpM_exp) { // the easy way:
+            speedL = (actualForwardSpeed+actualAngularSpeed)/2;
+            speedR = (actualForwardSpeed-actualAngularSpeed)/2;
+
+        } else { // the experimental way:
+            // 1. Just add the 'forward' and 'angular' speed:
+            speedL = actualForwardSpeed+actualAngularSpeed;
+            speedR = actualForwardSpeed-actualAngularSpeed;
+
+            // 2. If one of the speeds are out of bounds then
+            // normalize it to the max-abs-value:
+            float aL = fabs(speedL);
+            float aR = fabs(speedR);
+            if ((aL>1.0) && (aL>aR)) {
+                speedL = speedL/aL;
+                speedR = speedR/aL;
+            } else if (aR>1.0) {
+                speedL = speedL/aR;
+                speedR = speedR/aR;
+            }
+        }
+    }
+
+    thrusterLeft->setSpeed( speedL);
+    thrusterRight->setSpeed(speedR);
+
 }
 
 void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
@@ -50,7 +131,11 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
     if (!getSettings().value("enabled").toBool())
         return;
 
-    // TODO
+    if (angularSpeed> 1.0) { angularSpeed= 1.0; }
+    if (angularSpeed<-1.0) { angularSpeed=-1.0; }
+    actualAngularSpeed=angularSpeed;
+
+    updateHorizontalThrustersNow();
 }
 
 void Module_ThrusterControlLoop::setForwardSpeed(float speed)
@@ -58,7 +143,11 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
     if (!getSettings().value("enabled").toBool())
         return;
 
-    // TODO
+    if (speed> 1.0) { speed= 1.0; }
+    if (speed<-1.0) { speed=-1.0; }
+    actualForwardSpeed=speed;
+
+    updateHorizontalThrustersNow();
 }
 
 void Module_ThrusterControlLoop::setDepth(float depth)
@@ -66,7 +155,7 @@ void Module_ThrusterControlLoop::setDepth(float depth)
     if (!getSettings().value("enabled").toBool())
         return;
 
-    // TODO
+    setvalueDepth=depth;
 }
 
 QWidget* Module_ThrusterControlLoop::createView(QWidget *parent)

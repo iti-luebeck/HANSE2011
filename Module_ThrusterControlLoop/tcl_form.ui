@@ -14,50 +14,90 @@
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>depth P</string>
+      <string>P UP  (+)</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="p"/>
+    <widget class="QLineEdit" name="p_up"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>depth I</string>
+      <string>P DOWN  (+)</string>
      </property>
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="i"/>
+    <widget class="QLineEdit" name="p_down"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>depth D</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>floating gap</string>
+      <string>Neutral Speed DOWN (-)</string>
      </property>
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="d"/>
+    <widget class="QLineEdit" name="neutrSpD"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>max Speed UP  (+)</string>
+     </property>
+    </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QLineEdit" name="gap"/>
+    <widget class="QLineEdit" name="maxSpU"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>max Speed DOWN (-)</string>
+     </property>
+    </widget>
    </item>
    <item row="4" column="1">
+    <widget class="QLineEdit" name="maxSpD"/>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>horizontal speed mode:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
     <widget class="QPushButton" name="save">
      <property name="text">
       <string>Apply &amp;&amp; Save</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QCheckBox" name="horizSpM_exp">
+     <property name="text">
+      <string>experimental</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="maxDepthError"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>max depth error (+)</string>
      </property>
     </widget>
    </item>

@@ -17,6 +17,13 @@ public:
 
     QList<RobotModule*> getDependencies();
 
+    /**
+      * Copy control-loop-constants from Init-File (see form)
+      * to the internal variables.
+      *
+      */
+    void updateConstantsFromInitNow();
+
 public slots:
 
     /**
@@ -31,7 +38,7 @@ public slots:
     /**
       * Set forward speed and hold it until told otherwise.
       *
-      * range of speed: m/s ???
+      * range of speed: -1.0 to 1.0
       */
     void setForwardSpeed(float speed);
 
@@ -42,7 +49,7 @@ public slots:
       * negative angular speed implies a counterclockwise rotation.
       * (both rotations as seem from above the robot)
       *
-      * range: rad/s ???
+      * range: -1.0 to 1.0
       */
     void setAngularSpeed(float angularSpeed);
 
@@ -56,10 +63,33 @@ public slots:
 
 private:
 
+    void updateHorizontalThrustersNow();
+
     Module_PressureSensor* pressure;
     Module_Thruster* thrusterLeft;
     Module_Thruster* thrusterRight;
     Module_Thruster* thrusterDown;
+
+    // Control-Loop-Constants:
+
+    // Speed of the UpDownThruster:
+    // TODO: PRESUMPTION: speed>0.0 means UP
+    float p_down;   // should be +
+    float p_up;     // should be +
+    float maxSpD;   // should be -
+    float maxSpU;   // should be +
+    float neutrSpD; // should be -
+    float maxDepthError; // should be +
+
+    bool horizSpM_exp;
+
+    // Actual-Speed-Variables:
+    float actualForwardSpeed;
+    float actualAngularSpeed;
+
+    float setvalueDepth;
+
+
 
 private slots:
 

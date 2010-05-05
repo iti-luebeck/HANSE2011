@@ -8,10 +8,16 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     ui->setupUi(this);
     this->module = module;
 
-    ui->p->setText(module->getSettings().value("p").toString());
-    ui->i->setText(module->getSettings().value("i").toString());
-    ui->d->setText(module->getSettings().value("d").toString());
-    ui->gap->setText(module->getSettings().value("gap").toString());
+    ui->p_up->setText(module->getSettings().value(      "p_up").toString());
+    ui->p_down->setText(module->getSettings().value(    "p_down").toString());
+    ui->maxSpU->setText(module->getSettings().value(    "maxSpU").toString());
+    ui->maxSpD->setText(module->getSettings().value(    "maxSpD").toString());
+    ui->neutrSpD->setText(module->getSettings().value(  "neutrSpD").toString());
+    ui->maxDepthError->setText(module->getSettings().value(  "maxDepthError").toString());
+
+    ui->horizSpM_exp->setChecked( module->getSettings().value("horizSpM_exp").toBool() );
+
+    module->updateConstantsFromInitNow();
 }
 
 TCL_Form::~TCL_Form()
@@ -33,8 +39,14 @@ void TCL_Form::changeEvent(QEvent *e)
 
 void TCL_Form::on_save_clicked()
 {
-    module->getSettings().setValue("p", ui->p->text().toFloat());
-    module->getSettings().setValue("i", ui->i->text().toFloat());
-    module->getSettings().setValue("d", ui->d->text().toFloat());
-    module->getSettings().setValue("gap", ui->gap->text().toFloat());
+    module->getSettings().setValue("p_up",      ui->p_up->text().toFloat());
+    module->getSettings().setValue("p_down",    ui->p_down->text().toFloat());
+    module->getSettings().setValue("maxSpU",    ui->maxSpU->text().toFloat());
+    module->getSettings().setValue("maxSpD",    ui->maxSpD->text().toFloat());
+    module->getSettings().setValue("neutrSpD",  ui->neutrSpD->text().toFloat());
+    module->getSettings().setValue("maxDepthError",  ui->maxDepthError->text().toFloat());
+
+    module->getSettings().setValue("horizSpM_exp", ui->horizSpM_exp->isChecked() );
+
+    module->updateConstantsFromInitNow();
 }
