@@ -132,14 +132,14 @@ void Module_PressureSensor::doHealthCheck()
 
     unsigned char readBuffer[1];
 
-    if (!readRegister(REGISTER_CALIB, 1, readBuffer)) {
-        setHealthToSick("UID reported error.");
-        return;
-    }
-    if (readBuffer[0] != CALIB_MAGIC_VALUE) {
-        setHealthToSick("First calibration byte doesn't match: is="+QString::number(readBuffer[0]));
-        return;
-    }
+//    if (!readRegister(REGISTER_CALIB, 1, readBuffer)) {
+//        setHealthToSick("UID reported error.");
+//        return;
+//    }
+//    if (readBuffer[0] != CALIB_MAGIC_VALUE) {
+//        setHealthToSick("First calibration byte doesn't match: is="+QString::number(readBuffer[0]));
+//        return;
+//    }
 
     if (!readRegister(REGISTER_STATUS, 1, readBuffer)) {
         setHealthToSick("UID reported error.");
@@ -147,7 +147,10 @@ void Module_PressureSensor::doHealthCheck()
     }
     if (readBuffer[0] != STATUS_MAGIC_VALUE) {
         setHealthToSick("Status register doesn't match magic value: is="+QString::number(readBuffer[0]));
+        return;
     }
+
+    setHealthToOk();
 }
 
 bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned char *ret_buf)
