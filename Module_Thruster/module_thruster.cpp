@@ -11,7 +11,7 @@
 #define REG_SWREV 0x07
 
 // expected value from the "software revision" register
-#define MAGIC_SWREV 7
+#define MAGIC_SWREV 10
 
 Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
     : RobotModule(id)
@@ -109,7 +109,7 @@ void Module_Thruster::doHealthCheck()
     if (!ret)
         setHealthToSick("UID reported error.");
     else if (data[0] != MAGIC_SWREV)
-        setHealthToSick("sw revision register doesn't match magic value.");
+        setHealthToSick("sw revision register doesn't match magic value: is="+QString::number(data[0]));
     else
         setHealthToOk();
 }
