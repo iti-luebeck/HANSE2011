@@ -4,6 +4,7 @@
 QT -= gui
 QT += network
 QT += test
+DESTDIR = ../build
 TARGET = Gamepad
 CONFIG += console
 CONFIG += qtestlib
@@ -14,7 +15,5 @@ SOURCES += main.cpp \
 HEADERS += gamepad.h \
     client.h
 INCLUDEPATH += Gamepaddriver
-LIBS += -lwinmm \
-    -LGamepaddriver \
-    -ldinput8 \
-    -dxguid
+LIBPATH += Gamepaddriver
+LIBS += -ldinput8
