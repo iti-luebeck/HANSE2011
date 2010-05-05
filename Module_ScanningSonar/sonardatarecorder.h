@@ -25,6 +25,7 @@ private:
     QTextStream* stream;
     QFile* file;
     Log4Qt::Logger *logger;
+    QTime time;
 };
 
 #endif // SONARDATARECORDER_H

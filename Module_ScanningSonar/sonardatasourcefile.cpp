@@ -52,16 +52,24 @@ SonarReturnData* SonarDataSourceFile::getNextPacket()
     stream->readRawData(hs, 4);
 
     QString fullString(date);
+    fullString.append(" ");
     fullString.append(time);
     fullString.append(hs);
 
-    QDateTime dt = QDateTime::fromString(fullString, "dd-MMM-yyyyHH:mm:ss.z");
+    logger->trace("rawDateString=" + fullString);
+    QDateTime dt = QDateTime::fromString(fullString, "dd-MMM-yyyy HH:mm:ss.z");
 
-    stream->skipRawData(100 - 33);
+    stream->skipRawData(5);
+
+    quint8 startGain;
+    *stream >> startGain;
+
+    stream->skipRawData(100 - 39);
 
     logger->trace("totalBytes=" + QString::number(totalBytes));
     logger->trace("nToReadIndex=" + QString::number(nToReadIndex));
     logger->trace("nToRead=" + QString::number(nToRead));
+    logger->trace("startGain=" + QString::number(startGain));
     logger->trace("DateTime=" + dt.toString("ddd MMM d yyyy HH:mm:ss.zzz"));
 
     char remainingData[totalBytes - 100];
@@ -74,6 +82,8 @@ SonarReturnData* SonarDataSourceFile::getNextPacket()
     logger->trace("Read packet with content " + (QString)remainingDataArray.toHex());
 
     SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
-    return new SonarReturnData(remainingDataArray, dt);
+    SonarReturnData *d = new SonarReturnData(remainingDataArray, dt);
+    d->startGain = startGain;
+    return d;
 }
 

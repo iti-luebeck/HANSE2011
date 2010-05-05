@@ -10,7 +10,9 @@ SonarReturnData::SonarReturnData(const SonarReturnData& c)
 {
     this->packet = c.packet;
     dateTime = c.dateTime;
+    startGain = c.startGain;
 }
+
 SonarReturnData::SonarReturnData(QByteArray& returnDataPacket, QDateTime& date)
 {
     this->packet = returnDataPacket;

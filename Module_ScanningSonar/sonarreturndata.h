@@ -75,6 +75,8 @@ public:
 
     QDateTime dateTime;
 
+    quint8 startGain;
+
 private:
 
     /**
