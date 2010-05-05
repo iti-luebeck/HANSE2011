@@ -2,14 +2,21 @@
 #include "pressure_form.h"
 #include "module_uid.h"
 
+#define REGISTER_CALIB 00 // 8 bytes
+#define REGISTER_PRESSURE_RAW 8
+#define REGISTER_TEMP_RAW 10
 #define REGISTER_PRESSURE 12
 #define REGISTER_TEMP 14
-#define REGISTER_CALIB 00 // 8 byte
-#define REGISTER_STATUS 17 // TODO: correct!
+#define REGISTER_STATUS 17
 
-#define STATUS_MAGIC_VALUE 0x55 // TODO: correct!
+// indicates problem between i2c-spi bridge and pressure sensor
+#define STATUS_MAGIC_VALUE 0x55
+#define CALIB_MAGIC_VALUE 224
 
-#define CALIB_MAGIC_VALUE 224 // TODO: correct!
+// pressure range. everything outside this range will be regarded as
+// a meassurement error
+#define PRESSURE_MIN 900
+#define PRESSURE_MAX 3000
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     : RobotModule(id)
@@ -66,7 +73,11 @@ void Module_PressureSensor::readPressure()
     data["pressure"] =  pressure;
 
     // 100 mBar == ca. 1m wassersäule - druck an der luft
-    data["depth"] =  ((float)pressure-1000)/100;
+    data["depth"] =  ((float)pressure-getSettings().value("airPressure").toFloat())/100;
+
+    if (pressure < PRESSURE_MIN || pressure > PRESSURE_MAX) {
+        setHealthToSick("Pressure of "+QString::number(pressure) + " doesn't make sense.");
+    }
 
 }
 
@@ -87,7 +98,14 @@ void Module_PressureSensor::readTemperature()
 
 float Module_PressureSensor::getDepth()
 {
-    return data["depth"].toFloat();
+    float p = data["pressure"].toFloat();
+    if (p > 900 && p <= 2000) {
+        return data["depth"].toFloat();
+    } else {
+        setHealthToSick("Pressure of "+QString::number(p) + " doesn't make sense.");
+        return 0;
+    }
+
 }
 
 float Module_PressureSensor::getTemperature()
@@ -112,7 +130,7 @@ void Module_PressureSensor::doHealthCheck()
     if (!getSettings().value("enabled").toBool())
         return;
 
-    unsigned char readBuffer[2] = { 0,'\n'};
+    unsigned char readBuffer[1];
 
     if (!readRegister(REGISTER_CALIB, 1, readBuffer)) {
         setHealthToSick("UID reported error.");

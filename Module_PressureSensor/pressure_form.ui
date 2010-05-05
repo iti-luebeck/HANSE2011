@@ -30,14 +30,24 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>frequency</string>
+      <string>frequency (Hz)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="save">
+     <property name="text">
+      <string>Save &amp;&amp; Applay</string>
      </property>
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QPushButton" name="save">
+    <widget class="QLineEdit" name="airPressure"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Save &amp;&amp; Applay</string>
+      <string>air pressure (mBar)</string>
      </property>
     </widget>
    </item>
