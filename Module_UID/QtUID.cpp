@@ -160,6 +160,7 @@ bool UID::I2C_LeaveAckMode() {
 bool UID::I2C_Read(unsigned char address, short byteCount, unsigned char* result) {
     unsigned char sequence[] = {UID::I2C_READ, address, byteCount};
     if (!SendCommand(sequence, sizeof(sequence) , 0)) return false;
+    MyThread::mySleep(10);
     if ( (port->read((char*)result, byteCount)) == -1) return false;
     return true;
 }
@@ -167,7 +168,8 @@ bool UID::I2C_Read(unsigned char address, short byteCount, unsigned char* result
 bool UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, unsigned char* result) {
     unsigned char sequence[] = {UID::I2C_READREGISTER, address, reg, byteCount};
     if (!SendCommand(sequence, sizeof(sequence), 0)) return false;
-    if ( (port->read((char*)result, byteCount)) == -1) return false;
+    MyThread::mySleep(10);
+    if ( (port->read((char*)result, byteCount)) != byteCount) return false;
     return true;
 }
 
@@ -200,7 +202,9 @@ bool UID::I2C_TestSRF08Ready(unsigned char address) {
 bool UID::I2C_Write(unsigned char address, unsigned char* data, short byteCount) {
     unsigned char sequence[] = {UID::I2C_WRITE, address, byteCount};
     if (!SendCommand(sequence, sizeof(sequence), 0)) return false;
+    MyThread::mySleep(10);
     if (!SendCommand(data, byteCount, 0)) return false;
+    MyThread::mySleep(1);
     return true;
 }
 
