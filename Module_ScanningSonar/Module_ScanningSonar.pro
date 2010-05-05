@@ -31,6 +31,6 @@ LIBS += -lFramework
 # INCLUDEPATH += ../Module_SerialPort
 # LIBS += -lModule_SerialPort
 INCLUDEPATH += ../qextserialport
-LIBS += -lqextserialportd
+LIBS += -lqextserialportd1
 FORMS += form.ui
 unix:DEFINES = _TTY_POSIX_
