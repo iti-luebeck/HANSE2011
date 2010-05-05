@@ -61,8 +61,8 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     float div = settings.value("divisor").toFloat();
 
     if (settings.value("receiver").toString()=="thruster") {
-        float left = (float)(forwardSpeed-angularSpeed) / div;
-        float right = (float)(forwardSpeed+angularSpeed) / div;
+        float left = (float)(forwardSpeed+angularSpeed) / div;
+        float right = (float)(forwardSpeed-angularSpeed) / div;
         float updown = (float)speedUpDown / div;
         thrusterDown->setSpeed(updown);
         thrusterLeft->setSpeed(left);
