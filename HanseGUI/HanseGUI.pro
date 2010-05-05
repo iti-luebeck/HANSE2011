@@ -19,7 +19,7 @@ INCLUDEPATH += ../Module_ThrusterControlLoop
 LIBS += -lModule_ThrusterControlLoop
 INCLUDEPATH += ../Module_HandControl
 LIBS += -lModule_HandControl
-LIBS += -lqextserialportd
+LIBS += -lqextserialportd1
 SOURCES += main.cpp \
     mainwindow.cpp \
     modulesgraph.cpp \
