@@ -13,8 +13,8 @@ SOURCES += main.cpp \
     client.cpp
 HEADERS += gamepad.h \
     client.h
-INCLUDEPATH += "C:\Programme\Microsoft DirectX SDK (February 2010)\Include"
+INCLUDEPATH += Gamepaddriver
 LIBS += -lwinmm \
-    -L"C:\Programme\Microsoft DirectX SDK (February 2010)\Lib\x86" \
+    -LGamepaddriver \
     -ldinput8 \
     -dxguid

@@ -7,7 +7,7 @@ Client::Client(int port)
 {
     tcpSocket = new QTcpSocket(this);
 
-    tcpSocket->connectToHost("192.168.0.1",port);
+    tcpSocket->connectToHost("localhost",port);
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(receiveMessage()));
 }
 
