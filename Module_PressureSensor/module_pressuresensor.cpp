@@ -56,6 +56,8 @@ void Module_PressureSensor::refreshData()
 
     readPressure();
     readTemperature();
+
+    emit dataChanged(this);
 }
 
 void Module_PressureSensor::readPressure()
