@@ -11,8 +11,7 @@ DESTDIR = ../build
 include(log4qt/log4qt.pri)
 SOURCES += robotmodule.cpp \
     healthstatus.cpp
-HEADERS += framework.h \
-    Framework_global.h \
+HEADERS += Framework_global.h \
     robotmodule.h \
     healthstatus.h
 FORMS += 
