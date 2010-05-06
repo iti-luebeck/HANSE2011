@@ -62,6 +62,7 @@ private:
     void readTemperature();
 
     bool readRegister(unsigned char reg, int size, unsigned char *ret_buf);
+    bool readRegister2(unsigned char reg, int size, unsigned char *ret_buf);
 
 };
 

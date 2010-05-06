@@ -134,15 +134,6 @@ void Module_PressureSensor::doHealthCheck()
 
     unsigned char readBuffer[1];
 
-//    if (!readRegister(REGISTER_CALIB, 1, readBuffer)) {
-//        setHealthToSick("UID reported error.");
-//        return;
-//    }
-//    if (readBuffer[0] != CALIB_MAGIC_VALUE) {
-//        setHealthToSick("First calibration byte doesn't match: is="+QString::number(readBuffer[0]));
-//        return;
-//    }
-
     if (!readRegister(REGISTER_STATUS, 1, readBuffer)) {
         setHealthToSick("UID reported error.");
         return;
@@ -155,7 +146,7 @@ void Module_PressureSensor::doHealthCheck()
     setHealthToOk();
 }
 
-bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned char *ret_buf)
+bool Module_PressureSensor::readRegister2(unsigned char reg, int size, unsigned char *ret_buf)
 {
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
@@ -164,6 +155,17 @@ bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned c
         return false;
     }
     if (!uid->getUID()->I2C_Read(address, size, ret_buf)) {
+        setHealthToSick("UID reported error.");
+        return false;
+    }
+    return true;
+}
+
+bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned char *ret_buf)
+{
+    unsigned char address = getSettings().value("i2cAddress").toInt();
+
+    if (!uid->getUID()->I2C_ReadRegisters(address, reg, size, ret_buf)) {
         setHealthToSick("UID reported error.");
         return false;
     }
