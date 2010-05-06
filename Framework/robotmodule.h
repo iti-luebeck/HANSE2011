@@ -7,12 +7,20 @@
 #include <log4qt/logger.h>
 #include "healthstatus.h"
 
+/**
+  * Abstract super class of every robot module.
+  *
+  * This class is meant to be subclassed.
+  */
 class FRAMEWORKSHARED_EXPORT RobotModule : public QObject
 {
     Q_OBJECT
 
 public:
 
+    /**
+      * Create a new Robot Module with the given id.
+      */
     RobotModule(QString id);
 
     /**
@@ -49,8 +57,16 @@ public:
       */
     QSettings& getSettings();
 
+    /**
+      * Returns the data store.
+      *
+      * Only the owning module itself is allowed to modify it.
+      */
     const QMap<QString,QVariant> getData();
 
+    /**
+      * Returns the current health status of this module
+      */
     HealthStatus getHealthStatus();
 
 signals:
@@ -59,8 +75,22 @@ signals:
       */
     void enabled(bool value);
 
-    //void healthStatusChanged(HealthStatus data);
+    /**
+      * Signals that the health status of the module has changed.
+      *
+      * this signals indicated that the HealthStatus has changed in any way.
+      */
     void healthStatusChanged(RobotModule *module);
+
+    /**
+      * Signals a change in the "data" map.
+      *
+      * After something in the map has been changed, this signal must be emitted.
+      *
+      * Note: The RobotModule may aggregate this signal, i.e. emit it only after a
+      * couple of different meassurements have been performed.
+      */
+    void dataChanged(RobotModule *module);
 
 public slots:
 
@@ -96,6 +126,10 @@ protected:
       */
     QSettings settings;
 
+    /**
+      * Central data store for this module. Everything stored in this Map is
+      * automatically displayed in the GUI, and will also be recorded to file.
+      */
     QMap<QString,QVariant> data;
 
     /**
@@ -142,6 +176,9 @@ private:
       */
     HealthStatus healthStatus;
 
+    /**
+      * Timer to perform regular health checks.
+      */
     QTimer healthCheckTimer;
 
 };
