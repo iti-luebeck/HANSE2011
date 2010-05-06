@@ -50,9 +50,13 @@ void DataRecorder::newDataReceived(RobotModule *module)
 {
     open();
 
+    logger->debug("bla 1");
+
     if (!stream) {
         return;
     }
+
+    logger->debug("bla 3");
 
     foreach (QString key, settingsKeys) {
         *stream << module->getSettings().value(key).toString() << ",";
@@ -61,9 +65,14 @@ void DataRecorder::newDataReceived(RobotModule *module)
     foreach (QString key, dataKeys) {
         *stream << module->getData().value(key).toString() << ",";
     }
+    *stream << "das wars\n";
+    logger->debug("bla 4");
+
 }
 
 void DataRecorder::close()
 {
+    stream->flush();
+    logger->debug("bla6");
     file->close();
 }
