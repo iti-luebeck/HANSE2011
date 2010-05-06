@@ -89,7 +89,7 @@ private:
 
     float setvalueDepth;
 
-
+    bool control_loop_enabled;
 
 private slots:
 
