@@ -16,25 +16,33 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     setDefaultValue("maxSpU",   0.3);
     setDefaultValue("maxSpD",   -0.3);
     setDefaultValue("neutrSpD", 0.0);
-    setDefaultValue("maxDepthError", 0.1);
+    setDefaultValue("maxDepthError", 0.05);
 
     setDefaultValue("horizSpM_exp", false);
 
-    actualForwardSpeed=0.0;
-    actualAngularSpeed=0.0;
-    setvalueDepth=0.0;
+    updateConstantsFromInitNow();
+
+    reset();
 
     connect(pressure, SIGNAL(newDepthData(float)), this, SLOT(newDepthData(float)));
 }
 
 void Module_ThrusterControlLoop::terminate()
 {
-    // TODO
+    reset();
 }
 
 void Module_ThrusterControlLoop::reset()
 {
-    // TODO
+    actualForwardSpeed=0.0;
+    actualAngularSpeed=0.0;
+    setvalueDepth=0.0;
+
+    control_loop_enabled = false;
+
+    thrusterLeft->setSpeed( 0 );
+    thrusterRight->setSpeed(0 );
+    thrusterDown->setSpeed( 0 );
 }
 
 void Module_ThrusterControlLoop::updateConstantsFromInitNow()
@@ -56,27 +64,33 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
     if (!getSettings().value("enabled").toBool())
         return;
 
-    // Speed of the UpDownThruster:
-    // TODO: PRESUMPTION: speed>0.0 means UP
-    float speed = neutrSpD;
-    float error = depth-setvalueDepth;
+    if (control_loop_enabled) {
 
-    // control-loop step:
-    if (fabs(error) > maxDepthError) {
-        if (error > 0.0) {
-            // We are to deep => go UP:
-            speed += p_up*error;
-        } else {
-            // We are not deep enough
-            speed += p_down*error;
+        // Speed of the UpDownThruster:
+        // TODO: PRESUMPTION: speed>0.0 means UP
+        float speed = neutrSpD;
+        float error = depth-setvalueDepth;
+
+        data["depth_error"] = error; // for logging
+
+        // control-loop step:
+        if (fabs(error) > maxDepthError) {
+            if (error > 0.0) {
+                // We are to deep => go UP:
+                speed += p_up*error;
+            } else {
+                // We are not deep enough
+                speed += p_down*error;
+            }
         }
+
+        // limit the speed:
+        if (speed>maxSpU) { speed=maxSpU; }
+        if (speed<maxSpD) { speed=maxSpD; }
+
+        thrusterDown->setSpeed(speed);
+
     }
-
-    // limit the speed:
-    if (speed>maxSpU) { speed=maxSpU; }
-    if (speed<maxSpD) { speed=maxSpD; }
-
-    thrusterDown->setSpeed(speed);
 }
 
 void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
@@ -121,6 +135,7 @@ void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
         }
     }
 
+
     thrusterLeft->setSpeed( speedL);
     thrusterRight->setSpeed(speedR);
 
@@ -133,7 +148,8 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 
     if (angularSpeed> 1.0) { angularSpeed= 1.0; }
     if (angularSpeed<-1.0) { angularSpeed=-1.0; }
-    actualAngularSpeed=angularSpeed;
+    actualAngularSpeed=angularSpeed;    
+    data["actualAngularSpeed"] = actualAngularSpeed;
 
     updateHorizontalThrustersNow();
 }
@@ -146,6 +162,7 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
     if (speed> 1.0) { speed= 1.0; }
     if (speed<-1.0) { speed=-1.0; }
     actualForwardSpeed=speed;
+    data["actualForwardSpeed"] = actualForwardSpeed;  // for logging
 
     updateHorizontalThrustersNow();
 }
@@ -154,6 +171,8 @@ void Module_ThrusterControlLoop::setDepth(float depth)
 {
     if (!getSettings().value("enabled").toBool())
         return;
+
+    control_loop_enabled=true;
 
     setvalueDepth=depth;
 }
