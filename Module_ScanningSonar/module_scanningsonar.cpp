@@ -85,6 +85,7 @@ void Module_ScanningSonar::doNextScan()
         data["currentHeading"] = d->getHeadPosition();
         data["range"] = d->getRange();
         emit newSonarData(*d);
+        emit dataChanged(this);
     } else {
         setHealthToSick("Received bullshit. Dropping packet.");
     }

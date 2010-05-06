@@ -1,4 +1,5 @@
 #include "robotmodule.h"
+#include "datarecorder.h"
 
 RobotModule::RobotModule(QString newId)
     : QObject(), id(newId), settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse")
@@ -10,6 +11,8 @@ RobotModule::RobotModule(QString newId)
     // perform a health check once a second
     connect(&healthCheckTimer, SIGNAL(timeout()), this, SLOT(doHealthCheck()));
     healthCheckTimer.start(1000);
+
+    recorder = new DataRecorder(*this);
 }
 
 void RobotModule::setEnabled(bool value)
@@ -24,8 +27,12 @@ bool RobotModule::isEnabled()
     return settings.value("enabled").toBool();
 }
 
-
 QString RobotModule::getTabName()
+{
+    return id;
+}
+
+QString RobotModule::getId()
 {
     return id;
 }

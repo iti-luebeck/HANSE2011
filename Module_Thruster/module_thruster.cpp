@@ -84,6 +84,9 @@ void Module_Thruster::setSpeed(float speed)
     else
         setHealthToOk();
 
+    emit dataChanged(this);
+
+
 }
 
 QList<RobotModule*> Module_Thruster::getDependencies()

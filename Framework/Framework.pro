@@ -10,8 +10,10 @@ DEFINES += FRAMEWORK_LIBRARY
 DESTDIR = ../build
 include(log4qt/log4qt.pri)
 SOURCES += robotmodule.cpp \
-    healthstatus.cpp
+    healthstatus.cpp \
+    datarecorder.cpp
 HEADERS += Framework_global.h \
     robotmodule.h \
-    healthstatus.h
+    healthstatus.h \
+    datarecorder.h
 FORMS += 

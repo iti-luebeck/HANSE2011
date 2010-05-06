@@ -77,6 +77,8 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
 
     // seems to be working..
     setHealthToOk();
+
+    emit dataChanged(this);
 }
 
 void Module_HandControl::serverReportedError(QString error)

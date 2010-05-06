@@ -7,6 +7,8 @@
 #include <log4qt/logger.h>
 #include "healthstatus.h"
 
+class DataRecorder;
+
 /**
   * Abstract super class of every robot module.
   *
@@ -102,6 +104,11 @@ public slots:
     virtual void reset() = 0;
 
     /**
+      * Enable/disable this module
+      */
+    void setEnabled(bool value);
+
+    /**
       * This method is called when the module is destroyed (in other words:
       * the program terminates)
       *
@@ -114,11 +121,6 @@ public slots:
       * terminated.
       */
     virtual void terminate() = 0;
-
-    /**
-      * Enable/disable this module
-      */
-    void setEnabled(bool value);
 
 protected:
     /**
@@ -180,6 +182,8 @@ private:
       * Timer to perform regular health checks.
       */
     QTimer healthCheckTimer;
+
+    DataRecorder *recorder;
 
 };
 
