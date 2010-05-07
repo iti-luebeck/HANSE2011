@@ -90,7 +90,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (speed<maxSpD) { speed=maxSpD; }
 
         thrusterDown->setSpeed(speed);
-
+        emit dataChanged(this);
     }
 }
 
@@ -153,6 +153,7 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
     data["actualAngularSpeed"] = actualAngularSpeed;
 
     updateHorizontalThrustersNow();
+    emit dataChanged(this);
 }
 
 void Module_ThrusterControlLoop::setForwardSpeed(float speed)
@@ -166,6 +167,7 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
     data["actualForwardSpeed"] = actualForwardSpeed;  // for logging
 
     updateHorizontalThrustersNow();
+    emit dataChanged(this);
 }
 
 void Module_ThrusterControlLoop::setDepth(float depth)
