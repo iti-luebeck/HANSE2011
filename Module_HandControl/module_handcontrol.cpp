@@ -59,21 +59,22 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     data["angularSpeed"] = angularSpeed;
     data["speedUpDown"] = speedUpDown;
 
-    float div = settings.value("divisor").toFloat();
+    float divFw = settings.value("divFw").toFloat();
+    float divLR = settings.value("divLR").toFloat();
+    float divUD = settings.value("divUD").toFloat();
 
     if (settings.value("receiver").toString()=="thruster") {
-        float left = (float)(forwardSpeed+angularSpeed) / div;
-        float right = (float)(forwardSpeed-angularSpeed) / div;
-        float updown = (float)speedUpDown / div;
+        float left = forwardSpeed/divFw+angularSpeed/divLR;
+        float right = forwardSpeed/divFw-angularSpeed/divLR;
+        float updown = (float)speedUpDown / divUD;
         thrusterDown->setSpeed(updown);
         thrusterLeft->setSpeed(left);
         thrusterRight->setSpeed(right);
 
     } else {
-        // TODO: find sutable factors once the control loop interface is fixed.
-        controlLoop->setAngularSpeed(angularSpeed/div);
-        controlLoop->setForwardSpeed(forwardSpeed/div);
-        controlLoop->setDepth(speedUpDown/div);
+        controlLoop->setAngularSpeed(angularSpeed/divLR);
+        controlLoop->setForwardSpeed(forwardSpeed/divFw);
+        controlLoop->setDepth(speedUpDown/divUD);
     }
 
     // seems to be working..

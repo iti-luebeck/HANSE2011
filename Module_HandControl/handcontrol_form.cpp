@@ -9,14 +9,27 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
     this->module = module;
 
     ui->port->setText(module->getSettings().value("port").toString());
-    ui->divisor->setText(module->getSettings().value("divisor").toString());
+    ui->divFw->setText(module->getSettings().value("divFw").toString());
+    ui->divLR->setText(module->getSettings().value("divLR").toString());
+    ui->divUD->setText(module->getSettings().value("divUD").toString());
     if (module->getSettings().value("receiver").toString()=="thruster") {
         ui->controlThruster->setChecked(true);
     } else {
         ui->controlTCL->setChecked(true);
     }
 
+    if (ui->enableGamepad->isChecked()) {
+        ui->sliderFw->setEnabled(false);
+        ui->sliderLR->setEnabled(false);
+        ui->sliderUD->setEnabled(false);
+    } else {
+        ui->sliderFw->setEnabled(true);
+        ui->sliderLR->setEnabled(true);
+        ui->sliderUD->setEnabled(true);
+    }
+
     connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
+    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
 }
 
 HandControl_Form::~HandControl_Form()
@@ -39,12 +52,33 @@ void HandControl_Form::changeEvent(QEvent *e)
 void HandControl_Form::on_save_clicked()
 {
     module->getSettings().setValue("port", ui->port->text().toInt());
-    module->getSettings().setValue("divisor", ui->divisor->text().toFloat());
+    module->getSettings().setValue("divFw", ui->divFw->text().toFloat());
+    module->getSettings().setValue("divUD", ui->divUD->text().toFloat());
+    module->getSettings().setValue("divLR", ui->divLR->text().toFloat());
 
     if (ui->controlThruster->isChecked())
         module->getSettings().setValue("receiver","thruster");
     else
         module->getSettings().setValue("receiver","controlLoop");
+
+    module->getSettings().setValue("enableGamepad", ui->enableGamepad->isChecked());
+
+    ui->sliderFw->setMaximum(ui->divFw->text().toInt());
+    ui->sliderLR->setMaximum(ui->divLR->text().toInt());
+    ui->sliderUD->setMaximum(ui->divUD->text().toInt());
+    ui->sliderFw->setMinimum(-ui->divFw->text().toInt());
+    ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
+    ui->sliderUD->setMinimum(-ui->divUD->text().toInt());
+
+    if (ui->enableGamepad->isChecked()) {
+        ui->sliderFw->setEnabled(false);
+        ui->sliderLR->setEnabled(false);
+        ui->sliderUD->setEnabled(false);
+    } else {
+        ui->sliderFw->setEnabled(true);
+        ui->sliderLR->setEnabled(true);
+        ui->sliderUD->setEnabled(true);
+    }
 
     module->reset();
 
@@ -59,3 +93,14 @@ void HandControl_Form::connectionStatusChanged()
     }
 }
 
+void HandControl_Form::dataChanged(RobotModule *m)
+{
+
+    int forwardSpeed = m->getData().value("forwardSpeed").toInt();
+    int angularSpeed = m->getData().value("angularSpeed").toInt();
+    int speedUpDown = m->getData().value("speedUpDown").toInt();
+
+    ui->sliderFw->setValue(forwardSpeed);
+    ui->sliderLR->setValue(angularSpeed);
+    ui->sliderUD->setValue(speedUpDown);
+}

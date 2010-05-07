@@ -25,6 +25,7 @@ private:
 private slots:
     void on_save_clicked();
     void connectionStatusChanged();
+    void dataChanged(RobotModule* m);
 };
 
 #endif // HANDCONTROL_FORM_H
