@@ -5,7 +5,10 @@ RobotModule::RobotModule(QString newId)
     : QObject(), id(newId), settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse")
 {
     settings.beginGroup(id);
+
     setDefaultValue("enabled", true);
+    setDefaultValue("enableLogging", true);
+
     logger = Log4Qt::Logger::logger(id);
 
     // perform a health check once a second
@@ -50,19 +53,22 @@ void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
 
 void RobotModule::setHealthToOk()
 {
-    logger->info("Health status changed: Back to healthy!");
-    healthStatus.healthOk = true;
-    emit healthStatusChanged(this);
+    if (!healthStatus.isHealthOk()) {
+        logger->info("Health status changed: Back to healthy!");
+        healthStatus.healthOk = true;
+        emit healthStatusChanged(this);
+    }
 }
 
 void RobotModule::setHealthToSick(QString errorMsg)
 {
-    logger->error("Health status changed: Sick!");
-    logger->error("Health status: Last error message: "+errorMsg);
-    healthStatus.healthOk = false;
     healthStatus.errorCount++;
-    healthStatus.lastError = errorMsg;
-    emit healthStatusChanged(this);
+    if (healthStatus.isHealthOk() || healthStatus.getLastError() != errorMsg) {
+        logger->error("Health status changed to sick: Last error message: "+errorMsg);
+        healthStatus.healthOk = false;
+        healthStatus.lastError = errorMsg;
+        emit healthStatusChanged(this);
+    }
 }
 
 HealthStatus RobotModule::getHealthStatus()
@@ -77,4 +83,9 @@ void RobotModule::doHealthCheck()
 
 const QMap<QString,QVariant> RobotModule::getData() {
     return data;
+}
+
+void RobotModule::terminate()
+{
+    recorder->close();
 }

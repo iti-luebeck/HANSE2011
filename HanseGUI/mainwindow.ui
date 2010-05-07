@@ -24,7 +24,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="overviewTab">
        <attribute name="title">
@@ -69,6 +69,26 @@
           <attribute name="horizontalHeaderDefaultSectionSize">
            <number>300</number>
           </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="logTab">
+       <attribute name="title">
+        <string>Log</string>
+       </attribute>
+       <layout class="QFormLayout" name="formLayout">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::ExpandingFieldsGrow</enum>
+        </property>
+        <item row="2" column="1">
+         <widget class="QListWidget" name="logList"/>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="apply">
+          <property name="text">
+           <string>Apply</string>
+          </property>
          </widget>
         </item>
        </layout>

@@ -38,6 +38,7 @@ QWidget* Module_UID::createView(QWidget* parent)
 
 void Module_UID::terminate()
 {
+    RobotModule::terminate();
     //
 }
 

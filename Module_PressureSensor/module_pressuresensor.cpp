@@ -37,6 +37,7 @@ Module_PressureSensor::~Module_PressureSensor()
 
 void Module_PressureSensor::terminate()
 {
+    RobotModule::terminate();
     timer.stop();
 }
 
@@ -57,7 +58,8 @@ void Module_PressureSensor::refreshData()
     readPressure();
     readTemperature();
 
-    emit dataChanged(this);
+    if (getHealthStatus().isHealthOk())
+        emit dataChanged(this);
 }
 
 void Module_PressureSensor::readPressure()

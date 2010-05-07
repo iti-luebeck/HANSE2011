@@ -120,7 +120,7 @@ public slots:
       * that all dependencies of a module A remain alive until this module A is
       * terminated.
       */
-    virtual void terminate() = 0;
+    virtual void terminate();
 
 protected:
     /**

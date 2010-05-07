@@ -48,6 +48,7 @@ Module_Thruster::~Module_Thruster()
 
 void Module_Thruster::terminate()
 {
+    RobotModule::terminate();
 }
 
 void Module_Thruster::reset()
@@ -81,11 +82,10 @@ void Module_Thruster::setSpeed(float speed)
     bool ret = uid->getUID()->I2C_WriteRegister(address,channel,sendValue,0x01);
     if (!ret)
         setHealthToSick("UID reported error.");
-    else
+    else {
         setHealthToOk();
-
-    emit dataChanged(this);
-
+        emit dataChanged(this);
+    }
 
 }
 

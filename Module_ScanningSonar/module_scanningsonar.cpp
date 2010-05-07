@@ -55,6 +55,7 @@ void Module_ScanningSonar::ThreadedReader::pleaseStop()
 
 void Module_ScanningSonar::terminate()
 {
+    RobotModule::terminate();
     logger->debug("Asking Sonar Reading Thread to stop.");
     reader.pleaseStop();
     logger->debug("Waiting for Sonar Reading Thread to terminate.");

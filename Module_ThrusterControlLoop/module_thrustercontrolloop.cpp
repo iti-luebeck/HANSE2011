@@ -29,6 +29,7 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
 
 void Module_ThrusterControlLoop::terminate()
 {
+    RobotModule::terminate();
     reset();
 }
 

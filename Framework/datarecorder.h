@@ -30,6 +30,7 @@ private:
     QString path;
 
     void open();
+    bool isChanged(QStringList a, QStringList b);
 };
 
 #endif // DATARECORDER_H

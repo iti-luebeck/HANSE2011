@@ -6,10 +6,25 @@ DataRecorder::DataRecorder(RobotModule& module)
     logger = Log4Qt::Logger::logger("DataRecorder");
 
     connect(&module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(newDataReceived(RobotModule*)));
+    connect(&module, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(newDataReceived(RobotModule*)));
 
     path = "logs/"+QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm");
     QDir(".").mkpath(path);
     file = new QFile(path+"/"+module.getId()+".csv");
+
+    fileCount = 0;
+}
+
+bool DataRecorder::isChanged(QStringList a, QStringList b)
+{
+    if (a.size() != b.size())
+        return true;
+
+    for(int i=0; i<a.size(); i++) {
+        if (a[i] != b[i])
+            return true;
+    }
+    return false;
 }
 
 void DataRecorder::open()
@@ -19,9 +34,9 @@ void DataRecorder::open()
 
     QStringList settingsKeysNew = module.getSettings().allKeys();
     settingsKeysNew.sort();
+    settingsKeysNew.removeOne("enableLogging");
 
-    // TODO: compare lists
-    bool listsChanged = false;
+    bool listsChanged = isChanged(dataKeys, dataKeysNew) || isChanged(settingsKeys, settingsKeysNew);
 
     if (file->isOpen() && listsChanged) {
         file->close();
@@ -35,6 +50,7 @@ void DataRecorder::open()
             stream = new QTextStream(file);
         } else {
             logger->error("Could not open file "+file->fileName());
+            return;
         }
 
         dataKeys = module.getData().keys();
@@ -42,37 +58,65 @@ void DataRecorder::open()
 
         settingsKeys = module.getSettings().allKeys();
         settingsKeys.sort();
+        settingsKeys.removeOne("enableLogging");
+
+        *stream << ";time,healthStatus,healthErrorMsg";
+        foreach (QString key, settingsKeys) {
+            *stream << "," << key;
+        }
+
+        foreach (QString key, dataKeys) {
+            *stream << "," << key;
+        }
+        *stream << "\r\n";
+
+        stream->flush();
     }
 
 }
 
 void DataRecorder::newDataReceived(RobotModule *module)
 {
-    open();
-
-    logger->debug("bla 1");
-
-    if (!stream) {
+    if (!module->getSettings().value("enableLogging").toBool()) {
         return;
     }
 
-    logger->debug("bla 3");
+    open();
+
+    if (!file->isOpen()) {
+        return;
+    }
+
+    QDateTime now = QDateTime::currentDateTime();
+
+    *stream << now.toTime_t() << "." << now.toString("z") << ",";
+    *stream << module->getHealthStatus().isHealthOk() << ",";
+    *stream << "\"" << module->getHealthStatus().getLastError() << "\"";
 
     foreach (QString key, settingsKeys) {
-        *stream << module->getSettings().value(key).toString() << ",";
+        if (key == "enableLogging")
+            continue;
+
+        QVariant value = module->getSettings().value(key);
+        if (value.canConvert(QVariant::Double))
+            *stream << "," << value.toFloat();
+        else
+            *stream << "," << "\"" << value.toString() << "\"";
     }
 
     foreach (QString key, dataKeys) {
-        *stream << module->getData().value(key).toString() << ",";
+        QVariant value = module->getData().value(key);
+        if (value.canConvert(QVariant::Double))
+            *stream << "," << value.toFloat();
+        else
+            *stream << "," << "\"" << value.toString() << "\"";
     }
-    *stream << "das wars\n";
-    logger->debug("bla 4");
 
+    *stream << "\r\n";
 }
 
 void DataRecorder::close()
 {
-    stream->flush();
-    logger->debug("bla6");
+    logger->debug("Closing data log file for "+module.getId());
     file->close();
 }

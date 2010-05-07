@@ -40,6 +40,7 @@ QWidget* Module_HandControl::createView(QWidget* parent)
 
 void Module_HandControl::terminate()
 {
+    RobotModule::terminate();
     server->close();
 }
 
