@@ -17,7 +17,6 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
 
     ui->horizSpM_exp->setChecked( module->getSettings().value("horizSpM_exp").toBool() );
 
-    module->updateConstantsFromInitNow();
 }
 
 TCL_Form::~TCL_Form()
