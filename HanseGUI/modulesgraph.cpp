@@ -51,7 +51,8 @@ void ModulesGraph::HastaLaVista()
 {
     logger->info("Terminating all modules...");
     // go backwards through the module list
-    for (int i = modules.size()-1; i==0; i--) {
+    for (int i = modules.size()-1; i>=0; i--) {
+        logger->info("Terminating "+modules[i]->getId());
         modules[i]->terminate();
     }
     logger->info("All modules terminated.");
