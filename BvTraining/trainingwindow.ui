@@ -40,7 +40,7 @@
      <string>Blob</string>
     </property>
     <property name="checked">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QRadioButton" name="surfRadioButton">
@@ -54,6 +54,9 @@
     </property>
     <property name="text">
      <string>Surf</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="selectButton">
@@ -124,14 +127,66 @@
    <widget class="QLineEdit" name="threshEdit">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>130</y>
-      <width>113</width>
+      <x>170</x>
+      <y>140</y>
+      <width>51</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>0.7</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="streamButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>WebCam</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="webcamID">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>70</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>120</y>
+      <width>46</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Treshhold</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>70</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ID</string>
     </property>
    </widget>
   </widget>
@@ -141,7 +196,7 @@
      <x>0</x>
      <y>0</y>
      <width>271</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

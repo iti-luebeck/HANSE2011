@@ -6,7 +6,7 @@
 #include <cxcore.h>
 #include <highgui.h>
 #include "imageprocessor.h"
-
+#include "videoStream.h"
 using namespace cv;
 
 TrainingWindow::TrainingWindow(QWidget *parent) :
@@ -139,4 +139,10 @@ void TrainingWindow::on_saveBlobButton_clicked()
     {
         surfTraining.save(saveFile);
     }
+}
+
+void TrainingWindow::on_streamButton_clicked()
+{
+    int webCamID = ui->webcamID->text().toInt();
+surfTraining.liveTest(webCamID);
 }

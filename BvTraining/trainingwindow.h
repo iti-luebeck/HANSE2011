@@ -6,6 +6,7 @@
 #include "SVMClassifier.h"
 #include "blobtraining.h"
 #include "surftraining.h"
+#include "videoStream.h"
 
 namespace Ui {
     class TrainingWindow;
@@ -36,6 +37,7 @@ private slots:
     void on_selectButton_clicked();
     void on_loadButton_clicked();
     void on_trainButton_clicked();
+    void on_streamButton_clicked();
 };
 
 #endif // TRAININGWINDOW_H

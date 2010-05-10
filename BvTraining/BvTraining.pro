@@ -16,7 +16,6 @@ SOURCES += main.cpp \
     surftraining.cpp \
     helpers.cpp \
     surfclassifier.cpp
-
 HEADERS += trainingwindow.h \
     imageprocessor.h \
     SVMClassifier.h \
@@ -45,3 +44,4 @@ LIBS += -lcv210 \
     -lml210 \
     -lcxts210 \
     -lhighgui210
+CONFIG += console

@@ -108,6 +108,38 @@ void SurfTraining::test(QString videoFile)
     cvDestroyWindow("Image");
 }
 
+void SurfTraining::liveTest(int webcamID)
+{
+    QList<Mat> objects;
+    objects.append(features);
+    sc.setObjects(objects);
+    sc.setThresh(thresh);
+    int       key = 0;
+    VideoCapture capture = VideoCapture(webcamID);
+    if ( !capture.grab() ) {
+        fprintf( stderr, "Cannot open initialize webcam!\n" );
+    }
+    cvNamedWindow( "Image", CV_WINDOW_AUTOSIZE );
+    while( key != 'q' ) {
+        cv::Mat frame;
+        capture.retrieve(frame,0);
+        if (!frame.empty())
+        {
+            QList<FoundObject> matches;
+            sc.classify(frame, matches);
+            for (int i = 0; i < matches.size(); i++)
+            {
+                rectangle(frame, Point(matches.at(i).left, matches.at(i).top),
+                          Point(matches.at(i).right, matches.at(i).bottom), Scalar(255,0,0), 5);
+            }
+            imshow("Image", frame);
+        }
+        key = cvWaitKey( 1 );
+    }
+    cvDestroyWindow("Image");
+    capture.release();
+}
+
 void SurfTraining::save(QString saveFile)
 {
     FileStorage storage(saveFile.toStdString(), CV_STORAGE_WRITE);
@@ -117,8 +149,8 @@ void SurfTraining::save(QString saveFile)
 
 void SurfTraining::load(QString loadFile)
 {
-    FileStorage storage(loadFile.toStdString(), CV_STORAGE_READ);
-    storage.release();
+    CvMat* featureMat = (CvMat*)cvLoad(loadFile.toAscii().data());
+    features = Mat(featureMat,true);
 }
 
 

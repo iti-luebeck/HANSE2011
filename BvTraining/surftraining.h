@@ -22,6 +22,7 @@ public:
     void test(QString videoFile);
     void save(QString saveFile);
     void load(QString loadFile);
+    void liveTest(int webcamID);
 
     void setThresh(double thresh);
 };
