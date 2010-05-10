@@ -62,15 +62,17 @@ void Module_Thruster::setSpeed(float speed)
     if (!getSettings().value("enabled").toBool())
         return;
 
-    data["speed"] = speed;
-
     if (speed > 1)
         speed = 1;
 
     if (speed < -1)
         speed = -1;
 
-    unsigned char sendValue[] = { (int)(speed * getSettings().value("multiplicator").toInt()) };
+
+    int speedRaw = (int)(speed * getSettings().value("multiplicator").toInt());
+    data["speed"] = speedRaw;
+
+    unsigned char sendValue[] = { speedRaw };
     unsigned char address = getSettings().value("i2cAddress").toInt();
     unsigned char channel = getSettings().value("channel").toInt();
 
