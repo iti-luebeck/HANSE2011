@@ -103,6 +103,9 @@
       </item>
       <item row="10" column="0" colspan="2">
        <widget class="QCheckBox" name="enableGamepad">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Enable handcontrol via gamepad</string>
         </property>

@@ -23,6 +23,7 @@ private:
     Module_HandControl *module;
 
 private slots:
+    void on_sliderFw_valueChanged(int value);
     void on_save_clicked();
     void connectionStatusChanged();
     void dataChanged(RobotModule* m);

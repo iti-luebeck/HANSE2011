@@ -14,7 +14,9 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
 
     setDefaultValue("port",1234);
     setDefaultValue("receiver","thruster");
-    setDefaultValue("divisor",127);
+    setDefaultValue("divLR",127);
+    setDefaultValue("divFw",127);
+    setDefaultValue("divUD",50);
 
     server = new Server();
     connect(server,SIGNAL(newMessage(int,int,int)), this, SLOT(newMessage(int,int,int)));
@@ -74,7 +76,10 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     } else {
         controlLoop->setAngularSpeed(angularSpeed/divLR);
         controlLoop->setForwardSpeed(forwardSpeed/divFw);
-        controlLoop->setDepth(speedUpDown/divUD);
+        float dVal = speedUpDown/divUD;
+        if (dVal<0)
+            dVal=0;
+        controlLoop->setDepth(dVal);
     }
 
     // seems to be working..

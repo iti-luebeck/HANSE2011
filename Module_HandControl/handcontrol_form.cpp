@@ -18,15 +18,12 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
         ui->controlTCL->setChecked(true);
     }
 
-    if (ui->enableGamepad->isChecked()) {
-        ui->sliderFw->setEnabled(false);
-        ui->sliderLR->setEnabled(false);
-        ui->sliderUD->setEnabled(false);
-    } else {
-        ui->sliderFw->setEnabled(true);
-        ui->sliderLR->setEnabled(true);
-        ui->sliderUD->setEnabled(true);
-    }
+    ui->sliderFw->setMaximum(ui->divFw->text().toInt());
+    ui->sliderLR->setMaximum(ui->divLR->text().toInt());
+    ui->sliderUD->setMaximum(ui->divUD->text().toInt());
+    ui->sliderFw->setMinimum(-ui->divFw->text().toInt());
+    ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
+    ui->sliderUD->setMinimum(-ui->divUD->text().toInt());
 
     connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
     connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
@@ -70,16 +67,6 @@ void HandControl_Form::on_save_clicked()
     ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
     ui->sliderUD->setMinimum(-ui->divUD->text().toInt());
 
-    if (ui->enableGamepad->isChecked()) {
-        ui->sliderFw->setEnabled(false);
-        ui->sliderLR->setEnabled(false);
-        ui->sliderUD->setEnabled(false);
-    } else {
-        ui->sliderFw->setEnabled(true);
-        ui->sliderLR->setEnabled(true);
-        ui->sliderUD->setEnabled(true);
-    }
-
     module->reset();
 
 }
@@ -103,4 +90,9 @@ void HandControl_Form::dataChanged(RobotModule *m)
     ui->sliderFw->setValue(forwardSpeed);
     ui->sliderLR->setValue(angularSpeed);
     ui->sliderUD->setValue(speedUpDown);
+}
+
+void HandControl_Form::on_sliderFw_valueChanged(int value)
+{
+
 }
