@@ -8,6 +8,7 @@
 #define REGISTER_PRESSURE 12
 #define REGISTER_TEMP 14
 #define REGISTER_STATUS 17
+#define REGISTER_COUNTER 20
 
 // indicates problem between i2c-spi bridge and pressure sensor
 #define STATUS_MAGIC_VALUE 0x55
@@ -57,6 +58,7 @@ void Module_PressureSensor::refreshData()
 
     readPressure();
     readTemperature();
+    readCounter();
 
     if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
@@ -85,6 +87,18 @@ void Module_PressureSensor::readPressure()
         setHealthToSick("Pressure of "+QString::number(pressure) + " doesn't make sense.");
     }
 
+}
+
+void Module_PressureSensor::readCounter()
+{
+    unsigned char readBuffer[1];
+
+    if (!readRegister(REGISTER_COUNTER, 1, readBuffer)) {
+        setHealthToSick("UID reported error.");
+        return;
+    }
+
+    data["counter"] =  readBuffer[0];
 }
 
 void Module_PressureSensor::readTemperature()
