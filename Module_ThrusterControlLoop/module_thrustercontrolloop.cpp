@@ -177,6 +177,8 @@ void Module_ThrusterControlLoop::setDepth(float depth)
 
     control_loop_enabled=true;
 
+    data["depthSoll"] = depth;
+
     setvalueDepth=depth;
 }
 
