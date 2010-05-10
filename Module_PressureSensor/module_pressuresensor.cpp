@@ -58,8 +58,10 @@ void Module_PressureSensor::refreshData()
     readPressure();
     readTemperature();
 
-    if (getHealthStatus().isHealthOk())
+    if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
+        emit newDepthData(getDepth());
+    }
 }
 
 void Module_PressureSensor::readPressure()
