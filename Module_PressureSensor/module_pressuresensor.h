@@ -61,6 +61,9 @@ private:
     void readPressure();
     void readTemperature();
     void readCounter();
+    void readCalibWords();
+    void readRawRegisters();
+    void calc();
 
     bool readRegister(unsigned char reg, int size, unsigned char *ret_buf);
     bool readRegister2(unsigned char reg, int size, unsigned char *ret_buf);
