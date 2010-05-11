@@ -6,6 +6,7 @@ MOC_DIR = tmp/moc
 OBJECTS_DIR = tmp/obj
 INCLUDEPATH += ../qextserialport
 INCLUDEPATH += ../log4qt
+INCLUDEPATH += .
 include(../qextserialport/qextserialport.pri)
 include(../log4qt/log4qt.pri)
 HEADERS += Framework/healthstatus.h \

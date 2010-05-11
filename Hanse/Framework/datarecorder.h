@@ -2,7 +2,7 @@
 #define DATARECORDER_H
 
 #include <QtCore>
-#include <Framework/robotmodule.h>
+#include "robotmodule.h"
 #include <log4qt/logger.h>
 
 class DataRecorder : public QObject

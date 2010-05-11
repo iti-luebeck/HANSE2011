@@ -2,7 +2,7 @@
 #define MODULESGRAPH_H
 
 #include <QtCore>
-#include <Framework/robotmodule.h>
+#include "robotmodule.h"
 #include <log4qt/logger.h>
 
 class RobotModule;
