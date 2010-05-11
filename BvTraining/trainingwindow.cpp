@@ -6,7 +6,7 @@
 #include <cxcore.h>
 #include <highgui.h>
 #include "imageprocessor.h"
-#include "videoStream.h"
+//#include "videoStream.h"
 using namespace cv;
 
 TrainingWindow::TrainingWindow(QWidget *parent) :

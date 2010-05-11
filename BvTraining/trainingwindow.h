@@ -6,7 +6,7 @@
 #include "SVMClassifier.h"
 #include "blobtraining.h"
 #include "surftraining.h"
-#include "videoStream.h"
+//#include "videoStream.h"
 
 namespace Ui {
     class TrainingWindow;
