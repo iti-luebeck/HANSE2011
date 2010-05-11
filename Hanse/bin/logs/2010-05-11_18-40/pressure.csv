@@ -1,0 +1,2 @@
+;time,healthStatus,healthErrorMsg,enabled,frequency,i2cAddress
+1273596058.712,0,"UID reported error.",0,1,80
