@@ -53,7 +53,7 @@ QextSerialPort* UID::ScanForUIDs(QString IdBla) {
             l->debug("===================================");
         }
  //       port = new QextSerialPort(  "\\\\.\\"+ports.at(i).portName, *portSettings);
-        port = new QextSerialPort( ports.at(i).physName, *portSettings);
+        port = new QextSerialPort( ports.at(i).portName, *portSettings);
 
         //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
         if ( !(port->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
