@@ -113,6 +113,9 @@ void DataRecorder::newDataReceived(RobotModule *module)
     }
 
     *stream << "\r\n";
+
+    // the app may crash...
+    stream->flush();
 }
 
 void DataRecorder::close()
