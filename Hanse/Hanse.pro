@@ -1,6 +1,8 @@
 TEMPLATE = app
 DESTDIR = bin
-CONFIG += debug warn_on console
+CONFIG += debug \
+    warn_on \
+    console
 QT += network
 UI_DIR = tmp/ui
 MOC_DIR = tmp/moc
@@ -37,7 +39,9 @@ HEADERS += Framework/healthstatus.h \
     Module_ThrusterControlLoop/tcl_form.h \
     Module_ThrusterControlLoop/module_thrustercontrolloop.h \
     Module_PressureSensor/pressure_form.h \
-    Module_PressureSensor/module_pressuresensor.h
+    Module_PressureSensor/module_pressuresensor.h \
+    Module_IMU/module_imu.h \
+    Module_IMU/imu_form.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -66,7 +70,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_ThrusterControlLoop/tcl_form.cpp \
     Module_ThrusterControlLoop/module_thrustercontrolloop.cpp \
     Module_PressureSensor/module_pressuresensor.cpp \
-    Module_PressureSensor/pressure_form.cpp
+    Module_PressureSensor/pressure_form.cpp \
+    Module_IMU/module_imu.cpp \
+    Module_IMU/imu_form.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -74,4 +80,5 @@ FORMS += Framework/mainwindow.ui \
     Module_ScanningSonar/form.ui \
     Module_Thruster/thruster_form.ui \
     Module_ThrusterControlLoop/tcl_form.ui \
-    Module_PressureSensor/pressure_form.ui
+    Module_PressureSensor/pressure_form.ui \
+    Module_IMU/imu_form.ui
