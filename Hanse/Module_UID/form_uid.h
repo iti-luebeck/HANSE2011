@@ -22,6 +22,7 @@ private:
     Module_UID *module;
 
 private slots:
+    void on_scan_clicked();
     void on_save_clicked();
 };
 

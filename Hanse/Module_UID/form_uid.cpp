@@ -32,3 +32,12 @@ void FormUID::on_save_clicked()
 {
     module->getSettings().setValue("uidId", ui->uidId->text());
 }
+
+void FormUID::on_scan_clicked()
+{
+    QVector<unsigned char> slaves = module->getUID()->I2C_Scan();
+    ui->slaves->clear();
+    foreach (unsigned int slave, slaves) {
+        ui->slaves->addItem("0x"+QString::number(slave,16));
+    }
+}
