@@ -1,6 +1,7 @@
 #include "healthmodel.h"
 #include <QtCore>
 #include <QColor>
+#include <QFont>
 
 
 HealthModel::HealthModel(ModulesGraph* graph)
@@ -90,6 +91,10 @@ QVariant HealthModel::data(const QModelIndex &index, int role) const
         if (index.column()==1) {
             return m->getHealthStatus().isHealthOk() ? QColor("green") : QColor("red");
         }
+    } else if (role == Qt::FontRole && !m->isEnabled() && index.column()>0){
+        QFont f;
+        f.setStrikeOut(true);
+        return f;
     }
 
     return QVariant::Invalid;

@@ -26,23 +26,31 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="overviewTab">
+      <widget class="QWidget" name="healthTab">
        <attribute name="title">
-        <string>Overview</string>
+        <string>Health</string>
        </attribute>
-       <widget class="QLabel" name="label_2">
-        <property name="geometry">
-         <rect>
-          <x>50</x>
-          <y>40</y>
-          <width>341</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>TODO: display overview of all modules (data+status)</string>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QTableView" name="healthView">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="dataTab">
        <attribute name="title">
@@ -89,32 +97,6 @@
           <property name="text">
            <string>Apply</string>
           </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="healthTab">
-       <attribute name="title">
-        <string>Health</string>
-       </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
-         <widget class="QTableView" name="healthView">
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>true</bool>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
          </widget>
         </item>
        </layout>

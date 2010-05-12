@@ -35,6 +35,8 @@ void Module_ThrusterControlLoop::terminate()
 
 void Module_ThrusterControlLoop::reset()
 {
+    RobotModule::reset();
+
     actualForwardSpeed=0.0;
     actualAngularSpeed=0.0;
     setvalueDepth=0.0;

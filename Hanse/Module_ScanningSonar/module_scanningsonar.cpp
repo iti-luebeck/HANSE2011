@@ -95,6 +95,8 @@ void Module_ScanningSonar::doNextScan()
 
 void Module_ScanningSonar::reset()
 {
+    RobotModule::reset();
+
     logger->debug("Stopping reader temporarily.");
     reader.pleaseStop();
     reader.wait();

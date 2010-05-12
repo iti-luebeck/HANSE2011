@@ -53,7 +53,8 @@ void Module_Thruster::terminate()
 
 void Module_Thruster::reset()
 {
-    // TODO: what exactly does this do?
+    RobotModule::reset();
+
     initController();
 }
 

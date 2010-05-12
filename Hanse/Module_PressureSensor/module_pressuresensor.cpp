@@ -44,6 +44,8 @@ void Module_PressureSensor::terminate()
 
 void Module_PressureSensor::reset()
 {
+    RobotModule::reset();
+
     int freq = 1000/getSettings().value("frequency").toInt();
     if (freq>0)
         timer.start(freq);

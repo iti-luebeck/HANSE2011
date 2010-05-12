@@ -89,3 +89,10 @@ void RobotModule::terminate()
 {
     recorder->close();
 }
+
+void RobotModule::reset()
+{
+    healthStatus.errorCount=0;
+    healthStatus.lastError="";
+    healthStatus.healthOk=true;
+}

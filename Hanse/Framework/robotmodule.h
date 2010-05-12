@@ -100,7 +100,7 @@ public slots:
       * its initial state.
       * (e.g. "stop thrusters", "reset state machine back to starting point")
       */
-    virtual void reset() = 0;
+    virtual void reset();
 
     /**
       * Enable/disable this module
