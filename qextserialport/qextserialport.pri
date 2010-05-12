@@ -10,8 +10,8 @@ macx {
   LIBS             += -framework IOKit -framework CoreFoundation
 }
 
-#win32 {
+win32 {
   SOURCES          += $$PWD/win_qextserialport.cpp $$PWD/qextserialenumerator_win.cpp
   DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business...probably a better way to do this
   LIBS             += -lsetupapi
-#}
+}
