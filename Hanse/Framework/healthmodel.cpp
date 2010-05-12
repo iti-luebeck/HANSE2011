@@ -8,9 +8,13 @@ HealthModel::HealthModel(ModulesGraph* graph)
     this->graph = graph;
 
     foreach (RobotModule *module, graph->getModules()) {
-        connect(module, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(healthStatusChanged(RobotModule*)));
+        //connect(module, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(healthStatusChanged(RobotModule*)));
         connect(module,SIGNAL(enabled(bool)), this, SLOT(moduleEnabled(bool)));
     }
+
+    // update table via timer for now
+    connect(&timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
+    timer.start(500);
 }
 
 void HealthModel::moduleEnabled(bool)
@@ -18,6 +22,12 @@ void HealthModel::moduleEnabled(bool)
     // we don't easily know which module changed, so just refresh the whole table
     int size = graph->getModules().size();
     emit dataChanged(index(0,0), index(size,3));
+}
+
+void HealthModel::timerEvent()
+{
+    int s = graph->getModules().size();
+    emit dataChanged(index(0,0), index(s-1,3));
 }
 
 void HealthModel::healthStatusChanged(RobotModule *module)

@@ -20,10 +20,13 @@ public:
 
 private:
     ModulesGraph* graph;
+    QTimer timer;
+
 
 private slots:
     void healthStatusChanged(RobotModule *module);
     void moduleEnabled(bool);
+    void timerEvent();
 };
 
 #endif // HEALTHMODEL_H
