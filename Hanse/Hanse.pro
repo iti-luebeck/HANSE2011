@@ -1,5 +1,6 @@
 TEMPLATE = app
 DESTDIR = bin
+CONFIG += debug warn_on console
 QT += network
 UI_DIR = tmp/ui
 MOC_DIR = tmp/moc
