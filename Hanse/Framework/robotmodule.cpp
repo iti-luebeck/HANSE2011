@@ -54,7 +54,7 @@ void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
 void RobotModule::setHealthToOk()
 {
     if (!healthStatus.isHealthOk()) {
-        logger->info("Health status changed: Back to healthy!");
+        logger->info("Health OK");
         healthStatus.healthOk = true;
         emit healthStatusChanged(this);
     }
@@ -64,9 +64,11 @@ void RobotModule::setHealthToSick(QString errorMsg)
 {
     healthStatus.errorCount++;
     if (healthStatus.isHealthOk() || healthStatus.getLastError() != errorMsg) {
-        logger->error("Health status changed to sick: Last error message: "+errorMsg);
+        logger->error("Health ERROR: "+errorMsg);
         healthStatus.healthOk = false;
         healthStatus.lastError = errorMsg;
+        // each time this signal is emitted, a line will be written to the logfile.
+        // thus don't emit this signal when the errormsg stays the same.
         emit healthStatusChanged(this);
     }
 }
