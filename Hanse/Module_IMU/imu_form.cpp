@@ -7,6 +7,7 @@ IMU_Form::IMU_Form(Module_IMU *module, QWidget *parent) :
     ui(new Ui::IMU_Form)
 {
     ui->setupUi(this);
+    this->module = module;
 }
 
 IMU_Form::~IMU_Form()
@@ -24,4 +25,14 @@ void IMU_Form::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void IMU_Form::on_save_clicked()
+{
+    module->reset();
+}
+
+void IMU_Form::on_calibNull_clicked()
+{
+
 }

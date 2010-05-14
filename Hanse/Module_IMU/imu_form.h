@@ -19,6 +19,11 @@ protected:
 
 private:
     Ui::IMU_Form *ui;
+    Module_IMU *module;
+
+private slots:
+    void on_calibNull_clicked();
+    void on_save_clicked();
 };
 
 #endif // IMU_FORM_H

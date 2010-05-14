@@ -61,7 +61,6 @@ private:
 
     bool readRegister(unsigned char reg, int size, unsigned char *ret_buf);
 
-    void init();
     void configureSPI();
     void configureADIS();
 

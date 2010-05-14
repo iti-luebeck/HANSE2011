@@ -95,7 +95,8 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
 {
     this->uid=uid;
 
-    setDefaultValue("frequency", 1);
+    setDefaultValue("frequency", 10);
+    setDefaultValue("ssLine", 1);
 
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
@@ -116,6 +117,9 @@ void Module_IMU::reset()
 {
     RobotModule::reset();
 
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     int freq = 1000/getSettings().value("frequency").toInt();
     if (freq>0)
         timer.start(freq);
@@ -126,31 +130,38 @@ void Module_IMU::reset()
 
 void Module_IMU::refreshData()
 {
-        configureSPI();
+    if (!getSettings().value("enabled").toBool())
+        return;
 
-        int currentGyroX;
-        int currentGyroY;
-        int currentGyroZ;
-        int currentAccelX;
-        int currentAccelY;
-        int currentAccelZ;
+    configureSPI();
 
-        readDataRegister(ADIS_REGISTER_GYRO_X, &currentGyroX);
-        readDataRegister(ADIS_REGISTER_GYRO_Y, &currentGyroY);
-        readDataRegister(ADIS_REGISTER_GYRO_Z, &currentGyroZ);
-        readDataRegister(ADIS_REGISTER_ACCEL_X, &currentAccelX);
-        readDataRegister(ADIS_REGISTER_ACCEL_Y, &currentAccelY);
-        readDataRegister(ADIS_REGISTER_ACCEL_Z, &currentAccelZ);
+    int currentGyroX;
+    int currentGyroY;
+    int currentGyroZ;
+    int currentAccelX;
+    int currentAccelY;
+    int currentAccelZ;
 
-        data["gyroX"] = currentGyroX;
-        data["gyroY"] = currentGyroY;
-        data["gyroZ"] = currentGyroZ;
+    // TODO: error handling
 
-        data["accelX"] = currentAccelX;
-        data["accelY"] = currentAccelY;
-        data["accelZ"] = currentAccelZ;
+    readDataRegister(ADIS_REGISTER_GYRO_X, &currentGyroX);
+    readDataRegister(ADIS_REGISTER_GYRO_Y, &currentGyroY);
+    readDataRegister(ADIS_REGISTER_GYRO_Z, &currentGyroZ);
+    readDataRegister(ADIS_REGISTER_ACCEL_X, &currentAccelX);
+    readDataRegister(ADIS_REGISTER_ACCEL_Y, &currentAccelY);
+    readDataRegister(ADIS_REGISTER_ACCEL_Z, &currentAccelZ);
 
-        emit dataChanged(this);
+    // TODO: convert them
+
+    data["gyroX"] = currentGyroX;
+    data["gyroY"] = currentGyroY;
+    data["gyroZ"] = currentGyroZ;
+
+    data["accelX"] = currentAccelX;
+    data["accelY"] = currentAccelY;
+    data["accelZ"] = currentAccelZ;
+
+    emit dataChanged(this);
 }
 
 QList<RobotModule*> Module_IMU::getDependencies()
@@ -250,12 +261,6 @@ void Module_IMU::configureSPI()
         uid->getUID()->SPI_Speed(6); // 14.67Mhz/64 =~ 250khz
 }
 
-void Module_IMU::init()
-{
-        logger->debug("init adis");
-        configureADIS();
-}
-
 void Module_IMU::configureADIS()
 {
 //        short dynRange_ist = readRegister(0x38);
@@ -282,22 +287,18 @@ void Module_IMU::configureADIS()
         writeRegister(ADIS_REGISTER_MSC_CTRL_LO, 0x80 | 0x40);
 
         // start self test
-        writeRegister(ADIS_REGISTER_MSC_CTRL_HI, 0x04);
+//        writeRegister(ADIS_REGISTER_MSC_CTRL_HI, 0x04);
 
         // test should take approx. 35 ms
         // TODO: SLEEP
 //        while (readRegister(ADIS_REGISTER_STATUS_HI) & 0x040)
 //                Sleep(5);
 
-        short checkResult = readRegister(ADIS_REGISTER_STATUS_HI);
-        if (checkResult != 0x0000) {
-                logger->error("Self-test failed: status=" +QString::number(checkResult));
-                return;
-        }
-
-
-        printRegisters();
-
+//        short checkResult = readRegister(ADIS_REGISTER_STATUS_HI);
+//        if (checkResult != 0x0000) {
+//                logger->error("Self-test failed: status=" +QString::number(checkResult));
+//                return;
+//        }
 }
 
 void Module_IMU::printRegisters()
@@ -418,32 +419,32 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 
 float Module_IMU::getGyroX(void)
 {
-        return 0;
+    return data["gyroX"].toFloat();
 }
 
 float Module_IMU::getGyroY(void)
 {
-        return 0;
+        return data["gyroY"].toFloat();
 }
 
 float Module_IMU::getGyroZ(void)
 {
-        return 0;
+        return data["gyroZ"].toFloat();
 }
 
 float Module_IMU::getAccelX(void)
 {
-        return 0;
+        return data["accelX"].toFloat();
 }
 
 float Module_IMU::getAccelY(void)
 {
-        return 0;
+        return data["accelY"].toFloat();
 }
 
 float Module_IMU::getAccelZ(void)
 {
-        return 0;
+        return data["accelZ"].toFloat();
 }
 
 signed int Module_IMU::getGyroTempX(void)
