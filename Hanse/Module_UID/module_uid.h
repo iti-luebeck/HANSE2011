@@ -1,15 +1,13 @@
 #ifndef MODULE_UID_H
 #define MODULE_UID_H
 
-#include "robotmodule.h"
-#include "Module_UID_global.h"
-#include "QtUID.h"
+#include <Framework/robotmodule.h>
 
 class QextSerialPort;
 class QextPortInfo;
+class PortSettings;
 
-
-class MODULE_UIDSHARED_EXPORT Module_UID : public RobotModule {
+class Module_UID : public RobotModule {
     Q_OBJECT
 public:
 
@@ -302,9 +300,46 @@ private:
     QextSerialPort* findUIDPort();
     QextSerialPort* tryOpenPort(QString id, QextPortInfo* port);
 
+    /**
+      * may return false, when the command could not be sent to the uid.
+      */
     bool SendCommand(unsigned char* sequence, unsigned char length, int msec);
     void doHealthCheck();
+    unsigned char countBitsSet( unsigned char bitmask );
 
+    enum Opcode
+    {
+        ADC_ADC = 0x00,
+
+        UID_IDENTIFY = 0x05,
+        UID_REVISION = 0x0C,
+
+        I2C_ENTERACKMODE = 0x03,
+        I2C_LEAVEACKMODE = 0x06,
+        I2C_READ = 0x09,
+        I2C_READREGISTER = 0x0A,
+        I2C_SCAN = 0x0F,
+        I2C_SPEED = 0x11,
+        I2C_TESTSRF08READY = 0x2E,
+        I2C_WRITE = 0x18,
+        I2C_WRITEREGISTER = 0x1B,
+        I2C_DA_RECEIVEACK = 0x1D,
+        I2C_DA_RECEIVEBYTEACK = 0x1E,
+        I2C_DA_RECEIVEBYTENOACK = 0x21,
+        I2C_DA_REPSTART = 0x22,
+        I2C_DA_SENDACK = 0x24,
+        I2C_DA_SENDBYTEACK = 0x27,
+        I2C_DA_SENDBYTENOACK = 0x28,
+        I2C_DA_START = 0x2B,
+        I2C_DA_STOP = 0x2D,
+
+        SPI_SPEED = 0x14,
+        SPI_SETPHA = 0x62,
+        SPI_SETPOL = 0x64,
+        SPI_READ = 0x12,
+        SPI_WRITE = 0x17,
+        SPI_READWRITE = 0x6A
+    };
 };
 
 #endif // MODULE_UID_H

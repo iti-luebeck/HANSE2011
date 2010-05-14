@@ -35,7 +35,7 @@ void FormUID::on_save_clicked()
 
 void FormUID::on_scan_clicked()
 {
-    QVector<unsigned char> slaves = module->getUID()->I2C_Scan();
+    QVector<unsigned char> slaves = module->I2C_Scan();
     ui->slaves->clear();
     foreach (unsigned int slave, slaves) {
         ui->slaves->addItem("0x"+QString::number(slave,16));
