@@ -20,7 +20,6 @@ HEADERS += Framework/healthstatus.h \
     Framework/modulesgraph.h \
     Framework/graphview.h \
     Framework/datamodel.h \
-    Module_UID/QtUID.h \
     Module_UID/module_uid.h \
     Module_UID/form_uid.h \
     Module_HandControl/server.h \
@@ -53,7 +52,6 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/modulesgraph.cpp \
     Framework/graphview.cpp \
     Framework/datamodel.cpp \
-    Module_UID/QtUID.cpp \
     Module_UID/module_uid.cpp \
     Module_UID/form_uid.cpp \
     Module_HandControl/server.cpp \

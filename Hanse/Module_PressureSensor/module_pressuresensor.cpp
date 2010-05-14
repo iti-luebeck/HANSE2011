@@ -52,6 +52,9 @@ void Module_PressureSensor::reset()
     else
         timer.stop();
 
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     readCalibWords();
 
 }
@@ -263,11 +266,11 @@ bool Module_PressureSensor::readRegister2(unsigned char reg, int size, unsigned 
 {
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
-    if (!uid->getUID()->I2C_Write(address, &reg, 1)) {
+    if (!uid->I2C_Write(address, &reg, 1)) {
         setHealthToSick("UID reported error.");
         return false;
     }
-    if (!uid->getUID()->I2C_Read(address, size, ret_buf)) {
+    if (!uid->I2C_Read(address, size, ret_buf)) {
         setHealthToSick("UID reported error.");
         return false;
     }
@@ -278,7 +281,7 @@ bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned c
 {
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
-    if (!uid->getUID()->I2C_ReadRegisters(address, reg, size, ret_buf)) {
+    if (!uid->I2C_ReadRegisters(address, reg, size, ret_buf)) {
         setHealthToSick("UID reported error.");
         return false;
     }

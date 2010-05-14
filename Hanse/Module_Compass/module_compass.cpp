@@ -262,12 +262,12 @@ bool Module_Compass::readWriteDelay(unsigned char *send_buf, int send_size,
 {
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
-    if (!uid->getUID()->I2C_Write(address, send_buf, send_size)) {
+    if (!uid->I2C_Write(address, send_buf, send_size)) {
         setHealthToSick("UID reported error.");
         return false;
     }
     sleep(delay);
-    if (recv_size>0 && !uid->getUID()->I2C_Read(address, recv_size, recv_buf)) {
+    if (recv_size>0 && !uid->I2C_Read(address, recv_size, recv_buf)) {
         setHealthToSick("UID reported error.");
         return false;
     }

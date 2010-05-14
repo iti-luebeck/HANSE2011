@@ -256,9 +256,9 @@ void Module_IMU::readDataRegister(uint8_t reg, int* target)
 
 void Module_IMU::configureSPI()
 {
-        uid->getUID()->SPI_SetPOL(true);
-        uid->getUID()->SPI_SetPHA(false);
-        uid->getUID()->SPI_Speed(6); // 14.67Mhz/64 =~ 250khz
+        uid->SPI_SetPOL(true);
+        uid->SPI_SetPHA(false);
+        uid->SPI_Speed(6); // 14.67Mhz/64 =~ 250khz
 }
 
 void Module_IMU::configureADIS()
@@ -392,8 +392,8 @@ unsigned short Module_IMU::readRegister(uint8_t address)
     uint8_t buf_recv[] = {0x00, 0x00};
     uint8_t buf_send[] = {address, 0x00};
 
-    uid->getUID()->SPI_Write(UID_IO_NUMBER, buf_send, 2);
-    uid->getUID()->SPI_Read(UID_IO_NUMBER, 2, buf_recv);
+    uid->SPI_Write(UID_IO_NUMBER, buf_send, 2);
+    uid->SPI_Read(UID_IO_NUMBER, 2, buf_recv);
     return toShort(buf_recv[0],buf_recv[1]);
 }
 
@@ -413,8 +413,8 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
     // set highest bit to indicate write
     buf_send[0] |= 0x80;
 
-    uid->getUID()->SPI_Write(UID_IO_NUMBER, buf_send, 2);
-    uid->getUID()->SPI_Read(UID_IO_NUMBER, 2, buf_recv);
+    uid->SPI_Write(UID_IO_NUMBER, buf_send, 2);
+    uid->SPI_Read(UID_IO_NUMBER, 2, buf_recv);
 }
 
 float Module_IMU::getGyroX(void)
