@@ -7,6 +7,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 #include <Module_IMU/module_imu.h>
+#include <Module_Compass/module_compass.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -36,6 +37,9 @@ void ModulesGraph::build()
 
     Module_IMU* imu = new Module_IMU("adis",uid);
     this->modules.append(imu);
+
+    Module_Compass *compass = new Module_Compass("compass", uid);
+    this->modules.append(compass);
 
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown);
     this->modules.append(controlLoop);
