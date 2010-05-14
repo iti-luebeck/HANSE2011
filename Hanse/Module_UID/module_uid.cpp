@@ -43,6 +43,7 @@ void Module_UID::reset()
         uid->close();
         delete uid;
         uid = NULL;
+
     }
     uid = findUIDPort();
     data["revision"] = this->UID_Revision();
@@ -82,6 +83,9 @@ QextSerialPort* Module_UID::findUIDPort()
             logger->debug("===================================");
 
             p = tryOpenPort(Id, &port);
+
+            if (p != NULL)
+                break;
     }
 
     if (!p) {
@@ -103,7 +107,7 @@ QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 
     //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
     if ( !(sport->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
-        logger->debug("Could not connect: "+sport->errorString());
+        logger->debug("Could not open: "+sport->errorString());
         sport->close();
         delete sport;
         return NULL;
@@ -275,9 +279,6 @@ void Module_UID::doHealthCheck()
         return;
 
     QString Id = settings.value("uidId").toString();
-
-    unsigned char sequence[] = {Module_UID::UID_IDENTIFY};
-    char id[9];
 
     if ( uid == NULL ) {
         setHealthToSick("No uid open.");
