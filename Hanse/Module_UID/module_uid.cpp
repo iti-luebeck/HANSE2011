@@ -95,7 +95,8 @@ QextSerialPort* Module_UID::findUIDPort()
 
 QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 {
-    QextSerialPort* sport = new QextSerialPort( port->physName, *portSettings, QextSerialPort::Polling);
+    //QextSerialPort* sport = new QextSerialPort( port->physName, *portSettings, QextSerialPort::Polling);
+    QextSerialPort* sport = new QextSerialPort( port->portName, *portSettings, QextSerialPort::Polling);
 
     const char sequence[] = {Module_UID::UID_IDENTIFY};
     char id[9];
