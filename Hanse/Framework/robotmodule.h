@@ -155,6 +155,11 @@ protected:
       */
     void setHealthToOk();
 
+    /**
+      * sleep for the given amount of time
+      */
+    void sleep(int millies);
+
 protected slots:
     /**
       * Do a health check.

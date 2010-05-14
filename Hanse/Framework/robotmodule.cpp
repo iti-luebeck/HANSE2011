@@ -98,3 +98,8 @@ void RobotModule::reset()
     healthStatus.lastError="";
     healthStatus.healthOk=true;
 }
+
+void RobotModule::sleep(int millies)
+{
+    // TODO
+}
