@@ -41,7 +41,9 @@ HEADERS += Framework/healthstatus.h \
     Module_PressureSensor/pressure_form.h \
     Module_PressureSensor/module_pressuresensor.h \
     Module_IMU/module_imu.h \
-    Module_IMU/imu_form.h
+    Module_IMU/imu_form.h \
+    Module_Compass/module_compass.h \
+    Module_Compass/compass_form.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -72,7 +74,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_PressureSensor/module_pressuresensor.cpp \
     Module_PressureSensor/pressure_form.cpp \
     Module_IMU/module_imu.cpp \
-    Module_IMU/imu_form.cpp
+    Module_IMU/imu_form.cpp \
+    Module_Compass/module_compass.cpp \
+    Module_Compass/compass_form.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -81,4 +85,5 @@ FORMS += Framework/mainwindow.ui \
     Module_Thruster/thruster_form.ui \
     Module_ThrusterControlLoop/tcl_form.ui \
     Module_PressureSensor/pressure_form.ui \
-    Module_IMU/imu_form.ui
+    Module_IMU/imu_form.ui \
+    Module_Compass/compass_form.ui
