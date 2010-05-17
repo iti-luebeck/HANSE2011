@@ -65,11 +65,6 @@ private:
     void configureADIS();
 
     void printRegisters();
-    //void checkADIS();
-
-    signed int getGyroTempX(void);
-    signed int getGyroTempY(void);
-    signed int getGyroTempZ(void);
 
     unsigned short toShort(uint8_t, uint8_t);
     int shortToInteger(unsigned short, unsigned short, int);
@@ -81,7 +76,9 @@ private:
     void setInternalSampleRate(unsigned short, unsigned short);
     void setFilterSettings(unsigned short, unsigned short);
 
-    void readDataRegister(uint8_t reg, int* target);
+    int readDataRegister(uint8_t reg, int bits);
+
+    void doSelfTest();
 };
 
 #endif // MODULE_IMU_H

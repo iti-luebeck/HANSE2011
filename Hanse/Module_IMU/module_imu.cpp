@@ -2,9 +2,6 @@
 #include "imu_form.h"
 #include <Module_UID/module_uid.h>
 
-// Slave-select PIN auf dem UID
-#define UID_IO_NUMBER 1
-
 #define ADIS_REGISTER_POWER  0x02
 #define ADIS_REGISTER_GYRO_X 0x04
 #define ADIS_REGISTER_GYRO_Y 0x06
@@ -126,6 +123,9 @@ void Module_IMU::reset()
     else
         timer.stop();
 
+    setHealthToOk();
+    doSelfTest();
+    configureADIS();
 }
 
 void Module_IMU::refreshData()
@@ -141,25 +141,40 @@ void Module_IMU::refreshData()
     int currentAccelX;
     int currentAccelY;
     int currentAccelZ;
+    int gyroTempX;
+    int gyroTempY;
+    int gyroTempZ;
 
-    // TODO: error handling
+    currentGyroX = readDataRegister(ADIS_REGISTER_GYRO_X, 14);
+    currentGyroY = readDataRegister(ADIS_REGISTER_GYRO_Y, 14);
+    currentGyroZ = readDataRegister(ADIS_REGISTER_GYRO_Z, 14);
+    currentAccelX = readDataRegister(ADIS_REGISTER_ACCEL_X, 14);
+    currentAccelY = readDataRegister(ADIS_REGISTER_ACCEL_Y, 14);
+    currentAccelZ = readDataRegister(ADIS_REGISTER_ACCEL_Z, 14);
+    gyroTempX = readDataRegister(ADIS_REGISTER_TEMP_X, 12);
+    gyroTempY = readDataRegister(ADIS_REGISTER_TEMP_Y, 12);
+    gyroTempZ = readDataRegister(ADIS_REGISTER_TEMP_Z, 12);
 
-    readDataRegister(ADIS_REGISTER_GYRO_X, &currentGyroX);
-    readDataRegister(ADIS_REGISTER_GYRO_Y, &currentGyroY);
-    readDataRegister(ADIS_REGISTER_GYRO_Z, &currentGyroZ);
-    readDataRegister(ADIS_REGISTER_ACCEL_X, &currentAccelX);
-    readDataRegister(ADIS_REGISTER_ACCEL_Y, &currentAccelY);
-    readDataRegister(ADIS_REGISTER_ACCEL_Z, &currentAccelZ);
+    unsigned short voltage_raw = readRegister(ADIS_REGISTER_POWER);
+    double voltage = (voltage_raw & 0x0FFF) *1.8315; // mV
 
-    // TODO: convert them
+    if (getHealthStatus().isHealthOk()) {
 
-    data["gyroX"] = currentGyroX;
-    data["gyroY"] = currentGyroY;
-    data["gyroZ"] = currentGyroZ;
+        data["gyroX"] = currentGyroX * 0.07326;
+        data["gyroY"] = currentGyroY * 0.07326;
+        data["gyroZ"] = currentGyroZ * 0.07326;
 
-    data["accelX"] = currentAccelX;
-    data["accelY"] = currentAccelY;
-    data["accelZ"] = currentAccelZ;
+        data["accelX"] = currentAccelX * 0.4672;
+        data["accelY"] = currentAccelY * 0.4672;
+        data["accelZ"] = currentAccelZ * 0.4672;
+
+        data["gyroTempX"] = gyroTempX * 0.1453;
+        data["gyroTempY"] = gyroTempY * 0.1453;
+        data["gyroTempZ"] = gyroTempZ * 0.1453;
+
+        data["voltage"] = voltage/1000;
+
+    }
 
     emit dataChanged(this);
 }
@@ -181,88 +196,73 @@ void Module_IMU::doHealthCheck()
     if (!getSettings().value("enabled").toBool())
         return;
 
-    printRegisters();
-
-    short dynRange_ist = readRegister(0x38);
-    short dynRange_soll = 0x0202;
-
-    if (dynRange_ist != dynRange_soll)
-    {
-            setHealthToSick("SENS/AVG register has bad content: 0x" +QString::number(dynRange_ist,16));
-            return;
-    }
-
-    // reset any existing offsets
-//	writeFullRegister(ADIS_REGISTER_XACCL_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_YACCL_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_ZACCL_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_XGYRO_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_YGYRO_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 0);
-
-    setInternalSampleRate(1,0); // 18ms sample period (TODO: higher freq. needed?)
-    setFilterSettings(0x02, 0x01); // medium sensitivity, small filter(?)
-
-    // enable linear acceleation bios compensation and
-    // linear acceleration origin alignment
-    //writeRegister(ADIS_REGISTER_MSC_CTRL_LO, 0x80 | 0x40);
-
-    // start self test
-    //writeRegister(ADIS_REGISTER_MSC_CTRL_HI, 0x04);
-
-    // test should take approx. 35 ms
-    // TODO: SLEEP
-//        while (readRegister(ADIS_REGISTER_STATUS_HI) & 0x040)
-//                Sleep(5);
-
-//    short checkResult = readRegister(ADIS_REGISTER_STATUS_HI);
-//    if (checkResult != 0x0000) {
-//            logger->error("Self-test failed: status=" +QString::number(checkResult));
-//            return;
-//    }
-
-    short status_reg = readRegister(ADIS_REGISTER_STATUS_HI);
-    if (status_reg != 0x0000) {
-        logger->error("Status Register indicating an error: register content=" +QString::number(status_reg));
-            return;
-    }
-
     // we don't check for voltage. we just want to see if the device returns
     // some sensible data to rule out cable problems (SPI will return weired
     // data with connection problems)
     unsigned short voltage_raw = readRegister(ADIS_REGISTER_POWER);
     double voltage = (voltage_raw & 0x0FFF) *1.8315; // mV
+    data["voltage"] = voltage/1000;
 
-    if (voltage < 4750 || voltage > 5250) {
-            logger->error("Measured voltage: "+QString::number(voltage));
-            logger->error("Could not read from ADIS (not connected?)");
-            return;
+    // 4400mV is way below spec.
+    if (voltage < 4400 || voltage > 5250) {
+        setHealthToSick("Voltage meassurement way out of range: "+QString::number(voltage)+"mV!");
+        return;
     }
 
+    short status_reg = readRegister(ADIS_REGISTER_STATUS_HI);
+    status_reg &= 0xFFFE; // clear out undervoltage warning. we're aware of it.
+
+    data["statusReg"] = status_reg;
+    if (status_reg != 0x0000) {
+        setHealthToSick("Status Register indicating an error: register content=0x" +QString::number(status_reg,16));
+        // TODO: translate error bits
+        return;
+    }
+
+    setHealthToOk();
 }
 
-void Module_IMU::readDataRegister(uint8_t reg, int* target)
+void Module_IMU::doSelfTest()
+{
+    // start self test
+    writeRegister(ADIS_REGISTER_MSC_CTRL_HI, 0x04);
+
+    // test should take approx. 35 ms
+    // while (readRegister(ADIS_REGISTER_STATUS_HI) & 0x040)
+    sleep(35);
+
+    short checkResult = readRegister(ADIS_REGISTER_STATUS_HI);
+    if (checkResult != 0x0000) {
+        setHealthToSick("Self-test failed: status=" +QString::number(checkResult));
+    }
+}
+
+int Module_IMU::readDataRegister(uint8_t reg, int bits)
 {
         unsigned int data = readRegister(reg);
 
-        if (data & 0x4000) {
-                logger->error("Return data has the EA flag set.");
-        }
+// We check for health independently anyway.
+//        if (data & 0x4000) {
+//                setHealthToSick("Return data has the EA flag set.");
+//        }
 
-        if (data & 0x8000) {
-                *target = shortToInteger(data,0x3FFF, 14);
-        }
+        if (bits==12)
+            return shortToInteger(data,0x0FFF, bits);
+        else
+            return shortToInteger(data,0x3FFF, bits);
 }
 
 void Module_IMU::configureSPI()
 {
         uid->SPI_SetPOL(true);
-        uid->SPI_SetPHA(false);
-        uid->SPI_Speed(6); // 14.67Mhz/64 =~ 250khz
+        uid->SPI_SetPHA(true);
+        uid->SPI_Speed(3); // 14.67Mhz/8 < 2Mhz
 }
 
 void Module_IMU::configureADIS()
 {
+    configureSPI();
+
 //        short dynRange_ist = readRegister(0x38);
 //        short dynRange_soll = 0x0202;
 //
@@ -279,26 +279,12 @@ void Module_IMU::configureADIS()
 //	writeFullRegister(ADIS_REGISTER_YGYRO_OFF_LO, 0);
 //	writeFullRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 0);
 
-        setInternalSampleRate(1,0); // 18ms sample period (TODO: higher freq. needed?)
-        setFilterSettings(0x02, 0x01); // medium sensitivity, small filter(?)
+//        setInternalSampleRate(1,0); // 18ms sample period (TODO: higher freq. needed?)
+//        setFilterSettings(0x02, 0x01); // medium sensitivity, small filter(?)
 
         // enable linear acceleation bios compensation and
         // linear acceleration origin alignment
-        writeRegister(ADIS_REGISTER_MSC_CTRL_LO, 0x80 | 0x40);
-
-        // start self test
-//        writeRegister(ADIS_REGISTER_MSC_CTRL_HI, 0x04);
-
-        // test should take approx. 35 ms
-        // TODO: SLEEP
-//        while (readRegister(ADIS_REGISTER_STATUS_HI) & 0x040)
-//                Sleep(5);
-
-//        short checkResult = readRegister(ADIS_REGISTER_STATUS_HI);
-//        if (checkResult != 0x0000) {
-//                logger->error("Self-test failed: status=" +QString::number(checkResult));
-//                return;
-//        }
+//        writeRegister(ADIS_REGISTER_MSC_CTRL_LO, 0x80 | 0x40);
 }
 
 void Module_IMU::printRegisters()
@@ -392,8 +378,12 @@ unsigned short Module_IMU::readRegister(uint8_t address)
     uint8_t buf_recv[] = {0x00, 0x00};
     uint8_t buf_send[] = {address, 0x00};
 
-    uid->SPI_Write(UID_IO_NUMBER, buf_send, 2);
-    uid->SPI_Read(UID_IO_NUMBER, 2, buf_recv);
+    bool ret = uid->SPI_Write(settings.value("ssLine").toInt(), buf_send, 2);
+    if (!ret)
+        setHealthToSick("UID reported error.");
+    ret = uid->SPI_Read(settings.value("ssLine").toInt(), 2, buf_recv);
+    if (!ret)
+        setHealthToSick("UID reported error.");
     return toShort(buf_recv[0],buf_recv[1]);
 }
 
@@ -413,8 +403,12 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
     // set highest bit to indicate write
     buf_send[0] |= 0x80;
 
-    uid->SPI_Write(UID_IO_NUMBER, buf_send, 2);
-    uid->SPI_Read(UID_IO_NUMBER, 2, buf_recv);
+    bool ret = uid->SPI_Write(settings.value("ssLine").toInt(), buf_send, 2);
+    if (!ret)
+        setHealthToSick("UID reported error.");
+    ret = uid->SPI_Read(settings.value("ssLine").toInt(), 2, buf_recv);
+    if (!ret)
+        setHealthToSick("UID reported error.");
 }
 
 float Module_IMU::getGyroX(void)
@@ -446,18 +440,18 @@ float Module_IMU::getAccelZ(void)
 {
         return data["accelZ"].toFloat();
 }
-
-signed int Module_IMU::getGyroTempX(void)
-{
-        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_X),0x0FFF, 12);
-}
-
-signed int Module_IMU::getGyroTempY(void)
-{
-        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_Y),0x0FFF, 12);
-}
-
-signed int Module_IMU::getGyroTempZ(void)
-{
-        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_Z),0x0FFF, 12);
-}
+//
+//signed int Module_IMU::getGyroTempX(void)
+//{
+//        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_X),0x0FFF, 12);
+//}
+//
+//signed int Module_IMU::getGyroTempY(void)
+//{
+//        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_Y),0x0FFF, 12);
+//}
+//
+//signed int Module_IMU::getGyroTempZ(void)
+//{
+//        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_Z),0x0FFF, 12);
+//}

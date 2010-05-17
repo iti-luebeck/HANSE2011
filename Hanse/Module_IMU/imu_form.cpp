@@ -8,6 +8,8 @@ IMU_Form::IMU_Form(Module_IMU *module, QWidget *parent) :
 {
     ui->setupUi(this);
     this->module = module;
+    ui->frequency->setText(module->getSettings().value("frequency").toString());
+    ui->ssLine->setText(module->getSettings().value("ssLine").toString());
 }
 
 IMU_Form::~IMU_Form()
@@ -29,6 +31,8 @@ void IMU_Form::changeEvent(QEvent *e)
 
 void IMU_Form::on_save_clicked()
 {
+    module->getSettings().setValue("frequency",ui->frequency->text().toInt());
+    module->getSettings().setValue("ssLine",ui->ssLine->text().toInt());
     module->reset();
 }
 
