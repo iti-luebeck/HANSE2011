@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
         // create widget
         QWidget* w = m->createView(ui->tabWidget);
-        ui->tabWidget->addTab(w, m->getTabName());
+        ui->tabWidget->addTab(w, "&"+m->getTabName());
 
         // TODO: free actions later
 

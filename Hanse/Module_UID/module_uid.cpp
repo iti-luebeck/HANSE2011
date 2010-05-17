@@ -15,7 +15,11 @@ Module_UID::Module_UID(QString moduleId)
     portSettings->Parity = PAR_NONE;
     portSettings->StopBits = STOP_1;
     portSettings->FlowControl = FLOW_OFF;
+#ifdef UNIX // linux only supports timeouts in tenth of seconds and rounds down
     portSettings->Timeout_Millisec = 100;
+#else
+    portSettings->Timeout_Millisec = 10;
+#endif
 
     setDefaultValue("uidId", "UIDC0001");
 
@@ -99,8 +103,12 @@ QextSerialPort* Module_UID::findUIDPort()
 
 QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 {
+
+#ifdef UNIX // this platform-independent library puts the port name in different fields depending on the platform
     QextSerialPort* sport = new QextSerialPort( port->physName, *portSettings, QextSerialPort::Polling);
-    //QextSerialPort* sport = new QextSerialPort( port->portName, *portSettings, QextSerialPort::Polling);
+#else
+    QextSerialPort* sport = new QextSerialPort( port->portName, *portSettings, QextSerialPort::Polling);
+#endif
 
     const char sequence[] = {Module_UID::UID_IDENTIFY};
     char id[9];

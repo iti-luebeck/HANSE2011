@@ -24,11 +24,11 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="healthTab">
        <attribute name="title">
-        <string>Health</string>
+        <string>&amp;Health</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
@@ -54,7 +54,7 @@
       </widget>
       <widget class="QWidget" name="dataTab">
        <attribute name="title">
-        <string>Data</string>
+        <string>&amp;Data</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
@@ -83,7 +83,7 @@
       </widget>
       <widget class="QWidget" name="logTab">
        <attribute name="title">
-        <string>Log</string>
+        <string>&amp;Log</string>
        </attribute>
        <layout class="QFormLayout" name="formLayout">
         <property name="fieldGrowthPolicy">
@@ -116,20 +116,20 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuReset">
     <property name="title">
-     <string>Reset</string>
+     <string>&amp;Reset</string>
     </property>
     <addaction name="actionAll_Modules"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEnabled">
     <property name="title">
-     <string>Enabled</string>
+     <string>&amp;Enabled</string>
     </property>
     <addaction name="actionDisable_All"/>
     <addaction name="actionEnable_All"/>
@@ -156,22 +156,34 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionClose">
    <property name="text">
-    <string>Close Application</string>
+    <string>&amp;Close</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
   <action name="actionAll_Modules">
    <property name="text">
-    <string>Reset All</string>
+    <string>Reset &amp;All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionDisable_All">
    <property name="text">
-    <string>Disable All</string>
+    <string>&amp;Disable All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="actionEnable_All">
    <property name="text">
-    <string>Enable All</string>
+    <string>&amp;Enable All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>

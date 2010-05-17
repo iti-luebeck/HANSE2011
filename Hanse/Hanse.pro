@@ -12,6 +12,8 @@ INCLUDEPATH += ../log4qt
 INCLUDEPATH += .
 include(../qextserialport/qextserialport.pri)
 include(../log4qt/log4qt.pri)
+unix:DEFINES += OS_UNIX
+win32:DEFINES += OS_WIN32
 HEADERS += Framework/healthstatus.h \
     Framework/datarecorder.h \
     Framework/robotmodule.h \

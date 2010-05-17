@@ -51,6 +51,9 @@
        <property name="text">
         <string>Apply &amp;&amp; Save</string>
        </property>
+       <property name="shortcut">
+        <string>Return</string>
+       </property>
       </widget>
      </item>
     </layout>

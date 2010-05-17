@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="test">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -176,6 +176,9 @@
         <widget class="QPushButton" name="save">
          <property name="text">
           <string>Apply &amp;&amp; Save</string>
+         </property>
+         <property name="shortcut">
+          <string>Return</string>
          </property>
         </widget>
        </item>

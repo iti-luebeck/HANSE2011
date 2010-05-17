@@ -214,6 +214,12 @@
      <property name="text">
       <string>Save &amp;&amp; Apply</string>
      </property>
+     <property name="shortcut">
+      <string>Return</string>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
     </widget>
    </item>
    <item row="16" column="0">
