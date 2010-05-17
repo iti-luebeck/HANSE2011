@@ -23,9 +23,13 @@ public:
     /**
      * return current heading
      *
-     * unit: [0..3600]
+     * unit: [0..360] degree
      */
-    int getHeading(void);
+    float getHeading(void);
+
+    float getPitch(void);
+
+    float getRoll(void);
 
 
 public slots:
@@ -48,7 +52,6 @@ private:
     QTimer timer;
 
     unsigned short toShort(uint8_t high, uint8_t low);
-    signed short toSignedShort(uint8_t high, uint8_t low);
 
     uint8_t eepromRead(uint8_t addr);
     void eepromWrite(uint8_t addr, uint8_t data);
@@ -56,6 +59,8 @@ private:
     void setOrientation();
     void stopCalibration();
     void startCalibration();
+
+    void configure();
 
     void updateHeadingData(void);
     void updateMagData(void);

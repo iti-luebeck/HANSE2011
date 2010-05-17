@@ -15,7 +15,7 @@ Module_UID::Module_UID(QString moduleId)
     portSettings->Parity = PAR_NONE;
     portSettings->StopBits = STOP_1;
     portSettings->FlowControl = FLOW_OFF;
-    portSettings->Timeout_Millisec = 5;
+    portSettings->Timeout_Millisec = 100;
 
     setDefaultValue("uidId", "UIDC0001");
 
@@ -99,12 +99,12 @@ QextSerialPort* Module_UID::findUIDPort()
 
 QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 {
-    //QextSerialPort* sport = new QextSerialPort( port->physName, *portSettings, QextSerialPort::Polling);
-    QextSerialPort* sport = new QextSerialPort( port->portName, *portSettings, QextSerialPort::Polling);
+    QextSerialPort* sport = new QextSerialPort( port->physName, *portSettings, QextSerialPort::Polling);
+    //QextSerialPort* sport = new QextSerialPort( port->portName, *portSettings, QextSerialPort::Polling);
 
     const char sequence[] = {Module_UID::UID_IDENTIFY};
     char id[9];
-
+    
     //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
     if ( !(sport->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
         logger->debug("Could not open: "+sport->errorString());

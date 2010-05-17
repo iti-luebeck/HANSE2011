@@ -22,6 +22,9 @@ void RobotModule::setEnabled(bool value)
 {
     settings.setValue("enabled", value);
 
+    if (value)
+        reset();
+
     emit enabled(settings.value("enabled").toBool());
 }
 
@@ -101,5 +104,10 @@ void RobotModule::reset()
 
 void RobotModule::sleep(int millies)
 {
-    // TODO
+    MyQThread::sleep(millies);
+}
+
+void RobotModule::MyQThread::sleep(int millies)
+{
+    QThread::msleep(millies);
 }

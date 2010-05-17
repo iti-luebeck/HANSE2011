@@ -10,6 +10,8 @@ class Module_UID;
 class Module_IMU : public RobotModule {
     Q_OBJECT
 
+    friend class IMU_Form;
+
 public:
     Module_IMU(QString id, Module_UID *uid);
     ~Module_IMU();
@@ -35,10 +37,6 @@ public:
     float getGyroY(void);
     float getGyroZ(void);
 
-    /**
-     * Read out new data from the sensors.
-     */
-    void refresh();
 
 
 public slots:
@@ -78,7 +76,19 @@ private:
 
     int readDataRegister(uint8_t reg, int bits);
 
+    /**
+     * Read out new data from the sensors.
+     */
+    void refresh();
+
     void doSelfTest();
+
+    void doNullCalib();
+
+    void doPrecisionCalib();
+
+    void updateBiasFields();
+
 };
 
 #endif // MODULE_IMU_H

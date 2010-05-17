@@ -94,6 +94,14 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
 
     setDefaultValue("frequency", 10);
     setDefaultValue("ssLine", 1);
+    setDefaultValue("g", 9.81);
+    setDefaultValue("spiSpeed",3);
+    setDefaultValue("biasComp",0);
+    setDefaultValue("originAllign",0);
+    setDefaultValue("smplTimeBase",0);
+    setDefaultValue("smplTimeMult",0);
+    setDefaultValue("filterTaps",2);
+    setDefaultValue("gyroSens","300");
 
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
@@ -124,8 +132,19 @@ void Module_IMU::reset()
         timer.stop();
 
     setHealthToOk();
-    doSelfTest();
+
+    // soft reset
+    writeRegister(ADIS_REGISTER_COMMAND_LO, ADIS_COMMAND_SOFTWARE_RESET);
+
+    // set volatile registers
     configureADIS();
+
+    doSelfTest();
+
+    updateBiasFields();
+    printRegisters();
+    data["flashCounter"] = readRegister(ADIS_REGISTER_ENDURANCE);
+
 }
 
 void Module_IMU::refreshData()
@@ -157,6 +176,7 @@ void Module_IMU::refreshData()
 
     unsigned short voltage_raw = readRegister(ADIS_REGISTER_POWER);
     double voltage = (voltage_raw & 0x0FFF) *1.8315; // mV
+    data["voltage"] = voltage/1000;
 
     if (getHealthStatus().isHealthOk()) {
 
@@ -164,19 +184,19 @@ void Module_IMU::refreshData()
         data["gyroY"] = currentGyroY * 0.07326;
         data["gyroZ"] = currentGyroZ * 0.07326;
 
-        data["accelX"] = currentAccelX * 0.4672;
-        data["accelY"] = currentAccelY * 0.4672;
-        data["accelZ"] = currentAccelZ * 0.4672;
+        data["accelX"] = currentAccelX * 0.4672 * settings.value("g").toFloat() / 1000;
+        data["accelY"] = currentAccelY * 0.4672 * settings.value("g").toFloat() / 1000;
+        data["accelZ"] = currentAccelZ * 0.4672 * settings.value("g").toFloat() / 1000;
 
-        data["gyroTempX"] = gyroTempX * 0.1453;
-        data["gyroTempY"] = gyroTempY * 0.1453;
-        data["gyroTempZ"] = gyroTempZ * 0.1453;
+        data["gyroTempX"] = gyroTempX * 0.1453 + 25;
+        data["gyroTempY"] = gyroTempY * 0.1453 + 25;
+        data["gyroTempZ"] = gyroTempZ * 0.1453 + 25;
 
-        data["voltage"] = voltage/1000;
+        emit dataChanged(this);
 
     }
 
-    emit dataChanged(this);
+    
 }
 
 QList<RobotModule*> Module_IMU::getDependencies()
@@ -201,15 +221,14 @@ void Module_IMU::doHealthCheck()
     // data with connection problems)
     unsigned short voltage_raw = readRegister(ADIS_REGISTER_POWER);
     double voltage = (voltage_raw & 0x0FFF) *1.8315; // mV
-    data["voltage"] = voltage/1000;
 
     // 4400mV is way below spec.
     if (voltage < 4400 || voltage > 5250) {
-        setHealthToSick("Voltage meassurement way out of range: "+QString::number(voltage)+"mV!");
+        setHealthToSick("ADIS not responding.");
         return;
     }
 
-    short status_reg = readRegister(ADIS_REGISTER_STATUS_HI);
+    short status_reg = readRegister(ADIS_REGISTER_STATUS_LO);
     status_reg &= 0xFFFE; // clear out undervoltage warning. we're aware of it.
 
     data["statusReg"] = status_reg;
@@ -233,7 +252,7 @@ void Module_IMU::doSelfTest()
 
     short checkResult = readRegister(ADIS_REGISTER_STATUS_HI);
     if (checkResult != 0x0000) {
-        setHealthToSick("Self-test failed: status=" +QString::number(checkResult));
+        setHealthToSick("Self-test failed: status=0x" +QString::number(checkResult,16));
     }
 }
 
@@ -256,85 +275,57 @@ void Module_IMU::configureSPI()
 {
         uid->SPI_SetPOL(true);
         uid->SPI_SetPHA(true);
-        uid->SPI_Speed(3); // 14.67Mhz/8 < 2Mhz
+        uid->SPI_Speed(getSettings().value("spiSpeed").toInt()); // XXX: 14.67Mhz/X < 2Mhz
 }
 
 void Module_IMU::configureADIS()
 {
     configureSPI();
 
-//        short dynRange_ist = readRegister(0x38);
-//        short dynRange_soll = 0x0202;
-//
-//        if (dynRange_ist != dynRange_soll)
-//        {
-//                logger->error("SENS/AVG register has bad content: 0x" +QString::number(dynRange_ist,16));
-//        }
+    short filterTaps = settings.value("filterTaps").toInt();
 
-        // reset any existing offsets
-//	writeFullRegister(ADIS_REGISTER_XACCL_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_YACCL_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_ZACCL_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_XGYRO_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_YGYRO_OFF_LO, 0);
-//	writeFullRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 0);
+    short sens_avg_soll = 0;
+    sens_avg_soll |= filterTaps;
 
-//        setInternalSampleRate(1,0); // 18ms sample period (TODO: higher freq. needed?)
-//        setFilterSettings(0x02, 0x01); // medium sensitivity, small filter(?)
+    QString gyroSens = settings.value("gyroSens").toString();
+    if (gyroSens == "75") {
+        sens_avg_soll |= 0x0100;
+    } else if (gyroSens == "150") {
+        sens_avg_soll |= 0x0200;
+    } else if (gyroSens == "300") {
+        sens_avg_soll |= 0x0400;
+    }
 
-        // enable linear acceleation bios compensation and
-        // linear acceleration origin alignment
-//        writeRegister(ADIS_REGISTER_MSC_CTRL_LO, 0x80 | 0x40);
+    writeFullRegister(ADIS_REGISTER_SENS_AVG_LO, sens_avg_soll);
+
+    short multiplier = settings.value("smplTimeMult").toInt();
+    short smpl_prd_soll = multiplier;
+    if (settings.value("smplTimeBase").toBool()) {
+            smpl_prd_soll |= (1 << 6);
+    } else {
+            smpl_prd_soll &= ~(1 << 6);
+    }
+
+    writeFullRegister(ADIS_REGISTER_SMPL_PRD_LO, smpl_prd_soll);
+
+    uint8_t msc_ctrl = 0;
+    if (settings.value("originAllign").toBool()) {
+        msc_ctrl |= 0x40;
+    }
+    if (settings.value("biasComp").toBool()) {
+        msc_ctrl |= 0x80;
+    }
+    writeRegister(ADIS_REGISTER_MSC_CTRL_LO, msc_ctrl);
 }
 
 void Module_IMU::printRegisters()
 {
         for (uint8_t addr = 0x00; addr <= 0x3F; addr += 2)
         {
-             data["reg-"+QString::number(addr,16)] = readRegister(addr);
-//                logger->debug("Content at address 0x"+QString::number((short)addr,16) + ": 0x" +QString::number(data,16));
+ //            data["reg-"+QString::number(addr,16)] = readRegister(addr);
+             logger->debug("Content at address 0x"+QString::number((short)addr,16) + ": 0x" +QString::number(readRegister(addr),16));
         }
 }
-
-
-/**
- * Sets the filter settings. The filter is a Bartlett Window.
- *
- * @param range 0x04 for +-300°/s
- * 		0x02 for +-150°/s
- * 		0x01 for +-75°/s
- * @param tapSettings determines the number of filter taps 2^tapSettings.
- * Should be >= 0x02 for 150°/s and >= 0x04 for 75°/s.
- */
-void Module_IMU::setFilterSettings(unsigned short range, unsigned short tapSettings)
-{
-        unsigned short value = (range << 8) | (tapSettings & 0xFF);
-
-        writeFullRegister(ADIS_REGISTER_SENS_AVG_LO, value);
-}
-
-/**
- * Sets the internal sample rate. If SMPL_PRD > 0x09, only the normal
- * SPI mode with a rate up to 300 kHz can be used. Otherwise, up to
- * 2 MHz is possible.
- * The sampling rate calulates as follows:
- *  T_S = T_B * (N_S + 1)
- * where T_B = 0.61035 ms or 18.921 ms and N_S is a 6 bit value.
- *
- * @param T_B - 0 for 0.61035 ms, 1 for 18.921 ms
- * @param N_S - 6 bit value
- */
-void Module_IMU::setInternalSampleRate(unsigned short T_B, unsigned short N_S)
-{
-        if (T_B) {
-                N_S |= (1 << 6);
-        } else {
-                N_S &= ~(1 << 6);
-        }
-
-        writeFullRegister(ADIS_REGISTER_SMPL_PRD_LO, N_S);
-}
-
 
 /**
  * Converts an unsigned short that is read from the bus to
@@ -418,40 +409,45 @@ float Module_IMU::getGyroX(void)
 
 float Module_IMU::getGyroY(void)
 {
-        return data["gyroY"].toFloat();
+    return data["gyroY"].toFloat();
 }
 
 float Module_IMU::getGyroZ(void)
 {
-        return data["gyroZ"].toFloat();
+    return data["gyroZ"].toFloat();
 }
 
 float Module_IMU::getAccelX(void)
 {
-        return data["accelX"].toFloat();
+    return data["accelX"].toFloat();
 }
 
 float Module_IMU::getAccelY(void)
 {
-        return data["accelY"].toFloat();
+    return data["accelY"].toFloat();
 }
 
 float Module_IMU::getAccelZ(void)
 {
-        return data["accelZ"].toFloat();
+    return data["accelZ"].toFloat();
 }
-//
-//signed int Module_IMU::getGyroTempX(void)
-//{
-//        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_X),0x0FFF, 12);
-//}
-//
-//signed int Module_IMU::getGyroTempY(void)
-//{
-//        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_Y),0x0FFF, 12);
-//}
-//
-//signed int Module_IMU::getGyroTempZ(void)
-//{
-//        return shortToInteger(readRegister(ADIS_REGISTER_TEMP_Z),0x0FFF, 12);
-//}
+
+void Module_IMU::doNullCalib()
+{
+    writeRegister(ADIS_REGISTER_COMMAND_LO, ADIS_COMMAND_NULL_CALIBRATION);
+}
+
+void Module_IMU::doPrecisionCalib()
+{
+    writeRegister(ADIS_REGISTER_COMMAND_LO, ADIS_COMMAND_PRECISION_CALIBRATION);
+}
+
+void Module_IMU::updateBiasFields()
+{
+    data["biasGyroX"] = readDataRegister(ADIS_REGISTER_XGYRO_OFF_LO, 12);
+    data["biasGyroY"] = readDataRegister(ADIS_REGISTER_YGYRO_OFF_LO, 12);
+    data["biasGyroZ"] = readDataRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 12);
+    data["biasAccelX"] = readDataRegister(ADIS_REGISTER_XACCL_OFF_LO, 12);
+    data["biasAccelY"] = readDataRegister(ADIS_REGISTER_YACCL_OFF_LO, 12);
+    data["biasAccelZ"] = readDataRegister(ADIS_REGISTER_ZACCL_OFF_LO, 12);
+}

@@ -20,10 +20,13 @@ protected:
 private:
     Ui::IMU_Form *ui;
     Module_IMU *module;
+    QTimer timer;
 
 private slots:
+    void on_calibPrecise_clicked();
     void on_calibNull_clicked();
     void on_save_clicked();
+    void updateBiasFields();
 };
 
 #endif // IMU_FORM_H

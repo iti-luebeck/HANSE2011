@@ -97,6 +97,9 @@ void Module_ScanningSonar::reset()
 {
     RobotModule::reset();
 
+    if (!getSettings().value("enabled").toBool())
+        return;
+
     logger->debug("Stopping reader temporarily.");
     reader.pleaseStop();
     reader.wait();

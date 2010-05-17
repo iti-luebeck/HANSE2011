@@ -46,6 +46,7 @@ void Compass_Form::on_save_clicked()
     module->getSettings().setValue("varAngle", ui->varAngle->text());
     module->getSettings().setValue("iirFilter", ui->iirFilter->text());
     module->getSettings().setValue("sampleRate", ui->sampleRate->currentText());
+    module->reset();
 }
 
 void Compass_Form::on_calibStart_clicked()

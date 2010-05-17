@@ -172,6 +172,12 @@ protected slots:
     virtual void doHealthCheck();
 
 private:
+    class MyQThread: public QThread
+    {
+    public:
+        static void sleep(int millies);
+    };
+
     /**
       * ID of the module. must be unique across all robot instances. won't change at runtime.
       */
