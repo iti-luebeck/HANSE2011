@@ -105,15 +105,15 @@ void Module_Compass::doHealthCheck()
 
     uint8_t OP_REG_1 = eepromRead(0x04);
 
-    uint8_t OP_REG_1_TRUE = 0x01 | 0x10;
+    uint8_t OP_REG_1_TRUE = 0x01; // | 0x10;
 
     if (OP_REG_1 != OP_REG_1_TRUE)
     {
-            logger->error("WARN: register 1 has bad content!");
-            //printEEPROM();
-    }
+        setHealthToSick("register 1 has bad content: "+QString::number(OP_REG_1));
 
-    setHealthToOk();
+    } else {
+        setHealthToOk();
+    }
 }
 
 signed short Module_Compass::toSignedShort(uint8_t high, uint8_t low)
@@ -263,12 +263,12 @@ bool Module_Compass::readWriteDelay(unsigned char *send_buf, int send_size,
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
     if (!uid->I2C_Write(address, send_buf, send_size)) {
-        setHealthToSick("UID reported error.");
+        logger->error("UID reported error during write.");
         return false;
     }
     sleep(delay);
     if (recv_size>0 && !uid->I2C_Read(address, recv_size, recv_buf)) {
-        setHealthToSick("UID reported error.");
+        logger->error("UID reported error during read.");
         return false;
     }
     return true;
