@@ -15,7 +15,7 @@ Module_UID::Module_UID(QString moduleId)
     portSettings->Parity = PAR_NONE;
     portSettings->StopBits = STOP_1;
     portSettings->FlowControl = FLOW_OFF;
-    portSettings->Timeout_Millisec = 500;
+    portSettings->Timeout_Millisec = 5;
 
     setDefaultValue("uidId", "UIDC0001");
 
@@ -192,6 +192,13 @@ bool Module_UID::SendCommand(unsigned char* sequence, unsigned char length, int 
     if (!uid) {
         logger->error("Can't do. UID not open.");
         return false;
+    }
+
+    uid->flush();
+    if (uid->bytesAvailable()>0) {
+        logger->error("found some bytes in the uid serial buffer. discard them.");
+        uid->flush();
+        uid->readAll(); // don't care for the data
     }
 
     if ( (uid->write( (const char*)sequence, length )) == -1 ) {
