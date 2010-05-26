@@ -151,6 +151,15 @@ void Module_PressureSensor::readCounter()
 
 void Module_PressureSensor::readCalibWords()
 {
+    unsigned char address = getSettings().value("i2cAddress").toInt();
+    unsigned char cmd[] = { 0x12 };
+    if (!uid->I2C_Write(address, cmd, 1)) {
+        setHealthToSick("could not reread calib  words.");
+        sleep(100);
+        return;
+    }
+    sleep(100);
+
     unsigned char readBuffer[8];
     if (!readRegister(0, 8, readBuffer)) {
         setHealthToSick("UID reported error.");
@@ -161,9 +170,9 @@ void Module_PressureSensor::readCalibWords()
     for(int i=0;i<4;i++) {
 
         // this is the temperature in 10/degree celsius
-        uint16_t c = (int)readBuffer[i] << 8 | (int)readBuffer[i+1];
+        uint16_t c = (int)readBuffer[2*i] << 8 | (int)readBuffer[2*i+1];
 
-        data["calib"+i] = c;
+        data["calib "+QString::number(i)] = "0x"+QString::number(c,16);
         pressure_CalibrationWords[i]=c;
     }
 
