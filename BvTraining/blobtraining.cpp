@@ -19,6 +19,7 @@ void BlobTraining::train(QList<int> frameList, QString videoFile)
     if (vc.isOpened())
     {
         namedWindow("Image", 1);
+        namedWindow("Blob", 1);
         for (int i = 0; i < frameList.count(); i++)
         {
             vc.set(CV_CAP_PROP_POS_FRAMES, (double) frameList.at(i));
@@ -43,6 +44,7 @@ void BlobTraining::train(QList<int> frameList, QString videoFile)
     }
     vc.release();
     cvDestroyWindow("Image");
+    cvDestroyWindow("Blob");
 
     int k = 0;
     Mat featuresTemp(totalFeatures, 2, CV_32FC1, Scalar(0));
@@ -86,7 +88,7 @@ void BlobTraining::test(QString videoFile)
                 ip.features(thresh, features, svm);
             }
 
-            int key = waitKey(200);
+            int key = waitKey(500);
             if (key == 'q') break;
         }
     }

@@ -22,7 +22,7 @@ void SurfTraining::train(QList<int> frameList, QString videoFile)
     VideoCapture vc(videoFile.toStdString());
     if (vc.isOpened())
     {
-        namedWindow("Image", 1);
+        namedWindow("Image", 0);
         for (int i = 0; i < frameList.count(); i++)
         {
             vc.set(CV_CAP_PROP_POS_FRAMES, (double) frameList.at(i));
@@ -83,7 +83,7 @@ void SurfTraining::test(QString videoFile)
     VideoCapture vc(videoFile.toStdString());
     if (vc.isOpened())
     {
-        namedWindow("Image", 1);
+        namedWindow("Image", 0);
         for (;;)
         {
             Mat frame;
@@ -100,7 +100,7 @@ void SurfTraining::test(QString videoFile)
                 imshow("Image", frame);
             }
 
-            int key = waitKey(200);
+            int key = waitKey(500);
             if (key == 'q') break;
         }
     }

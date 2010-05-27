@@ -61,7 +61,7 @@ void TrainingWindow::on_selectButton_clicked()
     {
         frameList.clear();
 
-        namedWindow("Press [s] to select image", 1);
+        namedWindow("Press [s] to select image", 0);
         bool running = true;
         while (running)
         {

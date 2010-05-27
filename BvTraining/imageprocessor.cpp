@@ -19,6 +19,9 @@ void ImageProcessor::threshold(Mat img, Mat &thresh)
     thresh.create(imgGray.size(), CV_8UC1);
     thresh.setTo(Scalar(0));
     adaptiveThreshold(imgGray, thresh, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, 31, 21);
+
+    dilate(thresh, thresh, Mat());
+    erode(thresh, thresh, Mat());
 }
 
 void ImageProcessor::features(Mat &thresh, Mat &features, Mat &classes)
