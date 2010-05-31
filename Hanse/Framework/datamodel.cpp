@@ -28,7 +28,7 @@ void DataModel::updateModel()
         QString name = module->getTabName();
         foreach (QString key, module->getData().keys()) {
             QString mk = name+"/"+key;
-            if (mk.contains(filterModule)) {
+            if (mk.contains(filterModule,Qt::CaseInsensitive)) {
                 if (!mergedMap.contains(mk)) {
                     // yes, this looks very wrong. but it also works. :)
                     // so until I figure out the Right Way(tm) to do this,
