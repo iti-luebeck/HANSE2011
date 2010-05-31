@@ -1,6 +1,7 @@
 #include "module_sonarlocalization.h"
 
 #include <QtGui>
+#include "form_sonarlocalization.h"
 
 #include <Module_ScanningSonar/module_scanningsonar.h>
 
@@ -29,6 +30,6 @@ QList<RobotModule*> Module_SonarLocalization::getDependencies()
 
 QWidget* Module_SonarLocalization::createView(QWidget* parent)
 {
-    return new QWidget(parent);
+    return new Form_SonarLocalization(parent);
 }
 

@@ -1,6 +1,7 @@
 #include "module_navigation.h"
 
 #include <QtGui>
+#include "form_navigation.h"
 
 #include <Module_Localization/module_localization.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
@@ -32,7 +33,7 @@ QList<RobotModule*> Module_Navigation::getDependencies()
 
 QWidget* Module_Navigation::createView(QWidget* parent)
 {
-    return new QWidget(parent);
+    return new Form_Navigation(parent);
 }
 
 void Module_Navigation::doHealthCheck()

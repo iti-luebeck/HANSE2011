@@ -48,7 +48,11 @@ HEADERS += Framework/healthstatus.h \
     Module_Localization/module_localization.h \
     Module_Navigation/module_navigation.h \
     Module_VisualSLAM/module_visualslam.h \
-    Module_SonarLocalization/module_sonarlocalization.h
+    Module_SonarLocalization/module_sonarlocalization.h \
+    Framework/position.h \
+    Module_Localization/form_localization.h \
+    Module_Navigation/form_navigation.h \
+    Module_SonarLocalization/form_sonarlocalization.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -84,7 +88,11 @@ SOURCES += Framework/robotmodule.cpp \
     Module_Localization/module_localization.cpp \
     Module_Navigation/module_navigation.cpp \
     Module_VisualSLAM/module_visualslam.cpp \
-    Module_SonarLocalization/module_sonarlocalization.cpp
+    Module_SonarLocalization/module_sonarlocalization.cpp \
+    Framework/position.cpp \
+    Module_Localization/form_localization.cpp \
+    Module_Navigation/form_navigation.cpp \
+    Module_SonarLocalization/form_sonarlocalization.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -94,4 +102,7 @@ FORMS += Framework/mainwindow.ui \
     Module_ThrusterControlLoop/tcl_form.ui \
     Module_PressureSensor/pressure_form.ui \
     Module_IMU/imu_form.ui \
-    Module_Compass/compass_form.ui
+    Module_Compass/compass_form.ui \
+    Module_Localization/form_localization.ui \
+    Module_Navigation/form_navigation.ui \
+    Module_SonarLocalization/form_sonarlocalization.ui
