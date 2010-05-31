@@ -44,7 +44,11 @@ HEADERS += Framework/healthstatus.h \
     Module_IMU/module_imu.h \
     Module_IMU/imu_form.h \
     Module_Compass/module_compass.h \
-    Module_Compass/compass_form.h
+    Module_Compass/compass_form.h \
+    Module_Localization/module_localization.h \
+    Module_Navigation/module_navigation.h \
+    Module_VisualSLAM/module_visualslam.h \
+    Module_SonarLocalization/module_sonarlocalization.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -76,7 +80,11 @@ SOURCES += Framework/robotmodule.cpp \
     Module_IMU/module_imu.cpp \
     Module_IMU/imu_form.cpp \
     Module_Compass/module_compass.cpp \
-    Module_Compass/compass_form.cpp
+    Module_Compass/compass_form.cpp \
+    Module_Localization/module_localization.cpp \
+    Module_Navigation/module_navigation.cpp \
+    Module_VisualSLAM/module_visualslam.cpp \
+    Module_SonarLocalization/module_sonarlocalization.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
