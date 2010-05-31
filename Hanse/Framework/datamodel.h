@@ -16,12 +16,13 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
+    void setFilter(QString module);
 
 private:
     ModulesGraph* graph;
     QTimer timer;
     QMap<QString,QVariant> mergedMap;
+    QString filterModule;
 
 private slots:
     void updateModel();

@@ -21,12 +21,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QList<RobotModule*> list = graph.getModules();
 
+    QStringList oldOpenTabs = settings.value("openTabs").toStringList();
     for (int i = 0; i < list.size(); ++i) {
         RobotModule* m = list.at(i);
 
         // create widget
-        QWidget* w = m->createView(ui->tabWidget);
-        ui->tabWidget->addTab(w, "&"+m->getTabName());
+        if (oldOpenTabs.contains(m->getId()))
+            openNewTab(m);
 
         // TODO: free actions later
 
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
         actionEnabled->setChecked(m->isEnabled());
         connect(actionEnabled, SIGNAL(triggered(bool)), m, SLOT(setEnabled(bool)));
         connect(m, SIGNAL(enabled(bool)), actionEnabled, SLOT(setChecked(bool)));
+
     }
 
     connect(ui->actionDisable_All, SIGNAL(triggered()), this, SLOT(disableAll()));
@@ -110,4 +112,53 @@ void MainWindow::enableAll()
 
         m->setEnabled(true);
     }
+}
+
+
+void MainWindow::on_filter_textChanged(QString filter)
+{
+    dataModel->setFilter(filter);
+}
+
+void MainWindow::on_tabWidget_tabCloseRequested(int index)
+{
+    QWidget* w = ui->tabWidget->widget(index);
+
+    if (w==ui->dataTab || w==ui->healthTab)
+        return;
+
+    ui->tabWidget->removeTab(index);
+    openTabs.removeAll(w);
+    openTabIds.removeAll(w->objectName());
+    settings.setValue("openTabs",openTabIds);
+    delete w;
+}
+
+void MainWindow::on_healthView_doubleClicked(QModelIndex index)
+{
+    RobotModule* m = graph.getModules().at(index.row());
+
+    QWidget* widget = NULL;
+    foreach(QWidget* w, openTabs) {
+        if (w->objectName()==m->getId()) {
+            widget=w;
+        }
+    }
+
+    if (!widget) {
+        widget = openNewTab(m);
+    }
+
+    int i = ui->tabWidget->indexOf(widget);
+    ui->tabWidget->setCurrentIndex(i);
+}
+
+QWidget* MainWindow::openNewTab(RobotModule* m) {
+    QWidget* widget = m->createView(ui->tabWidget);
+    widget->setObjectName(m->getId());
+    ui->tabWidget->addTab(widget, m->getTabName());
+    openTabs.append(widget);
+    openTabIds.append(m->getId());
+    settings.setValue("openTabs",openTabIds);
+    return widget;
 }

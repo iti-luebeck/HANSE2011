@@ -27,9 +27,12 @@ private:
     HealthModel *healthModel;
     DataModel *dataModel;
     QSettings settings;
+    QList<QWidget*> openTabs;
+    QStringList openTabIds;
     void readSettings();
     void writeSettings();
     void setupLog4Qt();
+    QWidget* openNewTab(RobotModule* m);
 
     /**
       * Logger instance for this module
@@ -37,6 +40,9 @@ private:
     Log4Qt::Logger *logger;
 
 private slots:
+    void on_healthView_doubleClicked(QModelIndex index);
+    void on_tabWidget_tabCloseRequested(int index);
+    void on_filter_textChanged(QString );
     void disableAll();
     void enableAll();
 };

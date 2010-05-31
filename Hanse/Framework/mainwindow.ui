@@ -14,8 +14,8 @@
    <string>Hanse GUI</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="minimumSize">
        <size>
@@ -26,12 +26,18 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <property name="movable">
+       <bool>true</bool>
+      </property>
       <widget class="QWidget" name="healthTab">
        <attribute name="title">
         <string>&amp;Health</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
          <widget class="QTableView" name="healthView">
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -56,8 +62,24 @@
        <attribute name="title">
         <string>&amp;Data</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QWidget" name="widget" native="true">
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="filter"/>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Filter: </string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <widget class="QTableView" name="dataView">
           <property name="alternatingRowColors">
            <bool>true</bool>
@@ -81,26 +103,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="logTab">
-       <attribute name="title">
-        <string>&amp;Log</string>
-       </attribute>
-       <layout class="QFormLayout" name="formLayout">
-        <property name="fieldGrowthPolicy">
-         <enum>QFormLayout::ExpandingFieldsGrow</enum>
-        </property>
-        <item row="2" column="1">
-         <widget class="QListWidget" name="logList"/>
-        </item>
-        <item row="3" column="1">
-         <widget class="QPushButton" name="apply">
-          <property name="text">
-           <string>Apply</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -111,7 +113,7 @@
      <x>0</x>
      <y>0</y>
      <width>708</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
