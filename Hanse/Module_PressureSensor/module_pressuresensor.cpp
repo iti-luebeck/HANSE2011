@@ -10,6 +10,8 @@
 #define REGISTER_STATUS 17
 #define REGISTER_COUNTER 20
 
+#define REQUEST_NEW_CALIB_VALUES 18
+
 // indicates problem between i2c-spi bridge and pressure sensor
 #define STATUS_MAGIC_VALUE 0x55
 #define CALIB_MAGIC_VALUE 224
@@ -54,6 +56,13 @@ void Module_PressureSensor::reset()
 
     if (!getSettings().value("enabled").toBool())
         return;
+
+    unsigned char address = getSettings().value("i2cAddress").toInt();
+    unsigned char reg = REQUEST_NEW_CALIB_VALUES;
+    if (!uid->I2C_Write(address, &reg, 1)) {
+        setHealthToSick("UID reported error while REQUEST_NEW_CALIB_VALUES.");
+    }
+    sleep(100);
 
     readCalibWords();
 
