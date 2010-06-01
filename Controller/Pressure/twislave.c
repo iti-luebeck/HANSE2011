@@ -62,6 +62,7 @@ ISR (TWI_vect) {
 
 		// Slave Receiver 
 
+		case TW_SR_ARB_LOST_SLA_ACK: // 0x68
 		case TW_SR_SLA_ACK: // 0x60 Slave Receiver, Slave wurde adressiert	
 			TWCR_ACK; // nächstes Datenbyte empfangen, ACK danach senden
 			buffer_adr=0xFF; //Bufferposition ist undefiniert
@@ -101,6 +102,7 @@ ISR (TWI_vect) {
 
 		//Slave transmitter
 
+		case TW_ST_ARB_LOST_SLA_ACK: // 0xB0
 		case TW_ST_SLA_ACK: //0xA8 Slave wurde im Lesemodus adressiert und hat ein ACK zurückgegeben.
 			//Hier steht kein break! Es wird also der folgende Code ebenfalls ausgeführt!
 	
@@ -127,26 +129,34 @@ ISR (TWI_vect) {
 			// TWI operation still in progress. do nothing
 			// just for completeness, should never occur
 		  break;
+
 		case TW_BUS_ERROR:
 			i2cdata[16]=TW_STATUS;
 			// bus error due to an illegal start/stop condition
 			// see avr168 datasheet, section 21.7.5
 			TWCR = (1<<TWEN)|(1<<TWIE)|(1<<TWINT)|(1<<TWEA)|(0<<TWSTA)|(1<<TWSTO)|(0<<TWWC);
 			break;
-		case TW_ST_DATA_NACK: // 0xC0 Keine Daten mehr gefordert 
-		case TW_SR_DATA_NACK: // 0x88
-		case TW_ST_LAST_DATA: // 0xC8  Last data byte in TWDR has been transmitted (TWEA = “0”); ACK has been received
-		case TW_SR_ARB_LOST_SLA_ACK: // 0x68
-		case TW_SR_ARB_LOST_GCALL_ACK: // 0x78
+
+		case TW_SR_STOP: // 0xA0
+
+		// general calls. shouldn't matter as we don't answer to them anyway
+			
 		case TW_SR_GCALL_DATA_ACK: // 0x90
 		case TW_SR_GCALL_DATA_NACK: // 0x98
-		case TW_SR_STOP: // 0xA0
-		case TW_ST_ARB_LOST_SLA_ACK: // 0xB0
+		case TW_SR_ARB_LOST_GCALL_ACK: // 0x78
+
+		// should never occur since we never set TWEA to 0
+		  
+		case TW_ST_DATA_NACK: // 0xC0 Keine Daten mehr gefordert 
+		case TW_ST_LAST_DATA: // 0xC8  Last data byte in TWDR has been transmitted (TWEA = “0”); ACK has been received
+		case TW_SR_DATA_NACK: // 0x88
+			TWCR_ACK;
+			break;
+
 		default:
 			// all cases have been mentioned above.
 			// a jump to "default" should therefore indicate a bug.
-			i2cdata[16]=TW_STATUS; 	
-		    TWCR_RESET;
+			i2cdata[16]=TW_STATUS;
 		break;
 	
 	}
