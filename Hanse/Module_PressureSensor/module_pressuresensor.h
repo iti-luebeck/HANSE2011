@@ -56,6 +56,7 @@ private slots:
 private:
     Module_UID *uid;
     QTimer timer;
+    int C1,C2,C3,C4,C5,C6;
 
     void readPressure();
     void readTemperature();
