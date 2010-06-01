@@ -123,6 +123,12 @@ ISR (TWI_vect) {
 			TWCR_ACK;
 		break;
 
+		case TW_BUS_ERROR:
+			i2cdata[16]=TW_STATUS;
+			// bus error due to an illegal start/stop condition
+			// see avr168 datasheet, section 21.7.5
+			TWCR = (1<<TWEN)|(1<<TWIE)|(1<<TWINT)|(1<<TWEA)|(0<<TWSTA)|(1<<TWSTO)|(0<<TWWC);
+			break;
 		case TW_ST_DATA_NACK: // 0xC0 Keine Daten mehr gefordert 
 			i2cdata[16]=TW_STATUS; 
 		case TW_SR_DATA_NACK: // 0x88
