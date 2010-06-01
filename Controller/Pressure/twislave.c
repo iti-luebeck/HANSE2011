@@ -123,10 +123,6 @@ ISR (TWI_vect) {
 			TWCR_ACK;
 		break;
 
-		case TW_NO_INFO: // 0xF8
-			// TWI operation still in progress. do nothing
-			// just for completeness, should never occur
-		  break;
 		case TW_BUS_ERROR:
 			i2cdata[16]=TW_STATUS;
 			// bus error due to an illegal start/stop condition
@@ -134,17 +130,12 @@ ISR (TWI_vect) {
 			TWCR = (1<<TWEN)|(1<<TWIE)|(1<<TWINT)|(1<<TWEA)|(0<<TWSTA)|(1<<TWSTO)|(0<<TWWC);
 			break;
 		case TW_ST_DATA_NACK: // 0xC0 Keine Daten mehr gefordert 
+			i2cdata[16]=TW_STATUS; 
 		case TW_SR_DATA_NACK: // 0x88
+			i2cdata[16]=TW_STATUS;  
 		case TW_ST_LAST_DATA: // 0xC8  Last data byte in TWDR has been transmitted (TWEA = “0”); ACK has been received
-		case TW_SR_ARB_LOST_SLA_ACK: // 0x68
-		case TW_SR_ARB_LOST_GCALL_ACK: // 0x78
-		case TW_SR_GCALL_DATA_ACK: // 0x90
-		case TW_SR_GCALL_DATA_NACK: // 0x98
-		case TW_SR_STOP: // 0xA0
-		case TW_ST_ARB_LOST_SLA_ACK: // 0xB0
+			i2cdata[16]=TW_STATUS; 
 		default:
-			// all cases have been mentioned above.
-			// a jump to "default" should therefore indicate a bug.
 			i2cdata[16]=TW_STATUS; 	
 		    TWCR_RESET;
 		break;
