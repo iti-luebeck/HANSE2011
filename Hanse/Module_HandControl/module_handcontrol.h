@@ -31,6 +31,8 @@ private:
 
     Server* server;
 
+    void sendNewControls();
+
 private slots:
     void newMessage(int forwardSpeed, int angularSpeed, int speedUpDown);
     void serverReportedError(QString error);

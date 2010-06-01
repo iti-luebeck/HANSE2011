@@ -23,6 +23,8 @@ private:
     Module_HandControl *module;
 
 private slots:
+    void on_sliderUD_valueChanged(int value);
+    void on_sliderLR_valueChanged(int value);
     void on_sliderFw_valueChanged(int value);
     void on_save_clicked();
     void connectionStatusChanged();

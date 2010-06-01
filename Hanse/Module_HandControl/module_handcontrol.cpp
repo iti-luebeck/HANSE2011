@@ -63,6 +63,23 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     data["angularSpeed"] = angularSpeed;
     data["speedUpDown"] = speedUpDown;
 
+    sendNewControls();
+
+    // seems to be working..
+    setHealthToOk();
+
+    emit dataChanged(this);
+}
+
+void Module_HandControl::sendNewControls()
+{
+    if (!getSettings().value("enabled").toBool())
+        return;
+
+    int forwardSpeed = data["forwardSpeed"].toInt();
+    int angularSpeed = data["angularSpeed"].toInt();
+    int speedUpDown = data["speedUpDown"].toInt();
+
     float divFw = settings.value("divFw").toFloat();
     float divLR = settings.value("divLR").toFloat();
     float divUD = settings.value("divUD").toFloat();
@@ -84,10 +101,6 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
         controlLoop->setDepth(dVal);
     }
 
-    // seems to be working..
-    setHealthToOk();
-
-    emit dataChanged(this);
 }
 
 void Module_HandControl::serverReportedError(QString error)
