@@ -12,6 +12,7 @@
 #include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_Localization/module_localization.h>
 #include <Module_Navigation/module_navigation.h>
+#include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -62,6 +63,9 @@ void ModulesGraph::build()
 
     Module_Navigation* navi = new Module_Navigation("navigation",local, controlLoop);
     this->modules.append(navi);
+
+    Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop);
+    this->modules.append(behavPipe);
 
     logger->info("Loading all Modules... Done");
 }

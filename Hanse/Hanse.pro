@@ -52,7 +52,9 @@ HEADERS += Framework/healthstatus.h \
     Framework/position.h \
     Module_Localization/form_localization.h \
     Module_Navigation/form_navigation.h \
-    Module_SonarLocalization/form_sonarlocalization.h
+    Module_SonarLocalization/form_sonarlocalization.h \
+    Framework/robotbehaviour.h \
+    Behaviour_PipeFollowing/behaviour_pipefollowing.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -92,7 +94,9 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/position.cpp \
     Module_Localization/form_localization.cpp \
     Module_Navigation/form_navigation.cpp \
-    Module_SonarLocalization/form_sonarlocalization.cpp
+    Module_SonarLocalization/form_sonarlocalization.cpp \
+    Framework/robotbehaviour.cpp \
+    Behaviour_PipeFollowing/behaviour_pipefollowing.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
