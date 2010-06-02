@@ -25,6 +25,13 @@ SonarReturnData::SonarReturnData(QByteArray& returnDataPacket)
     dateTime = QDateTime::currentDateTime();
 }
 
+SonarReturnData& SonarReturnData::operator =(SonarReturnData other) {
+    this->dateTime = other.dateTime;
+    this->packet = other.packet;
+    this->startGain = other.startGain;
+    return *this;
+}
+
 QByteArray SonarReturnData::getEchoData() const
 {
     QByteArray clone = QByteArray(packet);

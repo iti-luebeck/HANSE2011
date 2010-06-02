@@ -3,10 +3,11 @@
 #include <QtCore>
 #include "module_scanningsonar.h"
 
-SonarDataRecorder::SonarDataRecorder(Module_ScanningSonar& s)
+SonarDataRecorder::SonarDataRecorder(Module_ScanningSonar& s, bool formatCSV)
     : sonar(s)
 {
     logger = Log4Qt::Logger::logger("SonarRecorder");
+    this->formatCSV = formatCSV;
 }
 
 void SonarDataRecorder::start()
@@ -27,23 +28,31 @@ void SonarDataRecorder::stop()
 
 void SonarDataRecorder::newData(const SonarReturnData data)
 {
+    if (formatCSV)
+        storeCSV(data);
+    else
+        store852(data);
+}
+
+void SonarDataRecorder::storeCSV(const SonarReturnData &data)
+{
     if (time.isNull()) {
         time = data.dateTime.time();
     }
-    if (sonar.getSettings().value("enableRecording").toBool()) {
 
-        time_t t = data.dateTime.toTime_t();
-        //int t = time.secsTo(data.dateTime.time());
+    time_t t = data.dateTime.toTime_t();
 
-        logger->debug("Writing packet to file");
-        logger->trace("bla:startGain=" + QString::number(data.startGain));
-        *stream << data.getRange() << "," << data.getHeadPosition()
-                << "," << data.startGain;
-            *stream << "," << t;
-        for (int i=0; i<data.getEchoData().length(); i++) {
-            *stream << "," << (int)data.getEchoData().at(i);
-        }
-        *stream << "\n";
-        stream->flush();
+    *stream << data.getRange() << "," << data.getHeadPosition()
+            << "," << data.startGain;
+        *stream << "," << t;
+    for (int i=0; i<data.getEchoData().length(); i++) {
+        *stream << "," << (int)data.getEchoData().at(i);
     }
+    *stream << "\n";
+    stream->flush();
+}
+
+void SonarDataRecorder::store852(const SonarReturnData &data)
+{
+    logger->error("TODO");
 }

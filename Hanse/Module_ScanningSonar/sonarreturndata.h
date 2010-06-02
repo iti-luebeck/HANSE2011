@@ -90,6 +90,8 @@ public:
       */
     QByteArray packet;
 
+    SonarReturnData& operator =(SonarReturnData);
+
 private:
 
     /**

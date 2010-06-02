@@ -23,6 +23,8 @@ private:
       */
     Log4Qt::Logger *logger;
 
+    SonarReturnData readPacket();
+
 };
 
 #endif // SONARDATASOURCEFILE_H

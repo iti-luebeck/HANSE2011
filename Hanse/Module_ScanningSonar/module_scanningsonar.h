@@ -13,6 +13,9 @@ class SonarDataRecorder;
 class Module_ScanningSonar : public RobotModule {
     Q_OBJECT
 
+    friend class SonarDataSourceFile;
+    friend class SonarDataSourceSerial;
+
     class ThreadedReader : public QThread {
     public:
         ThreadedReader(Module_ScanningSonar* m);

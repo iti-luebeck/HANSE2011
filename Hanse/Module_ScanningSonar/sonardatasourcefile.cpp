@@ -27,6 +27,21 @@ SonarDataSourceFile::SonarDataSourceFile(Module_ScanningSonar& parent, QString p
 
 const SonarReturnData SonarDataSourceFile::getNextPacket()
 {
+    QDateTime startTime = parent.settings.value("startTime").toDateTime();
+
+    // skip until we are at the startTime
+    SonarReturnData p = readPacket();
+    while (p.isPacketValid() && startTime>p.dateTime) {
+        p = readPacket();
+    }
+
+    SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
+
+    return p;
+}
+
+SonarReturnData SonarDataSourceFile::readPacket()
+{
     if (!stream) {
         logger->error("Stream not open!");
         SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
@@ -83,8 +98,8 @@ const SonarReturnData SonarDataSourceFile::getNextPacket()
 
     logger->trace("Read packet with content " + (QString)remainingDataArray.toHex());
 
-    SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
     SonarReturnData d(remainingDataArray, dt);
+
     d.startGain = startGain;
     return d;
 }

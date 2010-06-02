@@ -26,16 +26,11 @@ Module_ScanningSonar::Module_ScanningSonar(QString id)
     setDefaultValue("fileReaderDelay", 100);
 
     qRegisterMetaType<SonarReturnData>("SonarReturnData");
-    recorder = new SonarDataRecorder(*this);
-    recorder->start();
-    connect(this, SIGNAL(newSonarData(SonarReturnData)), recorder, SLOT(newData(SonarReturnData)));
 
-    if (settings.value("readFromFile").toBool())
-        source = new SonarDataSourceFile(*this, settings.value("filename").toString());
-    else
-        source = new SonarDataSourceSerial(*this, settings.value("serialPort").toString());
+    recorder = NULL;
+    source = NULL;
 
-    reader.start();
+    reset();
 }
 
 Module_ScanningSonar::~Module_ScanningSonar()
@@ -96,15 +91,31 @@ void Module_ScanningSonar::reset()
 {
     RobotModule::reset();
 
-    if (!getSettings().value("enabled").toBool())
-        return;
-
-    logger->debug("Stopping reader temporarily.");
+    logger->debug("Stopping reader.");
     reader.pleaseStop();
     reader.wait();
 
-    logger->debug("Destroying and recreating sonar data source.");
-    delete this->source;
+    logger->debug("Destroying and sonar data source.");
+    if (this->source != NULL) {
+        delete this->source;
+        source = NULL;
+    }
+
+    if (recorder != NULL) {
+        recorder->stop();
+        delete recorder;
+        recorder = NULL;
+    }
+
+    if (!getSettings().value("enabled").toBool())
+        return;
+
+    if (settings.value("enableRecording").toBool()) {
+        recorder = new SonarDataRecorder(*this, settings.value("formatCSV").toBool());
+        connect(this, SIGNAL(newSonarData(SonarReturnData)), recorder, SLOT(newData(SonarReturnData)));
+        recorder->start();
+    }
+
     if (settings.value("readFromFile").toBool())
         source = new SonarDataSourceFile(*this, settings.value("filename").toString());
     else
