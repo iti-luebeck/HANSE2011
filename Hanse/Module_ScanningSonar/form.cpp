@@ -23,7 +23,7 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     ui->stepSize->setValue(sonar->getSettings().value("stepSize").toInt());
     ui->switchDelay->setText(sonar->getSettings().value("switchDelay").toString());
     ui->trainAngle->setText(sonar->getSettings().value("trainAngle").toString());
-
+    ui->dataPoints->setText(sonar->getSettings().value("dataPoints").toString());
     ui->readFileCheckbox->setChecked(sonar->getSettings().value("readFromFile").toBool());
     ui->fileName->setText(sonar->getSettings().value("filename").toString());
     ui->recorderFilename->setText(sonar->getSettings().value("recorderFilename").toString());
@@ -51,13 +51,13 @@ void Form::changeEvent(QEvent *e)
 
 void Form::updateSonarView(SonarReturnData data)
 {
-    QGraphicsItem* it = scene.addText("");
+    QGraphicsItem* it = scene.addLine(0,0,0,0);
 
-    // TODO: this won't work when the scanning parameters are changed at runtime
     if (map.contains(data.getHeadPosition())) {
-        scene.removeItem(map[data.getHeadPosition()]);
+        QGraphicsItem* old = map[data.getHeadPosition()];
         map.remove(data.getHeadPosition());
-        // TODO: do i have to free this?
+        scene.removeItem(old);
+        delete old;
     }
 
     map[data.getHeadPosition()] = it;
@@ -66,12 +66,18 @@ void Form::updateSonarView(SonarReturnData data)
     int r = data.getRange();
     for (int i = 0; i < data.getEchoData().length(); ++i) {
         char b = data.getEchoData()[i];
-        if (b>th)
-            QGraphicsEllipseItem *point = new QGraphicsEllipseItem(0,i, 1,1,it);
+        QPolygonF polygon;
+        float startX = i-0.5;
+        float endX = i+0.5;
+        float startY = tan(0.052/2)*startX;
+        float endY = tan(0.052/2)*endX;
+        polygon << QPointF(startX,startY) << QPointF(endX,endY)<< QPointF(endX,-endY)<< QPointF(startX,-startY)<< QPointF(startX,startY);
+        QGraphicsPolygonItem *segment = new QGraphicsPolygonItem(polygon,it);
+        segment->setPen(QPen(QColor(0,b,0)));
     }
 
     scanLine->setRotation(data.getHeadPosition());
-    it->setRotation(data.getHeadPosition());
+    it->setRotation(data.getHeadPosition()+90);
 }
 
 void Form::on_save_clicked()
@@ -85,7 +91,15 @@ void Form::on_save_clicked()
     sonar->getSettings().setValue("stepSize", ui->stepSize->value());
     sonar->getSettings().setValue("switchDelay", ui->switchDelay->text().toInt());
     sonar->getSettings().setValue("trainAngle", ui->trainAngle->text().toInt());
+    sonar->getSettings().setValue("dataPoints", ui->dataPoints->text().toInt());
     sonar->reset();
+
+    // the scan resolution may have changed, clear the graphics scene
+    foreach(QGraphicsItem* g, map.values()) {
+        scene.removeItem(g);
+        delete g;
+    }
+    map.clear();
 }
 
 void Form::on_fileCfgApply_clicked()

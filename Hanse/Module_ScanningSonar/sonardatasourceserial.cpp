@@ -23,7 +23,7 @@ SonarReturnData* SonarDataSourceSerial::getNextPacket()
 {
     logger->debug("Sending switch data command.");
     QByteArray sendArray = buildSwitchDataCommand();
-    logger->debug("Sending: " + QString(sendArray.toHex()));
+    logger->trace("Sending: " + QString(sendArray.toHex()));
     port->write(sendArray);
 
     QByteArray retData;
@@ -41,7 +41,10 @@ SonarReturnData* SonarDataSourceSerial::getNextPacket()
         retData.append(ret);
         t.msleep(5); timeout -= 5;
     }
-    logger->debug("Received in total: " + QString(retData.toHex()));
+    if (expectedLength - retData.length()>0) {
+        logger->error("Received less than expected: "+QString::number(expectedLength - retData.length())+" bytes missing.");
+    }
+    //logger->trace("Received in total: " + QString(retData.toHex()));
 
     SonarReturnData* d = new SonarReturnData(retData);
 
@@ -56,9 +59,8 @@ void SonarDataSourceSerial::configurePort()
     s.DataBits = DATA_8;
     s.StopBits = STOP_1;
     s.Parity = PAR_NONE;
-    s.FlowControl = FLOW_OFF;
     s.Timeout_Millisec = 1;
-    port = new QextSerialPort(parent.getSettings().value("serialPort").toString(), s);
+    port = new QextSerialPort(parent.getSettings().value("serialPort").toString(), s,QextSerialPort::Polling);
     bool ret = port->open(QextSerialPort::ReadWrite);
     if (ret)
         logger->info("Opened Serial Port!");
