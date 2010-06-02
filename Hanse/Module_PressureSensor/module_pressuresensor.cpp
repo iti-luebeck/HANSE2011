@@ -73,7 +73,6 @@ void Module_PressureSensor::refreshData()
 
     readPressure();
     readTemperature();
-    readCounter();
 
     if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
@@ -102,18 +101,6 @@ void Module_PressureSensor::readPressure()
         setHealthToSick("Pressure of "+QString::number(pressure) + " doesn't make sense.");
     }
 
-}
-
-void Module_PressureSensor::readCounter()
-{
-    unsigned char readBuffer[1];
-
-    if (!readRegister(REGISTER_COUNTER, 1, readBuffer)) {
-        setHealthToSick("UID reported error.");
-        return;
-    }
-
-    data["counter"] =  readBuffer[0];
 }
 
 void Module_PressureSensor::readTemperature()
@@ -169,22 +156,20 @@ void Module_PressureSensor::doHealthCheck()
         return;
     }
 
+    // check if the counter is increasing.
+
+    if (!readRegister(REGISTER_COUNTER, 1, readBuffer)) {
+        setHealthToSick("UID reported error.");
+        return;
+    }
+
+    if (readBuffer[0] == counter)
+        setHealthToSick("read the same counter value twice!");
+        return;
+
+    counter = readBuffer[0];
+
     setHealthToOk();
-}
-
-bool Module_PressureSensor::readRegister2(unsigned char reg, int size, unsigned char *ret_buf)
-{
-    unsigned char address = getSettings().value("i2cAddress").toInt();
-
-    if (!uid->I2C_Write(address, &reg, 1)) {
-        setHealthToSick("UID reported error.");
-        return false;
-    }
-    if (!uid->I2C_Read(address, size, ret_buf)) {
-        setHealthToSick("UID reported error.");
-        return false;
-    }
-    return true;
 }
 
 bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned char *ret_buf)

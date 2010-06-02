@@ -16,7 +16,6 @@ public:
 
     QWidget* createView(QWidget* parent);
 
-    // TODO: getView();
     QList<RobotModule*> getDependencies();
 
     /**
@@ -56,14 +55,12 @@ private slots:
 private:
     Module_UID *uid;
     QTimer timer;
-    int C1,C2,C3,C4,C5,C6;
+    int counter;
 
     void readPressure();
     void readTemperature();
-    void readCounter();
 
     bool readRegister(unsigned char reg, int size, unsigned char *ret_buf);
-    bool readRegister2(unsigned char reg, int size, unsigned char *ret_buf);
 
 };
 
