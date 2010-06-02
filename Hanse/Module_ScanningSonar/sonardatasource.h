@@ -11,7 +11,7 @@ class SonarDataSource
 public:
     SonarDataSource(Module_ScanningSonar& parent);
 
-    virtual SonarReturnData* getNextPacket() = 0;
+    virtual const SonarReturnData getNextPacket() = 0;
 
 protected:
     Module_ScanningSonar& parent;

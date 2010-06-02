@@ -36,7 +36,6 @@ public:
     QWidget* createView(QWidget* parent);
 
     QList<RobotModule*> getDependencies();
-    QList<SonarReturnData*> retData;
 
 public slots:
     void doNextScan();
@@ -46,7 +45,7 @@ public slots:
     void terminate();
 
 signals:
-    void newSonarData(SonarReturnData data);
+    void newSonarData(const SonarReturnData data);
 
 private:
     ThreadedReader reader;

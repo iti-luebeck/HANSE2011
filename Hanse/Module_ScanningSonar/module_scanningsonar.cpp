@@ -1,7 +1,7 @@
 #include "module_scanningsonar.h"
 #include <QtCore>
 #include <stdio.h>
-#include "form.h"
+#include "scanningsonar_form.h"
 #include "sonarreturndata.h"
 #include "sonardatasourceserial.h"
 #include "sonardatasourcefile.h"
@@ -78,14 +78,13 @@ void Module_ScanningSonar::ThreadedReader::run(void)
 
 void Module_ScanningSonar::doNextScan()
 {
-    SonarReturnData* d = source->getNextPacket();
+    const SonarReturnData d = source->getNextPacket();
 
-    if (d && d->isPacketValid()) {
-        retData.append(d);
+    if (d.isPacketValid()) {
         setHealthToOk();
-        data["currentHeading"] = d->getHeadPosition();
-        data["range"] = d->getRange();
-        emit newSonarData(*d);
+        data["currentHeading"] = d.getHeadPosition();
+        data["range"] = d.getRange();
+        emit newSonarData(d);
         emit dataChanged(this);
     } else {
         setHealthToSick("Received bullshit. Dropping packet.");
@@ -123,6 +122,6 @@ QList<RobotModule*> Module_ScanningSonar::getDependencies()
 
 QWidget* Module_ScanningSonar::createView(QWidget* parent)
 {
-    return new Form(this, parent);
+    return new ScanningSonarForm(this, parent);
 }
 

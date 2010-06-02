@@ -12,7 +12,7 @@ class SonarDataSourceFile: public SonarDataSource
 public:
     SonarDataSourceFile(Module_ScanningSonar& parent, QString file);
 
-    SonarReturnData* getNextPacket();
+    const SonarReturnData getNextPacket();
 
 private:
     QFile* file;

@@ -38,50 +38,59 @@ public:
       * Checks if this packet is valid, i.e. if the packet fulfills the spec
       * and none of the error bits in the status field are set.
       */
-    bool isPacketValid();
+    bool isPacketValid() const;
 
     /**
       * XXX: Some kind of error code?
       */
-    bool isSwitchesAccepted();
+    bool isSwitchesAccepted() const;
 
     /**
       * XXX: Another error code?
       */
-    bool isCharacterOverrun();
+    bool isCharacterOverrun() const;
 
     /**
       * Returns the sensor range in meters.
       */
-    int getRange();
+    int getRange() const;
 
-    double getHeadPosition();
+    /**
+      * The orientation of the sonar head when the meassurement was made.
+      */
+    double getHeadPosition() const;
 
     /**
       * Number of Data points in this packet.
       */
-    int getDataBytes();
+    int getDataBytes() const;
 
     /**
       * Returns true if the sonar head is currently moving in a clockwise direction
       */
-    bool isCWDirection();
+    bool isCWDirection() const;
 
     /**
       * The actual echo data. XXX: actual format??
       */
-    QByteArray getEchoData();
+    QByteArray getEchoData() const;
 
+    /**
+      * Recording time of this data packet
+      */
     QDateTime dateTime;
 
+    /**
+      * Start gain used.
+      */
     quint8 startGain;
-
-private:
 
     /**
       * The unmodified data packet as received from the sonar
       */
     QByteArray packet;
+
+private:
 
     /**
       * Decodes a 14 bit integer from two consequtive packet bytes.
@@ -92,14 +101,14 @@ private:
       * (see page 6/7 of the echo sounder protocol spec for
       * details.)
       */
-    int THCDecoder(char byteLO, char byteHI);
+    int THCDecoder(char byteLO, char byteHI) const;
 
     /**
       * Decodes the Head Position from two packet bytes.
       * very similar to THCDecoder(), only difference is that this
       * method masks another bit.
       */
-    int THCHeadPosDecoder(char byteLO, char byteHI);
+    int THCHeadPosDecoder(char byteLO, char byteHI) const;
 
 };
 

@@ -1,10 +1,10 @@
-#include "form.h"
-#include "ui_form.h"
+#include "scanningsonar_form.h"
+#include "ui_scanningsonar_form.h"
 #include "sonarreturndata.h"
 
-Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
-        QWidget(parent), scene(-500,-500,1000,1000),
-    ui(new Ui::Form)
+ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *parent) :
+        QWidget(parent), scene(-200,-200,500,500),
+    ui(new Ui::ScanningSonarForm)
 {
     ui->setupUi(this);
     this->sonar = sonar;
@@ -27,20 +27,24 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     ui->switchDelay->setText(sonar->getSettings().value("switchDelay").toString());
     ui->trainAngle->setText(sonar->getSettings().value("trainAngle").toString());
     ui->dataPoints->setText(sonar->getSettings().value("dataPoints").toString());
-    ui->readFileCheckbox->setChecked(sonar->getSettings().value("readFromFile").toBool());
+
+    ui->sourceFile->setChecked(sonar->getSettings().value("readFromFile").toBool());
+    ui->sourceSerial->setChecked(!sonar->getSettings().value("readFromFile").toBool());
     ui->fileName->setText(sonar->getSettings().value("filename").toString());
     ui->recorderFilename->setText(sonar->getSettings().value("recorderFilename").toString());
     ui->enableRecording->setChecked(sonar->getSettings().value("enableRecording").toBool());
     ui->fileReaderDelay->setValue(sonar->getSettings().value("fileReaderDelay").toInt());
-
+    ui->formatCSV->setChecked(sonar->getSettings().value("formatCSV").toBool());
+    ui->format852->setChecked(!sonar->getSettings().value("formatCSV").toBool());
+    ui->startTime->setDateTime(sonar->getSettings().value("startTime").toDateTime());
 }
 
-Form::~Form()
+ScanningSonarForm::~ScanningSonarForm()
 {
     delete ui;
 }
 
-void Form::changeEvent(QEvent *e)
+void ScanningSonarForm::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
     switch (e->type()) {
@@ -52,7 +56,7 @@ void Form::changeEvent(QEvent *e)
     }
 }
 
-void Form::updateSonarView(SonarReturnData data)
+void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 {
     float n = data.getEchoData().length();
 
@@ -97,7 +101,7 @@ void Form::updateSonarView(SonarReturnData data)
     oldHeading = data.getHeadPosition();
 }
 
-void Form::on_save_clicked()
+void ScanningSonarForm::on_save_clicked()
 {
     sonar->getSettings().setValue("serialPort", ui->serialPort->text());
     sonar->getSettings().setValue("frequency", ui->frequency->text().toInt());
@@ -119,12 +123,14 @@ void Form::on_save_clicked()
     map.clear();
 }
 
-void Form::on_fileCfgApply_clicked()
+void ScanningSonarForm::on_fileCfgApply_clicked()
 {
     sonar->getSettings().setValue("recorderFilename", ui->recorderFilename->text());
-    sonar->getSettings().setValue("readFromFile", ui->readFileCheckbox->isChecked());
+    sonar->getSettings().setValue("readFromFile", ui->sourceFile->isChecked());
     sonar->getSettings().setValue("filename", ui->fileName->text());
     sonar->getSettings().setValue("fileReaderDelay", ui->fileReaderDelay->value());
     sonar->getSettings().setValue("enableRecording", ui->enableRecording->isChecked());
+    sonar->getSettings().setValue("formatCSV", ui->formatCSV->isChecked());
+    sonar->getSettings().setValue("startTime", ui->startTime->dateTime());
     sonar->reset();
 }

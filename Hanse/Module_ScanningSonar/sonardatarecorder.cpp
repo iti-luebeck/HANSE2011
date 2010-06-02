@@ -25,7 +25,7 @@ void SonarDataRecorder::stop()
     file->close();
 }
 
-void SonarDataRecorder::newData(SonarReturnData data)
+void SonarDataRecorder::newData(const SonarReturnData data)
 {
     if (time.isNull()) {
         time = data.dateTime.time();

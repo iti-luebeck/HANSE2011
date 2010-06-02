@@ -19,7 +19,7 @@ SonarDataSourceSerial::SonarDataSourceSerial(Module_ScanningSonar& parent, QStri
     configurePort();
 }
 
-SonarReturnData* SonarDataSourceSerial::getNextPacket()
+const SonarReturnData SonarDataSourceSerial::getNextPacket()
 {
     logger->debug("Sending switch data command.");
     QByteArray sendArray = buildSwitchDataCommand();
@@ -46,7 +46,7 @@ SonarReturnData* SonarDataSourceSerial::getNextPacket()
     }
     //logger->trace("Received in total: " + QString(retData.toHex()));
 
-    SonarReturnData* d = new SonarReturnData(retData);
+    SonarReturnData d(retData);
 
     return d;
 }

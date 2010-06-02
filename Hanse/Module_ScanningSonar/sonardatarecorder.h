@@ -18,7 +18,7 @@ public:
     void stop();
 
 public slots:
-    void newData(SonarReturnData data);
+    void newData(const SonarReturnData data);
 
 private:
     Module_ScanningSonar& sonar;

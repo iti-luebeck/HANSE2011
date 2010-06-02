@@ -1,25 +1,25 @@
-#ifndef FORM_H
-#define FORM_H
+#ifndef SCANNINGSONARFORM_H
+#define SCANNINGSONARFORM_H
 
 #include <QWidget>
 #include "module_scanningsonar.h"
 #include <QGraphicsScene>
 
 namespace Ui {
-    class Form;
+    class ScanningSonarForm;
 }
 
-class Form : public QWidget {
+class ScanningSonarForm : public QWidget {
     Q_OBJECT
 public:
-    Form(Module_ScanningSonar* sonar, QWidget *parent = 0);
-    ~Form();
+    ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *parent = 0);
+    ~ScanningSonarForm();
 
 protected:
     void changeEvent(QEvent *e);
 
 private:
-    Ui::Form *ui;
+    Ui::ScanningSonarForm *ui;
     Module_ScanningSonar* sonar;
     QGraphicsScene scene;
     QMap<double, QGraphicsPolygonItem*> map;
@@ -30,7 +30,7 @@ private:
 private slots:
     void on_fileCfgApply_clicked();
     void on_save_clicked();
-    void updateSonarView(SonarReturnData data);
+    void updateSonarView(const SonarReturnData data);
 };
 
-#endif // FORM_H
+#endif // SCANNINGSONARFORM_H

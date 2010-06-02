@@ -11,7 +11,7 @@ class SonarDataSourceSerial: public SonarDataSource
 public:
     SonarDataSourceSerial(Module_ScanningSonar& parent, QString port);
 
-    SonarReturnData* getNextPacket();
+    const SonarReturnData getNextPacket();
 
 private:
     QextSerialPort* port;

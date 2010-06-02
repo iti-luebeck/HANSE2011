@@ -34,7 +34,6 @@ HEADERS += Framework/healthstatus.h \
     Module_ScanningSonar/sonardatarecorder.h \
     Module_ScanningSonar/qsonarview.h \
     Module_ScanningSonar/module_scanningsonar.h \
-    Module_ScanningSonar/form.h \
     Module_Thruster/thruster_form.h \
     Module_Thruster/module_thruster.h \
     Module_ThrusterControlLoop/tcl_form.h \
@@ -54,7 +53,8 @@ HEADERS += Framework/healthstatus.h \
     Module_Navigation/form_navigation.h \
     Module_SonarLocalization/form_sonarlocalization.h \
     Framework/robotbehaviour.h \
-    Behaviour_PipeFollowing/behaviour_pipefollowing.h
+    Behaviour_PipeFollowing/behaviour_pipefollowing.h \
+    Module_ScanningSonar/scanningsonar_form.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -76,7 +76,6 @@ SOURCES += Framework/robotmodule.cpp \
     Module_ScanningSonar/sonardatarecorder.cpp \
     Module_ScanningSonar/qsonarview.cpp \
     Module_ScanningSonar/module_scanningsonar.cpp \
-    Module_ScanningSonar/form.cpp \
     Module_Thruster/thruster_form.cpp \
     Module_Thruster/module_thruster.cpp \
     Module_ThrusterControlLoop/tcl_form.cpp \
@@ -96,12 +95,12 @@ SOURCES += Framework/robotmodule.cpp \
     Module_Navigation/form_navigation.cpp \
     Module_SonarLocalization/form_sonarlocalization.cpp \
     Framework/robotbehaviour.cpp \
-    Behaviour_PipeFollowing/behaviour_pipefollowing.cpp
+    Behaviour_PipeFollowing/behaviour_pipefollowing.cpp \
+    Module_ScanningSonar/scanningsonar_form.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
     Module_HandControl/handcontrol_form.ui \
-    Module_ScanningSonar/form.ui \
     Module_Thruster/thruster_form.ui \
     Module_ThrusterControlLoop/tcl_form.ui \
     Module_PressureSensor/pressure_form.ui \
@@ -109,4 +108,5 @@ FORMS += Framework/mainwindow.ui \
     Module_Compass/compass_form.ui \
     Module_Localization/form_localization.ui \
     Module_Navigation/form_navigation.ui \
-    Module_SonarLocalization/form_sonarlocalization.ui
+    Module_SonarLocalization/form_sonarlocalization.ui \
+    Module_ScanningSonar/scanningsonar_form.ui
