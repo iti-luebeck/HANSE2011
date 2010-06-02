@@ -9,8 +9,11 @@ Form::Form(Module_ScanningSonar* sonar, QWidget *parent) :
     ui->setupUi(this);
     this->sonar = sonar;
 
+    oldHeading = -1000;
+
     this->ui->graphicsView->setScene(&scene);
     scanLine = scene.addLine(0,0,0,500, QPen(QColor("red")));
+    scanLine->setZValue(1);
 
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(updateSonarView(SonarReturnData)));
 
@@ -51,33 +54,47 @@ void Form::changeEvent(QEvent *e)
 
 void Form::updateSonarView(SonarReturnData data)
 {
-    QGraphicsItem* it = scene.addLine(0,0,0,0);
+    float n = data.getEchoData().length();
 
-    if (map.contains(data.getHeadPosition())) {
-        QGraphicsItem* old = map[data.getHeadPosition()];
-        map.remove(data.getHeadPosition());
-        scene.removeItem(old);
-        delete old;
+    if (oldHeading>-1000) {
+
+        if (!map.contains(data.getHeadPosition())) {
+            QPolygonF polygon;
+            float endX = n;
+
+            float diff = data.getHeadPosition() - oldHeading;
+            if (diff>20)
+                diff -= 360;
+
+            float endY = tan(diff/180*M_PI)*endX;
+
+//            QTransform t;
+//            t.rotate(oldHeading);
+//            QPointF endPoint1 = t.map(QPointF(n,0));
+//            t.reset();
+//            t.rotate(data.getHeadPosition());
+//            QPointF endPoint2 = t.map(QPointF(n,0));
+
+//            polygon << QPointF(0,0) << endPoint1 << endPoint2;
+            polygon << QPointF(0,0) << QPointF(endX,0)<< QPointF(endX,endY);
+            QGraphicsPolygonItem *it = scene.addPolygon(polygon,QPen(Qt::NoPen));
+            map[data.getHeadPosition()] = it;
+            scanLine->setRotation(data.getHeadPosition());
+            it->setRotation(data.getHeadPosition()+90);
+        }
+
+        QGraphicsPolygonItem *it = map[data.getHeadPosition()];
+
+        QLinearGradient g(QPointF(0, 0), QPointF(n,0));
+        for (int i = 0; i < data.getEchoData().length(); ++i) {
+            char b = data.getEchoData()[i];
+            g.setColorAt(i/n,QColor(0,b,0));
+        }
+        it->setBrush(QBrush(g));
+
     }
 
-    map[data.getHeadPosition()] = it;
-
-    int th = 50;
-    int r = data.getRange();
-    for (int i = 0; i < data.getEchoData().length(); ++i) {
-        char b = data.getEchoData()[i];
-        QPolygonF polygon;
-        float startX = i-0.5;
-        float endX = i+0.5;
-        float startY = tan(0.052/2)*startX;
-        float endY = tan(0.052/2)*endX;
-        polygon << QPointF(startX,startY) << QPointF(endX,endY)<< QPointF(endX,-endY)<< QPointF(startX,-startY)<< QPointF(startX,startY);
-        QGraphicsPolygonItem *segment = new QGraphicsPolygonItem(polygon,it);
-        segment->setPen(QPen(QColor(0,b,0)));
-    }
-
-    scanLine->setRotation(data.getHeadPosition());
-    it->setRotation(data.getHeadPosition()+90);
+    oldHeading = data.getHeadPosition();
 }
 
 void Form::on_save_clicked()

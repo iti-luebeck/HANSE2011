@@ -53,7 +53,6 @@ private:
     QTimer timer;
     SonarDataSource* source;
     SonarDataRecorder* recorder;
-
 };
 
 #endif // MODULE_SCANNINGSONAR_H

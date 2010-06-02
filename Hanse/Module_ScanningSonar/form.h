@@ -22,8 +22,9 @@ private:
     Ui::Form *ui;
     Module_ScanningSonar* sonar;
     QGraphicsScene scene;
-    QMap<double, QGraphicsItem*> map;
+    QMap<double, QGraphicsPolygonItem*> map;
     QGraphicsItem* scanLine;
+    int oldHeading;
 
 
 private slots:
