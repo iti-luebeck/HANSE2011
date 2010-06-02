@@ -64,8 +64,6 @@ void Module_PressureSensor::reset()
     }
     sleep(100);
 
-    readCalibWords();
-
 }
 
 void Module_PressureSensor::refreshData()
@@ -76,56 +74,11 @@ void Module_PressureSensor::refreshData()
     readPressure();
     readTemperature();
     readCounter();
-    //readRawRegisters();
-    //calc();
 
-//    if (getHealthStatus().isHealthOk()) {
+    if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
         emit newDepthData(getDepth());
-//    }
-}
-
-void Module_PressureSensor::calc()
-{
-    float D1 = data["pressureRaw"].toInt();
-    float D2 = data["tempRaw"].toInt();
-//    short int C1 = data["C1"].toInt();
-//    short int C2 = data["C2"].toInt();
-//    short int C3 = data["C3"].toInt();
-//    short int C4 = data["C4"].toInt();
-//    short int C5 = data["C5"].toInt();
-//    short int C6 = data["C6"].toInt();
-
-    float UT1, dT, OFF, SENS, P;
-    float dT2;
-
-    // Calculate calibration temperature
-    UT1 = 8*C5+10000;
-    data["UT1"] = UT1;
-
-    // Calculate actual temperature
-    dT = D2 - UT1;
-    data["dT"] = dT;
-
-    // Second-order temperature compensation
-    if (dT < 0)
-            dT2 = dT - (dT/128.0*dT/128)/2.0;
-    else
-            dT2 = dT - (dT/128.0*dT/128)/8.0;
-    data["tempSW"] = (200+dT2*(C6+100)/2048.0)/10.0;
-    data["dT2"] = dT2;
-
-    // Calculate temperature compensated pressure
-    OFF = C2+((C4-250)*dT)/4096.0+10000;
-    data["OFF"] = OFF;
-
-    SENS = C1/2 + ((C3+200)*dT)/8192.0 + 3000;
-    data["SENS"] = SENS;
-
-    // Temperature compensated pressure in mbar
-    P = (SENS*(D1-OFF))/4096.0+1000;
-
-    data["pressureSW"] = P;
+    }
 }
 
 void Module_PressureSensor::readPressure()
@@ -140,7 +93,7 @@ void Module_PressureSensor::readPressure()
     // this is the pressure in mBar
     uint16_t pressure = (int)readBuffer[0] << 8 | (int)readBuffer[1];
 
-    data["pressureHW"] =  pressure;
+    data["pressure"] =  pressure;
 
     // 100 mBar == ca. 1m wassersäule - druck an der luft
     data["depth"] =  ((float)pressure-getSettings().value("airPressure").toFloat())/100;
@@ -161,71 +114,6 @@ void Module_PressureSensor::readCounter()
     }
 
     data["counter"] =  readBuffer[0];
-}
-
-void Module_PressureSensor::readCalibWords()
-{
-    unsigned char address = getSettings().value("i2cAddress").toInt();
-    unsigned char cmd[] = { 0x12 };
-    if (!uid->I2C_Write(address, cmd, 1)) {
-        setHealthToSick("could not reread calib  words.");
-        sleep(100);
-        return;
-    }
-    sleep(100);
-
-    unsigned char readBuffer[8];
-    if (!readRegister(0, 8, readBuffer)) {
-        setHealthToSick("UID reported error.");
-        return;
-    }
-
-    uint16_t pcW[4];
-    for(int i=0;i<4;i++) {
-
-        // this is the temperature in 10/degree celsius
-        uint16_t c = (int)readBuffer[2*i] << 8 | (int)readBuffer[2*i+1];
-
-        data["calib "+QString::number(i)] = "0x"+QString::number(c,16);
-        pcW[i]=c;
-    }
-
-    C1 = ((pcW[0] & 0xFFF8) >> 3);
-    C2 = ((pcW[0] & 0x0007) << 10) | ((pcW[1] & 0xFFC0) >> 6);
-    C3 = ((pcW[2] & 0xFFC0) >> 6);
-    C4 = ((pcW[3] & 0xFF80) >> 7);
-    C5 = ((pcW[1] & 0x003F) << 6) | ((pcW[2] & 0x003F));
-    C6 = (pcW[3] & 0x007F);
-
-    data["C1"] = C1;
-    data["C2"] = C2;
-    data["C3"] = C3;
-    data["C4"] = C4;
-    data["C5"] = C5;
-    data["C6"] = C6;
-}
-
-void Module_PressureSensor::readRawRegisters()
-{
-
-    unsigned char readBuffer[2];
-    if (!readRegister(REGISTER_TEMP_RAW, 2, readBuffer)) {
-        setHealthToSick("UID reported error.");
-        return;
-    }
-
-    uint16_t temp = (int)readBuffer[0] << 8 | (int)readBuffer[1];
-
-    data["tempRaw"] = temp;
-
-    if (!readRegister(REGISTER_PRESSURE_RAW, 2, readBuffer)) {
-        setHealthToSick("UID reported error.");
-        return;
-    }
-
-    uint16_t pressure = (int)readBuffer[0] << 8 | (int)readBuffer[1];
-
-    data["pressureRaw"] = pressure;
 }
 
 void Module_PressureSensor::readTemperature()
@@ -250,7 +138,7 @@ float Module_PressureSensor::getDepth()
 
 float Module_PressureSensor::getTemperature()
 {
-    return data["temperatureSW"].toFloat()/10.0;
+    return data["temperature"].toFloat()/10.0;
 }
 
 QList<RobotModule*> Module_PressureSensor::getDependencies()
