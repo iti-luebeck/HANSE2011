@@ -52,17 +52,17 @@ void ModulesGraph::build()
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown);
     this->modules.append(handControl);
 
-    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar);
-    this->modules.append(sonarLoc);
+//    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar);
+//    this->modules.append(sonarLoc);
 
-    Module_VisualSLAM* visualLoc = new Module_VisualSLAM("visualSLAM", sonarLoc);
-    this->modules.append(visualLoc);
+//    Module_VisualSLAM* visualLoc = new Module_VisualSLAM("visualSLAM", sonarLoc);
+//    this->modules.append(visualLoc);
 
-    Module_Localization* local = new Module_Localization("localization",visualLoc, sonarLoc,pressure);
-    this->modules.append(local);
+//    Module_Localization* local = new Module_Localization("localization",visualLoc, sonarLoc,pressure);
+//    this->modules.append(local);
 
-    Module_Navigation* navi = new Module_Navigation("navigation",local, controlLoop);
-    this->modules.append(navi);
+//    Module_Navigation* navi = new Module_Navigation("navigation",local, controlLoop);
+//    this->modules.append(navi);
 
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop);
     this->modules.append(behavPipe);
