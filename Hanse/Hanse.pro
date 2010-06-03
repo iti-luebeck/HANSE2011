@@ -14,7 +14,7 @@ include(../qextserialport/qextserialport.pri)
 include(../log4qt/log4qt.pri)
 include(../OpenCV/OpenCV.pri)
 include(../gsl/gsl.pri)
-unix:LIBS += -lqwt-qt4
+include(../qwt/qwt.pri)
 unix:DEFINES += OS_UNIX
 win32:DEFINES += OS_WIN32
 HEADERS += Framework/healthstatus.h \
