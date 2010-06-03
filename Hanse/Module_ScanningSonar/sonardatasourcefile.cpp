@@ -73,8 +73,9 @@ SonarReturnData SonarDataSourceFile::readPacket()
     fullString.append(time);
     fullString.append(hs);
 
-    logger->trace("rawDateString=" + fullString);
+    // TODO: language must be "C"
     QDateTime dt = QDateTime::fromString(fullString, "dd-MMM-yyyy HH:mm:ss.z");
+    logger->trace("rawDateString=" + fullString + "; date="+dt.toString());
 
     stream->skipRawData(5);
 

@@ -3,11 +3,15 @@
 
 #include <Framework/robotmodule.h>
 #include <Framework/position.h>
+#include <Module_ScanningSonar/sonarreturndata.h>
+#include <opencv/cv.h>
 
 class Module_ScanningSonar;
 
 class Module_SonarLocalization : public RobotModule {
     Q_OBJECT
+
+    friend class Form_SonarLocalization;
 
 public:
     Module_SonarLocalization(QString id, Module_ScanningSonar* sonar);
@@ -52,8 +56,31 @@ signals:
     void newLocalizationEstimate();
     void lostLocalization();
 
+private slots:
+    void newSonarData(SonarReturnData data);
+
 private:
+
+    const static int N = 250;
+
+    const static float stdDevInWindowTH = 0.04;
+    const static float meanBehindTH = 1;
+
+    QMap<QDateTime,QVector<double> > echoHistory;
+    QMap<QDateTime, int > kHistory;
+    QMap<QDateTime, QVector<double> > threshHistory;
+    QMap<QDateTime, QVector<double> > varHistory;
+    QVector<int> K_history;
+
     Module_ScanningSonar* sonar;
+
+    QByteArray filterEcho(SonarReturnData data,QByteArray echo);
+
+    int findWall(SonarReturnData data,const QByteArray echo);
+
+    cv::Mat byteArray2Mat(QByteArray array);
+
+
 };
 
 #endif // MODULE_SONARLOCALIZATION_H

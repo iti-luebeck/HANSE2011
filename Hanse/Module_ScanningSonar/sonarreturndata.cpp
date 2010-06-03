@@ -34,7 +34,7 @@ SonarReturnData& SonarReturnData::operator =(SonarReturnData other) {
 
 QByteArray SonarReturnData::getEchoData() const
 {
-    QByteArray clone = QByteArray(packet);
+    QByteArray clone = packet;
     clone.remove(0,12); // remove header
     clone.remove(getDataBytes(), 1); // remove termination byte
     return clone;
