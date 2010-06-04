@@ -1,7 +1,7 @@
 
 win32 {
     INCLUDEPATH += $$PWD/include
-    LIBPATH += $$PWD/lib
+    LIBPATH += $$PWD/lib/qwt
     LIBS += -lqwtd5
 }
 

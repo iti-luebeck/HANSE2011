@@ -1,7 +1,7 @@
 
 win32 {
     INCLUDEPATH += $$PWD/include
-    LIBPATH += $$PWD/lib
+    LIBPATH += $$PWD/lib/opencv
     LIBS += -lcv210 -lcxcore210 -lcvaux210 -lhighgui210
 
     # DShow
