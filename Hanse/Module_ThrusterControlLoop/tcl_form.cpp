@@ -23,18 +23,22 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     l->addWidget(plot);
     ui->frame->setLayout(l);
 
-    curveIst = new QwtPlotCurve("Raw data");
-    curveSoll = new QwtPlotCurve();
-    curveThruster = new QwtPlotCurve();
-    curveThruster->setPen(QPen("blue"));
+    plot->setAxisScale(QwtPlot::yLeft,-2,1);
+
+    curveIst = new QwtPlotCurve("ist");
+    curveSoll = new QwtPlotCurve("soll");
+    curveThruster = new QwtPlotCurve("thruster");
+
     curveIst->attach(plot);
     curveIst->setPen(QPen("red"));
     curveSoll->attach(plot);
     curveSoll->setPen(QPen("black"));
     curveThruster->attach(plot);
+    curveThruster->setPen(QPen("blue"));
 
     plot->setTitle("depth control");
-    plot->setAxisTitle(0,"depth (m)");
+    plot->setAxisTitle(QwtPlot::xBottom,"time (s)");
+    plot->setAxisTitle(QwtPlot::yLeft,"depth (m)");
 
     connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
 
@@ -91,13 +95,13 @@ void TCL_Form::dataChanged(RobotModule *mod)
     }
 
     foreach (float d, module->historyIst.values()) {
-        axisIst.append(d);
+        axisIst.append(-d);
     }
     foreach (float d, module->historySoll.values()) {
-        axisSoll.append(d);
+        axisSoll.append(-d);
     }
     foreach (float d, module->historyThrustCmd.values()) {
-        axisThruster.append(d);
+        axisThruster.append(-d);
     }
 
     curveIst->setData(axisTime, axisIst);
@@ -105,5 +109,7 @@ void TCL_Form::dataChanged(RobotModule *mod)
     curveThruster->setData(axisTime, axisThruster);
 
     plot->replot();
+
+    ui->elCnt->setText(QString::number(axisTime.size()));
 
 }

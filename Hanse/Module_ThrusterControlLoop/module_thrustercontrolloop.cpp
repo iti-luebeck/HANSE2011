@@ -97,6 +97,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (speed<maxSpD) { speed=maxSpD; }
 
         thrusterDown->setSpeed(speed);
+        thrusterDownFront->setSpeed(speed);
         historyThrustCmd[now] = speed;
 
         if (historyThrustCmd.size()>maxHist) {

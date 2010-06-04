@@ -1,7 +1,7 @@
 
 win32 {
     INCLUDEPATH += $$PWD/include
-    LIBPATH += $$PWD/lib
+    LIBPATH += $$PWD/lib/gsl
     LIBS += -lgsl -lgslcblas
 }
 

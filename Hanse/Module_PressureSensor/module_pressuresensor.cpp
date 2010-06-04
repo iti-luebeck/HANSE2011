@@ -142,8 +142,8 @@ QWidget* Module_PressureSensor::createView(QWidget* parent)
 
 void Module_PressureSensor::doHealthCheck()
 {
-    if (!getSettings().value("enabled").toBool())
-        return;
+    //if (!isEnabled())
+    //    return;
 
     unsigned char readBuffer[1];
 
