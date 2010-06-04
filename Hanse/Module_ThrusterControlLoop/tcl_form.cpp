@@ -1,6 +1,8 @@
 #include "tcl_form.h"
 #include "ui_tcl_form.h"
 
+#include <qwt-qt4/qwt_legend.h>
+
 TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TCL_Form)
@@ -24,6 +26,10 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     ui->frame->setLayout(l);
 
     plot->setAxisScale(QwtPlot::yLeft,-2,1);
+
+    QwtLegend *legend = new QwtLegend();
+    legend->setFrameStyle(QFrame::Box|| QFrame::Sunken);
+    plot->insertLegend(legend,QwtPlot::BottomLegend);
 
     curveIst = new QwtPlotCurve("ist");
     curveSoll = new QwtPlotCurve("soll");
