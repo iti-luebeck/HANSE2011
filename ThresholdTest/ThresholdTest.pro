@@ -16,10 +16,9 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-INCLUDEPATH += "..\include" \
-    "..\include\opencv" \
+INCLUDEPATH += "..\include"
 
-LIBS += "..\OpenCV\lib\libcv210.dll.a" \
-    "..\OpenCV\lib\libcxcore210.dll.a" \
-    "..\OpenCV\lib\libcvaux210.dll.a" \
-    "..\OpenCV\lib\libhighgui210.dll.a"
+LIBS += "..\lib\opencv\libcv210.dll.a" \
+    "..\lib\opencv\libcxcore210.dll.a" \
+    "..\lib\opencv\libcvaux210.dll.a" \
+    "..\lib\opencv\libhighgui210.dll.a"
