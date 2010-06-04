@@ -74,7 +74,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     graph.HastaLaVista();
     writeSettings();
     event->accept();
-    logger->info("Have a nice day!");
+    logger->info("Application terminated. Have a nice day!");
 }
 
 void MainWindow::writeSettings()

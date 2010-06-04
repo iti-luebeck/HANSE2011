@@ -98,8 +98,8 @@ QByteArray Module_SonarLocalization::filterEcho(SonarReturnData data,QByteArray 
         float cutOff=0;
         if (data.startGain==16)
             cutOff = (7.0/20)*(i-50);
-        else
-            logger->error("Unknown gain: "+QString::number(data.startGain));
+//        else
+//            logger->error("Unknown gain: "+QString::number(data.startGain));
 
         if (cutOff<0)
             cutOff = 0;

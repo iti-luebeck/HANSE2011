@@ -8,10 +8,17 @@ SonarDataRecorder::SonarDataRecorder(Module_ScanningSonar& s, bool formatCSV)
 {
     logger = Log4Qt::Logger::logger("SonarRecorder");
     this->formatCSV = formatCSV;
+
+    file = NULL;
+    stream = NULL;
+
 }
 
 void SonarDataRecorder::start()
 {
+    if (file != NULL)
+        stop();
+
     file = new QFile(sonar.getSettings().value("recorderFilename").toString());
     if (file->open(QFile::WriteOnly | QFile::Truncate)) {
         stream = new QTextStream(file);
@@ -23,7 +30,16 @@ void SonarDataRecorder::start()
 
 void SonarDataRecorder::stop()
 {
-    file->close();
+    if (file != NULL) {
+        file->close();
+        delete file;
+        file = NULL;
+    }
+
+    if (stream != NULL) {
+        delete stream;
+        stream = NULL;
+    }
 }
 
 void SonarDataRecorder::newData(const SonarReturnData data)
@@ -38,6 +54,11 @@ void SonarDataRecorder::storeCSV(const SonarReturnData &data)
 {
     if (time.isNull()) {
         time = data.dateTime.time();
+    }
+
+    if (!stream || !file) {
+        logger->error("Cannot record. stream not open.");
+        return;
     }
 
     time_t t = data.dateTime.toTime_t();

@@ -55,8 +55,17 @@ void Module_ScanningSonar::terminate()
     reader.pleaseStop();
     logger->debug("Waiting for Sonar Reading Thread to terminate.");
     reader.wait();
-    logger->debug("Finished.");
-    recorder->stop();
+    logger->debug("Destroying sonar data source and recorder.");
+    if (this->source != NULL) {
+        delete this->source;
+        source = NULL;
+    }
+
+    if (recorder != NULL) {
+        recorder->stop();
+        delete recorder;
+        recorder = NULL;
+    }
 }
 
 void Module_ScanningSonar::ThreadedReader::run(void)
