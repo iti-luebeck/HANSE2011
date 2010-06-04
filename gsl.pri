@@ -1,8 +1,8 @@
-# TODO: fehlende dateien einchecken
+
 win32 {
     INCLUDEPATH += $$PWD/include
     LIBPATH += $$PWD/lib
-    #LIBS += -lgsl
+    LIBS += -lgsl -lgslcblas
 }
 
 # debian/ubuntu: aptitude install libgsl0-dev libblas-dev
