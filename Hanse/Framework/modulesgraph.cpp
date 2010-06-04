@@ -36,6 +36,8 @@ void ModulesGraph::build()
     this->modules.append(thrusterLeft);
     Module_Thruster* thrusterDown = new Module_Thruster("thrusterDown",uid);
     this->modules.append(thrusterDown);
+    Module_Thruster* thrusterDownF = new Module_Thruster("thrusterDownFront",uid);
+    this->modules.append(thrusterDownF);
 
     Module_PressureSensor* pressure = new Module_PressureSensor("pressure",uid);
     this->modules.append(pressure);
@@ -46,10 +48,10 @@ void ModulesGraph::build()
     Module_Compass *compass = new Module_Compass("compass", uid);
     this->modules.append(compass);
 
-    Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown);
+    Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);
 
-    Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown);
+    Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);
     this->modules.append(handControl);
 
     Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar);

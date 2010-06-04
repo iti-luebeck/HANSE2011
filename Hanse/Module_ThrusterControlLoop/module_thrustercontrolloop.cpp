@@ -3,12 +3,13 @@
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include "tcl_form.h"
 
-Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_PressureSensor *pressure, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown)
+Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_PressureSensor *pressure, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster* thrusterDownFront)
     : RobotModule(id)
 {
     this->thrusterDown = thrusterDown;
     this->thrusterLeft = thrusterLeft;
     this->thrusterRight = thrusterRight;
+    this->thrusterDownFront = thrusterDownFront;
     this->pressure = pressure;
 
     setDefaultValue("p_up",     1.0);
@@ -69,6 +70,10 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
 
     if (control_loop_enabled) {
 
+        QDateTime now = QDateTime::currentDateTime();
+        historyIst[now] = depth;
+        historySoll[now] = setvalueDepth;
+
         // Speed of the UpDownThruster:
         // TODO: PRESUMPTION: speed>0.0 means UP
         float speed = neutrSpD;
@@ -92,6 +97,14 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (speed<maxSpD) { speed=maxSpD; }
 
         thrusterDown->setSpeed(speed);
+        historyThrustCmd[now] = speed;
+
+        if (historyThrustCmd.size()>maxHist) {
+            historyThrustCmd.remove(historyThrustCmd.keys().first());
+            historySoll.remove(historySoll.keys().first());
+            historyIst.remove(historyIst.keys().first());
+        }
+
         emit dataChanged(this);
     }
 }

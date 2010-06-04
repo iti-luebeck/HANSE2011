@@ -4,11 +4,12 @@
 #include "handcontrol_form.h"
 #include "server.h"
 
-Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown)
+Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster *thrusterDownFront)
     : RobotModule(id)
 {
     this->controlLoop = tcl,
     this->thrusterDown = thrusterDown;
+    this->thrusterDownFront = thrusterDownFront;
     this->thrusterLeft = thrusterLeft;
     this->thrusterRight = thrusterRight;
 
@@ -89,6 +90,7 @@ void Module_HandControl::sendNewControls()
         float right = forwardSpeed/divFw-angularSpeed/divLR;
         float updown = (float)speedUpDown / divUD;
         thrusterDown->setSpeed(updown);
+        thrusterDownFront->setSpeed(updown);
         thrusterLeft->setSpeed(left);
         thrusterRight->setSpeed(right);
 

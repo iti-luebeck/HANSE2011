@@ -13,7 +13,7 @@ class Module_HandControl : public RobotModule {
     friend class HandControl_Form;
 
 public:
-    Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster* thrusterLeft, Module_Thruster* thrusterRight, Module_Thruster* thrusterDown);
+    Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster* thrusterLeft, Module_Thruster* thrusterRight, Module_Thruster* thrusterDown, Module_Thruster* thrusterDownFront);
 
     QWidget* createView(QWidget* parent);
 
@@ -27,6 +27,7 @@ private:
     Module_Thruster* thrusterLeft;
     Module_Thruster* thrusterRight;
     Module_Thruster* thrusterDown;
+    Module_Thruster* thrusterDownFront;
     Module_ThrusterControlLoop *controlLoop;
 
     Server* server;

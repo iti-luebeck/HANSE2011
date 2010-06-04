@@ -9,8 +9,9 @@ class Module_Thruster;
 class Module_ThrusterControlLoop : public RobotModule {
     Q_OBJECT
 
+    friend class TCL_Form;
 public:
-    Module_ThrusterControlLoop(QString id, Module_PressureSensor* pressure, Module_Thruster* thrusterLeft, Module_Thruster* thrusterRight, Module_Thruster* thrusterDown);
+    Module_ThrusterControlLoop(QString id, Module_PressureSensor* pressure, Module_Thruster* thrusterLeft, Module_Thruster* thrusterRight, Module_Thruster* thrusterDown, Module_Thruster* thrusterDownFront);
 
     QWidget* createView(QWidget* parent);
 
@@ -68,6 +69,7 @@ private:
     Module_Thruster* thrusterLeft;
     Module_Thruster* thrusterRight;
     Module_Thruster* thrusterDown;
+    Module_Thruster* thrusterDownFront;
 
     // Control-Loop-Constants:
 
@@ -89,6 +91,11 @@ private:
     float setvalueDepth;
 
     bool control_loop_enabled;
+
+    static const int maxHist = 60;
+    QMap<QDateTime,float> historyIst;
+    QMap<QDateTime,float> historySoll;
+    QMap<QDateTime,float> historyThrustCmd;
 
 private slots:
 

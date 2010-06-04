@@ -4,6 +4,9 @@
 #include <QWidget>
 #include "module_thrustercontrolloop.h"
 
+#include <qwt-qt4/qwt_plot.h>
+#include <qwt-qt4/qwt_plot_curve.h>
+
 namespace Ui {
     class TCL_Form;
 }
@@ -20,9 +23,14 @@ protected:
 private:
     Ui::TCL_Form *ui;
     Module_ThrusterControlLoop *module;
+    QwtPlot *plot;
+    QwtPlotCurve *curveSoll;
+    QwtPlotCurve *curveIst;
+    QwtPlotCurve *curveThruster;
 
 private slots:
     void on_save_clicked();
+    void dataChanged(RobotModule* mod);
 };
 
 #endif // TCL_FORM_H

@@ -17,6 +17,27 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
 
     ui->horizSpM_exp->setChecked( module->getSettings().value("horizSpM_exp").toBool() );
 
+    // add curves
+    QLayout* l = new QBoxLayout(QBoxLayout::LeftToRight);
+    plot = new QwtPlot(ui->frame);
+    l->addWidget(plot);
+    ui->frame->setLayout(l);
+
+    curveIst = new QwtPlotCurve("Raw data");
+    curveSoll = new QwtPlotCurve();
+    curveThruster = new QwtPlotCurve();
+    curveThruster->setPen(QPen("blue"));
+    curveIst->attach(plot);
+    curveIst->setPen(QPen("red"));
+    curveSoll->attach(plot);
+    curveSoll->setPen(QPen("black"));
+    curveThruster->attach(plot);
+
+    plot->setTitle("depth control");
+    plot->setAxisTitle(0,"depth (m)");
+
+    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
+
 }
 
 TCL_Form::~TCL_Form()
@@ -48,4 +69,41 @@ void TCL_Form::on_save_clicked()
     module->getSettings().setValue("horizSpM_exp", ui->horizSpM_exp->isChecked() );
 
     module->updateConstantsFromInitNow();
+}
+
+void TCL_Form::dataChanged(RobotModule *mod)
+{
+    if (!ui->updatePlot->isChecked()) {
+        return;
+    }
+
+    QList<QDateTime> keys = module->historyIst.keys();
+
+    QVector<double> axisTime;
+    QVector<double> axisIst;
+    QVector<double> axisSoll;
+    QVector<double> axisThruster;
+
+
+    foreach (QDateTime d, keys) {
+       int time = keys.first().secsTo(d);
+       axisTime.append(time);
+    }
+
+    foreach (float d, module->historyIst.values()) {
+        axisIst.append(d);
+    }
+    foreach (float d, module->historySoll.values()) {
+        axisSoll.append(d);
+    }
+    foreach (float d, module->historyThrustCmd.values()) {
+        axisThruster.append(d);
+    }
+
+    curveIst->setData(axisTime, axisIst);
+    curveSoll->setData(axisTime, axisSoll);
+    curveThruster->setData(axisTime, axisThruster);
+
+    plot->replot();
+
 }
