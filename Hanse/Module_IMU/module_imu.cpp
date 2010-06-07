@@ -366,8 +366,8 @@ unsigned short Module_IMU::toShort(uint8_t high, uint8_t low)
 
 unsigned short Module_IMU::readRegister(uint8_t address)
 {
-    uint8_t buf_recv[] = {0x00, 0x00};
-    uint8_t buf_send[] = {address, 0x00};
+    char buf_recv[] = {0x00, 0x00};
+    char buf_send[] = {address, 0x00};
 
     bool ret = uid->SPI_Write(settings.value("ssLine").toInt(), buf_send, 2);
     if (!ret)
@@ -388,8 +388,8 @@ void Module_IMU::writeFullRegister(uint8_t address_lower, unsigned short data)
 
 void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 {
-    uint8_t buf_recv[] = {0x00, 0x00};
-    uint8_t buf_send[] = {address, data};
+    char buf_recv[] = {0x00, 0x00};
+    char buf_send[] = {address, data};
 
     // set highest bit to indicate write
     buf_send[0] |= 0x80;

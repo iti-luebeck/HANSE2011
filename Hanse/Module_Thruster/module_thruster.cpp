@@ -32,7 +32,7 @@ void Module_Thruster::initController()
     if (!getSettings().value("enabled").toBool())
         return;
 
-    unsigned char sendValue[] = { 0x01 };
+    char sendValue[] = { 0x01 };
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
     bool ret = uid->I2C_WriteRegister(address,REG_MODE,sendValue,0x01);
@@ -73,7 +73,7 @@ void Module_Thruster::setSpeed(float speed)
     int speedRaw = (int)(speed * getSettings().value("multiplicator").toInt());
     data["speed"] = speedRaw;
 
-    unsigned char sendValue[] = { speedRaw };
+    char sendValue[] = { speedRaw };
     unsigned char address = getSettings().value("i2cAddress").toInt();
     unsigned char channel = getSettings().value("channel").toInt();
 
@@ -110,7 +110,7 @@ void Module_Thruster::doHealthCheck()
         return;
 
     int address = getSettings().value("i2cAddress").toInt();
-    unsigned char data[1];
+    char data[1];
     bool ret = uid->I2C_ReadRegisters(address,REG_SWREV,1,data);
     if (!ret)
         setHealthToSick(uid->getLastError());

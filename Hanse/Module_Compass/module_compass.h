@@ -68,8 +68,8 @@ private:
     void updateStatusRegister(void);
     void resetDevice(void);
 
-    bool readWriteDelay(unsigned char *send_buf, int send_size,
-                        unsigned char *recv_buf, int recv_size, int delay);
+    bool readWriteDelay(char *send_buf, int send_size,
+                        char *recv_buf, int recv_size, int delay);
 
     void printEEPROM();
 

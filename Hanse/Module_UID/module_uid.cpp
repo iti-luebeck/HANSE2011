@@ -119,7 +119,6 @@ QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 
     logger->debug("Using timeout of "+QString::number(portSettings->Timeout_Millisec)+" ms.");
     
-    //if ( !(port->open(QextSerialPort::ReadWrite) ) ) {
     if ( !(sport->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
         logger->debug("Could not open: "+sport->errorString());
         sport->close();
@@ -144,7 +143,7 @@ QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
     }
 
     logger->debug("Could write to port");
-    int bytesRead = sport->read(id, sizeof(id));
+    size_t bytesRead = sport->read(id, sizeof(id));
     if ( bytesRead < sizeof(id)) {
         logger->debug("No Id received, read only "+QString::number(bytesRead)+ " bytes.");
         sport->close();
@@ -166,78 +165,14 @@ QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 
 }
 
-bool Module_UID::I2C_WriteRegister(unsigned char address, unsigned char reg, unsigned char* data, short byteCount) {
-
-    logger->trace("I2C_WriteRegister");
-
-    if (!uid) {
-        logger->error("Can't do. UID not open.");
-        return false;
-    }
-
-    QByteArray send;
-    send += Module_UID::I2C_WRITEREGISTER;
-    send += address;
-    send += reg;
-    send += byteCount;
-    send.append((const char*)data, byteCount);
-
-    return SendCheckCommand(send);
-
+bool Module_UID::SendCommand(const char* sequence, unsigned char length) {
+    QByteArray a(sequence, length);
+    return SendCommand2(a);
 }
 
-bool Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, unsigned char* result) {
-
-    logger->trace("I2C_ReadRegisters");
-
-    QByteArray send;
-    send += Module_UID::I2C_READREGISTER;
-    send += address;
-    send += reg;
-    send += byteCount;
-
-    return SendCheckCommand(send,(char*)result, byteCount);
-}
-
-
-bool Module_UID::SendCommand(unsigned char* sequence, unsigned char length, int msec) {
-    logger->trace("SendCommand");
-
-    if (!uid) {
-        logger->error("Can't do. UID not open.");
-        return false;
-    }
-
-    uid->flush();
-    if (uid->bytesAvailable()>0) {
-        logger->error("found some bytes in the uid serial buffer. discard them.");
-        uid->flush();
-        uid->readAll(); // don't care for the data
-    }
-
-    if ( (uid->write( (const char*)sequence, length )) == -1 ) {
-        // this almost certainly means that the serial connection to the UID has died.
-        setHealthToSick(uid->portName()+": "+uid->errorString());
-        return false;
-    }
-    uid->flush();
-    return true;
-}
-
-bool Module_UID::SendCheckCommand(QByteArray &send, char* recv, int recv_length)
+bool Module_UID::SendCheckCommand(const QByteArray &send, char* recv, int recv_length)
 {
-    logger->trace("SendCheckCommand");
-
-    if (!SendCommand2(send,recv, recv_length)) {
-        return false;
-    }
-
-    if (!CheckErrorcode()) {
-        return false;
-    }
-
-    return true;
-
+    return SendCommand2(send,recv, recv_length) && CheckErrorcode();
 }
 
 bool Module_UID::CheckErrorcode()
@@ -257,7 +192,7 @@ bool Module_UID::CheckErrorcode()
     return lastError == 0;
 }
 
-bool Module_UID::SendCommand2(QByteArray& send, char* recv, int recv_length) {
+bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_length) {
     logger->trace("SendCommand2");
 
     logger->trace("Sending: 0x"+QString::fromAscii(send.toHex()));
@@ -316,65 +251,16 @@ bool Module_UID::SendCommand2(QByteArray& send, char* recv, int recv_length) {
     return true;
 }
 
-bool Module_UID::I2C_Write(unsigned char address, unsigned char* data, short byteCount) {
-    logger->trace("I2C_Write");
-
-    QByteArray send;
-    send += Module_UID::I2C_WRITE;
-    send += address;
-    send += byteCount;
-    send.append((char*)data, byteCount);
-    return SendCheckCommand(send);
-}
-
-bool Module_UID::I2C_Read(unsigned char address, short byteCount, unsigned char* result) {
-    logger->trace("I2C_Read");
-
-    QByteArray send;
-    send += Module_UID::I2C_READ;
-    send += address;
-    send += byteCount;
-    return SendCheckCommand(send,(char*)result,byteCount);
-}
-
-QString Module_UID::UID_Identify() {
-    logger->trace("UID_Identify");
-
-    if (!uid) {
-        logger->error("Can't do. UID not open.");
-        return "";
-    }
-
-    char result[9];
-    result[9]=0;
-    QByteArray send;
-    send += Module_UID::UID_IDENTIFY;
-    bool ret = SendCheckCommand(send,(char*)result,9);
-    if (!ret) {
-        setHealthToSick(getLastError());
-        return "";
-    }
-
-    return QString::fromAscii(result);
-
-}
 
 QString Module_UID::UID_Revision() {
     logger->trace("UID_Revision");
 
-    if (!uid) {
-        logger->error("Can't do. UID not open.");
-        return "";
-    }
-
     QString identify;
-    unsigned char sequence[] = {Module_UID::UID_REVISION};
+    char sequence[] = {Module_UID::UID_REVISION};
     char result[8];
-    if ( !(SendCommand(sequence, sizeof(sequence), 0)) ) return NULL;
-    //if (port->read(result,sizeof(result)) == -1) return NULL;
+    if ( !(SendCommand(sequence, sizeof(sequence))) ) return NULL;
     qint64 ret = uid->read(result,sizeof(result));
     if (ret==-1) return NULL;
-    //return QString(result);
     return QString::fromAscii(result, ret-1);
 }
 
@@ -408,14 +294,79 @@ void Module_UID::doHealthCheck()
     setHealthToOk();
 }
 
+bool Module_UID::I2C_Write(unsigned char address, const char* data, short byteCount) {
+    logger->trace("I2C_Write");
+
+    QByteArray send;
+    send += Module_UID::I2C_WRITE;
+    send += address;
+    send += byteCount;
+    send.append(data, byteCount);
+    return SendCheckCommand(send);
+}
+
+bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) {
+    logger->trace("I2C_Read");
+
+    QByteArray send;
+    send += Module_UID::I2C_READ;
+    send += address;
+    send += byteCount;
+    return SendCheckCommand(send,result,byteCount);
+}
+
+QString Module_UID::UID_Identify() {
+    logger->trace("UID_Identify");
+
+    char result[9];
+    result[9]=0;
+    QByteArray send;
+    send += Module_UID::UID_IDENTIFY;
+    bool ret = SendCheckCommand(send,result,9);
+    if (!ret) {
+        setHealthToSick(getLastError());
+        return "";
+    }
+
+    return QString::fromAscii(result);
+
+}
+
+bool Module_UID::I2C_WriteRegister(unsigned char address, unsigned char reg, const char* data, short byteCount) {
+
+    logger->trace("I2C_WriteRegister");
+
+    QByteArray send;
+    send += Module_UID::I2C_WRITEREGISTER;
+    send += address;
+    send += reg;
+    send += byteCount;
+    send.append(data, byteCount);
+
+    return SendCheckCommand(send);
+
+}
+
+bool Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result) {
+    logger->trace("I2C_ReadRegisters");
+
+    QByteArray send;
+    send += Module_UID::I2C_READREGISTER;
+    send += address;
+    send += reg;
+    send += byteCount;
+
+    return SendCheckCommand(send,result, byteCount);
+}
+
 
 QVector<unsigned char> Module_UID::I2C_Scan() {
     logger->trace("I2C_Scan");
-    unsigned char sequence[] = {Module_UID::I2C_SCAN};
+    char sequence[] = {Module_UID::I2C_SCAN};
     QVector<unsigned char> slaves(0);
-    if (!SendCommand(sequence, sizeof(sequence), 0)) return slaves;
-    unsigned char result[127];
-    qint64 read = uid->read((char*)result, 127);
+    if (!SendCommand(sequence, sizeof(sequence))) return slaves;
+    char result[127];
+    qint64 read = uid->read(result, 127);
     if (read != -1) {
         for (int i=0; i<read; i++) slaves.append(result[i]);
     }
@@ -443,30 +394,30 @@ bool Module_UID::SPI_SetPOL(bool pol){
     return SendCheckCommand(send);
 }
 
-bool Module_UID::SPI_Read(unsigned char address, short byteCount, unsigned char* result) {
+bool Module_UID::SPI_Read(unsigned char address, short byteCount, char* result) {
     QByteArray send;
     send += Module_UID::SPI_READ;
     send += address;
     send += byteCount;
-    return SendCheckCommand(send, (char*)result, byteCount);
+    return SendCheckCommand(send, result, byteCount);
 }
 
-bool Module_UID::SPI_Write(unsigned char address, unsigned char* data, short byteCount) {
+bool Module_UID::SPI_Write(unsigned char address, const char* data, short byteCount) {
     QByteArray send;
     send += Module_UID::SPI_WRITE;
     send += address;
     send += byteCount;
-    send.append((char*)data, byteCount);
+    send.append(data, byteCount);
     return SendCheckCommand(send);
 }
 
-bool Module_UID::SPI_WriteRead(unsigned char address, unsigned char* data, short byteCount, unsigned char* result) {
+bool Module_UID::SPI_WriteRead(unsigned char address, const char* data, short byteCount, char* result) {
     QByteArray send;
     send += Module_UID::SPI_READWRITE;
     send += address;
     send += byteCount;
-    send.append((char*)data, byteCount);
-    return SendCheckCommand(send, (char*)result, byteCount);
+    send.append(data, byteCount);
+    return SendCheckCommand(send, result, byteCount);
 }
 
 bool Module_UID::I2C_Speed(Module_UID::I2CSpeed speed) {

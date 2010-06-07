@@ -58,7 +58,7 @@ void Module_PressureSensor::reset()
         return;
 
     unsigned char address = getSettings().value("i2cAddress").toInt();
-    unsigned char reg = REQUEST_NEW_CALIB_VALUES;
+    char reg = REQUEST_NEW_CALIB_VALUES;
     if (!uid->I2C_Write(address, &reg, 1)) {
         setHealthToSick(uid->getLastError());
     }
@@ -82,7 +82,7 @@ void Module_PressureSensor::refreshData()
 
 void Module_PressureSensor::readPressure()
 {
-    unsigned char readBuffer[2];
+    char readBuffer[2];
 
     if (!readRegister(REGISTER_PRESSURE, 2, readBuffer)) {
         setHealthToSick(uid->getLastError());
@@ -106,7 +106,7 @@ void Module_PressureSensor::readPressure()
 void Module_PressureSensor::readTemperature()
 {
 
-    unsigned char readBuffer[2];
+    char readBuffer[2];
     if (!readRegister(REGISTER_TEMP, 2, readBuffer)) {
         setHealthToSick(uid->getLastError());
         return;
@@ -145,7 +145,7 @@ void Module_PressureSensor::doHealthCheck()
     if (!isEnabled())
         return;
 
-    unsigned char readBuffer[1];
+    char readBuffer[1];
 
     if (!readRegister(REGISTER_STATUS, 1, readBuffer)) {
         setHealthToSick(uid->getLastError());
@@ -174,7 +174,7 @@ void Module_PressureSensor::doHealthCheck()
     setHealthToOk();
 }
 
-bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned char *ret_buf)
+bool Module_PressureSensor::readRegister(unsigned char reg, int size, char *ret_buf)
 {
     unsigned char address = getSettings().value("i2cAddress").toInt();
 

@@ -121,7 +121,7 @@ public:
      *  @param[in]      result      Pointer auf das Zielarray der gelesenen Daten
      *  @return                     TRUE wenn Lesen erfolgreich
      */
-    bool I2C_Read(unsigned char address, short byteCount, unsigned char* result);
+    bool I2C_Read(unsigned char address, short byteCount, char* result);
 
     /** \brief I2C-Read Register Methode
      *
@@ -133,7 +133,7 @@ public:
      *  @param[in]  result      Pointer auf das Zielarray der gelesenen Daten
      *  @return                     TRUE wenn Lesen erfolgreich
      */
-    bool I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, unsigned char* result);
+    bool I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result);
 
 
     /** \brief I2C-Write Methode
@@ -145,7 +145,7 @@ public:
      *	@param[in]      byteCount   Anzahl Bytes der zu schreibenden Daten
      *  @return                     TRUE wenn Schreiben erfolgreich
      */
-    bool I2C_Write(unsigned char address, unsigned char* data, short byteCount);
+    bool I2C_Write(unsigned char address, const char* data, short byteCount);
 
     /** \brief I2C-Write Register Methode
      *
@@ -157,7 +157,7 @@ public:
      *	@param[in]      byteCount   Anzahl Bytes der zu schreibenden Daten
      *  @return                     TRUE wenn Schreiben erfolgreich
      */
-    bool I2C_WriteRegister(unsigned char address, unsigned char reg, unsigned char* data, short byteCount);
+    bool I2C_WriteRegister(unsigned char address, unsigned char reg, const char* data, short byteCount);
 
     /** \brief SPI-Speed Methode
      *
@@ -203,7 +203,7 @@ public:
      *  @param[in]      result      Pointer auf das Zielarray der gelesenen Daten
      *  @return                     TRUE wenn Lesen erfolgreich
      */
-    bool SPI_Read(unsigned char address, short byteCount, unsigned char* result);
+    bool SPI_Read(unsigned char address, short byteCount, char* result);
 
     /** \brief SPI-Write Register Methode
      *
@@ -214,7 +214,7 @@ public:
      *	@param[in]      byteCount   Anzahl Bytes der zu schreibenden Daten
      *  @return                     TRUE wenn Schreiben erfolgreich
      */
-    bool SPI_Write(unsigned char address, unsigned char* data, short byteCount);
+    bool SPI_Write(unsigned char address, const char* data, short byteCount);
 
     /** \brief SPI-WriteRead Register Methode
      *
@@ -226,7 +226,7 @@ public:
      *  @param[in]      result      Pointer auf das Zielarray der gelesenen Daten
      *  @return                     TRUE wenn Schreiben erfolgreich
      */
-    bool SPI_WriteRead(unsigned char address, unsigned char* data, short byteCount, unsigned char* result);
+    bool SPI_WriteRead(unsigned char address, const char* data, short byteCount, char* result);
 
     QString getLastError();
 
@@ -252,9 +252,9 @@ private:
     /**
       * may return false, when the command could not be sent to the uid.
       */
-    bool SendCommand(unsigned char* sequence, unsigned char length, int msec);
-    bool SendCommand2(QByteArray& send, char* recv, int recv_length);
-    bool SendCheckCommand(QByteArray& send, char* recv=0, int recv_length=0);
+    bool SendCommand(const char* sequence, unsigned char length);
+    bool SendCommand2(const QByteArray& send, char* recv=0, int recv_length=0);
+    bool SendCheckCommand(const QByteArray& send, char* recv=0, int recv_length=0);
     bool CheckErrorcode();
     void doHealthCheck();
     unsigned char countBitsSet( unsigned char bitmask );

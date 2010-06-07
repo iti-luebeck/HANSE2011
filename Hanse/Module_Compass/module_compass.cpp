@@ -184,9 +184,9 @@ unsigned short Module_Compass::toShort(uint8_t high, uint8_t low)
 
 void Module_Compass::updateHeadingData()
 {
-    uint8_t recv_buffer[6];
+    char recv_buffer[6];
 
-    uint8_t send_buffer[1];
+    char send_buffer[1];
     send_buffer[0] = COMPASS_CMD_HEADING_DATA;
 
     if (!readWriteDelay(send_buffer, 1, recv_buffer, 6, 1)) {
@@ -200,9 +200,9 @@ void Module_Compass::updateHeadingData()
 
 void Module_Compass::updateStatusRegister()
 {
-    uint8_t recv_buffer[1];
+    char recv_buffer[1];
 
-    uint8_t send_buffer[1];
+    char send_buffer[1];
     send_buffer[0] = COMPASS_CMD_GET_OPMODE;
 
     if (!readWriteDelay(send_buffer, 1, recv_buffer, 1, 1)) {
@@ -215,9 +215,9 @@ void Module_Compass::updateStatusRegister()
 
 void Module_Compass::updateMagData(void)
 {
-        uint8_t recv_buffer[6];
+        char recv_buffer[6];
 
-        uint8_t send_buffer[1];
+        char send_buffer[1];
         send_buffer[0] = COMPASS_CMD_MAG_DATA;
 
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 6, 1)) {
@@ -232,9 +232,9 @@ void Module_Compass::updateMagData(void)
 
 void Module_Compass::updateAccelData(void)
 {
-        uint8_t recv_buffer[6];
+        char recv_buffer[6];
 
-        uint8_t send_buffer[1];
+        char send_buffer[1];
         send_buffer[0] = COMPASS_CMD_ACCEL_DATA;
 
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 6, 1)) {
@@ -261,8 +261,8 @@ void Module_Compass::printEEPROM()
 
 bool Module_Compass::eepromRead(uint8_t addr, uint8_t &data)
 {
-        uint8_t recv_buffer[1];
-        uint8_t send_buffer[2];
+        char recv_buffer[1];
+        char send_buffer[2];
         send_buffer[0] = COMPASS_CMD_EEPROM_READ;
         send_buffer[1] = addr;
         bool ret = readWriteDelay( send_buffer, 2, recv_buffer, 1, 10);
@@ -279,8 +279,8 @@ bool Module_Compass::eepromWrite(uint8_t addr, uint8_t data)
 
     if (current_value != data) {
         logger->debug("Current value is 0x"+QString::number(current_value,16)+", updating eeprom.");
-        uint8_t recv_buffer[1];
-        uint8_t send_buffer[3];
+        char recv_buffer[1];
+        char send_buffer[3];
         send_buffer[0] = COMPASS_CMD_EEPROM_WRITE;
         send_buffer[1] = addr;
         send_buffer[2] = data;
@@ -294,8 +294,8 @@ bool Module_Compass::eepromWrite(uint8_t addr, uint8_t data)
 
 void Module_Compass::setOrientation()
 {
-        uint8_t recv_buffer[1];
-        uint8_t send_buffer[1];
+        char recv_buffer[1];
+        char send_buffer[1];
         QString orientation = settings.value("orientation").toString();
         if (orientation == "level")
             send_buffer[0] = COMPASS_CMD_ORIENT_LEVEL;
@@ -318,8 +318,8 @@ void Module_Compass::startCalibration()
     if (!getSettings().value("enabled").toBool())
         return;
 
-        uint8_t recv_buffer[1];
-        uint8_t send_buffer[1];
+        char recv_buffer[1];
+        char send_buffer[1];
         send_buffer[0] = COMPASS_CMD_CALIB_START;
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 0, 1)) {
                setHealthToSick("Could not start calibration!");
@@ -331,8 +331,8 @@ void Module_Compass::stopCalibration()
     if (!getSettings().value("enabled").toBool())
         return;
 
-        uint8_t recv_buffer[1];
-        uint8_t send_buffer[1];
+        char recv_buffer[1];
+        char send_buffer[1];
         send_buffer[0] = COMPASS_CMD_CALIB_STOP;
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 0, 1)) {
             setHealthToSick("Could not stop calibration!");
@@ -341,8 +341,8 @@ void Module_Compass::stopCalibration()
 
 void Module_Compass::resetDevice()
 {
-        uint8_t recv_buffer[1];
-        uint8_t send_buffer[1];
+        char recv_buffer[1];
+        char send_buffer[1];
         send_buffer[0] = COMPASS_CMD_SOFT_RESET;
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 0, 1)) {
             setHealthToSick("Could not reset compass!");
@@ -350,10 +350,10 @@ void Module_Compass::resetDevice()
         sleep(500); // necessary waiting period
 }
 
-bool Module_Compass::readWriteDelay(unsigned char *send_buf, int send_size,
-                                    unsigned char *recv_buf, int recv_size, int delay)
+bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
+                                    char *recv_buf, int recv_size, int delay)
 {
-    unsigned char address = getSettings().value("i2cAddress").toInt();
+    char address = getSettings().value("i2cAddress").toInt();
 
     if (!uid->I2C_Write(address, send_buf, send_size)) {
         setHealthToSick(uid->getLastError());
