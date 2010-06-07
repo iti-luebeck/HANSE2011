@@ -88,7 +88,7 @@ void MainWindow::refreshThreshold()
             }
         }
 
-        // cvEqualizeHist( tempImage, tempImage );
+        cvEqualizeHist( tempImage, tempImage );
 
         cvThreshold( tempImage, binary, highThreshold, 255, CV_THRESH_TOZERO_INV );
         cvThreshold( binary, binary, lowThreshold, 255, CV_THRESH_BINARY );
@@ -98,6 +98,10 @@ void MainWindow::refreshThreshold()
             cvNot( binary, binary );
         }
 
+        IplImage *rgbBinary = cvCreateImage( cvGetSize( binary ), IPL_DEPTH_8U, 3 );
+        //cvPyrMeanShiftFiltering( rgbImage, rgbBinary, 20, 40, 2 );
+
+        cvDilate( binary, binary, NULL, 5 );
         cvErode( binary, binary, NULL, 10 );
 
         CvMoments M;
@@ -112,7 +116,6 @@ void MainWindow::refreshThreshold()
         // moments( binary, m10, m01, mu11, mu02, mu20 );
         double theta = 0.5 * atan2( 2 * mu11 , ( mu20 - mu02 ) );
 
-        IplImage *rgbBinary = cvCreateImage( cvGetSize( binary ), IPL_DEPTH_8U, 3 );
         cvCvtColor( binary, rgbBinary, CV_GRAY2RGB );
         cvLine( rgbBinary, cvPoint( m10, m01 ),
                 cvPoint( m10 + cos(theta)*200, m01 + sin(theta)*200 ),
