@@ -53,8 +53,8 @@ private:
 
     unsigned short toShort(uint8_t high, uint8_t low);
 
-    uint8_t eepromRead(uint8_t addr);
-    void eepromWrite(uint8_t addr, uint8_t data);
+    bool eepromRead(uint8_t addr, uint8_t &data);
+    bool eepromWrite(uint8_t addr, uint8_t data);
 
     void setOrientation();
     void stopCalibration();

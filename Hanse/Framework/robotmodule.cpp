@@ -100,6 +100,7 @@ void RobotModule::reset()
     healthStatus.errorCount=0;
     healthStatus.lastError="";
     healthStatus.healthOk=true;
+    data.clear();
 }
 
 void RobotModule::sleep(int millies)

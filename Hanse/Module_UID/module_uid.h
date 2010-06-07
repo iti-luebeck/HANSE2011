@@ -20,6 +20,47 @@ public:
     // inherited from RobotModule
     QList<RobotModule*> getDependencies();
 
+    enum Errorcode
+    {
+        E_NO_ERROR = 0xF000,
+
+        // I2C ist auf low gezogen
+        E_I2C_LOW = 0x01,
+
+        // Konnte kein Start senden
+        E_I2C_START = 0x02,
+
+        // Slave antwortet nicht auf seine Schreibadresse
+        E_I2C_MT_SLA_ACK = 0x04,
+
+        // Slave antwortet nicht auf seine Leseadresse
+        E_I2C_MR_SLA_ACK = 0x08,
+
+        // Kein Acknowledge vom Slave auf an ihn gesendete Daten
+        E_I2C_MT_DATA_ACK = 0x10,
+
+        // Kein Acknowledge vom Slave beim Empfang von Daten
+        E_I2C_MR_DATA_ACK = 0x20,
+
+        // Erwartet kein Ack, bekommt aber eins
+        E_I2C_MR_DATA_NACK = 0x40,
+
+        // Serielle Schnittstelle "ausgetimed"...
+        E_UART_TIMEOUT = 0x80,
+
+        // read less bytes than expected
+        E_SHORT_READ = 0x0100,
+
+        // read too much bytes
+        E_EXTRA_READ = 0x0200,
+
+        // got an error while reading from serial port
+        E_USB = 0x0400,
+
+        // the UID is not responding ???
+        //E_UID = 0x0800,
+    };
+
     /**
      *	Enumerator für die I2C Geschwindigkeiten
      */
@@ -53,20 +94,6 @@ public:
      *  @return                     Revisionsnummer des UID.
      */
     QString UID_Revision();
-
-    /** \brief Startet I2C Acknowledge Modus
-     *
-     *  Für Slaves, die nach jedem Byte ein Acknowledge brauchen
-     *  @return                     TRUE wenn Ausführung erfolgreich
-     */
-    bool I2C_EnterAckMode();
-
-    /** \brief Beendet I2C Acknowledge Modus
-     *
-     *  Für Slaves, die nicht nach jedem Byte ein Acknowledge brauchen
-     *  @return                     TRUE wenn Ausführung erfolgreich
-     */
-    bool I2C_LeaveAckMode();
 
     /** \brief I2C-Scan Methode
      *
@@ -108,15 +135,6 @@ public:
      */
     bool I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, unsigned char* result);
 
-    /** \brief SRF08 Methode
-     *
-     *  Spezielle Abfragemethode für den SRF08 Ultraschallsensor die es erlaubt zu überprüfen,
-     *  ob eine gestartete Messung beendet wurde.
-     *
-     *	@param[in]      address     Die Adresse des SRF08
-     *  @return                     TRUE wenn SRF08 fertig mit Messung
-     */
-    bool I2C_TestSRF08Ready(unsigned char address);
 
     /** \brief I2C-Write Methode
      *
@@ -140,83 +158,6 @@ public:
      *  @return                     TRUE wenn Schreiben erfolgreich
      */
     bool I2C_WriteRegister(unsigned char address, unsigned char reg, unsigned char* data, short byteCount);
-
-
-
-
-    /** \brief Direct Access I2C-Start Methode
-     *
-     *  Führt einen Start aus.
-     *  @return                     TRUE wenn Start erfolgreich
-     */
-    bool I2C_DA_Start();
-
-    /** \brief Direct Access I2C-Stop Methode
-     *
-     *  Führt einen Stop aus.
-     *  @return                     TRUE wenn Stop erfolgreich
-     */
-    bool I2C_DA_Stop();
-
-    /** \brief Direct Access I2C-Repeat Start Methode
-     *
-     *  Führt einen Repeat Start aus.
-     *  @return                     TRUE wenn RepStart erfolgreich
-     */
-    bool I2C_DA_RepStart();
-
-    /** \brief Direct Access I2C-Send Ack Methode
-     *
-     *  Empfängt ein Acknowledge vom Slave
-     *  @return                     TRUE wenn Acknowledge erfolgreich empfangen
-     */
-    bool I2C_DA_SendAck();
-    /** \brief Direct Access I2C-Send Ack Methode
-     *
-     *  Sendet ein Acknowledge an den Slave
-     *  @return                     TRUE wenn Acknowledge erfolgreich gesendet
-     */
-    bool I2C_DA_ReceiveAck();
-
-    /** \brief Direct Access I2C-Receive Byte Ack Methode
-     *
-     *  Empfängt ein Byte mit Acknowledge vom Slave
-     *  @return                     TRUE wenn Byte und Acknowledge erfolgreich empfangen
-     */
-    bool I2C_DA_ReceiveByteAck();
-
-    /** \brief Direct Access I2C-Receive Byte Methode
-     *
-     *  Empfängt ein Byte ohne Acknowledge vom Slave
-     *  @return                     TRUE wenn Byte erfolgreich empfangen
-     */
-    bool I2C_DA_ReceiveByteNoAck();
-
-    /** \brief Direct Access I2C-Send Byte Ack Methode
-     *
-     *  Sendet ein Byte mit Acknowledge an Slave
-     *  @return                     TRUE wenn Byte und Acknowledge erfolgreich gesendet
-     */
-    bool I2C_DA_SendByteAck(unsigned char data);
-
-    /** \brief Direct Access I2C-Send Byte Methode
-     *
-     *  Sendet ein Byte ohne Acknowledge an Slave
-     *  @return                     TRUE wenn Byte erfolgreich gesendet
-     */
-    bool I2C_DA_SendByteNoAck(unsigned char data);
-
-
-    /** \brief ADC Methode
-     *
-     *  Liest den AD-Wandler des ATmega aus. Der Kanal, an dessen Stelle in der Bitmaske eine 1 steht wird ausgelesen.
-     *  Mehrere Kanäle können "gleichzeitig" ausgelesen werden.
-     *
-     *  @param[in]      bitmask     Die Bitmaske für den AD-Wandler
-     *  @param[in]      result      Pointer auf das Ergebnisarray
-     *  @return                     TRUE wenn Ausführung erfolgreich
-     */
-    bool UID_ADC(unsigned char bitmask, unsigned char* result);
 
     /** \brief SPI-Speed Methode
      *
@@ -287,6 +228,13 @@ public:
      */
     bool SPI_WriteRead(unsigned char address, unsigned char* data, short byteCount, unsigned char* result);
 
+    QString getLastError();
+
+    /**
+      * returns true if the last problem is a slave problem, i.e. its not a fault of the uid.
+      */
+    bool isSlaveProblem();
+
 public slots:
     // inherited from RobotModule
     void reset();
@@ -296,6 +244,7 @@ public slots:
 private:
     QextSerialPort* uid;
     PortSettings* portSettings;
+    int lastError;
 
     QextSerialPort* findUIDPort();
     QextSerialPort* tryOpenPort(QString id, QextPortInfo* port);
@@ -304,6 +253,9 @@ private:
       * may return false, when the command could not be sent to the uid.
       */
     bool SendCommand(unsigned char* sequence, unsigned char length, int msec);
+    bool SendCommand2(QByteArray& send, char* recv, int recv_length);
+    bool SendCheckCommand(QByteArray& send, char* recv=0, int recv_length=0);
+    bool CheckErrorcode();
     void doHealthCheck();
     unsigned char countBitsSet( unsigned char bitmask );
 

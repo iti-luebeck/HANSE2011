@@ -60,7 +60,7 @@ void Module_PressureSensor::reset()
     unsigned char address = getSettings().value("i2cAddress").toInt();
     unsigned char reg = REQUEST_NEW_CALIB_VALUES;
     if (!uid->I2C_Write(address, &reg, 1)) {
-        setHealthToSick("UID reported error while REQUEST_NEW_CALIB_VALUES.");
+        setHealthToSick(uid->getLastError());
     }
     sleep(100);
 
@@ -85,7 +85,7 @@ void Module_PressureSensor::readPressure()
     unsigned char readBuffer[2];
 
     if (!readRegister(REGISTER_PRESSURE, 2, readBuffer)) {
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
         return;
     }
 
@@ -108,7 +108,7 @@ void Module_PressureSensor::readTemperature()
 
     unsigned char readBuffer[2];
     if (!readRegister(REGISTER_TEMP, 2, readBuffer)) {
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
         return;
     }
 
@@ -142,15 +142,16 @@ QWidget* Module_PressureSensor::createView(QWidget* parent)
 
 void Module_PressureSensor::doHealthCheck()
 {
-    //if (!isEnabled())
-    //    return;
+    if (!isEnabled())
+        return;
 
     unsigned char readBuffer[1];
 
     if (!readRegister(REGISTER_STATUS, 1, readBuffer)) {
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
         return;
     }
+
     if (readBuffer[0] != STATUS_MAGIC_VALUE) {
         setHealthToSick("Status register doesn't match magic value: is="+QString::number(readBuffer[0]));
         return;
@@ -159,13 +160,14 @@ void Module_PressureSensor::doHealthCheck()
     // check if the counter is increasing.
 
     if (!readRegister(REGISTER_COUNTER, 1, readBuffer)) {
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
         return;
     }
 
-    if (readBuffer[0] == counter)
+    if (readBuffer[0] == counter) {
         setHealthToSick("read the same counter value twice!");
         return;
+    }
 
     counter = readBuffer[0];
 
@@ -177,7 +179,7 @@ bool Module_PressureSensor::readRegister(unsigned char reg, int size, unsigned c
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
     if (!uid->I2C_ReadRegisters(address, reg, size, ret_buf)) {
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
         return false;
     }
     return true;

@@ -17,6 +17,7 @@ Compass_Form::Compass_Form(Module_Compass *m, QWidget *parent) :
     ui->varAngle->setValue(m->getSettings().value("varAngle").toInt());
     ui->iirFilter->setValue(m->getSettings().value("iirFilter").toInt());
     ui->sampleRate->setCurrentIndex(ui->sampleRate->findText(m->getSettings().value("sampleRate").toString()));
+    ui->debug->setChecked(m->getSettings().value("debug").toBool());
 
 }
 
@@ -46,6 +47,7 @@ void Compass_Form::on_save_clicked()
     module->getSettings().setValue("varAngle", ui->varAngle->text());
     module->getSettings().setValue("iirFilter", ui->iirFilter->text());
     module->getSettings().setValue("sampleRate", ui->sampleRate->currentText());
+    module->getSettings().setValue("debug", ui->debug->isChecked());
     module->reset();
 }
 

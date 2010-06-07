@@ -37,7 +37,7 @@ void Module_Thruster::initController()
 
     bool ret = uid->I2C_WriteRegister(address,REG_MODE,sendValue,0x01);
     if (!ret)
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
     else
         setHealthToOk();
 }
@@ -84,7 +84,7 @@ void Module_Thruster::setSpeed(float speed)
 
     bool ret = uid->I2C_WriteRegister(address,channel,sendValue,0x01);
     if (!ret)
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
     else {
         setHealthToOk();
         emit dataChanged(this);
@@ -113,7 +113,7 @@ void Module_Thruster::doHealthCheck()
     unsigned char data[1];
     bool ret = uid->I2C_ReadRegisters(address,REG_SWREV,1,data);
     if (!ret)
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
     else if (data[0] != MAGIC_SWREV)
         setHealthToSick("sw revision register doesn't match magic value: is="+QString::number(data[0]));
     else

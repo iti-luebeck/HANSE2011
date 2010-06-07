@@ -37,6 +37,7 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     setDefaultValue("varAngle",0);
     setDefaultValue("iirFilter",0);
     setDefaultValue("sampleRate",5);
+    setDefaultValue("debug",1);
 
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
@@ -132,9 +133,11 @@ void Module_Compass::refreshData()
         return;
 
     updateHeadingData();
-    updateAccelData();
-    updateMagData();
-    updateStatusRegister();
+    if (settings.value("debug").toBool()) {
+        updateAccelData();
+        updateMagData();
+        updateStatusRegister();
+    }
 
     if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
@@ -158,7 +161,11 @@ void Module_Compass::doHealthCheck()
     if (!getSettings().value("enabled").toBool())
         return;
 
-    uint8_t sw_version = eepromRead(0x02);
+    uint8_t sw_version;
+    if (!eepromRead(0x02,sw_version)) {
+        setHealthToSick(uid->getLastError());
+        return;
+    }
 
     // dunno if newer chips still have this version
     if (sw_version != 7)
@@ -245,25 +252,30 @@ void Module_Compass::printEEPROM()
 {
         for(uint8_t b = 0x00; b<=0x15; b++)
         {
-                uint8_t content = eepromRead(b);
-                logger->debug("EEPROM content at address 0x" + QString::number(b,16) + ": 0x" + QString::number(content,16));
+                uint8_t content;
+                bool ret = eepromRead(b, content);
+                if (ret)
+                    logger->debug("EEPROM content at address 0x" + QString::number(b,16) + ": 0x" + QString::number(content,16));
         }
 }
 
-uint8_t Module_Compass::eepromRead(uint8_t addr)
+bool Module_Compass::eepromRead(uint8_t addr, uint8_t &data)
 {
         uint8_t recv_buffer[1];
         uint8_t send_buffer[2];
         send_buffer[0] = COMPASS_CMD_EEPROM_READ;
         send_buffer[1] = addr;
-        readWriteDelay( send_buffer, 2, recv_buffer, 1, 10);
-        return recv_buffer[0];
+        bool ret = readWriteDelay( send_buffer, 2, recv_buffer, 1, 10);
+        data = recv_buffer[0];
+        return ret;
 }
 
-void Module_Compass::eepromWrite(uint8_t addr, uint8_t data)
+bool Module_Compass::eepromWrite(uint8_t addr, uint8_t data)
 {
     logger->debug("Setting eeprom address 0x"+QString::number(addr,16)+" to 0x"+QString::number(data,16));
-    uint8_t current_value = eepromRead(addr);
+    uint8_t current_value;
+    if (!eepromRead(addr,current_value))
+        return false;
 
     if (current_value != data) {
         logger->debug("Current value is 0x"+QString::number(current_value,16)+", updating eeprom.");
@@ -273,9 +285,11 @@ void Module_Compass::eepromWrite(uint8_t addr, uint8_t data)
         send_buffer[1] = addr;
         send_buffer[2] = data;
         if (!readWriteDelay(send_buffer, 3, recv_buffer, 0, 10)) {
-            setHealthToSick("Could not write to EEPROM addr=0x" + QString::number(addr,16));
+            return false;
+            logger->error("Could not write to EEPROM addr=0x" + QString::number(addr,16));
         }
     }
+    return true;
 }
 
 void Module_Compass::setOrientation()
@@ -342,12 +356,12 @@ bool Module_Compass::readWriteDelay(unsigned char *send_buf, int send_size,
     unsigned char address = getSettings().value("i2cAddress").toInt();
 
     if (!uid->I2C_Write(address, send_buf, send_size)) {
-        setHealthToSick("UID reported error during write.");
+        setHealthToSick(uid->getLastError());
         return false;
     }
     sleep(delay);
     if (recv_size>0 && !uid->I2C_Read(address, recv_size, recv_buf)) {
-        setHealthToSick("UID reported error during read.");
+        setHealthToSick(uid->getLastError());
         return false;
     }
     return true;

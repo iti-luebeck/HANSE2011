@@ -99,7 +99,7 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
     setDefaultValue("biasComp",0);
     setDefaultValue("originAllign",0);
     setDefaultValue("smplTimeBase",0);
-    setDefaultValue("smplTimeMult",0);
+    setDefaultValue("smplTimeMult",1);
     setDefaultValue("filterTaps",2);
     setDefaultValue("gyroSens","300");
 
@@ -298,7 +298,7 @@ void Module_IMU::configureADIS()
 
     writeFullRegister(ADIS_REGISTER_SENS_AVG_LO, sens_avg_soll);
 
-    short multiplier = settings.value("smplTimeMult").toInt();
+    short multiplier = settings.value("smplTimeMult").toInt()-1;
     short smpl_prd_soll = multiplier;
     if (settings.value("smplTimeBase").toBool()) {
             smpl_prd_soll |= (1 << 6);
@@ -371,10 +371,10 @@ unsigned short Module_IMU::readRegister(uint8_t address)
 
     bool ret = uid->SPI_Write(settings.value("ssLine").toInt(), buf_send, 2);
     if (!ret)
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
     ret = uid->SPI_Read(settings.value("ssLine").toInt(), 2, buf_recv);
     if (!ret)
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
     return toShort(buf_recv[0],buf_recv[1]);
 }
 
@@ -396,10 +396,10 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 
     bool ret = uid->SPI_Write(settings.value("ssLine").toInt(), buf_send, 2);
     if (!ret)
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
     ret = uid->SPI_Read(settings.value("ssLine").toInt(), 2, buf_recv);
     if (!ret)
-        setHealthToSick("UID reported error.");
+        setHealthToSick(uid->getLastError());
 }
 
 float Module_IMU::getGyroX(void)
