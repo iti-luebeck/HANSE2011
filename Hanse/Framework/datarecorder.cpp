@@ -38,10 +38,6 @@ void DataRecorder::open()
 
     bool listsChanged = isChanged(dataKeys, dataKeysNew) || isChanged(settingsKeys, settingsKeysNew);
 
-    module.getSettings().setValue("testEn",true);
- //   module.getSettings().setValue("enabled",true);
-    module.getSettings().setValue("testDis",false);
-
     if (file->isOpen() && listsChanged) {
         file->close();
         fileCount++;
