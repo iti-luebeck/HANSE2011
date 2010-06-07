@@ -38,6 +38,10 @@ void DataRecorder::open()
 
     bool listsChanged = isChanged(dataKeys, dataKeysNew) || isChanged(settingsKeys, settingsKeysNew);
 
+    module.getSettings().setValue("testEn",true);
+ //   module.getSettings().setValue("enabled",true);
+    module.getSettings().setValue("testDis",false);
+
     if (file->isOpen() && listsChanged) {
         file->close();
         fileCount++;
@@ -90,26 +94,36 @@ void DataRecorder::newDataReceived(RobotModule *module)
     QDateTime now = QDateTime::currentDateTime();
 
     *stream << now.toTime_t() << "." << now.toString("z") << ",";
-    *stream << module->getHealthStatus().isHealthOk() << ",";
-    *stream << "\"" << module->getHealthStatus().getLastError() << "\"";
+    *stream << module->getHealthStatus().isHealthOk();
+
+    // TODO: write health status to different logfile
+//    *stream << "\"" << module->getHealthStatus().getLastError() << "\"";
 
     foreach (QString key, settingsKeys) {
         if (key == "enableLogging")
             continue;
 
         QVariant value = module->getSettings().value(key);
-        if (value.canConvert(QVariant::Double))
-            *stream << "," << value.toFloat();
-        else
-            *stream << "," << "\"" << value.toString() << "\"";
+        if (value.convert(QVariant::Double)) {
+            *stream << "," << value.toDouble();
+            continue;
+        }
+        value = module->getSettings().value(key);
+        if (value.convert(QVariant::Bool)) {
+            *stream << "," << value.toBool();
+        }
     }
 
     foreach (QString key, dataKeys) {
         QVariant value = module->getData().value(key);
-        if (value.canConvert(QVariant::Double))
-            *stream << "," << value.toFloat();
-        else
-            *stream << "," << "\"" << value.toString() << "\"";
+        if (value.convert(QVariant::Double)) {
+            *stream << "," << value.toDouble();
+            continue;
+        }
+        value = module->getData().value(key);
+        if (value.convert(QVariant::Bool)) {
+            *stream << "," << value.toBool();
+        }
     }
 
     *stream << "\r\n";
