@@ -25,7 +25,8 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     l->addWidget(plot);
     ui->frame->setLayout(l);
 
-    plot->setAxisScale(QwtPlot::yLeft,-2,1);
+    plot->setAxisScale(QwtPlot::yLeft,-1,2);
+    plot->setAxisScale(QwtPlot::xBottom,0,300);
 
     QwtLegend *legend = new QwtLegend();
     legend->setFrameStyle(QFrame::Box|| QFrame::Sunken);
@@ -101,13 +102,13 @@ void TCL_Form::dataChanged(RobotModule *mod)
     }
 
     foreach (float d, module->historyIst.values()) {
-        axisIst.append(-d);
+        axisIst.append(d);
     }
     foreach (float d, module->historySoll.values()) {
-        axisSoll.append(-d);
+        axisSoll.append(d);
     }
     foreach (float d, module->historyThrustCmd.values()) {
-        axisThruster.append(-d);
+        axisThruster.append(d);
     }
 
     curveIst->setData(axisTime, axisIst);

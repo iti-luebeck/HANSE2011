@@ -92,7 +92,7 @@ private:
 
     bool control_loop_enabled;
 
-    static const int maxHist = 60;
+    static const int maxHist = 600;
     QMap<QDateTime,float> historyIst;
     QMap<QDateTime,float> historySoll;
     QMap<QDateTime,float> historyThrustCmd;

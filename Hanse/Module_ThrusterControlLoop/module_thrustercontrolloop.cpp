@@ -47,6 +47,7 @@ void Module_ThrusterControlLoop::reset()
     thrusterLeft->setSpeed( 0 );
     thrusterRight->setSpeed(0 );
     thrusterDown->setSpeed( 0 );
+    thrusterDownFront->setSpeed( 0 );
 }
 
 void Module_ThrusterControlLoop::updateConstantsFromInitNow()
