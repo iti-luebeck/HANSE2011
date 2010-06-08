@@ -66,19 +66,22 @@ private:
     const static float stdDevInWindowTH = 0.04;
     const static float meanBehindTH = 1;
 
-    QMap<QDateTime,QVector<double> > echoHistory;
+    QMap<QDateTime,QVector<double> > rawHistory;
+    QMap<QDateTime,QVector<double> > filteredHistory;
     QMap<QDateTime, int > kHistory;
     QMap<QDateTime, QVector<double> > threshHistory;
     QMap<QDateTime, QVector<double> > varHistory;
+    QMap<QDateTime, QVector<double> > meanHistory;
     QVector<int> K_history;
 
     Module_ScanningSonar* sonar;
 
-    QByteArray filterEcho(SonarReturnData data,QByteArray echo);
+    cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
 
-    int findWall(SonarReturnData data,const QByteArray echo);
+    int findWall(SonarReturnData data,const cv::Mat& echo);
 
     cv::Mat byteArray2Mat(QByteArray array);
+    QVector<double> mat2QVector(cv::Mat& mat);
 
 
 };

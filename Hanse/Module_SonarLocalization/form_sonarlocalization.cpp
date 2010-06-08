@@ -5,6 +5,7 @@
 #include <qwt-qt4/qwt_plot_curve.h>
 #include <qwt-qt4/qwt_plot_marker.h>
 #include <qwt-qt4/qwt_symbol.h>
+#include <qwt-qt4/qwt_legend.h>
 
 Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLocalization* m) :
     QWidget(parent),
@@ -20,12 +21,18 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
 
     // add curves
     curveRaw = new QwtPlotCurve("Raw data");
-    curveTH = new QwtPlotCurve();
-    curveVar = new QwtPlotCurve();
+    curveFiltered = new QwtPlotCurve("Filtered data");
+    curveTH = new QwtPlotCurve("threshold");
+    curveVar = new QwtPlotCurve("stdDev");
+    curveMean = new QwtPlotCurve("prev mean");
     curveK = new QwtPlotMarker();
 
     plot->setTitle("Echo data");
     plot->setAxisTitle(0,"signal");
+
+    QwtLegend *legend = new QwtLegend();
+    legend->setFrameStyle(QFrame::Box|| QFrame::Sunken);
+    plot->insertLegend(legend,QwtPlot::BottomLegend);
 
     on_plotSelect_valueChanged(0);
 }
@@ -51,10 +58,10 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
 {
     int value = ui->plotSelect->value();
 
-    if (value<0 || value >= m->echoHistory.size())
+    if (value<0 || value >= m->rawHistory.size())
         return;
 
-    QDateTime time = m->echoHistory.keys().at(value);
+    QDateTime time = m->rawHistory.keys().at(value);
     ui->dateTimeEdit->setDateTime(time);
 
     QVector<double> xData;
@@ -62,8 +69,12 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
         xData.append(i);
 
     // copy the data into the curves
-    curveRaw->setData(xData, m->echoHistory[time]);
+    curveRaw->setData(xData, m->rawHistory[time]);
     curveRaw->attach(plot);
+
+    curveFiltered->setData(xData, m->filteredHistory[time]);
+    curveFiltered->setPen(QPen("brown"));
+    curveFiltered->attach(plot);
 
     curveTH->setData(xData, m->threshHistory[time]);
     curveTH->setPen(QPen("red"));
@@ -72,6 +83,10 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
     curveVar->setData(xData, m->varHistory[time]);
     curveVar->setPen(QPen("yellow"));
     curveVar->attach(plot);
+
+    curveMean->setData(xData, m->meanHistory[time]);
+    curveMean->setPen(QPen("blue"));
+    curveMean->attach(plot);
 
     int K = m->kHistory[time];
     if (K>=0) {

@@ -26,8 +26,10 @@ private:
     Ui::Form_SonarLocalization *ui;
     QwtPlot *plot;
     QwtPlotCurve *curveRaw;
+    QwtPlotCurve *curveFiltered;
     QwtPlotCurve *curveTH;
     QwtPlotCurve *curveVar;
+    QwtPlotCurve *curveMean;
     QwtPlotMarker *curveK;
 
     Module_SonarLocalization* m;

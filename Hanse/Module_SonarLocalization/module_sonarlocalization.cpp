@@ -44,20 +44,21 @@ void Module_SonarLocalization::newSonarData(SonarReturnData data)
     if (!isEnabled())
         return;
 
-    QByteArray echo = data.getEchoData();
-    logger->debug("Received " + QString::number(echo.size())+ " sonar echos.");
+    QByteArray byteEcho = data.getEchoData();
+    logger->debug("Received " + QString::number(byteEcho.size())+ " sonar echos.");
 
     // TODO: why 252??? it should be 250, or not?
-    echo.chop(echo.size()-N);
+    byteEcho.chop(byteEcho.size()-N);
+    Mat echo = byteArray2Mat(byteEcho);
 
-    QVector<double> rawData;
-    for(int i=0;i<N;i++)
-        rawData.append(echo[i]);
-
-    echoHistory[data.dateTime] = rawData;
+    echo = echo/127.0;
 
     // filter out noise etc.
-    QByteArray echoFiltered = filterEcho(data,echo);
+    Mat echoFiltered = filterEcho(data,echo);
+
+    rawHistory[data.dateTime] = mat2QVector(echo);
+
+    filteredHistory[data.dateTime] = mat2QVector(echoFiltered);
 
     int K = findWall(data,echoFiltered);
     if (K<0) {
@@ -70,6 +71,8 @@ void Module_SonarLocalization::newSonarData(SonarReturnData data)
 
     // connect with previous K
     // -> i have to keep Ks in memory
+
+    // TODO: plot Ks in qgraphicsscene, and connect them
 
     // pending later: SVM
 
@@ -84,20 +87,27 @@ void Module_SonarLocalization::newSonarData(SonarReturnData data)
 
 }
 
-QByteArray Module_SonarLocalization::filterEcho(SonarReturnData data,QByteArray echo)
+Mat Module_SonarLocalization::filterEcho(SonarReturnData data, const Mat& echo)
 {
-    // TODO: low pass filter
-    QByteArray echoFiltered = echo;
+    Mat echoFiltered = Mat::zeros(1,N,CV_32F);
 
     QVector<double> thresh;
 
+    int wSize = 1;
+
     // remove noise from signal
-    for (int i=0; i<N; i++) {
+    for(int i=wSize; i<N-wSize; i++) {
+        Mat window = echo.colRange(i-wSize, i+wSize);
+
+        // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
+        echoFiltered.at<float>(0,i) = 0.1065*window.at<float>(0,0)
+                                     + 0.7870*window.at<float>(0,1)
+                                     + 0.1065*window.at<float>(0,2);
 
         //GAIN=16: sensorNoiseThresh=max((7/20)*((1:250)-50),0);
         float cutOff=0;
-        if (data.startGain==16)
-            cutOff = (7.0/20)*(i-50);
+        if (data.startGain==15)
+            cutOff = (7.0/20)*(i-50)/127;
 //        else
 //            logger->error("Unknown gain: "+QString::number(data.startGain));
 
@@ -106,53 +116,54 @@ QByteArray Module_SonarLocalization::filterEcho(SonarReturnData data,QByteArray 
 
         thresh.append(cutOff);
 
-        float newVal = echoFiltered[i] - cutOff;
+        float newVal = echoFiltered.at<float>(0,i) - cutOff;
         if (newVal<0)
             newVal = 0;
 
-        echoFiltered[i] = int(newVal);
+        // normalize to 1 as maximum
+        echoFiltered.at<float>(0,i) = newVal;
     }
 
     threshHistory[data.dateTime] = thresh;
-
-    // TODO: do some kind of normalization?
-
     return echoFiltered;
 }
 
-int Module_SonarLocalization::findWall(SonarReturnData data,const QByteArray echo)
+int Module_SonarLocalization::findWall(SonarReturnData data,const Mat& echo)
 {
     // find last maximum
 
     int wSize=3;
 
     QVector<double> varHist;
+    QVector<double> meanHist;
 
     int K = -1;
 
-    Mat var = Mat::zeros(N,1,CV_32F);
+    Mat var = Mat::zeros(1,N,CV_32F);
     for(int j=N-wSize-1; j>=wSize; j--) {
 
         // window around the point we're looking at
-        Mat window = byteArray2Mat(echo.mid(j-wSize, 2*wSize+1));
+        Mat window = echo.colRange(j-wSize, j+wSize);
 
         Scalar mean;
         Scalar stdDev;
 
         // calc stdDev inside window
         meanStdDev(window, mean,stdDev);
-        float stdDevInWindow = stdDev[0];
+        float stdDevInWindow = stdDev[0]*stdDev[0];
         var.at<float>(0,j) = stdDevInWindow;
 
-        varHist.append(stdDevInWindow);
+        varHist.insert(0, stdDevInWindow);
 
         // TODO: heuristic
         bool largePeak = true;
 
         // calc mean in area behind our current pos.
-        Mat prev = byteArray2Mat(echo.mid(j+wSize));
+        Mat prev = echo.colRange(j+wSize,echo.cols-1);
         meanStdDev(prev, mean, stdDev);
         float meanBehind = mean[0];
+
+        meanHist.insert(0, meanBehind);
 
         // take first peak found.
         if (stdDevInWindow > stdDevInWindowTH && meanBehind<meanBehindTH && largePeak && K<0)
@@ -161,15 +172,27 @@ int Module_SonarLocalization::findWall(SonarReturnData data,const QByteArray ech
     }
 
     varHistory[data.dateTime] = varHist;
+    meanHistory[data.dateTime] = meanHist;
 
     return K;
 }
 
 Mat Module_SonarLocalization::byteArray2Mat(QByteArray array)
 {
-    Mat m = Mat::zeros(array.size(),1,CV_32F);
+    Mat m = Mat::zeros(1,array.size(),CV_32F);
     for(int i=0;i<array.size();i++) {
         m.at<float>(0,i) = array[i];
     }
     return m;
 }
+
+QVector<double> Module_SonarLocalization::mat2QVector(Mat& mat)
+{
+    QVector<double> v;
+    int w = mat.size().width;
+    for(int i=0;i<w;i++) {
+        v.append(mat.at<float>(0,i));
+    }
+    return v;
+}
+
