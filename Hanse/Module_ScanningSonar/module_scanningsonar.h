@@ -41,7 +41,7 @@ public:
     QList<RobotModule*> getDependencies();
 
 public slots:
-    void doNextScan();
+    bool doNextScan();
 
 public slots:
     void reset();

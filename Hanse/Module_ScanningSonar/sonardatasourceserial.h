@@ -9,9 +9,11 @@ class QextSerialPort;
 class SonarDataSourceSerial: public SonarDataSource
 {
 public:
-    SonarDataSourceSerial(Module_ScanningSonar& parent, QString port);
+    SonarDataSourceSerial(Module_ScanningSonar& parent);
 
     const SonarReturnData getNextPacket();
+
+    bool isOpen();
 
 private:
     QextSerialPort* port;

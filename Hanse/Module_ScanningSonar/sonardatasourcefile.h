@@ -14,6 +14,8 @@ public:
 
     const SonarReturnData getNextPacket();
 
+    bool isOpen();
+
 private:
     QFile* file;
     QDataStream* stream;

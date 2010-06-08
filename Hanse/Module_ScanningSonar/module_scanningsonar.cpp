@@ -73,16 +73,17 @@ void Module_ScanningSonar::ThreadedReader::run(void)
     running = true;
     while(running)
     {
-        if (m->getSettings().value("enabled").toBool())
-            m->doNextScan();
-        else
+        if (!m->getSettings().value("enabled").toBool() || !m->doNextScan())
             msleep(500);
     }
 }
 
-void Module_ScanningSonar::doNextScan()
+bool Module_ScanningSonar::doNextScan()
 {
     const SonarReturnData d = source->getNextPacket();
+
+    if (!source->isOpen())
+        return false;
 
     if (d.isPacketValid()) {
         setHealthToOk();
@@ -90,8 +91,10 @@ void Module_ScanningSonar::doNextScan()
         data["range"] = d.getRange();
         emit newSonarData(d);
         emit dataChanged(this);
+        return true;
     } else {
         setHealthToSick("Received bullshit. Dropping packet.");
+        return false;
     }
 }
 
@@ -116,7 +119,7 @@ void Module_ScanningSonar::reset()
         recorder = NULL;
     }
 
-    if (!getSettings().value("enabled").toBool())
+    if (!isEnabled())
         return;
 
     if (settings.value("enableRecording").toBool()) {
@@ -128,7 +131,7 @@ void Module_ScanningSonar::reset()
     if (settings.value("readFromFile").toBool())
         source = new SonarDataSourceFile(*this, settings.value("filename").toString());
     else
-        source = new SonarDataSourceSerial(*this, settings.value("serialPort").toString());
+        source = new SonarDataSourceSerial(*this);
 
     logger->debug("Restarting reader.");
     reader.start();

@@ -12,7 +12,7 @@ QThread::msleep(msecs);
 }
 };
 
-SonarDataSourceSerial::SonarDataSourceSerial(Module_ScanningSonar& parent, QString port)
+SonarDataSourceSerial::SonarDataSourceSerial(Module_ScanningSonar& parent)
     : SonarDataSource(parent)
 {
     logger = Log4Qt::Logger::logger("SonarSerialReader");
@@ -63,9 +63,9 @@ void SonarDataSourceSerial::configurePort()
     port = new QextSerialPort(parent.getSettings().value("serialPort").toString(), s,QextSerialPort::Polling);
     bool ret = port->open(QextSerialPort::ReadWrite);
     if (ret)
-        logger->info("Opened Serial Port!");
+        logger->debug("Opened serial port!");
     else
-        logger->error("Could not open serial port :(");
+        parent.setHealthToSick("Could not open serial port '"+parent.getSettings().value("serialPort").toString()+"'");
 }
 
 QByteArray SonarDataSourceSerial::buildSwitchDataCommand()
@@ -111,4 +111,10 @@ QByteArray SonarDataSourceSerial::buildSwitchDataCommand()
     a[26] = 0xFD;       // Termination Byte
 
     return a;
+}
+
+
+bool SonarDataSourceSerial::isOpen()
+{
+    return port && port->isOpen();
 }

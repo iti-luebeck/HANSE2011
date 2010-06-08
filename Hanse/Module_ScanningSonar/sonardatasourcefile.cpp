@@ -2,15 +2,6 @@
 #include "QtCore"
 #include "module_scanningsonar.h"
 
-class SleeperThread : public QThread
-{
-public:
-static void msleep(unsigned long msecs)
-{
-QThread::msleep(msecs);
-}
-};
-
 SonarDataSourceFile::SonarDataSourceFile(Module_ScanningSonar& parent, QString path)
     : SonarDataSource(parent)
 {
@@ -35,7 +26,7 @@ const SonarReturnData SonarDataSourceFile::getNextPacket()
         p = readPacket();
     }
 
-    SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
+    parent.msleep(parent.getSettings().value("fileReaderDelay").toInt());
 
     return p;
 }
@@ -44,14 +35,14 @@ SonarReturnData SonarDataSourceFile::readPacket()
 {
     if (!stream) {
         logger->error("Stream not open!");
-        SleeperThread::msleep(parent.getSettings().value("fileReaderDelay").toInt());
+        parent.msleep(parent.getSettings().value("fileReaderDelay").toInt());
         SonarReturnData inv;
         return inv;
     }
 
     if (stream->atEnd()) {
         logger->error("Reached end of file!");
-        SleeperThread::msleep(1000);
+        parent.msleep(1000);
         SonarReturnData inv;
         return inv;
     }
@@ -105,3 +96,7 @@ SonarReturnData SonarDataSourceFile::readPacket()
     return d;
 }
 
+bool SonarDataSourceFile::isOpen()
+{
+    return file && file->isOpen() && stream && !stream->atEnd();
+}

@@ -13,6 +13,8 @@ public:
 
     virtual const SonarReturnData getNextPacket() = 0;
 
+    virtual bool isOpen() = 0;
+
 protected:
     Module_ScanningSonar& parent;
 
