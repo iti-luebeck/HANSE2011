@@ -6,7 +6,7 @@
 class HanseApp : public QApplication
 {
 public:
-    HanseApp();
+    HanseApp(int, char**);
 
     bool notify(QObject *, QEvent *);
 };

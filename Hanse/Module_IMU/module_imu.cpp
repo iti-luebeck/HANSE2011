@@ -248,7 +248,7 @@ void Module_IMU::doSelfTest()
 
     // test should take approx. 35 ms
     // while (readRegister(ADIS_REGISTER_STATUS_HI) & 0x040)
-    sleep(35);
+    msleep(35);
 
     short checkResult = readRegister(ADIS_REGISTER_STATUS_HI);
     if (checkResult != 0x0000) {

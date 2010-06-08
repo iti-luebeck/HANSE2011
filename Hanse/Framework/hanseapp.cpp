@@ -3,8 +3,8 @@
 
 #include <opencv/cv.h>
 
-HanseApp::HanseApp()
-    : QApplication(0,0)
+HanseApp::HanseApp(int argc, char** argv)
+    : QApplication(argc, argv)
 {
     setApplicationName("Hanse");
     setOrganizationName("ITI");

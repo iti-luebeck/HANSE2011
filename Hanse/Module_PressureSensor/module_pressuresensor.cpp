@@ -62,7 +62,7 @@ void Module_PressureSensor::reset()
     if (!uid->I2C_Write(address, &reg, 1)) {
         setHealthToSick(uid->getLastError());
     }
-    sleep(100);
+    msleep(100);
 
 }
 

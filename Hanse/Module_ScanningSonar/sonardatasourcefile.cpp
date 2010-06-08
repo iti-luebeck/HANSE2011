@@ -7,10 +7,12 @@ SonarDataSourceFile::SonarDataSourceFile(Module_ScanningSonar& parent, QString p
 {
     logger = Log4Qt::Logger::logger("SonarFileReader");
 
+    this->stream = NULL;
     this->file = new QFile(path);
-    file->open(QIODevice::ReadOnly);
-    if (!file->isReadable()) {
+    if (!file->open(QIODevice::ReadOnly)) {
         logger->error("Could not open file " + file->fileName() + " for reading.");
+        delete file;
+        file = NULL;
         return;
     }
     this->stream = new QDataStream(file);

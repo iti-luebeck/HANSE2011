@@ -347,7 +347,7 @@ void Module_Compass::resetDevice()
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 0, 1)) {
             setHealthToSick("Could not reset compass!");
         }
-        sleep(500); // necessary waiting period
+        msleep(500); // necessary waiting period
 }
 
 bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
@@ -359,7 +359,7 @@ bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
         setHealthToSick(uid->getLastError());
         return false;
     }
-    sleep(delay);
+    msleep(delay);
     if (recv_size>0 && !uid->I2C_Read(address, recv_size, recv_buf)) {
         setHealthToSick(uid->getLastError());
         return false;

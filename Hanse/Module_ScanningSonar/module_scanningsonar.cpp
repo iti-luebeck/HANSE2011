@@ -82,7 +82,7 @@ bool Module_ScanningSonar::doNextScan()
 {
     const SonarReturnData d = source->getNextPacket();
 
-    if (!source->isOpen())
+    if (!source || !source->isOpen())
         return false;
 
     if (d.isPacketValid()) {
