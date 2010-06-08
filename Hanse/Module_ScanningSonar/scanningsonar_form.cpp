@@ -60,6 +60,14 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 {
     float n = data.getEchoData().length();
 
+    ui->time->setDateTime(data.dateTime);
+    ui->heading->setText(QString::number(data.getHeadPosition()));
+    ui->gain_2->setText(QString::number(data.startGain));
+    ui->range_2->setText(QString::number(data.getRange()));
+
+    if (!ui->checkBox->isChecked())
+        return;
+
     if (oldHeading>-1000) {
 
         if (!map.contains(data.getHeadPosition())) {
@@ -83,9 +91,10 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
             polygon << QPointF(0,0) << QPointF(endX,0)<< QPointF(endX,endY);
             QGraphicsPolygonItem *it = scene.addPolygon(polygon,QPen(Qt::NoPen));
             map[data.getHeadPosition()] = it;
-            scanLine->setRotation(data.getHeadPosition());
             it->setRotation(data.getHeadPosition()+90);
         }
+
+        scanLine->setRotation(data.getHeadPosition());
 
         QGraphicsPolygonItem *it = map[data.getHeadPosition()];
 
@@ -132,5 +141,11 @@ void ScanningSonarForm::on_fileCfgApply_clicked()
     sonar->getSettings().setValue("enableRecording", ui->enableRecording->isChecked());
     sonar->getSettings().setValue("formatCSV", ui->formatCSV->isChecked());
     sonar->getSettings().setValue("startTime", ui->startTime->dateTime());
+
     sonar->reset();
+}
+
+void ScanningSonarForm::on_fileReaderDelay_valueChanged(int )
+{
+    sonar->getSettings().setValue("fileReaderDelay", ui->fileReaderDelay->value());
 }
