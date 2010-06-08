@@ -6,14 +6,15 @@ QSonarView::QSonarView(QWidget* parent)
     : QGraphicsView(parent)
 {
     logger = Log4Qt::Logger::logger("SonarRecorder");
+    this->setBackgroundBrush(QBrush(QColor("black")));
 }
 
 void QSonarView::wheelEvent(QWheelEvent *event)
 {
     qreal d = event->delta() / 100.0;
-    int sign = (d > 0) - (d < 0);
-    qreal scale = sign*2;
-    logger->debug(QString("scaling by %1").arg(scale));
-    this->scale(scale, scale);
+    if (d>0)
+        this->scale(d,d);
+    else
+        this->scale(-1/d,-1/d);
     event->accept();
 }
