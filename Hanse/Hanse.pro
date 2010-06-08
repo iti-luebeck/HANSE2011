@@ -75,7 +75,8 @@ HEADERS += Framework/healthstatus.h \
     Module_VisualSLAM/slam/particle.h \
     Module_VisualSLAM/slam/naiveslam.h \
     Module_VisualSLAM/slam/landmark.h \
-    Module_VisualSLAM/form_visualslam.h
+    Module_VisualSLAM/form_visualslam.h \
+    Behaviour_PipeFollowing/pipefollowingform.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -135,7 +136,8 @@ SOURCES += Framework/robotmodule.cpp \
     Module_VisualSLAM/slam/particle.cpp \
     Module_VisualSLAM/slam/naiveslam.cpp \
     Module_VisualSLAM/slam/landmark.cpp \
-    Module_VisualSLAM/form_visualslam.cpp
+    Module_VisualSLAM/form_visualslam.cpp \
+    Behaviour_PipeFollowing/pipefollowingform.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -149,4 +151,6 @@ FORMS += Framework/mainwindow.ui \
     Module_Navigation/form_navigation.ui \
     Module_SonarLocalization/form_sonarlocalization.ui \
     Module_ScanningSonar/scanningsonar_form.ui \
-    Module_VisualSLAM/form_visualslam.ui
+    Module_VisualSLAM/form_visualslam.ui \
+    Behaviour_PipeFollowing/pipefollowingform.ui
+
