@@ -4,7 +4,21 @@
 #include <Framework/robotmodule.h>
 #include <Framework/position.h>
 
+#include <QTimer>
+#include <QThread>
+#include <QGraphicsScene>
+
+#include <vector>
+
+#include <Module_VisualSLAM/capture/stereocapture.h>
+#include <Module_VisualSLAM/feature/feature.h>
+#include <Module_VisualSLAM/slam/naiveslam.h>
+#include <Module_VisualSLAM/form_visualslam.h>
+
+using namespace std;
+
 class Module_SonarLocalization;
+class Form_VisualSLAM;
 
 class Module_VisualSLAM : public RobotModule {
     Q_OBJECT
@@ -42,18 +56,46 @@ public:
       */
     bool isLocalizationLost();
 
+    void start();
+    void stop();
+
+    QMutex *getSceneMutex();
+    QMutex *getUpdateMutex();
+
 public slots:
     void reset();
     void terminate();
+    void update();
+    void updateMap();
 
 signals:
     void healthStatusChanged(HealthStatus data);
 
     void newLocalizationEstimate();
     void lostLocalization();
+    void updateFinished();
 
 private:
+    Form_VisualSLAM *form;
     Module_SonarLocalization* sonarLocalization;
+    QTimer updateTimer;
+    QThread updateThread;
+    QDateTime lastRefreshTime;
+    clock_t startClock;
+    clock_t stopClock;
+    QMutex sceneMutex;
+    QMutex updateMutex;
+
+    QGraphicsScene *scene;
+    StereoCapture cap;
+    Feature feature;
+    NaiveSLAM slam;
+    bool stopped;
+
+    vector<CvMat *> des;
+    vector<CvScalar> pos2D;
+    vector<CvScalar> pos3D;
+    vector<int> classLabels;
 };
 
 #endif // MODULE_VISUALSLAM_H

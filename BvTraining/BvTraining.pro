@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     blobtraining.cpp \
     surftraining.cpp \
     helpers.cpp \
-    surfclassifier.cpp
+    surfclassifier.cpp \
+    ../Hanse/Module_VisualSLAM/form_visualslam.cpp
 HEADERS += trainingwindow.h \
     imageprocessor.h \
     SVMClassifier.h \
@@ -31,8 +32,10 @@ HEADERS += trainingwindow.h \
     helpers.h \
     surftraining.h \
     helpers.h \
-    surfclassifier.h
-FORMS += trainingwindow.ui
+    surfclassifier.h \
+    ../Hanse/Module_VisualSLAM/form_visualslam.h
+FORMS += trainingwindow.ui \
+    ../Hanse/Module_VisualSLAM/form_visualslam.ui
 DESTDIR = ../build
 INCLUDEPATH += "../include/opencv"
 LIBPATH += "../OpenCV/lib"

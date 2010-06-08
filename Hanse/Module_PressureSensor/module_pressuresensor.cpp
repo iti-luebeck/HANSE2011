@@ -100,7 +100,6 @@ void Module_PressureSensor::readPressure()
     if (pressure < PRESSURE_MIN || pressure > PRESSURE_MAX) {
         setHealthToSick("Pressure of "+QString::number(pressure) + " doesn't make sense.");
     }
-
 }
 
 void Module_PressureSensor::readTemperature()

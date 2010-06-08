@@ -27,9 +27,11 @@
 class Position : public QObject
 {
 public:
-    Position();
-    Position(double x, double y, double z);
-    Position(double x, double y, double z, double roll, double pitch, double yaw);
+    Position( const Position& );
+    Position( double x = 0, double y = 0, double z = 0,
+              double roll = 0, double pitch = 0, double yaw = 0 );
+
+    Position& operator=( const Position& );
 
     double getX();
     double getY();
@@ -46,6 +48,14 @@ public:
     void setYaw(double);
     void setPitch(double);
     void setRoll(double);
+
+private:
+    double x;
+    double y;
+    double z;
+    double yaw;
+    double pitch;
+    double roll;
 
 };
 

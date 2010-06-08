@@ -31,7 +31,7 @@ void Pressure_Form::changeEvent(QEvent *e)
 
 void Pressure_Form::on_save_clicked()
 {
-    module->getSettings().setValue("airPressure", ui->airPressure->text().toInt(0,0));
-    module->getSettings().setValue("frequency", ui->frequency->text().toInt(0,0));
-    module->getSettings().setValue("frequency", ui->frequency->text().toInt(0,0));
+    module->getSettings().setValue("i2cAddress", ui->i2cAddress->text().toInt());
+    module->getSettings().setValue("airPressure", ui->airPressure->text().toInt());
+    module->getSettings().setValue("frequency", ui->frequency->text().toInt());
 }

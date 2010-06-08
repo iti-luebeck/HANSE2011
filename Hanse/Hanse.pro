@@ -57,7 +57,25 @@ HEADERS += Framework/healthstatus.h \
     Module_SonarLocalization/form_sonarlocalization.h \
     Framework/robotbehaviour.h \
     Behaviour_PipeFollowing/behaviour_pipefollowing.h \
-    Module_ScanningSonar/scanningsonar_form.h
+    Module_ScanningSonar/scanningsonar_form.h \
+    Module_VisualSLAM/helpers.h \
+    Module_VisualSLAM/odometry/odometry.h \
+    Module_VisualSLAM/feature/feature.h \
+    Module_VisualSLAM/feature/surf/utils.h \
+    Module_VisualSLAM/feature/surf/surflib.h \
+    Module_VisualSLAM/feature/surf/surf.h \
+    Module_VisualSLAM/feature/surf/responselayer.h \
+    Module_VisualSLAM/feature/surf/kmeans.h \
+    Module_VisualSLAM/feature/surf/ipoint.h \
+    Module_VisualSLAM/feature/surf/integral.h \
+    Module_VisualSLAM/feature/surf/fasthessian.h \
+    Module_VisualSLAM/feature/fast/cvfast.h \
+    Module_VisualSLAM/capture/stereocapture.h \
+    Module_VisualSLAM/slam/quaternion.h \
+    Module_VisualSLAM/slam/particle.h \
+    Module_VisualSLAM/slam/naiveslam.h \
+    Module_VisualSLAM/slam/landmark.h \
+    Module_VisualSLAM/form_visualslam.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -99,7 +117,25 @@ SOURCES += Framework/robotmodule.cpp \
     Module_SonarLocalization/form_sonarlocalization.cpp \
     Framework/robotbehaviour.cpp \
     Behaviour_PipeFollowing/behaviour_pipefollowing.cpp \
-    Module_ScanningSonar/scanningsonar_form.cpp
+    Module_ScanningSonar/scanningsonar_form.cpp \
+    Module_VisualSLAM/odometry/odometry.cpp \
+    Module_VisualSLAM/feature/feature.cpp \
+    Module_VisualSLAM/feature/surf/utils.cpp \
+    Module_VisualSLAM/feature/surf/surf.cpp \
+    Module_VisualSLAM/feature/surf/ipoint.cpp \
+    Module_VisualSLAM/feature/surf/integral.cpp \
+    Module_VisualSLAM/feature/surf/fasthessian.cpp \
+    Module_VisualSLAM/feature/fast/cvfast.cpp \
+    Module_VisualSLAM/feature/fast/cv_fast_12.cc \
+    Module_VisualSLAM/feature/fast/cv_fast_11.cc \
+    Module_VisualSLAM/feature/fast/cv_fast_10.cc \
+    Module_VisualSLAM/feature/fast/cv_fast_9.cc \
+    Module_VisualSLAM/capture/stereocapture.cpp \
+    Module_VisualSLAM/slam/quaternion.cpp \
+    Module_VisualSLAM/slam/particle.cpp \
+    Module_VisualSLAM/slam/naiveslam.cpp \
+    Module_VisualSLAM/slam/landmark.cpp \
+    Module_VisualSLAM/form_visualslam.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -112,4 +148,5 @@ FORMS += Framework/mainwindow.ui \
     Module_Localization/form_localization.ui \
     Module_Navigation/form_navigation.ui \
     Module_SonarLocalization/form_sonarlocalization.ui \
-    Module_ScanningSonar/scanningsonar_form.ui
+    Module_ScanningSonar/scanningsonar_form.ui \
+    Module_VisualSLAM/form_visualslam.ui
