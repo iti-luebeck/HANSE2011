@@ -156,9 +156,9 @@ protected:
     void setHealthToOk();
 
     /**
-      * sleep for the given amount of time
+      * sleep for the given amount of milliseconds
       */
-    void sleep(int millies);
+    void msleep(int millies);
 
 protected slots:
     /**
@@ -175,7 +175,7 @@ private:
     class MyQThread: public QThread
     {
     public:
-        static void sleep(int millies);
+        static void msleep(int millies);
     };
 
     /**

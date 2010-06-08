@@ -103,12 +103,12 @@ void RobotModule::reset()
     data.clear();
 }
 
-void RobotModule::sleep(int millies)
+void RobotModule::msleep(int millies)
 {
-    MyQThread::sleep(millies);
+    MyQThread::msleep(millies);
 }
 
-void RobotModule::MyQThread::sleep(int millies)
+void RobotModule::MyQThread::msleep(int millies)
 {
     QThread::msleep(millies);
 }
