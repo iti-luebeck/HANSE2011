@@ -1,4 +1,4 @@
-#include <QtGui/QApplication>
+#include "hanseapp.h"
 #include "mainwindow.h"
 #include <QSettings>
 
@@ -9,10 +9,7 @@ int main(int argc, char *argv[])
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, ".");
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
-    QApplication a(argc, argv);
-
-    a.setApplicationName("Hanse");
-    a.setOrganizationName("ITI");
+    HanseApp a;
 
     MainWindow w;
     w.show();
