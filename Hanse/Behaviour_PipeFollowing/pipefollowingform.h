@@ -1,8 +1,11 @@
 #ifndef PIPEFOLLOWINGFORM_H
 #define PIPEFOLLOWINGFORM_H
 
-#include <QWidget>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
+
+#include <QWidget>
+
+class Behaviour_PipeFollowing;
 
 namespace Ui {
     class PipeFollowingForm;

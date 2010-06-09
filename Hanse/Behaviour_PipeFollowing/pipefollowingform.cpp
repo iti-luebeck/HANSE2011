@@ -62,12 +62,12 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
 {
     pipefollow->setThresh(ui->thresholdLineEdit->text().toInt());
     pipefollow->setCameraID(ui->cameraID_LineEdit->text().toInt());
-    pipefollow->setDeltaPipe(ui->deltaPipeLineEdit->text().toDouble());
-    pipefollow->setSpeed(ui->speedLineEdit->text().toDouble());
-    pipefollow->setKp(ui->kpLineEdit->text().toDouble());
+    pipefollow->setDeltaPipe(ui->deltaDistPipeLineEdit->text().toFloat() ,
+                             ui->deltaAnglePipeLineEdit->text().toFloat());
+    pipefollow->setKpDist(ui->kpDistLineEdit->text().toFloat());
+    pipefollow->setKpAngle(ui->kpAngleLineEdit->text().toFloat());
     pipefollow->setRobCenter(ui->robCenterXLineEdit->text().toDouble(),
                              ui->robCenterYLineEdit->text().toDouble());
     pipefollow->setDebug(ui->debugCheckBox->isChecked());
-
 
 }

@@ -8,6 +8,10 @@
 
 
 //using namespace cv;
+//
+//ui->leftLabel->setPixmap(QPixmap::fromImage(image1));
+//
+//QImage image2((unsigned char*)cap.getFrame(1)->imageData, 640, 480, QImage::Format_RGB888);
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl)
     : RobotBehaviour(id)
@@ -16,7 +20,9 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     Behaviour_PipeFollowing::active = false;
-    }
+
+    form = new PipeFollowingForm( NULL, this);
+}
 
 bool Behaviour_PipeFollowing::isActive()
 {
@@ -46,29 +52,48 @@ QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
 
 QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 {
-    return new PipeFollowingForm(parent,this);
+    form->setParent( parent );
+    return form;
 }
 
 
 void Behaviour_PipeFollowing::timerSlot()
 {
     logger->debug("timerSlot");
-    Mat frame;
+    Mat frame, binaryFrame;
 
     if(!vc.isOpened())
     {
         logger->error("cannot open camera device");
     }
     vc.retrieve(frame,0);
-    Behaviour_PipeFollowing::findPipe(frame);
+    Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
+    Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
     Behaviour_PipeFollowing::updateData();
 }
 
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
+   float ctrAngleSpeed = 0.0;
+   float ctrFwSpeed = 0.3;
+   float curAbsAngle = (Behaviour_PipeFollowing::curAngle < 0) ?
+                       ((-1) * Behaviour_PipeFollowing::curAngle)
+                           : Behaviour_PipeFollowing::curAngle;
+   float tmp;
+   if(curAbsAngle > Behaviour_PipeFollowing::deltaAngPipe)
+   {
+       tmp = (-1) * Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 180.0;
+       ctrAngleSpeed= tmp;
+   }
 
-//tcl->setAngularSpeed();
-//tcl->setForwardSpeed();
+   if(Behaviour_PipeFollowing::distance > Behaviour_PipeFollowing::deltaDistPipe)
+   {
+       tmp = Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
+       ctrAngleSpeed += tmp;
+   }
+
+   tcl->setAngularSpeed(ctrAngleSpeed);
+   tcl->setForwardSpeed(ctrFwSpeed);
 }
 
 void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
@@ -81,13 +106,14 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
     }
     namedWindow("Image", 1);
     namedWindow("Canny",1);
-    Mat frame;
+    Mat frame, binaryFrame;
     for(;;)
     {
         vc >> frame;
         //            Mat tframe = frame;
         //            transpose(tframe,frame);
-        Behaviour_PipeFollowing::findPipe(frame);
+        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
+        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
     }
     vc.release();
     cvDestroyWindow("Image");
@@ -97,12 +123,14 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
 }
 
 
-void Behaviour_PipeFollowing::findPipe(Mat &frame)
+
+
+void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
 {
     if (!frame.empty())
     {
         int u;
-        Mat frameHSV, cannyFrame, h, s, v;
+        Mat frameHSV, h, s, v;
         cvtColor(frame,frameHSV,CV_BGR2HSV);
         /*****convert HSV Image to 3 Binary */
         int rows = frameHSV.rows;
@@ -125,7 +153,7 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame)
         /**** Segmentation */
         Mat thresh;
         threshold(s,thresh,threshSegmentation,255,THRESH_BINARY);
-        Canny(thresh, cannyFrame, 50, 200, 3 );
+        Canny(thresh, binaryFrame, 50, 200, 3 );
 
         /*debug */
         if(debug)
@@ -140,14 +168,19 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame)
             u = waitKey();
             imshow("Canny",thresh);
             u = waitKey();
-            imshow("Canny",cannyFrame);
+            imshow("Canny",binaryFrame);
             u = waitKey();
 
         }
+    }
+}
+
+void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
+{
 
         /* hough transformation */
         vector<Vec2f> lines;
-        HoughLines(cannyFrame, lines, 1, CV_PI/180, 100 );
+        HoughLines(binaryFrame, lines, 1, CV_PI/180, 100 );
 
         /* DEBUG durchschnitt fuer alle erkannten linien */
         float avRho = 0.0;
@@ -221,6 +254,8 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame)
 
         /* Istwinkel */
         curAngle = ((avThetaClass1 * 180.0) / CV_PI);
+        if(curAngle > 90)
+            curAngle -= 180;
 
         /* Rohrlinie berechnen und Zeichnen */
         Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass1,avThetaClass1,Scalar(255,255,255));
@@ -236,12 +271,15 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame)
         }
 
         /* Potentialvektor berechnen */
-        potentialVec = -intersect.y + robCenter.y;
+        potentialVec = robCenter.y - intersect.y;
 
 
         /* Ideallinie zeichnen */
         line( frame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(0,255,0), 3, 8 );
 
+        /* ins Qt Widget malen */
+//        QImage image1((unsigned char*)frame, 640, 480, QImage::Format_RGB888);
+//        form->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
 
         imshow("Image",frame);
 
@@ -249,8 +287,8 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame)
         {
             waitKey();
         }
-        u = waitKey(100);
-    }
+        waitKey(100);
+
 }
 
 void Behaviour_PipeFollowing::setThresh(int thresh)
@@ -289,6 +327,12 @@ void Behaviour_PipeFollowing::compIntersect(double rho, double theta)
               pt1.y + (((r) * rv[1])));
     intersect = gmp;
 
+    /* Entfernung auf der Bildhalbierenden Y-Achse */
+    r = ((robCenter.y)/1.0 - pt1.x)/rv[1];
+   distanceY = robCenter.x - (pt1.x + (((r) * rv[0])));
+
+
+
     /*Abstand zwischen ermittelter Gerade und robCenter */
     /*Richtungsvekter double[] rv und Stuetzvektor Point pt1 */
     double zaehler[2] = {((robCenter.x - pt1.x) *rv[0]),((robCenter.y - pt1.y) *rv[1])};
@@ -319,19 +363,21 @@ void Behaviour_PipeFollowing::setCameraID(int camID)
     Behaviour_PipeFollowing::cameraID = camID;
 }
 
-void Behaviour_PipeFollowing::setDeltaPipe(double deltaPipe)
+void Behaviour_PipeFollowing::setDeltaPipe(float deltaDistPipe, float deltaAngPipe)
 {
-    Behaviour_PipeFollowing::deltaDistPipe = deltaPipe;
+    Behaviour_PipeFollowing::deltaDistPipe = deltaDistPipe;
+    Behaviour_PipeFollowing::deltaAngPipe = deltaAngPipe;
 }
 
-void Behaviour_PipeFollowing::setSpeed(double speed)
+
+void Behaviour_PipeFollowing::setKpDist(float kp)
 {
-    Behaviour_PipeFollowing::speed = speed;
+    Behaviour_PipeFollowing::kpDist = kp;
 }
 
-void Behaviour_PipeFollowing::setKp(double kp)
+void Behaviour_PipeFollowing::setKpAngle(float kp)
 {
-    Behaviour_PipeFollowing::kp = kp;
+    Behaviour_PipeFollowing::kpAngle = kp;
 }
 
 void Behaviour_PipeFollowing::setRobCenter(double robCenterX, double robCenterY)
