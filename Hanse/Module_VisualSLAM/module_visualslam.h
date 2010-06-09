@@ -56,6 +56,12 @@ public:
       */
     bool isLocalizationLost();
 
+    /**
+      * Returns the position of an object and the time it was last
+      * seen.
+      */
+    void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
+
     void start();
     void stop();
 

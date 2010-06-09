@@ -103,17 +103,24 @@ void Module_VisualSLAM::updateMap()
                    .arg( pos.getYaw(), 0, 'f', 3 )
                    .arg( slam.getConfidence(), 0, 'E', 3 ) );
 
-    data["X"] = pos.getX();
-    data["Y"] = pos.getY();
-    data["Z"] = pos.getZ();
-    data["Yaw"] = pos.getYaw();
-    data["Pitch"] = pos.getPitch();
-    data["Roll"] = pos.getRoll();
+    updateMutex.unlock();
+
+    // Update current position.
+    QVector3D translation( pos.getX(), pos.getY(), pos.getZ() );
+    data["Translation"] = translation;
+    QVector3D orientation( pos.getYaw(), pos.getPitch(), pos.getRoll() );
+    data["Orientation"] = orientation;
     data["Confidence"] = slam.getConfidence();
+
+    // Update objects.
+    QRectF boundingBox;
+    QDateTime lastSeen;
+    cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
+    data["Goal - bounding box"] = boundingBox;
+    data["Goal - lastSeen"] = lastSeen;
 
     emit dataChanged( this );
     emit updateFinished();
-    updateMutex.unlock();
 }
 
 QList<RobotModule*> Module_VisualSLAM::getDependencies()

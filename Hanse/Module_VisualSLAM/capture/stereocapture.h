@@ -1,10 +1,15 @@
 #ifndef STEREOCAPTURE_H
 #define STEREOCAPTURE_H
 
+#include <QRectF>
+#include <QDateTime>
 #include <opencv/cxcore.h>
 #include <vector>
 #include "videoInput.h"
 #include "../feature/feature.h"
+
+#define GOAL_LABEL  1
+#define BALL_LABEL  2
 
 using namespace std;
 
@@ -18,6 +23,7 @@ public:
     void grab( vector<CvMat *> *descriptors, vector<CvScalar> *pos2D, vector<CvScalar> *pos3D, vector<int> *classLabel );
     bool isConnected( int device );
     IplImage *getFrame( int cam );
+    void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
 
 public slots:
     void surfDone1();
@@ -70,6 +76,8 @@ private:
 
     vector<CvMat *> classFeatures;
     vector<int> classLabels;
+    vector<QRectF> classRects;
+    vector<QDateTime> classLastSeen;
 
 signals:
     void done();

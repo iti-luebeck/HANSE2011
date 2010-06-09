@@ -5,9 +5,6 @@
 #include <time.h>
 #include "../helpers.h"
 
-#define GOAL_LABEL  1
-#define BALL_LABEL  2
-
 StereoCapture::StereoCapture(int width, int height, int device1, int device2)
 {
     // Initialize class variables.
@@ -211,10 +208,38 @@ void StereoCapture::doCalculations()
     for ( int i = 0; i < (int)classFeatures.size(); i++ )
     {
         vector<CvPoint> classMatches;
+        double xmin = 1000;
+        double xmax = -1;
+        double ymin = 1000;
+        double ymax = -1;
         feature1.matchFeatures(descriptors1, classFeatures[i], classMatches);
         for ( int j = 0; j < (int)classMatches.size(); j++ )
         {
-            classArray[classMatches[j].x] = classLabels[i];
+            int idx = classMatches[j].x;
+            classArray[idx] = classLabels[i];
+
+            if ( keypoints1[idx].val[0] < xmin )
+            {
+                xmin = keypoints1[idx].val[0];
+            }
+            if ( keypoints1[idx].val[0] > xmax )
+            {
+                xmax = keypoints1[idx].val[0];
+            }
+            if ( keypoints1[idx].val[1] < ymin )
+            {
+                ymin = keypoints1[idx].val[1];
+            }
+            if ( keypoints1[idx].val[1] < ymax )
+            {
+                ymax = keypoints1[idx].val[1];
+            }
+        }
+
+        if ( (int)classMatches.size() > 3 )
+        {
+            classRects[i] = QRectF( xmin, ymin, xmax - xmin, ymax - ymin );
+            classLastSeen[i] = QDateTime::currentDateTime();
         }
     }
     for ( int i = 0; i < (int)keypoints1.size(); i++ )
@@ -404,6 +429,19 @@ IplImage *StereoCapture::getFrame( int cam )
     else
     {
         return frame2;
+    }
+}
+
+void StereoCapture::getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen )
+{
+    for ( int i = 0; i < (int)classLabels.size(); i++ )
+    {
+        if ( classLabels[i] == classNr )
+        {
+            boundingBox = classRects[i];
+            lastSeen = classLastSeen[i];
+            break;
+        }
     }
 }
 
