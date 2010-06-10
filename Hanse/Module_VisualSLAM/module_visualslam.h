@@ -13,7 +13,6 @@
 #include <Module_VisualSLAM/capture/stereocapture.h>
 #include <Module_VisualSLAM/feature/feature.h>
 #include <Module_VisualSLAM/slam/naiveslam.h>
-#include <Module_VisualSLAM/form_visualslam.h>
 
 using namespace std;
 
@@ -62,6 +61,7 @@ public:
       */
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
 
+    void run();
     void start();
     void stop();
 
@@ -72,7 +72,7 @@ public slots:
     void reset();
     void terminate();
     void update();
-    void updateMap();
+    void updateMap( vector<CvMat *> descriptors, vector<CvScalar> pos2D, vector<CvScalar> pos3D, vector<int> classesVector );
 
 signals:
     void healthStatusChanged(HealthStatus data);
@@ -82,10 +82,8 @@ signals:
     void updateFinished();
 
 private:
-    Form_VisualSLAM *form;
     Module_SonarLocalization* sonarLocalization;
     QTimer updateTimer;
-    QThread updateThread;
     QDateTime lastRefreshTime;
     clock_t startClock;
     clock_t stopClock;
@@ -97,11 +95,6 @@ private:
     Feature feature;
     NaiveSLAM slam;
     bool stopped;
-
-    vector<CvMat *> des;
-    vector<CvScalar> pos2D;
-    vector<CvScalar> pos3D;
-    vector<int> classLabels;
 };
 
 #endif // MODULE_VISUALSLAM_H

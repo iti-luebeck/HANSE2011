@@ -89,3 +89,33 @@ void Position::setRoll( double roll )
 {
     this->roll = roll;
 }
+
+double Position::getDepth()
+{
+    return z;
+}
+
+double Position::getArrivalAngle()
+{
+    return yaw;
+}
+
+double Position::getExitAngle()
+{
+    return pitch;
+}
+
+void Position::setDepth( double depth )
+{
+    z = depth;
+}
+
+void Position::setArrivalAngle( double arrivalAngle )
+{
+    yaw = arrivalAngle;
+}
+
+void Position::setExitAngle( double exitAngle )
+{
+    pitch = exitAngle;
+}

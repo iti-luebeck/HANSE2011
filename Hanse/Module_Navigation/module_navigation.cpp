@@ -33,10 +33,28 @@ QList<RobotModule*> Module_Navigation::getDependencies()
 
 QWidget* Module_Navigation::createView(QWidget* parent)
 {
-    return new Form_Navigation(parent);
+    Form_Navigation *form = new Form_Navigation( this, parent );
+    QObject::connect( this, SIGNAL( updatedWaypoints(QMap<QString,Position>) ),
+                      form, SLOT( updateList(QMap<QString,Position>) ) );
+    QObject::connect( form, SIGNAL( removedWaypoint(QString) ),
+                      SLOT( removeWaypoint(QString) ) );
+    updatedWaypoints( waypoints );
+    return form;
 }
 
 void Module_Navigation::doHealthCheck()
 {
 
+}
+
+void Module_Navigation::addWaypoint( QString name, Position pos )
+{
+    waypoints[ name ] = pos;
+    updatedWaypoints( waypoints );
+}
+
+void Module_Navigation::removeWaypoint( QString name )
+{
+    waypoints.remove( name );
+    updatedWaypoints( waypoints );
 }

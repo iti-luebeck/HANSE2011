@@ -24,7 +24,7 @@ void Feature::run()
     IplImage *copy = cvCreateImage( cvSize( image->width / SCALE, image->height / SCALE ), image->depth, image->nChannels );
     cvResize( image, copy, CV_INTER_LINEAR );
     IpVec ipts;
-    surfDetDes( copy, ipts, true, 4, 4, 2, surfThreshold );
+    surfDetDes( copy, ipts, false, 4, 4, 2, surfThreshold );
 
 //    // Convert images to grayscale.
 //    IplImage *copy_gray = cvCreateImage( cvGetSize( copy ), IPL_DEPTH_8U, 1 );
@@ -94,16 +94,16 @@ void Feature::findFeatures(IplImage *image, vector<CvScalar> &keypoints)
 
 void Feature::updateThreshold(int numFeatures)
 {
-    if (numFeatures <= 75)
+    if (numFeatures <= 10)
     {
-        params.hessianThreshold = 0.8 * params.hessianThreshold;
-        surfThreshold = 0.8 * surfThreshold;
+        params.hessianThreshold = 0.9 * params.hessianThreshold;
+        surfThreshold = 0.9 * surfThreshold;
         fastThreshold = fastThreshold -= 5;
     }
-    else if (numFeatures >= 100)
+    else if (numFeatures >= 20)
     {
-        params.hessianThreshold = params.hessianThreshold / 0.8;
-        surfThreshold = surfThreshold / 0.8;
+        params.hessianThreshold = params.hessianThreshold / 0.9;
+        surfThreshold = surfThreshold / 0.9;
         fastThreshold = fastThreshold += 5;
     }
 }
@@ -145,7 +145,7 @@ void Feature::matchFeatures(CvSeq *descriptors1, CvSeq *descriptors2, vector<CvP
         float *dists_ptr = m_dists.ptr<float>( 0 );
         for ( int i = 0; i < m_indices.rows; ++i ) {
 //            qDebug( "d%d = ( %f, %f )", i, dists_ptr[2*i], dists_ptr[2*i+1] );
-            if ( dists_ptr[2*i] < 0.6*dists_ptr[2*i+1] ) {
+            if ( dists_ptr[2*i] < 0.5*dists_ptr[2*i+1] ) {
                 CvPoint p = {i, indices_ptr[2*i]};
                 matches.push_back(p);
             }
@@ -204,8 +204,8 @@ void Feature::matchFeatures( CvMat *descriptors1, CvMat *descriptors2, vector<Cv
         cv::Mat m_indices(descriptors1->height, 2, CV_32S);
         cv::Mat m_dists(descriptors1->height, 2, CV_32F);
         cv::flann::Index flann_index(m_image, cv::flann::KDTreeIndexParams(4));  // using 4 randomized kdtrees
-        cv::flann::Index bf_index( m_image, cv::flann::LinearIndexParams() );
-        bf_index.knnSearch( m_object, m_indices, m_dists, 2, cv::flann::SearchParams( 64 ) ); // maximum number of leafs checked
+        //cv::flann::Index bf_index( m_image, cv::flann::LinearIndexParams() );
+        flann_index.knnSearch( m_object, m_indices, m_dists, 2, cv::flann::SearchParams( 64 ) ); // maximum number of leafs checked
 
         // We found a match if the score of the nearest neighbor is less than
         // 0.6 times that of the second nearest neighbor

@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     surftraining.cpp \
     helpers.cpp \
     surfclassifier.cpp \
-    ../Hanse/Module_VisualSLAM/form_visualslam.cpp
+    ../Hanse/Module_VisualSLAM/form_visualslam.cpp \
+    ../Hanse/Module_Navigation/waypointdialog.cpp
 HEADERS += trainingwindow.h \
     imageprocessor.h \
     SVMClassifier.h \
@@ -33,9 +34,11 @@ HEADERS += trainingwindow.h \
     surftraining.h \
     helpers.h \
     surfclassifier.h \
-    ../Hanse/Module_VisualSLAM/form_visualslam.h
+    ../Hanse/Module_VisualSLAM/form_visualslam.h \
+    ../Hanse/Module_Navigation/waypointdialog.h
 FORMS += trainingwindow.ui \
-    ../Hanse/Module_VisualSLAM/form_visualslam.ui
+    ../Hanse/Module_VisualSLAM/form_visualslam.ui \
+    ../Hanse/Module_Navigation/waypointdialog.ui
 DESTDIR = ../build
 INCLUDEPATH += "../include/opencv"
 LIBPATH += "../OpenCV/lib"

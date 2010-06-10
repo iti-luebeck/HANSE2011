@@ -5,7 +5,7 @@
 #include <time.h>
 #include "../helpers.h"
 
-StereoCapture::StereoCapture(int width, int height, int device1, int device2)
+StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
 {
     // Initialize class variables.
     this->width = width;
@@ -37,6 +37,8 @@ StereoCapture::StereoCapture(int width, int height, int device1, int device2)
         cvTranspose( goalFeatures, goalFeaturesT );
         classFeatures.push_back( goalFeaturesT );
         classLabels.push_back( GOAL_LABEL );
+        classRects.push_back( QRectF() );
+        classLastSeen.push_back( QDateTime() );
     }
     CvMat *ballFeatures = (CvMat *)cvReadByName( fileStorage, NULL, "ball" );
     if ( ballFeatures != NULL )
@@ -45,6 +47,8 @@ StereoCapture::StereoCapture(int width, int height, int device1, int device2)
         cvTranspose( ballFeatures, ballFeaturesT );
         classFeatures.push_back( ballFeaturesT );
         classLabels.push_back( BALL_LABEL );
+        classRects.push_back( QRectF() );
+        classLastSeen.push_back( QDateTime() );
     }
 
     QObject::connect( &feature1, SIGNAL( finished() ), SLOT( surfDone1() ) );
@@ -142,8 +146,8 @@ void StereoCapture::initStereoCalibration()
     mapY_left = cvCreateMat(480, 640, CV_32FC1);
     mapX_right = cvCreateMat(480, 640, CV_32FC1);
     mapY_right = cvCreateMat(480, 640, CV_32FC1);
-    cvInitUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, newCameraMatrix_left, mapX_left, mapY_left);
-    cvInitUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, newCameraMatrix_right, mapX_right, mapY_right);
+    cvInitUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, newCameraMatrix_left, mapX_right, mapY_right);
+    cvInitUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, newCameraMatrix_right, mapX_left, mapY_left);
 
     cvReleaseMat(&newCameraMatrix_left);
     cvReleaseMat(&newCameraMatrix_right);
@@ -159,13 +163,8 @@ void StereoCapture::initStereoCalibration()
     cvReleaseMat(&P2);
 }
 
-void StereoCapture::grab( vector<CvMat *> *descriptors, vector<CvScalar> *pos2D, vector<CvScalar> *pos3D, vector<int> *classesVector)
+void StereoCapture::grab()
 {
-    this->descriptors = descriptors;
-    this->pos2D = pos2D;
-    this->pos3D = pos3D;
-    this->classesVector = classesVector;
-
 //    start = clock();
     if (connected1) VI.getPixels(device1, (unsigned char *)frame1->imageData, true, true);
     if (connected2) VI.getPixels(device2, (unsigned char *)frame2->imageData, true, true);
@@ -189,10 +188,10 @@ void StereoCapture::doCalculations()
     CvMat *descriptors1 = feature1.getDescriptor();
     CvMat *descriptors2 = feature2.getDescriptor();
 
-    pos2D->clear();
-    pos3D->clear();
-    descriptors->clear();
-    classesVector->clear();
+    vector<CvMat *> descriptors;
+    vector<CvScalar> pos2D;
+    vector<CvScalar> pos3D;
+    vector<int> classesVector;
 
     for ( int i = 0; i < (int)keypoints1.size(); i++ )
     {
@@ -244,7 +243,7 @@ void StereoCapture::doCalculations()
     }
     for ( int i = 0; i < (int)keypoints1.size(); i++ )
     {
-        classesVector->push_back( classArray[i] );
+        classesVector.push_back( classArray[i] );
     }
 
     for (int i = 0; i < (int)keypoints2.size(); i++)
@@ -261,16 +260,16 @@ void StereoCapture::doCalculations()
 //    start = clock();
     vector<CvPoint> matches;
     feature1.matchFeatures(descriptors1, descriptors2, matches);
-    feature1.updateThreshold( keypoints1.size() );
-    feature2.updateThreshold( keypoints2.size() );
+    feature1.updateThreshold( matches.size() );
+    feature2.updateThreshold( matches.size() );
 //    stop = clock();
 //    qDebug( "MATCH %0.3f msec (%d pairs)", (double)(1000 * (stop - start) / CLOCKS_PER_SEC), (int)matches.size() );
 
 //    start = clock();
     if ((int)matches.size() > 0)
     {
-        CvMat *xl = cvCreateMat( 2, matches.size(), CV_32F );
-        CvMat *xr = cvCreateMat( 2, matches.size(), CV_32F );
+        CvMat *xl = cvCreateMat( 2, matches.size(), CV_64F );
+        CvMat *xr = cvCreateMat( 2, matches.size(), CV_64F );
         for ( int i = 0; i < (int)matches.size(); i++ )
         {
             int matchix = matches[i].x;
@@ -289,34 +288,59 @@ void StereoCapture::doCalculations()
             {
                 cvmSet( feature, j, 0, cvmGet( descriptors1, matchix, j ) );
             }
-            descriptors->push_back( feature );
+            descriptors.push_back( feature );
 
             // Map is transposed !!!
             point = keypoints1[matchix];
-            cvmSet( xl, 0, i, cvmGet(mapX_left, cvRound(point.val[1]), cvRound(point.val[0])) );
-            cvmSet( xl, 1, i, cvmGet(mapY_left, cvRound(point.val[1]), cvRound(point.val[0])) );
+            float i0f = floor( (float)point.val[0] );
+            float i0c = ceil( (float)point.val[0] );
+            float i1f = floor( (float)point.val[1] );
+            float i1c = ceil( (float)point.val[1] );
+            cvmSet( xl, 0, i, 0.25 * ( cvmGet(mapX_left, i1f, i0f) +
+                                       cvmGet(mapX_left, i1f, i0c) +
+                                       cvmGet(mapX_left, i1c, i0f) +
+                                       cvmGet(mapX_left, i1c, i0c) ) );
+            cvmSet( xl, 1, i, 0.25 * ( cvmGet(mapY_left, i1f, i0f) +
+                                       cvmGet(mapY_left, i1f, i0c) +
+                                       cvmGet(mapY_left, i1c, i0f) +
+                                       cvmGet(mapY_left, i1c, i0c) ) );
 
             point = keypoints2[matchiy];
-            cvmSet( xr, 0, i, cvmGet(mapX_right, cvRound(point.val[1]), cvRound(point.val[0])) );
-            cvmSet( xr, 1, i, cvmGet(mapY_right, cvRound(point.val[1]), cvRound(point.val[0])) );
+            i0f = floor( (float)point.val[0] );
+            i0c = ceil( (float)point.val[0] );
+            i1f = floor( (float)point.val[1] );
+            i1c = ceil( (float)point.val[1] );
+            cvmSet( xr, 0, i, 0.25 * ( cvmGet(mapX_right, i1f, i0f) +
+                                       cvmGet(mapX_right, i1f, i0c) +
+                                       cvmGet(mapX_right, i1c, i0f) +
+                                       cvmGet(mapX_right, i1c, i0c) ) );
+            cvmSet( xr, 1, i, 0.25 * ( cvmGet(mapY_right, i1f, i0f) +
+                                       cvmGet(mapY_right, i1f, i0c) +
+                                       cvmGet(mapY_right, i1c, i0f) +
+                                       cvmGet(mapY_right, i1c, i0c) ) );
         }
 
-        stereoTriangulation( xl, xr, *pos3D, this->newT );
+        stereoTriangulation( xl, xr, pos3D, this->newT );
 
-        if ( (int)pos3D->size() == 0 )
+        if ( (int)pos3D.size() == 0 )
         {
-            descriptors->clear();
-            classesVector->clear();
-        }
-
-        for ( int i = (int)pos3D->size() - 1; i >= 0; i-- )
-        {
-            if ( (*pos3D)[i].val[2] > 10 || (*pos3D)[i].val[2] < 0.5 )
+            for ( int i = 0; i < (int)descriptors.size(); i++ )
             {
-                pos3D->erase( pos3D->begin() + i );
-                cvReleaseMat( &(*descriptors)[i] );
-                descriptors->erase( descriptors->begin() + i );
-                classesVector->erase( classesVector->begin() + i );
+                cvReleaseMat( &descriptors[i] );
+            }
+            descriptors.clear();
+            classesVector.clear();
+        }
+
+        for ( int i = (int)pos3D.size() - 1; i >= 0; i-- )
+        {
+//            qDebug( "%f, %f, %f", pos3D[i].val[0], pos3D[i].val[1], pos3D[i].val[2] );
+            if ( pos3D[i].val[2] > 15 || pos3D[i].val[2] < 1.0 )
+            {
+                pos3D.erase( pos3D.begin() + i );
+                cvReleaseMat( &descriptors[i] );
+                descriptors.erase( descriptors.begin() + i );
+                classesVector.erase( classesVector.begin() + i );
             }
         }
     }
@@ -328,7 +352,7 @@ void StereoCapture::doCalculations()
 //    cvReleaseMat( &descriptors2 );
 //    descriptors2 = 0;
 
-    done();
+    grabFinished( descriptors, pos2D, pos3D, classesVector );
 }
 
 void StereoCapture::normalizePixels(CvMat *x, CvMat *xn, double f, double cm, double cn)
@@ -344,8 +368,8 @@ void StereoCapture::normalizePixels(CvMat *x, CvMat *xn, double f, double cm, do
 void StereoCapture::stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> &X, double T)
 {
     // Normalize pixels. Normalized pixels will be in homogeneous coordinates.
-    CvMat *xln = cvCreateMat( 3, xl->cols, CV_32F );
-    CvMat *xrn = cvCreateMat( 3, xr->cols, CV_32F );
+    CvMat *xln = cvCreateMat( 3, xl->cols, CV_64F );
+    CvMat *xrn = cvCreateMat( 3, xr->cols, CV_64F );
     normalizePixels( xl, xln, this->f, this->cm, this->cn );
     normalizePixels( xr, xrn, this->f, this->cm, this->cn );
 
@@ -357,41 +381,53 @@ void StereoCapture::stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> &
     int nGreaterZero = 0;
     int nSmallerZero = 0;
 
+
     for ( int i = 0; i < xl->cols; i++ )
     {
-        n_ll = cvmGet(xln, 0, i)*cvmGet(xln, 0, i) + cvmGet(xln, 1, i)*cvmGet(xln, 1, i) + cvmGet(xln, 2, i)*cvmGet(xln, 2, i);
-        n_rr = cvmGet(xrn, 0, i)*cvmGet(xrn, 0, i) + cvmGet(xrn, 1, i)*cvmGet(xrn, 1, i) + cvmGet(xrn, 2, i)*cvmGet(xrn, 2, i);
-        n_lT = cvmGet(xln, 0, i) * T; //cvmGet(xln, 0, i)*cvmGet(T, 0, 0) + cvmGet(xln, 1, i)*cvmGet(T, 1, 0) + cvmGet(xln, 2, i)*cvmGet(T, 2, 0);
-        n_rT = cvmGet(xrn, 0, i) * T; //cvmGet(xrn, 0, i)*cvmGet(T, 0, 0) + cvmGet(xrn, 1, i)*cvmGet(T, 1, 0) + cvmGet(xrn, 2, i)*cvmGet(T, 2, 0);
-        n_rl = cvmGet(xln, 0, i)*cvmGet(xrn, 0, i) + cvmGet(xln, 1, i)*cvmGet(xrn, 1, i) + cvmGet(xln, 2, i)*cvmGet(xrn, 2, i);
-
-        DD = n_ll*n_rr - n_rl*n_rl;
-        NN1 = n_rl*n_rT - n_rr*n_lT;
-        NN2 = n_ll*n_rT - n_lT*n_rl;
-
-        Z1 = NN1 / DD;
-        Z2 = NN2 / DD;
-
-        X11 = cvmGet(xln, 0, i) * Z1;
-        X12 = cvmGet(xln, 1, i) * Z1;
-        X13 = cvmGet(xln, 2, i) * Z1;
-        X21 = cvmGet(xrn, 0, i) * (Z2 - T); //cvmGet(xrn, 0, i) * (Z2 - cvmGet(T, 0, 0));
-        X22 = cvmGet(xrn, 1, i) * Z2; //cvmGet(xrn, 1, i) * (Z2 - cvmGet(T, 1, 0));
-        X23 = cvmGet(xrn, 2, i) * Z2; //cvmGet(xrn, 2, i) * (Z2 - cvmGet(T, 2, 0));
-
-        CvScalar pos = cvScalar( 0.5 * (X11 + X21) / 1000,
-                                 0.5 * (X12 + X22) / 1000,
-                                 0.5 * (X13 + X23) / 1000 );
-        if ( X13 + X23 > 0 )
+        if ( fabs( cvmGet( xl, 1, i ) - cvmGet( xr, 1, i ) ) > 5 )
         {
-            nGreaterZero++;
+            X.push_back( cvScalar( 0, 0, 0 ) );
         }
         else
         {
-            nSmallerZero++;
-        }
+//        qDebug( "xL = [%f, %f]'", cvmGet(xl, 0, i), cvmGet(xl, 1, i) );
+//        qDebug( "xR = [%f, %f]'", cvmGet(xr, 0, i), cvmGet(xr, 1, i) );
+//        qDebug( "xln = [%f, %f]'", cvmGet(xln, 0, i), cvmGet(xln, 1, i) );
+//        qDebug( "xrn = [%f, %f]'", cvmGet(xrn, 0, i), cvmGet(xrn, 1, i) );
+            n_ll = cvmGet(xln, 0, i)*cvmGet(xln, 0, i) + cvmGet(xln, 1, i)*cvmGet(xln, 1, i) + cvmGet(xln, 2, i)*cvmGet(xln, 2, i);
+            n_rr = cvmGet(xrn, 0, i)*cvmGet(xrn, 0, i) + cvmGet(xrn, 1, i)*cvmGet(xrn, 1, i) + cvmGet(xrn, 2, i)*cvmGet(xrn, 2, i);
+            n_lT = cvmGet(xln, 0, i) * T; //cvmGet(xln, 0, i)*cvmGet(T, 0, 0) + cvmGet(xln, 1, i)*cvmGet(T, 1, 0) + cvmGet(xln, 2, i)*cvmGet(T, 2, 0);
+            n_rT = cvmGet(xrn, 0, i) * T; //cvmGet(xrn, 0, i)*cvmGet(T, 0, 0) + cvmGet(xrn, 1, i)*cvmGet(T, 1, 0) + cvmGet(xrn, 2, i)*cvmGet(T, 2, 0);
+            n_rl = cvmGet(xln, 0, i)*cvmGet(xrn, 0, i) + cvmGet(xln, 1, i)*cvmGet(xrn, 1, i) + cvmGet(xln, 2, i)*cvmGet(xrn, 2, i);
 
-        X.push_back(pos);
+            DD = n_ll*n_rr - n_rl*n_rl;
+            NN1 = n_rl*n_rT - n_rr*n_lT;
+            NN2 = n_ll*n_rT - n_lT*n_rl;
+
+            Z1 = NN1 / DD;
+            Z2 = NN2 / DD;
+
+            X11 = cvmGet(xln, 0, i) * Z1;
+            X12 = cvmGet(xln, 1, i) * Z1;
+            X13 = cvmGet(xln, 2, i) * Z1;
+            X21 = cvmGet(xrn, 0, i) * (Z2 - T); //cvmGet(xrn, 0, i) * (Z2 - cvmGet(T, 0, 0));
+            X22 = cvmGet(xrn, 1, i) * Z2; //cvmGet(xrn, 1, i) * (Z2 - cvmGet(T, 1, 0));
+            X23 = cvmGet(xrn, 2, i) * Z2; //cvmGet(xrn, 2, i) * (Z2 - cvmGet(T, 2, 0));
+
+            CvScalar pos = cvScalar( 0.5 * (X11 + X21) / 1000,
+                                     0.5 * (X12 + X22) / 1000,
+                                     0.5 * (X13 + X23) / 1000 );
+            if ( X13 + X23 > 0 )
+            {
+                nGreaterZero++;
+            }
+            else
+            {
+                nSmallerZero++;
+            }
+
+            X.push_back(pos);
+        }
     }
 
     // Check if left and right were switched.
@@ -471,4 +507,9 @@ void StereoCapture::surfDone2()
     {
         done2 = true;
     }
+}
+
+void StereoCapture::setMutex( QMutex *mutex )
+{
+    grabMutex = mutex;
 }

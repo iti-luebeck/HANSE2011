@@ -33,6 +33,7 @@ public:
 
     Position& operator=( const Position& );
 
+    // Setters & Getters for using Position as a 6D position.
     double getX();
     double getY();
     double getZ();
@@ -48,6 +49,15 @@ public:
     void setYaw(double);
     void setPitch(double);
     void setRoll(double);
+
+    // Setters & Getters for using Position as a waypoint position.
+    double getDepth();
+    double getArrivalAngle();
+    double getExitAngle();
+
+    void setDepth( double depth );
+    void setArrivalAngle( double arrivalAngle );
+    void setExitAngle( double exitAngle );
 
 private:
     double x;

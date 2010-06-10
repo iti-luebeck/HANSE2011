@@ -62,6 +62,5 @@ void Form_VisualSLAM::on_zoomInButton_clicked()
 
 void Form_VisualSLAM::on_resetButton_clicked()
 {
-    QMutexLocker lockerUpdate( visualSlam->getUpdateMutex() );
     visualSlam->reset();
 }

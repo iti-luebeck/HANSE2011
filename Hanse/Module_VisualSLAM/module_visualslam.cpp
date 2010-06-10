@@ -1,37 +1,44 @@
 #include "module_visualslam.h"
 
 #include <Module_SonarLocalization/module_sonarlocalization.h>
+#include <Module_VisualSLAM/form_visualslam.h>
 #include <QtGui>
 
-Module_VisualSLAM::Module_VisualSLAM(QString id, Module_SonarLocalization *sonarLocalization)
-    : RobotModule(id)
+Module_VisualSLAM::Module_VisualSLAM(QString id, Module_SonarLocalization *sonarLocalization) :
+        RobotModule(id)
 {
     this->sonarLocalization = sonarLocalization;
-
-    form = new Form_VisualSLAM( this, NULL );
+    cap.setMutex( &updateMutex );
 
     // updateThread.start();
-    // updateTimer.moveToThread( &updateThread );
+    // updateTimer.moveToThread( this );
     QObject::connect( &updateTimer, SIGNAL( timeout() ), SLOT( update() ) );
 
-    scene = new QGraphicsScene( 5, 5, 470, 310, form );
-    form->setScene( scene );
+    scene = new QGraphicsScene( 5, 5, 470, 310, NULL );
 
-    QObject::connect( &cap, SIGNAL( done() ), SLOT( updateMap() ) );
+    QObject::connect( &cap, SIGNAL( grabFinished( vector<CvMat *>, vector<CvScalar>, vector<CvScalar>, vector<int> ) ),
+                      SLOT( updateMap( vector<CvMat *>, vector<CvScalar>, vector<CvScalar>, vector<int> ) ) );
 
     stopped = true;
+}
+
+void Module_VisualSLAM::run()
+{
+
 }
 
 void Module_VisualSLAM::start()
 {
     logger->info( "Started" );
-    updateTimer.start( 700 );
+    updateTimer.start( 0 );
+    stopped = false;
 }
 
 void Module_VisualSLAM::stop()
 {
     logger->info( "Stopped" );
     updateTimer.stop();
+    stopped = true;
 }
 
 void Module_VisualSLAM::reset()
@@ -47,23 +54,24 @@ void Module_VisualSLAM::terminate()
 
 void Module_VisualSLAM::update()
 {
-    updateMutex.lock();
+    updateTimer.stop();
     startClock = clock();
-    cap.grab( &des, &pos2D, &pos3D, &classLabels );
+    cap.grab();
 }
 
-void Module_VisualSLAM::updateMap()
+void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>pos2D,
+                                   vector<CvScalar>pos3D, vector<int>classesVector )
 {
     stopClock = clock();
     logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     startClock = clock();
-    slam.update( des, pos3D, pos2D, classLabels );
-    for ( int i = 0; i < des.size(); i++ )
+    slam.update( descriptors, pos3D, pos2D, classesVector );
+    for ( int i = 0; i < descriptors.size(); i++ )
     {
-        cvReleaseMat( &des[i] );
+        cvReleaseMat( &descriptors[i] );
     }
-    des.clear();
+    descriptors.clear();
     stopClock = clock();
     logger->debug( QString( "UPDATE %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
@@ -103,8 +111,6 @@ void Module_VisualSLAM::updateMap()
                    .arg( pos.getYaw(), 0, 'f', 3 )
                    .arg( slam.getConfidence(), 0, 'E', 3 ) );
 
-    updateMutex.unlock();
-
     // Update current position.
     QVector3D translation( pos.getX(), pos.getY(), pos.getZ() );
     data["Translation"] = translation;
@@ -121,6 +127,11 @@ void Module_VisualSLAM::updateMap()
 
     emit dataChanged( this );
     emit updateFinished();
+
+    if ( !stopped )
+    {
+        updateTimer.start( 0 );
+    }
 }
 
 QList<RobotModule*> Module_VisualSLAM::getDependencies()
@@ -132,7 +143,8 @@ QList<RobotModule*> Module_VisualSLAM::getDependencies()
 
 QWidget* Module_VisualSLAM::createView(QWidget* parent)
 {
-    form->setParent( parent );
+    Form_VisualSLAM *form = new Form_VisualSLAM( this, parent );
+    form->setScene( scene );
     return form;
 }
 

@@ -1,6 +1,6 @@
 #include "quaternion.h"
 
-Quaternion::Quaternion( double w, double x, double y, double z )
+Quaternion::Quaternion( float w, float x, float y, float z )
 {
     this->w = w;
     this->x = x;
@@ -27,13 +27,13 @@ CvMat *Quaternion::getRotation()
     return R;
 }
 
-void Quaternion::getYawPitchRoll( double &yaw, double &pitch, double &roll )
+void Quaternion::getYawPitchRoll( float &yaw, float &pitch, float &roll )
 {
     yaw = atan2( 2 * ( x*y + w*z ), w*w  + x*x - y*y - z*z ) * 180 / CV_PI;
     pitch = asin( -2 * ( x*z - w*y ) ) * 180 / CV_PI;
     roll = atan2( 2 * ( w*x + y*z ), w*w - x*x - y*y + z*z ) * 180 / CV_PI;
 
-    double temp = pitch;
+    float temp = pitch;
     pitch = roll;
     roll = yaw;
     yaw = temp;
@@ -43,17 +43,17 @@ Quaternion Quaternion::fromRotation( CvMat *R )
 {
     Quaternion q;
 
-    double d0 = cvmGet( R, 0, 0 );
-    double d1 = cvmGet( R, 1, 1 );
-    double d2 = cvmGet( R, 2, 2 );
-    double xx = 1 + d0 - d1 - d2;
-    double yy = 1 - d0 + d1 - d2;
-    double zz = 1 - d0 - d1 + d2;
-    double ww = 1 + d0 + d1 + d2;
+    float d0 = cvmGet( R, 0, 0 );
+    float d1 = cvmGet( R, 1, 1 );
+    float d2 = cvmGet( R, 2, 2 );
+    float xx = 1 + d0 - d1 - d2;
+    float yy = 1 - d0 + d1 - d2;
+    float zz = 1 - d0 - d1 + d2;
+    float ww = 1 + d0 + d1 + d2;
 
     if ( ww >= xx && ww >= yy && ww >= zz )
     {
-        double ws = 2 * sqrt(ww);
+        float ws = 2 * sqrt(ww);
         q.x = ( cvmGet( R, 2, 1 ) - cvmGet( R, 1, 2 ) ) / ws;
         q.y = ( cvmGet( R, 0, 2 ) - cvmGet( R, 2, 0 ) ) / ws;
         q.z = ( cvmGet( R, 1, 0 ) - cvmGet( R, 0, 1 ) ) / ws;
@@ -61,7 +61,7 @@ Quaternion Quaternion::fromRotation( CvMat *R )
     }
     else if ( xx >= yy && xx >= zz )
     {
-        double xs = 2 * sqrt(xx);
+        float xs = 2 * sqrt(xx);
         q.x = xs / 4;
         q.y = ( cvmGet( R, 1, 0 ) + cvmGet( R, 0, 1 ) ) / xs;
         q.z = ( cvmGet( R, 2, 0 ) + cvmGet( R, 0, 2 ) ) / xs;
@@ -69,7 +69,7 @@ Quaternion Quaternion::fromRotation( CvMat *R )
     }
     else if ( yy >= zz )
     {
-        double ys = 2 * sqrt(yy);
+        float ys = 2 * sqrt(yy);
         q.x = ( cvmGet( R, 1, 0 ) + cvmGet( R, 0, 1 ) ) / ys;
         q.y = ys / 4;
         q.z = ( cvmGet( R, 2, 1 ) + cvmGet( R, 1, 2 ) ) / ys;
@@ -77,7 +77,7 @@ Quaternion Quaternion::fromRotation( CvMat *R )
     }
     else
     {
-        double zs = 2 * sqrt(zz);
+        float zs = 2 * sqrt(zz);
         q.x = ( cvmGet( R, 2, 0 ) + cvmGet( R, 0, 2 ) ) / zs;
         q.y = ( cvmGet( R, 2, 1 ) + cvmGet( R, 1, 2 ) ) / zs;
         q.z = zs / 4;
@@ -87,14 +87,14 @@ Quaternion Quaternion::fromRotation( CvMat *R )
     return q;
 }
 
-Quaternion Quaternion::fromYawPitchRoll( double yaw, double pitch, double roll )
+Quaternion Quaternion::fromYawPitchRoll( float yaw, float pitch, float roll )
 {
-    double cy = cos( yaw / 2 );
-    double cp = cos( pitch / 2 );
-    double cr = cos( roll / 2 );
-    double sy = sin( yaw / 2 );
-    double sp = sin( pitch / 2 );
-    double sr = sin( roll / 2 );
+    float cy = cos( yaw / 2 );
+    float cp = cos( pitch / 2 );
+    float cr = cos( roll / 2 );
+    float sy = sin( yaw / 2 );
+    float sp = sin( pitch / 2 );
+    float sr = sin( roll / 2 );
 
     Quaternion q;
     q.w = cy * cp * cr + sy * sp * sr;
@@ -129,7 +129,7 @@ Quaternion Quaternion::rotate( Quaternion q1, Quaternion q2 )
     return q1 * q2;
 }
 
-double Quaternion::norm()
+float Quaternion::norm()
 {
 
     return sqrt( w*w + x*x + y*y + z*z );
@@ -137,7 +137,7 @@ double Quaternion::norm()
 
 void Quaternion::normalize()
 {
-    double d = norm();
+    float d = norm();
     w = w / d;
     x = x / d;
     y = y / d;

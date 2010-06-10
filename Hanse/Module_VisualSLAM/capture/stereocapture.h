@@ -3,13 +3,16 @@
 
 #include <QRectF>
 #include <QDateTime>
+#include <QMutex>
 #include <opencv/cxcore.h>
 #include <vector>
 #include "videoInput.h"
-#include "../feature/feature.h"
+#include <Module_VisualSLAM/feature/feature.h>
 
 #define GOAL_LABEL  1
 #define BALL_LABEL  2
+
+class Module_VisualSLAM;
 
 using namespace std;
 
@@ -20,10 +23,11 @@ class StereoCapture : public QObject
 public:
     StereoCapture( int width = 640, int height = 480, int device1 = 0, int device2 = 1 );
     ~StereoCapture();
-    void grab( vector<CvMat *> *descriptors, vector<CvScalar> *pos2D, vector<CvScalar> *pos3D, vector<int> *classLabel );
+    void grab();
     bool isConnected( int device );
     IplImage *getFrame( int cam );
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
+    void setMutex( QMutex *mutex );
 
 public slots:
     void surfDone1();
@@ -79,8 +83,10 @@ private:
     vector<QRectF> classRects;
     vector<QDateTime> classLastSeen;
 
+    QMutex *grabMutex;
+
 signals:
-    void done();
+    void grabFinished( vector<CvMat *> descriptors, vector<CvScalar> pos2D, vector<CvScalar> pos3D, vector<int> classesVector );
 };
 
 #endif // STEREOCAPTURE_H

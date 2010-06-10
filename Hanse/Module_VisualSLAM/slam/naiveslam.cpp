@@ -20,10 +20,10 @@ NaiveSLAM::NaiveSLAM()
     cvSetIdentity( Robservation, cvScalar( 0.09 ) );
 
     Rstate = cvCreateMat( 7, 7, CV_32F );
-    cvSetIdentity( Rstate, cvScalar( 0.01 ) );
-    cvmSet( Rstate, 0, 0, 0.2 );
-    cvmSet( Rstate, 1, 1, 0.2 );
-    cvmSet( Rstate, 2, 2, 0.2 );
+    cvSetIdentity( Rstate, cvScalar( 0.09 ) );
+    cvmSet( Rstate, 0, 0, 0.25 );
+    cvmSet( Rstate, 1, 1, 0.25 );
+    cvmSet( Rstate, 2, 2, 0.25 );
 
     Gobservation = cvCreateMat( 3, 3, CV_32F );
     Gstate = cvCreateMat( 3, 7, CV_32F );
@@ -101,9 +101,9 @@ bool NaiveSLAM::update( vector<CvMat *> descriptor, vector<CvScalar> &pos3D, vec
 
         delete( found );
 
-        double yaw;
-        double pitch;
-        double roll;
+        float yaw;
+        float pitch;
+        float roll;
         currentRotation.getYawPitchRoll( yaw, pitch, roll );
         double x = cvmGet( currentTranslation, 0, 0 );
         double y = cvmGet( currentTranslation, 1, 0 );
@@ -120,7 +120,9 @@ bool NaiveSLAM::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> m
 //    clock_t start, stop;
 //    start = clock();
 
-    lastRotation = currentRotation;
+    lastRotation = currentRotation;    
+    qDebug( "Last Rotation:" );
+    qDebug( "%s", lastRotation.toString().toStdString().c_str() );
     cvCopy( currentTranslation, lastTranslation );
 
     int numPositions = (int)newPositions.size();
@@ -128,7 +130,7 @@ bool NaiveSLAM::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> m
     bool *tempConsensusSet = new bool[numPositions];
     int maxConsensus = 0;
     int tempMaxConsensus = 0;
-    for ( int i = 0; i < 40; i++ )
+    for ( int i = 0; i < 100; i++ )
     {
         // Calculate position with three random samples.
         memset( tempConsensusSet, false, numPositions*sizeof(bool) );
@@ -136,7 +138,7 @@ bool NaiveSLAM::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> m
         calcPosition( newPositions, matches, tempConsensusSet, 3 );
 
         // Check which samples are inside the threshold.
-        errorGreaterT( newPositions, matches, 0.3, tempConsensusSet, tempMaxConsensus );
+        errorGreaterT( newPositions, matches, 0.5, tempConsensusSet, tempMaxConsensus );
 
         // Update maximum consensus set if the consensus is higher.
         if ( tempMaxConsensus > maxConsensus )
@@ -144,7 +146,7 @@ bool NaiveSLAM::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> m
             maxConsensus = tempMaxConsensus;
             memcpy( maxConsensusSet, tempConsensusSet, numPositions*sizeof(bool) );
 
-            if ( maxConsensus > (int)(0.7 * ((double)numPositions)) )
+            if ( maxConsensus > (int)(0.8 * ((double)numPositions)) )
             {
                 break;
             }
@@ -152,10 +154,14 @@ bool NaiveSLAM::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> m
     }
 
     // Calculate rotation and translation for maximum consensus set.
-//    qDebug( "maximum consensus: %d", maxConsensus );
+    qDebug( "maximum consensus: %d / %d", maxConsensus, numPositions );
     if ( maxConsensus >= 3 )
     {
         calcPosition( newPositions, matches, maxConsensusSet, maxConsensus );
+        qDebug( "Rotation:" );
+        qDebug( "%s", currentRotation.toString().toStdString().c_str() );
+        qDebug( "Translation:" );
+        qDebug( "%1.4f %1.4f %1.4f", cvmGet( currentTranslation, 0, 0 ), cvmGet( currentTranslation, 1, 0 ), cvmGet( currentTranslation, 2, 0 ) );
 
         if ( inited )
         {
@@ -164,7 +170,7 @@ bool NaiveSLAM::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> m
             Quaternion diffRotation = lastRotation - currentRotation;
             double normRotation = diffRotation.norm();
 //            qDebug( "Td = %f, Rd = %f", normTranslation, normRotation );
-            if ( normTranslation > 0.5 || normRotation > 0.2 )
+            if ( normTranslation > 2.0 || normRotation > 0.7 )
             {
                 success = false;
                 qDebug( "No SUCCESS: R = %f, t = %f", normRotation, normTranslation );
@@ -190,10 +196,10 @@ bool NaiveSLAM::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> m
         cvCopy( lastTranslation, currentTranslation );
     }
 
-//    qDebug( "Rotation:" );
-//    qDebug( "%s", currentRotation.toString().toStdString().c_str() );
-//    qDebug( "Translation:" );
-//    qDebug( "%1.4f %1.4f %1.4f", cvmGet( currentTranslation, 0, 0 ), cvmGet( currentTranslation, 1, 0 ), cvmGet( currentTranslation, 2, 0 ) );
+    qDebug( "Rotation:" );
+    qDebug( "%s", currentRotation.toString().toStdString().c_str() );
+    qDebug( "Translation:" );
+    qDebug( "%1.4f %1.4f %1.4f", cvmGet( currentTranslation, 0, 0 ), cvmGet( currentTranslation, 1, 0 ), cvmGet( currentTranslation, 2, 0 ) );
 
     delete( tempConsensusSet );
     delete( maxConsensusSet );
@@ -210,9 +216,9 @@ void NaiveSLAM::drawRandomSamples( int num, bool *selected )
     while (count != 3)
     {
         int r = rand() % num;
-//        qDebug( "%d", r );
         if ( !selected[r] )
         {
+//            qDebug( "%d", r );
             selected[r] = true;
             count++;
         }
@@ -311,10 +317,10 @@ void NaiveSLAM::errorGreaterT( vector<CvScalar> newPositions, vector<CvPoint> ma
             cvmSet( tempLocalPosition, j, 0, newPositions[matches[i].x].val[j] );
         }
         tempGlobalPosition = landmarks[matches[i].y]->getPos();
-//        printMatrix( tempGlobalPosition, "global position" );
+        //printMatrix( tempGlobalPosition, "global position" );
         Quaternion::rotate( currentRotation, tempLocalPosition );
         cvAdd( tempLocalPosition, currentTranslation, tempLocalPosition );
-//        printMatrix( tempLocalPosition, "local position" );
+        //printMatrix( tempLocalPosition, "local position" );
         //cvMatMulAdd( this->currentRotation, tempLocalPosition, this->currentTranslation, temp );
         double norm = cvNorm( tempLocalPosition, tempGlobalPosition );
 
@@ -338,6 +344,9 @@ void NaiveSLAM::updateMap( vector<CvMat *> newFeatures, vector<CvScalar> newPosi
     CvMat *newPosition = cvCreateMat( 3, 1, CV_32F );
     CvMat *expectedPosition = cvCreateMat( 3, 1, CV_32F );
     CvMat *R = currentRotation.getRotation();
+    int oldLandmarkCount = (int)landmarks.size();
+    bool *toDelete = new bool[oldLandmarkCount];
+    memset( toDelete, false, oldLandmarkCount * sizeof(bool) );
 //    clock_t start, stop;
 //    start = clock();
 
@@ -400,7 +409,8 @@ void NaiveSLAM::updateMap( vector<CvMat *> newFeatures, vector<CvScalar> newPosi
 //        else
 //            obj.valid(matches(i)) = false;
 //        end
-        if ( p > 0.001 )
+        double p0 = 0.01;
+        if ( p > p0 )
         {
             cvInv( Z, Zinv, CV_SVD );
             cvInv( Sigma, Sigmainv, CV_SVD );
@@ -427,18 +437,10 @@ void NaiveSLAM::updateMap( vector<CvMat *> newFeatures, vector<CvScalar> newPosi
         }
         else
         {
-            confidence *= 0.001;
+            toDelete[matches[i].y] = true;
+            confidence *= p0;
         }
     }
-
-    cvmSet( currentTranslation, 0, 0, cvmGet( sfilt, 0, 0 ) );
-    cvmSet( currentTranslation, 1, 0, cvmGet( sfilt, 1, 0 ) );
-    cvmSet( currentTranslation, 2, 0, cvmGet( sfilt, 2, 0 ) );
-    currentRotation.w = cvmGet( sfilt, 3, 0 );
-    currentRotation.x = cvmGet( sfilt, 4, 0 );
-    currentRotation.y = cvmGet( sfilt, 5, 0 );
-    currentRotation.z = cvmGet( sfilt, 6, 0 );
-    currentRotation.normalize();
 
     cvReleaseMat( &Sigma );
     cvReleaseMat( &Sigmainv );
@@ -490,6 +492,20 @@ void NaiveSLAM::updateMap( vector<CvMat *> newFeatures, vector<CvScalar> newPosi
 //    stop = clock();
 //    qDebug( "NEW LANDMARKS %0.3f msec", (double)(1000 * (stop - start) / CLOCKS_PER_SEC) );
 
+    // Delete bad landmarks.
+    /*
+    for ( int i = oldLandmarkCount - 1; i >= 0; i-- )
+    {
+        if ( toDelete[i] )
+        {
+            delete( landmarks[i] );
+            landmarks.erase( landmarks.begin() + i );
+            cvSeqRemove( features, i );
+        }
+    }
+    */
+
+    delete( toDelete );
     cvReleaseMat( &newPosition );
     cvReleaseMat( &expectedPosition );
     cvReleaseMat( &R );

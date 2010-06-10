@@ -75,21 +75,25 @@ public slots:
       */
     void reset();
     void terminate();
+    void addWaypoint( QString name, Position pos );
+    void removeWaypoint( QString name );
 
 signals:
     void healthStatusChanged(HealthStatus data);
 
     void reachedWaypoint(QString waypoint);
     void failedToReachWayPoint(QString waypoint);
+    void updatedWaypoints( QMap<QString, Position> waypoints );
 
 protected:
     virtual void doHealthCheck();
 
-private:
+private:    
     Position defaultPos;
     Module_Localization *localization;
     Module_ThrusterControlLoop* tcl;
     QMap<QDateTime, QString> history;
+    QMap<QString, Position> waypoints;
 
 };
 #endif // MODULE_NAVIGATION_H
