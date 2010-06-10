@@ -7,6 +7,8 @@
 #include <opencv/cv.h>
 
 class Module_ScanningSonar;
+class SonarEchoFilter;
+class SonarParticleFilter;
 
 class Module_SonarLocalization : public RobotModule {
     Q_OBJECT
@@ -56,33 +58,10 @@ signals:
     void newLocalizationEstimate();
     void lostLocalization();
 
-private slots:
-    void newSonarData(SonarReturnData data);
-
 private:
-
-    const static int N = 250;
-
-    const static float stdDevInWindowTH = 0.04;
-    const static float meanBehindTH = 1;
-
-    QMap<QDateTime,QVector<double> > rawHistory;
-    QMap<QDateTime,QVector<double> > filteredHistory;
-    QMap<QDateTime, int > kHistory;
-    QMap<QDateTime, QVector<double> > threshHistory;
-    QMap<QDateTime, QVector<double> > varHistory;
-    QMap<QDateTime, QVector<double> > meanHistory;
-    QVector<int> K_history;
-
     Module_ScanningSonar* sonar;
-
-    cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
-
-    int findWall(SonarReturnData data,const cv::Mat& echo);
-
-    cv::Mat byteArray2Mat(QByteArray array);
-    QVector<double> mat2QVector(cv::Mat& mat);
-
+    SonarEchoFilter* filter;
+    SonarParticleFilter* pf;
 
 };
 
