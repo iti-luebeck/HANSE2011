@@ -9,6 +9,8 @@ int main(int argc, char *argv[])
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, ".");
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
+    qsrand(42);
+
     HanseApp a(argc,argv);
 
     MainWindow w;
