@@ -98,6 +98,8 @@ private:
 private slots:
     void timerSlot();
 
+signals:
+    void printFrameOnUi(cv::Mat &frame);
 
 };
 

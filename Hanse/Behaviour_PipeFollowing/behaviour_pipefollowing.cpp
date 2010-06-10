@@ -8,10 +8,6 @@
 
 
 //using namespace cv;
-//
-//ui->leftLabel->setPixmap(QPixmap::fromImage(image1));
-//
-//QImage image2((unsigned char*)cap.getFrame(1)->imageData, 640, 480, QImage::Format_RGB888);
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl)
     : RobotBehaviour(id)
@@ -32,6 +28,8 @@ bool Behaviour_PipeFollowing::isActive()
 void Behaviour_PipeFollowing::start()
 {
     vc = VideoCapture(Behaviour_PipeFollowing::cameraID);
+    if(!vc.isOpened())
+        logger->error("cannot open camera device");
     Behaviour_PipeFollowing::active = true;
     timer.start(1000);
 }
@@ -56,7 +54,6 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
     return form;
 }
 
-
 void Behaviour_PipeFollowing::timerSlot()
 {
     logger->debug("timerSlot");
@@ -64,13 +61,14 @@ void Behaviour_PipeFollowing::timerSlot()
 
     if(!vc.isOpened())
     {
-        logger->error("cannot open camera device");
+        logger->error("cannot retrive frame from camera device");
     }
     vc.retrieve(frame,0);
-    Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
-    Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
-    Behaviour_PipeFollowing::updateData();
+//    Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
+//    Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
+//    Behaviour_PipeFollowing::updateData();
 }
+
 
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
@@ -99,13 +97,12 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
 {
     vc = VideoCapture(videoFile.toStdString());
-//    logger->debug("Open video = " + QString::number(vc.isOpened()));
     if (!vc.isOpened())
     {
         logger->error("cannot open videofile");
     }
-    namedWindow("Image", 1);
-    namedWindow("Canny",1);
+
+    namedWindow("image",1);
     Mat frame, binaryFrame;
     for(;;)
     {
@@ -116,8 +113,8 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
         Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
     }
     vc.release();
-    cvDestroyWindow("Image");
-    cvDestroyWindow("Canny");
+
+
 
 
 }
@@ -158,6 +155,7 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
         /*debug */
         if(debug)
         {
+             namedWindow("Canny",1);
             imshow("Canny",frameHSV);
             u = waitKey();
             imshow("Canny",h);
@@ -170,6 +168,7 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
             u = waitKey();
             imshow("Canny",binaryFrame);
             u = waitKey();
+              cvDestroyWindow("Canny");
 
         }
     }
@@ -278,10 +277,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         line( frame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(0,255,0), 3, 8 );
 
         /* ins Qt Widget malen */
-//        QImage image1((unsigned char*)frame, 640, 480, QImage::Format_RGB888);
-//        form->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
+        emit printFrameOnUi(frame);
 
-        imshow("Image",frame);
 
         if(debug)
         {
@@ -398,3 +395,4 @@ void Behaviour_PipeFollowing::updateData()
  data["robCenter.y"] = robCenter.y;
  data["potential Vector"] = potentialVec;
 }
+

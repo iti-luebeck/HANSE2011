@@ -30,6 +30,9 @@ private slots:
     void on_openVideofileButton_clicked();
     void on_startFromVideoFileButton_clicked();
     void on_startPipeFollowingButton_clicked();
+
+public slots:
+    void printFrame(cv::Mat &frame);
 };
 
 #endif // PIPEFOLLOWINGFORM_H
