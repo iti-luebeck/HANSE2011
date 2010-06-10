@@ -212,6 +212,7 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
 
     int sendRet = uid->write(send);
     if (sendRet==-1) {
+        uid->flush();
         setHealthToSick("Connection to UID died: "+uid->errorString());
         lastError = E_USB;
         return false;
