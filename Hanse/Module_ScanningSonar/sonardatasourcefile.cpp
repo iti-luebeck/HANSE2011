@@ -15,6 +15,7 @@ SonarDataSourceFile::SonarDataSourceFile(Module_ScanningSonar& parent, QString p
         file = NULL;
         return;
     }
+
     this->stream = new QDataStream(file);
 }
 
@@ -24,6 +25,7 @@ const SonarReturnData SonarDataSourceFile::getNextPacket()
 
     // skip until we are at the startTime
     SonarReturnData p = readPacket();
+    // TODO: will block until the file is finished
     while (p.isPacketValid() && startTime>p.dateTime) {
         p = readPacket();
     }
@@ -66,8 +68,7 @@ SonarReturnData SonarDataSourceFile::readPacket()
     fullString.append(time);
     fullString.append(hs);
 
-    // TODO: language must be "C"
-    QDateTime dt = QDateTime::fromString(fullString, "dd-MMM-yyyy HH:mm:ss.z");
+    QDateTime dt = QLocale(QLocale::English, QLocale::UnitedKingdom).toDateTime(fullString, "dd-MMM-yyyy HH:mm:ss.z");
     logger->trace("rawDateString=" + fullString + "; date="+dt.toString());
 
     stream->skipRawData(5);
