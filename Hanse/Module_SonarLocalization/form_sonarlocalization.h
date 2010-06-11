@@ -40,6 +40,8 @@ private:
     Module_SonarLocalization* m;
 
 private slots:
+    void on_spinBox_valueChanged(int );
+    void on_nextz_clicked();
     void on_pushButton_clicked();
     void on_plotSelect_valueChanged(int );
     void newImage(QVector<QVector2D> observations);

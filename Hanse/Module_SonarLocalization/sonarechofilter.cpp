@@ -29,7 +29,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
         return;
 
     QByteArray byteEcho = data.getEchoData();
-    logger->debug("Received " + QString::number(byteEcho.size())+ " sonar echos.");
+    logger->trace("Received " + QString::number(byteEcho.size())+ " sonar echos.");
 
     // TODO: why 252??? it should be 250, or not?
     byteEcho.chop(byteEcho.size()-N);
@@ -53,7 +53,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     if (K<0) {
         darknessCount++;
     } else {
-        logger->debug("found peak at "+QString::number(K));
+        logger->trace("found peak at "+QString::number(K));
         darknessCount=0;
         K_history.append(K);
         kHistory[data.dateTime]=K;
@@ -100,7 +100,9 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 //                    this->posArrayY.append(ay);
 //                }
 //            }
-            this->posArray.append(QVector2D(x,y));
+//            this->posArray.append(QVector2D(x,y));
+            if (sqrt(x*x+y*y)>10) // ahhhh: evil heuristic!
+                this->posArray.append(QVector2D(y,x)); // TODO mirror then adaptively
         }
         localKlist.clear();
         localKlistHeading.clear();

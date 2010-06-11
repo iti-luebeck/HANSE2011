@@ -33,10 +33,16 @@ signals:
     void newPosition(QVector3D position);
 
 public slots:
+    void doNextUpdate();
 
 private:
+
+    QQueue< QVector<QVector2D> > zList;
+    QVector<QVector2D> lastZ;
+
     Log4Qt::Logger *logger;
-    const static int N = 2000;
+    QMutex particlesMutex;
+    const static int N = 1000;
     const static double DISTANCE_CUTOFF = 10000;
 
     QVector3D controlVariance;

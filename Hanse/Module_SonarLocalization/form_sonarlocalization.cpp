@@ -65,7 +65,7 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
         scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
     }
 
-    connect(m->filter, SIGNAL(newImage(QVector<QVector2D>)), this, SLOT(newImage(QVector<QVector2D>)));
+    //connect(m->filter, SIGNAL(newImage(QVector<QVector2D>)), this, SLOT(newImage(QVector<QVector2D>)));
     connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
 }
 
@@ -134,21 +134,7 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
 
 void Form_SonarLocalization::newImage(QVector<QVector2D> observations)
 {
-    if (observations.size()==0)
-        return;
 
-    ui->time->setTime( QTime::currentTime() );
-    ui->no_points->setText(QString::number(observations.size()));
-
-    foreach (QGraphicsEllipseItem* it, volatileItems) {
-        delete it;
-    }
-    volatileItems.clear();
-
-    for (int i=0; i<observations.size(); i++) {
-        QVector2D o = observations[i];
-        volatileItems.append(scene->addEllipse(o.x(), o.y(), 1,1,QPen(QColor("blue"))));
-    }
 }
 
 void Form_SonarLocalization::on_pushButton_clicked()
@@ -159,15 +145,6 @@ void Form_SonarLocalization::on_pushButton_clicked()
 
 void Form_SonarLocalization::newPositionEstimate(QVector3D e)
 {
-    m->logger->debug("Got a new position estimate.");
-    if (currentPos != NULL)
-        delete currentPos;
-    currentPos = scene->addEllipse(e.x(), e.y(), 1,1,QPen(QColor("red")));
-
-    foreach (QGraphicsEllipseItem* it, volatileItems) {
-        it->translate(e.x(), e.y());
-    }
-
     foreach (QGraphicsEllipseItem* it, particleItems) {
         delete it;
     }
@@ -176,4 +153,45 @@ void Form_SonarLocalization::newPositionEstimate(QVector3D e)
     foreach (QVector4D p, particles) {
         particleItems.append(scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("green"))));
     }
+
+    on_spinBox_valueChanged(ui->spinBox->value());
+
+}
+
+void Form_SonarLocalization::on_nextz_clicked()
+{
+    m->pf->doNextUpdate();
+}
+
+void Form_SonarLocalization::on_spinBox_valueChanged(int p)
+{
+    if (m->pf->lastZ.size()==0 || m->pf->N-1<p)
+        return;
+
+    m->logger->debug("");
+    ui->time->setTime( QTime::currentTime() );
+    ui->no_points->setText(QString::number(m->pf->lastZ.size()));
+
+    foreach (QGraphicsEllipseItem* it, volatileItems) {
+        delete it;
+    }
+    volatileItems.clear();
+
+    QVector4D particle = m->pf->getParticles()[p];
+    m->logger->debug("particle: X="+QString::number(particle.x())+",Y="+QString::number(particle.y())+",Z="
+                     +QString::number(particle.z())+",W="+QString::number(particle.w()));
+
+    for (int i=0; i<m->pf->lastZ.size(); i++) {
+        QVector2D o = m->pf->lastZ[i];
+
+        QTransform rotM = QTransform().rotate(particle.z()/M_PI*180) * QTransform().translate(particle.x(), particle.y());
+        QPointF q = rotM.map(o.toPointF());
+
+        volatileItems.append(scene->addEllipse(q.x(), q.y(), 1,1,QPen(QColor("blue"))));
+    }
+
+    if (currentPos != NULL)
+        delete currentPos;
+    currentPos = scene->addEllipse(m->pf->getParticles()[p].x(), m->pf->getParticles()[p].y(), 1,1,QPen(QColor("red")));
+    currentPos->setZValue(10);
 }
