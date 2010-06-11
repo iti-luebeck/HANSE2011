@@ -62,6 +62,7 @@ private:
     Module_ScanningSonar* sonar;
     SonarEchoFilter* filter;
     SonarParticleFilter* pf;
+    QThread pfThread;
 
 };
 

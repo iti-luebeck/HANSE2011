@@ -15,6 +15,8 @@ Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSo
     this->sonar = sonar;
     this->filter = new SonarEchoFilter(sonar);
     this->pf = new SonarParticleFilter(this, filter);
+    pfThread.start();
+    //pf->moveToThread(&pfThread);
 }
 
 void Module_SonarLocalization::reset()

@@ -55,16 +55,14 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     result->setZValue(-1);
     result->setScale(0.2);
 
-//    for(int i=-50; i<50; i++) {
-//        for(int j=-50; j<50; j++) {
-//            scene->addEllipse(i,j,1,1);
-//        }
-//
-//    }
-
     QVector<QVector4D> particles = m->pf->getParticles();
     foreach (QVector4D p, particles) {
         particleItems.append(scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("green"))));
+    }
+
+    // draw map
+    foreach (QVector2D p, m->pf->mapPoints) {
+        scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
     }
 
     connect(m->filter, SIGNAL(newImage(QVector<QVector2D>)), this, SLOT(newImage(QVector<QVector2D>)));
