@@ -9,8 +9,7 @@ using namespace cv;
 using namespace std;
 
 SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization* sonar, SonarEchoFilter *filter)
-    : QObject(), controlVariance(150,150,1.5), initialVariance(180,180,1.5)
-//    : QObject(), controlVariance(0,0,0), initialVariance(0,0,0)
+    : QObject(), controlVariance(15,15,1.5), initialVariance(180,180,1.5)
 {
     logger = Log4Qt::Logger::logger("SonarFilter");
     this->sonar = sonar;
@@ -66,8 +65,11 @@ void SonarParticleFilter::loadMap()
     channels.resize(3);
 
     split(combinedMap, &channels[0]);
-    forbiddenArea = channels[0];
-    map = channels[1];
+
+    // forbidden area is red. allowed area is white. thus the forbidden area will have blue==0 and
+    // the allowed have blue==255 (green would also work)
+    forbiddenArea = channels[0]; // channels: BGR
+    Mat map = channels[1];
 
     for (int r = 0; r<map.rows; r++) {
         for ( int c=0; c<map.cols; c++) {
@@ -93,16 +95,8 @@ QVector2D SonarParticleFilter::img2map(QVector2D imgPoint)
 
 QVector3D SonarParticleFilter::getBestEstimate()
 {
-    //return particles[0].toVector3D();
-    double bestW = particles[0].w();
-    QVector4D best = particles[0];
-    for(int i=0; i<N; i++) {
-        if (particles[i].w()>bestW) {
-            bestW = particles[i].w();
-            best = particles[i];
-        }
-    }
-    return best.toVector3D();
+    // assume that the list is already sorted.
+    return particles[0].toVector3D();
 }
 
 bool particleComparator(const QVector4D &p1, const QVector4D &p2)
@@ -124,16 +118,19 @@ QVector3D SonarParticleFilter::sampleGauss(QVector3D mean, QVector3D variance)
     return mean + g;
 }
 
-double SonarParticleFilter::meassureObservation(QVector<QVector2D>observations)
+double SonarParticleFilter::meassureObservation(QVector<QVector2D> observations)
 {
+    // TODO can likely be optimized by putting the mappoints into a quadtree or something...
+
     double index = 1;
-    for (int i=0; i<observations.size(); i++) {
-        QVector2D obsevationPoint = observations[i];
+    foreach (QVector2D obsevationPoint, observations) {
         double bestVal = INFINITY;
+
         // compare with all elements in map
-        for (int j=0; j<this->mapPoints.size(); j++) {
-            QVector2D mapPoint = mapPoints[j];
+        foreach (QVector2D mapPoint, mapPoints) {
+
             double l = (mapPoint - obsevationPoint).length();
+
             if (l<bestVal)
                 bestVal = l;
         }
@@ -150,12 +147,17 @@ double SonarParticleFilter::meassureObservation(QVector<QVector2D>observations)
 
 bool SonarParticleFilter::isPositionForbidden(QVector2D pos)
 {
-    return false; // TODO
+    QPoint imgPos = map2img(pos).toPoint();
+
+    if (imgPos.x()<0 || imgPos.y()<0 || imgPos.x()>=forbiddenArea.cols || imgPos.y()>=forbiddenArea.rows )
+        return true;
+
+    return forbiddenArea.at<unsigned char>(imgPos.y(), imgPos.x())==0;
 }
 
 double SonarParticleFilter::max(QVector<double> v)
 {
-    double max=v[0];
+    double max=0;
     for (int i=0; i<N; i++)
         if (!isnan(v[i]) && v[i]>max)
             max=v[i];
@@ -165,7 +167,7 @@ double SonarParticleFilter::max(QVector<double> v)
 
 double SonarParticleFilter::min(QVector<double> v)
 {
-    double min=v[0];
+    double min=1;
     for (int i=0; i<N; i++)
         if (!isnan(v[i]) && v[i]<min)
             min=v[i];
@@ -213,14 +215,14 @@ void SonarParticleFilter::doNextUpdate()
         QVector3D newPos = oldPos + sampleGauss(QVector3D(), controlVariance);
         particles[i] = newPos.toVector4D();
 
-        QVector<QVector2D> observationsTransformed;
+        QVector<QVector2D> observationsTransformed(observations.size());
 
         // transform observation from local (particle relative) to global system
         QTransform rotM = QTransform().rotate(newPos.z()/M_PI*180) * QTransform().translate(newPos.x(), newPos.y());
 
         for(int j=0; j<observations.size(); j++) {
             QPointF p = rotM.map(observations[j].toPointF());
-            observationsTransformed.append(QVector2D(p));
+            observationsTransformed[j] = QVector2D(p);
         }
 
         if (isPositionForbidden(newPos.toVector2D())) {
@@ -236,7 +238,6 @@ void SonarParticleFilter::doNextUpdate()
     }
 
     // normalize particle weights
-    double maxW = max(weights);
     double minW = min(weights);
     for (int i=0; i<N; i++) {
         if (isnan(weights[i]))

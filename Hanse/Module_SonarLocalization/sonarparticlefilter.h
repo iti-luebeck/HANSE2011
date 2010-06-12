@@ -54,7 +54,6 @@ private:
 
     QVector<QVector2D> mapPoints;
 
-    Mat map;
     Mat forbiddenArea;
 
     void loadMap();

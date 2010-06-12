@@ -36,6 +36,7 @@ private:
     QwtPlotCurve *curveVar;
     QwtPlotCurve *curveMean;
     QwtPlotMarker *curveK;
+    QwtPlotMarker *curveVarTH;
 
     Module_SonarLocalization* m;
 

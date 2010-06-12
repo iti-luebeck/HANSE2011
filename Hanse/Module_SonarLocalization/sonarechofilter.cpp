@@ -102,7 +102,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 //            }
 //            this->posArray.append(QVector2D(x,y));
             if (sqrt(x*x+y*y)>10) // ahhhh: evil heuristic!
-                this->posArray.append(QVector2D(y,x)); // TODO mirror then adaptively
+                this->posArray.append(QVector2D(x,y)); // TODO mirror then adaptively
         }
         localKlist.clear();
         localKlistHeading.clear();
@@ -165,12 +165,12 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 
     int wSize=3;
 
-    QVector<double> varHist;
-    QVector<double> meanHist;
+    QVector<double> varHist(N);
+    QVector<double> meanHist(N);
 
     int K = -1;
 
-    Mat var = Mat::zeros(1,N,CV_32F);
+    //Mat var = Mat::zeros(1,N,CV_32F);
     for(int j=N-wSize-1; j>=wSize; j--) {
 
         // window around the point we're looking at
@@ -182,23 +182,26 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
         // calc stdDev inside window
         meanStdDev(window, mean,stdDev);
         float stdDevInWindow = stdDev[0]*stdDev[0];
-        var.at<float>(0,j) = stdDevInWindow;
+        //var.at<float>(0,j) = stdDevInWindow;
 
-        varHist.insert(0, stdDevInWindow);
+        varHist[j]=stdDevInWindow;
 
-        // TODO: heuristic
-        bool largePeak = true;
+        // TODO: fiddle with TH, or move it a little bit to the left
+        bool largePeak = mean[0]>0.5;
+
 
         // calc mean in area behind our current pos.
         Mat prev = echo.colRange(j+wSize,echo.cols-1);
         meanStdDev(prev, mean, stdDev);
         float meanBehind = mean[0];
 
-        meanHist.insert(0, meanBehind);
+        meanHist[j]=meanBehind;
 
         // take first peak found.
-        if (stdDevInWindow > stdDevInWindowTH && meanBehind<meanBehindTH && largePeak && K<0)
+        if (stdDevInWindow > stdDevInWindowTH && meanBehind<meanBehindTH && largePeak && K<0) {
+            logger->debug("stdDevInWindow="+QString::number(stdDevInWindow));
             K= j;
+        }
 
     }
 

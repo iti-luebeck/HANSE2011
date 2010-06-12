@@ -35,9 +35,11 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     curveVar = new QwtPlotCurve("stdDev");
     curveMean = new QwtPlotCurve("prev mean");
     curveK = new QwtPlotMarker();
+    curveVarTH = new QwtPlotMarker();
 
     plot->setTitle("Echo data");
     plot->setAxisTitle(0,"signal");
+    plot->setAxisScale(QwtPlot::yLeft,0,1);
 
     QwtLegend *legend = new QwtLegend();
     legend->setFrameStyle(QFrame::Box|| QFrame::Sunken);
@@ -98,22 +100,22 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
 
     QVector<double> xData;
     for(int i=0; i<m->filter->N; i++)
-        xData.append(i);
+        xData.append(i/5.0);
 
     // copy the data into the curves
     curveRaw->setData(xData, m->filter->rawHistory[time]);
     curveRaw->attach(plot);
 
     curveFiltered->setData(xData, m->filter->filteredHistory[time]);
-    curveFiltered->setPen(QPen("brown"));
-    curveFiltered->attach(plot);
+    curveFiltered->setPen(QPen("green"));
+//    curveFiltered->attach(plot);
 
     curveTH->setData(xData, m->filter->threshHistory[time]);
     curveTH->setPen(QPen("red"));
     curveTH->attach(plot);
 
     curveVar->setData(xData, m->filter->varHistory[time]);
-    curveVar->setPen(QPen("yellow"));
+    curveVar->setPen(QPen("brown"));
     curveVar->attach(plot);
 
     curveMean->setData(xData, m->filter->meanHistory[time]);
@@ -123,10 +125,16 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
     int K = m->filter->kHistory[time];
     if (K>=0) {
         curveK->setSymbol(QwtSymbol(QwtSymbol::VLine, QBrush(), QPen("green"), QSize(1,500)));
-        curveK->setXValue(K);
+//        curveK->setXValue(15.0);
+        curveK->setXValue(K/5.0);
         curveK->setYValue(0);
         curveK->attach(plot);
     }
+
+    curveVarTH->setSymbol(QwtSymbol(QwtSymbol::HLine, QBrush(), QPen("green"), QSize(2000,1)));
+    curveVarTH->setXValue(0);
+    curveVarTH->setYValue(m->filter->stdDevInWindowTH);
+    curveVarTH->attach(plot);
 
     // finally, refresh the plot
     plot->replot();
