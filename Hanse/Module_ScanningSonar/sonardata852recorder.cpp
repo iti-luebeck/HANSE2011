@@ -18,6 +18,7 @@ void SonarData852Recorder::start()
     file = new QFile(sonar.getSettings().value("recorderFilename").toString());
     if (file->open(QFile::WriteOnly | QFile::Truncate)) {
         stream = new QDataStream(file);
+        stream->setVersion(QDataStream::Qt_4_6);
     } else {
         logger->error("Could not open file "+file->fileName());
     }
@@ -78,6 +79,7 @@ void SonarData852Recorder::store(const SonarReturnData &data)
     unsigned char flags = 0;
     if (data.isCWDirection())
         flags |= 0x80;
+    flags |= 0x08;
     *stream <<  flags;
 
     // TODO: write stepsize and mode
@@ -105,9 +107,9 @@ void SonarData852Recorder::store(const SonarReturnData &data)
 
     if (data.getDataBytes()==0) {
         stream->writeRawData(QByteArray(15,0), 15);
-    } else if (data.getDataBytes()==0) {
+    } else if (data.getDataBytes()==252) {
         stream->writeRawData(QByteArray(19,0), 19);
-    } else if (data.getDataBytes()==0) {
+    } else if (data.getDataBytes()==500) {
         stream->writeRawData(QByteArray(27,0), 27);
     }
 
