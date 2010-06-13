@@ -32,7 +32,7 @@ void SonarParticleFilter::newImage(QVector<QVector2D> observations)
 
     logger->debug("Queued new observation.");
     zList.append(observations);
-
+    //doNextUpdate();
 }
 
 void SonarParticleFilter::reset()
@@ -201,6 +201,12 @@ void SonarParticleFilter::doNextUpdate()
     logger->debug("Dequeued new observation.");
 
     QVector<QVector2D> observations = zList.takeFirst();
+
+    if (observations.size()<10) {
+        logger->warn("not enough points. dropping meassurement.");
+        return;
+    }
+
     lastZ = observations;
 
     QVector<double> weights(N);
@@ -256,7 +262,7 @@ void SonarParticleFilter::doNextUpdate()
         else      cumsum[i]=cumsum[i-1]+weights[i];
     }
 
-    if (abs(cumsum[N-1]-1)> 10e-10) {
+    if (fabs(cumsum[N-1]-1)> 10e-10) {
         logger->error("Cumsum has bad sum: "+QString::number(cumsum[N-1]));
     }
 

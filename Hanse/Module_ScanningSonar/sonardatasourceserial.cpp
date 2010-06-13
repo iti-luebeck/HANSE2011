@@ -2,6 +2,7 @@
 #include "sonarreturndata.h"
 #include "qextserialport.h"
 #include "module_scanningsonar.h"
+#include "sonarswitchcommand.h"
 
 class SleeperThread : public QThread
 {
@@ -22,7 +23,22 @@ SonarDataSourceSerial::SonarDataSourceSerial(Module_ScanningSonar& parent)
 const SonarReturnData SonarDataSourceSerial::getNextPacket()
 {
     logger->debug("Sending switch data command.");
-    QByteArray sendArray = buildSwitchDataCommand();
+
+    SonarSwitchCommand cmd;
+
+    cmd.range = parent.getSettings().value("range").toInt();
+    cmd.startGain = parent.getSettings().value("gain").toInt();
+    cmd.trainAngle = parent.getSettings().value("trainAngle").toInt();
+    cmd.sectorWidth = parent.getSettings().value("sectorWidth").toInt();
+    cmd.stepSize = parent.getSettings().value("stepSize").toInt();
+    cmd.pulseLength = parent.getSettings().value("pulseLength").toInt();
+    cmd.dataPoints = parent.getSettings().value("dataPoints").toInt();
+    cmd.switchDelay = parent.getSettings().value("switchDelay").toInt();
+    cmd.frequency = parent.getSettings().value("frequency").toInt();
+
+
+    QByteArray sendArray = cmd.toSerialCmd();
+
     logger->trace("Sending: " + QString(sendArray.toHex()));
     port->write(sendArray);
 
@@ -46,7 +62,7 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
     }
     //logger->trace("Received in total: " + QString(retData.toHex()));
 
-    SonarReturnData d(retData);
+    SonarReturnData d(cmd,retData);
 
     return d;
 }
@@ -67,52 +83,6 @@ void SonarDataSourceSerial::configurePort()
     else
         parent.setHealthToSick("Could not open serial port '"+parent.getSettings().value("serialPort").toString()+"'");
 }
-
-QByteArray SonarDataSourceSerial::buildSwitchDataCommand()
-{
-    char range = parent.getSettings().value("range").toInt();
-    char gain = parent.getSettings().value("gain").toInt();
-    int trainAngle = parent.getSettings().value("trainAngle").toInt();
-    char sectorWidth = parent.getSettings().value("sectorWidth").toInt();
-    char stepSize = parent.getSettings().value("stepSize").toInt();
-    char pulseLength = parent.getSettings().value("pulseLength").toInt();
-    char dataPoints = parent.getSettings().value("dataPoints").toInt();
-    char switchDelay = parent.getSettings().value("switchDelay").toInt();
-    char frequency = parent.getSettings().value("frequency").toInt();
-
-    QByteArray a;
-    a.resize(27);
-    a[0] = 0xFE;        // Switch data header
-    a[1] = 0x44;        // Switch data header
-    a[2] = 0x10;        // Head ID
-    a[3] = range;       // Range
-    a[4] = 0;           // Reserved
-    a[5] = 0;           // Reserved
-    a[6] = 0;           // Reserved
-    a[7] = 0;           // Reserved
-    a[8] = gain;        // Start Gain
-    a[9] = 0;           // Reserved
-    a[10]= 20;          // Absorption
-    a[11]= trainAngle;  // Train Angle
-    a[12]= sectorWidth; // Sector Width
-    a[13]= stepSize;    // Step Size
-    a[14]= pulseLength; // PulseLength
-    a[15] = 0;          // Reserved
-    a[16] = 0;          // Reserved
-    a[17] = 0;          // Reserved
-    a[18] = 0;          // Reserved
-    a[19] = dataPoints; // DataPoints: 25 or 50
-    a[20] = 0;          // Reserved
-    a[21] = 0;          // Reserved
-    a[22] = 0;          // Reserved
-    a[23] = 0;          // Reserved
-    a[24] = switchDelay;// Switch delay
-    a[25] = frequency;  // Frequency
-    a[26] = 0xFD;       // Termination Byte
-
-    return a;
-}
-
 
 bool SonarDataSourceSerial::isOpen()
 {

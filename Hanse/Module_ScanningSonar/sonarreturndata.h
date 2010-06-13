@@ -3,6 +3,7 @@
 
 #include <QtCore>
 #include <QtGui>
+#include "sonarswitchcommand.h"
 
 class SonarReturnData : public QObject
 {
@@ -27,9 +28,7 @@ public:
 
 public:
 
-    SonarReturnData(QByteArray& returnDataPacket, QDateTime& date);
-
-    SonarReturnData(QByteArray& returnDataPacket);
+    SonarReturnData(SonarSwitchCommand& cmd, QByteArray& returnDataPacket);
 
     SonarReturnData();
     SonarReturnData(const SonarReturnData& c);
@@ -76,21 +75,13 @@ public:
     QByteArray getEchoData() const;
 
     /**
-      * Recording time of this data packet
-      */
-    QDateTime dateTime;
-
-    /**
-      * Start gain used.
-      */
-    quint8 startGain;
-
-    /**
       * The unmodified data packet as received from the sonar
       */
     QByteArray packet;
 
     SonarReturnData& operator =(SonarReturnData);
+
+    SonarSwitchCommand switchCommand;
 
 private:
 

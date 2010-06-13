@@ -72,9 +72,9 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 
     float range = data.getRange();
 
-    ui->time->setDateTime(data.dateTime);
+    ui->time->setDateTime(data.switchCommand.time);
     ui->heading->setText(QString::number(data.getHeadPosition()));
-    ui->gain_2->setText(QString::number(data.startGain));
+    ui->gain_2->setText(QString::number(data.switchCommand.startGain));
     ui->range_2->setText(QString::number(data.getRange()));
 
     // TODO: if any of the parameters have changed; reset the scene

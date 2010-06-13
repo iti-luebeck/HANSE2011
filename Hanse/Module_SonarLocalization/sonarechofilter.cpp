@@ -40,9 +40,9 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     // filter out noise etc.
     Mat echoFiltered = filterEcho(data,echo);
 
-    rawHistory[data.dateTime] = mat2QVector(echo);
+    rawHistory[data.switchCommand.time] = mat2QVector(echo);
 
-    filteredHistory[data.dateTime] = mat2QVector(echoFiltered);
+    filteredHistory[data.switchCommand.time] = mat2QVector(echoFiltered);
 
     int K = findWall(data,echoFiltered);
 
@@ -56,7 +56,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
         logger->trace("found peak at "+QString::number(K));
         darknessCount=0;
         K_history.append(K);
-        kHistory[data.dateTime]=K;
+        kHistory[data.switchCommand.time]=K;
 
         localKlist.append(K);
         localKlistHeading.append(data.getHeadPosition());
@@ -133,7 +133,7 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
 
         //GAIN=16: sensorNoiseThresh=max((7/20)*((1:250)-50),0);
         float cutOff=0;
-        if (data.startGain==15)
+        if (data.switchCommand.startGain==15)
             cutOff = (7.0/20)*(i-50)/127;
 //        else
 //            logger->error("Unknown gain: "+QString::number(data.startGain));
@@ -151,7 +151,7 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
         echoFiltered.at<float>(0,i) = newVal;
     }
 
-    threshHistory[data.dateTime] = thresh;
+    threshHistory[data.switchCommand.time] = thresh;
     return echoFiltered;
 }
 
@@ -198,8 +198,8 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 
     }
 
-    varHistory[data.dateTime] = varHist;
-    meanHistory[data.dateTime] = meanHist;
+    varHistory[data.switchCommand.time] = varHist;
+    meanHistory[data.switchCommand.time] = meanHist;
 
     return K;
 }

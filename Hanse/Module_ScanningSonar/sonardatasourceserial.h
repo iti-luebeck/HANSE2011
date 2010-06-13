@@ -19,7 +19,6 @@ private:
     QextSerialPort* port;
 
     void configurePort();
-    QByteArray buildSwitchDataCommand();
 
     /**
       * Logger instance for this module

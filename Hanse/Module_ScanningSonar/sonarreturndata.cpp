@@ -9,26 +9,18 @@ SonarReturnData::SonarReturnData(const SonarReturnData& c)
     : QObject()
 {
     this->packet = c.packet;
-    dateTime = c.dateTime;
-    startGain = c.startGain;
+    this->switchCommand = c.switchCommand;
 }
 
-SonarReturnData::SonarReturnData(QByteArray& returnDataPacket, QDateTime& date)
+SonarReturnData::SonarReturnData(SonarSwitchCommand& cmd, QByteArray& returnDataPacket)
 {
     this->packet = returnDataPacket;
-    dateTime = date;
-}
-
-SonarReturnData::SonarReturnData(QByteArray& returnDataPacket)
-{
-    this->packet = returnDataPacket;
-    dateTime = QDateTime::currentDateTime();
+    this->switchCommand = cmd;
 }
 
 SonarReturnData& SonarReturnData::operator =(SonarReturnData other) {
-    this->dateTime = other.dateTime;
     this->packet = other.packet;
-    this->startGain = other.startGain;
+    this->switchCommand = other.switchCommand;
     return *this;
 }
 

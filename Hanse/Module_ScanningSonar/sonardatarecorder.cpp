@@ -53,7 +53,7 @@ void SonarDataRecorder::newData(const SonarReturnData data)
 void SonarDataRecorder::storeCSV(const SonarReturnData &data)
 {
     if (time.isNull()) {
-        time = data.dateTime.time();
+        time = data.switchCommand.time.time();
     }
 
     if (!stream || !file) {
@@ -61,10 +61,10 @@ void SonarDataRecorder::storeCSV(const SonarReturnData &data)
         return;
     }
 
-    time_t t = data.dateTime.toTime_t();
+    time_t t = data.switchCommand.time.toTime_t();
 
     *stream << data.getRange() << "," << data.getHeadPosition()
-            << "," << data.startGain;
+            << "," << data.switchCommand.startGain;
         *stream << "," << t;
     for (int i=0; i<data.getEchoData().length(); i++) {
         *stream << "," << (int)data.getEchoData().at(i);
