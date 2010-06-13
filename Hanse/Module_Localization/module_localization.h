@@ -1,6 +1,7 @@
 #ifndef MODULE_LOCALIZATION_H
 #define MODULE_LOCALIZATION_H
 
+#include <QGraphicsScene>
 #include <Framework/robotmodule.h>
 #include <Framework/position.h>
 
@@ -57,6 +58,10 @@ public:
       * value: name of the waypoint
       */
     const QMap<QDateTime, Position> getPath();
+
+    void plot( QGraphicsScene *scene );
+
+    void save( QTextStream &ts );
 
 public slots:
     /**

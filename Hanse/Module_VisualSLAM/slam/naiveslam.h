@@ -2,6 +2,7 @@
 #define NAIVESLAM_H
 
 #include <QGraphicsScene>
+#include <QTextStream>
 #include <opencv/cxcore.h>
 #include <vector>
 #include "landmark.h"
@@ -17,8 +18,8 @@ public:
     ~NaiveSLAM();
     bool update( vector<CvMat *> descriptor, vector<CvScalar> &pos3D, vector<CvScalar> &pos2D, vector<int> classLabels );
     void plot( QGraphicsScene *scene );
-    void save( const char *fileName );
-    void load( const char *fileName );
+    void save( QTextStream &ts );
+    void load( QTextStream &ts );
     Position getPosition();
     double getConfidence();
 

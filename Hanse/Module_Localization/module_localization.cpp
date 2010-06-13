@@ -14,6 +14,36 @@ Module_Localization::Module_Localization(QString id, Module_VisualSLAM *visualSL
     this->pressure = pressure;
 }
 
+Position Module_Localization::getLocalization()
+{
+    return visualSLAM->getLocalization();
+}
+
+QDateTime Module_Localization::getLastRefreshTime()
+{
+    return visualSLAM->getLastRefreshTime();
+}
+
+float Module_Localization::getLocalizationConfidence()
+{
+    return visualSLAM->getLocalizationConfidence();
+}
+
+bool Module_Localization::isLocalizationLost()
+{
+    return visualSLAM->isLocalizationLost();
+}
+
+void Module_Localization::plot( QGraphicsScene *scene )
+{
+    visualSLAM->plot( scene );
+}
+
+void Module_Localization::save( QTextStream &ts )
+{
+    visualSLAM->save( ts );
+}
+
 void Module_Localization::reset()
 {
     RobotModule::reset();

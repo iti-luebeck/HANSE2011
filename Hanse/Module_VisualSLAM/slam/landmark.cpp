@@ -6,22 +6,15 @@ Landmark::Landmark( CvMat *observation, CvMat *Robservation, int featureNr, int 
     references = 0;
     this->featureNr = featureNr;
     this->classNr = classNr;
-    pos = cvCreateMat( 3, 1, CV_32F );
-    Sigma = cvCreateMat( 3, 3, CV_32F );
-    Z = cvCreateMat( 3, 3, CV_32F );
-    Zinv = cvCreateMat( 3, 3, CV_32F );
-    K = cvCreateMat( 3, 3, CV_32F );
-    diffPos = cvCreateMat( 3, 1, CV_32F );
-    I3 = cvCreateMat( 3, 3, CV_32F );
-    cvSetIdentity( I3, cvScalar( 1 ) );
-    Mtemp1 = cvCreateMat( 3, 3, CV_32F );
-    Mtemp2 = cvCreateMat( 3, 7, CV_32F );
-    Mtemp3 = cvCreateMat( 3, 3, CV_32F );
-    Mtemp4 = cvCreateMat( 3, 3, CV_32F );
-    L = cvCreateMat( 3, 3, CV_32F );
-
     cvCopy( observation, pos );
     cvCopy( Robservation, Sigma );
+
+    initTemporaryMatrices();
+}
+
+Landmark::Landmark()
+{
+    initTemporaryMatrices();
 }
 
 Landmark::~Landmark()
@@ -38,6 +31,23 @@ Landmark::~Landmark()
     cvReleaseMat( &Mtemp3 );
     cvReleaseMat( &Mtemp4 );
     cvReleaseMat( &L );
+}
+
+void Landmark::initTemporaryMatrices()
+{
+    pos = cvCreateMat( 3, 1, CV_32F );
+    Sigma = cvCreateMat( 3, 3, CV_32F );
+    Z = cvCreateMat( 3, 3, CV_32F );
+    Zinv = cvCreateMat( 3, 3, CV_32F );
+    K = cvCreateMat( 3, 3, CV_32F );
+    diffPos = cvCreateMat( 3, 1, CV_32F );
+    I3 = cvCreateMat( 3, 3, CV_32F );
+    cvSetIdentity( I3, cvScalar( 1 ) );
+    Mtemp1 = cvCreateMat( 3, 3, CV_32F );
+    Mtemp2 = cvCreateMat( 3, 7, CV_32F );
+    Mtemp3 = cvCreateMat( 3, 3, CV_32F );
+    Mtemp4 = cvCreateMat( 3, 3, CV_32F );
+    L = cvCreateMat( 3, 3, CV_32F );
 }
 
 double Landmark::update( CvMat *observation, CvMat *expectedObservation,
@@ -139,4 +149,30 @@ int Landmark::getClass()
 CvMat *Landmark::getSigma()
 {
     return Sigma;
+}
+
+void Landmark::save( QTextStream &ts )
+{
+    // Store references.
+    ts << references << endl;
+
+    // Store position.
+    ts << cvmGet( pos, 0, 0 ) << " "
+       << cvmGet( pos, 1, 0 ) << " "
+       << cvmGet( pos, 2, 0 ) << endl;
+
+    // Store covariance.
+    for ( int i = 0; i < 3; i++ )
+    {
+        for ( int j = 0; j < 3; j++ )
+        {
+            ts << cvmGet( Sigma, i, j ) << " ";
+        }
+        ts << endl;
+    }
+}
+
+void Landmark::load( QTextStream &ts )
+{
+
 }

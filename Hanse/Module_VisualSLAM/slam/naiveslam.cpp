@@ -818,19 +818,43 @@ void NaiveSLAM::reset()
     inited = false;
 }
 
-void NaiveSLAM::save( const char *fileName )
+void NaiveSLAM::save( QTextStream &ts )
 {
-    /*
-    CvFileStorage *fileStorage = cvOpenFileStorage( fileName, storage, CV_STORAGE_WRITE );
-    cvWrite( fileStorage, "features", features );
-    cvWrite( fileStorage, "positions", positions );
-    cvWrite( fileStorage, "sigmas", sigmas );
-    cvWrite( fileStorage, "classes", classes );
-    cvReleaseFileStorage( &fileStorage );
-    */
+    // Store general information.
+    ts << 1 << endl;                                                // number of particles
+    ts << features->total << endl;                                  // number of features
+    ts << currentRotation.w << " " << currentRotation.x << " "      // current rotation
+       << currentRotation.y << " " << currentRotation.z << endl;
+    ts << cvmGet( currentTranslation, 0, 0 ) << " "                 // current translation
+       << cvmGet( currentTranslation, 1, 0 ) << " "
+       << cvmGet( currentTranslation, 2, 0 ) << endl;
+    ts << endl;
+
+    // Store all features.
+    for ( int i = 0; i < features->total; i++ )
+    {
+        double *feature = (double *)cvGetSeqElem( features, i );
+        for ( int j = 0; j < 64 ; j++ )
+        {
+            ts << feature[j] << " ";
+        }
+        ts << endl;
+    }
+    ts << endl;
+
+    // Store all particle filters.
+    for ( int i = 0; i < 1; i++ )
+    {
+        // Store all landmarks.
+        for ( int j = 0; j < features->total; j++ )
+        {
+            landmarks[j]->save( ts );
+        }
+        ts << endl;
+    }
 }
 
-void NaiveSLAM::load( const char *fileName )
+void NaiveSLAM::load( QString path )
 {
     /*
     CvFileStorage *fileStorage = cvOpenFileStorage( fileName, storage, CV_STORAGE_READ );

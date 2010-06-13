@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QListWidgetItem>
+#include <QGraphicsScene>
 #include <Framework/position.h>
 #include <Module_Navigation/module_navigation.h>
 
@@ -15,6 +16,7 @@ class Form_Navigation : public QWidget {
 public:
     Form_Navigation( Module_Navigation *nav, QWidget *parent = 0);
     ~Form_Navigation();
+    QGraphicsScene *getGraphicsScene();
 
 protected:
     void changeEvent(QEvent *e);
@@ -23,6 +25,7 @@ private:
     Ui::Form_Navigation *ui;
     Module_Navigation *nav;
     QMap<QString, Position> waypoints;
+    QGraphicsScene *scene;
 
 signals:
     void removedWaypoint( QString name );
@@ -34,6 +37,7 @@ private slots:
 
 public slots:
     void updateList( QMap<QString, Position> waypoints );
+    void updateView( QGraphicsScene *scene );
 };
 
 #endif // FORM_NAVIGATION_H

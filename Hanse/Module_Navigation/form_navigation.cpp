@@ -13,6 +13,7 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
 Form_Navigation::~Form_Navigation()
 {
     delete ui;
+    delete scene;
 }
 
 void Form_Navigation::changeEvent(QEvent *e)
@@ -64,4 +65,10 @@ void Form_Navigation::on_removeButton_clicked()
     {
         removedWaypoint( selectedItems[i]->text() );
     }
+}
+
+void Form_Navigation::updateView( QGraphicsScene *scene )
+{
+    ui->graphicsView->setScene( scene );
+    ui->graphicsView->show();
 }

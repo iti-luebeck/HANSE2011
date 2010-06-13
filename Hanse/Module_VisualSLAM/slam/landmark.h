@@ -2,11 +2,13 @@
 #define LANDMARK_H
 
 #include <opencv/cxcore.h>
+#include <QTextStream>
 
 class Landmark
 {
 public:
     Landmark( CvMat *observation, CvMat *Robservation, int featureNr, int classNr );
+    Landmark();
     ~Landmark();
     double update( CvMat *observation, CvMat *expectedObservation,
                    CvMat *Robservation, CvMat *Rstate,
@@ -17,6 +19,11 @@ public:
     double getPos( int i );
     CvMat *getSigma();
     int getClass();
+    void save( QTextStream &ts );
+    void load( QTextStream &ts );
+
+private:
+    void initTemporaryMatrices();
 
 private:
     CvMat *Sigma;

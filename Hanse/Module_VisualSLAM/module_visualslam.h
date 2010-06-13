@@ -61,6 +61,10 @@ public:
       */
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
 
+    void plot( QGraphicsScene *scene );
+
+    void save( QTextStream &ts );
+
     void run();
     void start();
     void stop();

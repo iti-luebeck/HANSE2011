@@ -75,30 +75,6 @@ void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>p
     stopClock = clock();
     logger->debug( QString( "UPDATE %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
-
-    sceneMutex.lock();
-    startClock = clock();
-    scene->clear();
-
-    QImage image1((unsigned char*)cap.getFrame(0)->imageData, 640, 480, QImage::Format_RGB888);
-    image1 = image1.scaledToHeight(120);
-    image1 = image1.scaledToWidth(160);
-
-    QGraphicsPixmapItem *pitem1 = scene->addPixmap( QPixmap::fromImage( image1 ) );
-    pitem1->setPos( 50, 190 );
-
-    QImage image2((unsigned char*)cap.getFrame(1)->imageData, 640, 480, QImage::Format_RGB888);
-    image2 = image2.scaledToHeight(120);
-    image2 = image2.scaledToWidth(160);
-
-    QGraphicsPixmapItem *pitem2 = scene->addPixmap( QPixmap::fromImage( image2 ) );
-    pitem2->setPos( 260, 190 );
-
-    slam.plot( scene );
-    stopClock = clock();
-    logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
-    sceneMutex.unlock();
-
     lastRefreshTime = QDateTime::currentDateTime();
 
     Position pos = slam.getPosition();
@@ -112,18 +88,23 @@ void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>p
                    .arg( slam.getConfidence(), 0, 'E', 3 ) );
 
     // Update current position.
-    QVector3D translation( pos.getX(), pos.getY(), pos.getZ() );
-    data["Translation"] = translation;
-    QVector3D orientation( pos.getYaw(), pos.getPitch(), pos.getRoll() );
-    data["Orientation"] = orientation;
+    data["Translation - X"] = pos.getX();
+    data["Translation - Y"] = pos.getY();
+    data["Translation - Z"] = pos.getZ();
+    data["Orientation - Yaw"] = pos.getYaw();
+    data["Orientation - Pitch"] = pos.getPitch();
+    data["Orientation - Roll"] = pos.getRoll();
     data["Confidence"] = slam.getConfidence();
 
     // Update objects.
     QRectF boundingBox;
     QDateTime lastSeen;
     cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
-    data["Goal - bounding box"] = boundingBox;
-    data["Goal - lastSeen"] = lastSeen;
+    data["Goal - bounding box x"] = boundingBox.left();;
+    data["Goal - bounding box y"] = boundingBox.top();
+    data["Goal - bounding box w"] = boundingBox.width();
+    data["Goal - bounding box h"] = boundingBox.height();
+    data["Goal - lastSeen"] = lastSeen.toString();
 
     emit dataChanged( this );
     emit updateFinished();
@@ -132,6 +113,36 @@ void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>p
     {
         updateTimer.start( 0 );
     }
+}
+
+void Module_VisualSLAM::plot( QGraphicsScene *scene )
+{
+    sceneMutex.lock();
+    startClock = clock();
+
+//    QImage image1((unsigned char*)cap.getFrame(0)->imageData, 640, 480, QImage::Format_RGB888);
+//    image1 = image1.scaledToHeight(120);
+//    image1 = image1.scaledToWidth(160);
+//
+//    QGraphicsPixmapItem *pitem1 = scene->addPixmap( QPixmap::fromImage( image1 ) );
+//    pitem1->setPos( 50, 190 );
+//
+//    QImage image2((unsigned char*)cap.getFrame(1)->imageData, 640, 480, QImage::Format_RGB888);
+//    image2 = image2.scaledToHeight(120);
+//    image2 = image2.scaledToWidth(160);
+//
+//    QGraphicsPixmapItem *pitem2 = scene->addPixmap( QPixmap::fromImage( image2 ) );
+//    pitem2->setPos( 260, 190 );
+
+    slam.plot( scene );
+    stopClock = clock();
+    logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
+    sceneMutex.unlock();
+}
+
+void Module_VisualSLAM::save( QTextStream &ts )
+{
+    slam.save( ts );
 }
 
 QList<RobotModule*> Module_VisualSLAM::getDependencies()
