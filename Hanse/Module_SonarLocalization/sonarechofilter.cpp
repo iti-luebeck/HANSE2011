@@ -71,7 +71,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
         if (delta < -180)
             delta += 360;
 
-        swipedArea += abs(delta);
+        swipedArea += fabs(delta);
     }
 
     // todo: this must be absolutely robust!!
@@ -83,15 +83,11 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
         posArray.clear();
         for(int i=0; i<localKlist.size(); i++) {
             double x,y;
-            // TODO: why +50 ?
             int range = 50;
             x = cos(localKlistHeading[i]/180*M_PI)*localKlist[i]/N*range;
             y = sin(localKlistHeading[i]/180*M_PI)*localKlist[i]/N*range;
-//            X1=round(cosd(startHeading)*startDistance/P*r)+50;
-//            Y1=round(sind(startHeading)*startDistance/P*r)+50;
-//            X2=round(cosd(stopHeading)*stopDistance/P*r)+50;
-//            Y2=round(sind(stopHeading)*stopDistance/P*r)+50;
 
+            // connect points: XXX: buggy
 //            if (i>0 && localKlistID[i]==localKlistID[i-1]+1) {
 //                for (int k=localKlist[i-1]; k<=localKlist[i]; k++) {
 //                    double ax = cos(localKlistHeading[i]/180*M_PI)*k/N*range;
@@ -100,7 +96,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 //                    this->posArrayY.append(ay);
 //                }
 //            }
-//            this->posArray.append(QVector2D(x,y));
+
             if (sqrt(x*x+y*y)>10) // ahhhh: evil heuristic!
                 this->posArray.append(QVector2D(x,y)); // TODO mirror then adaptively
         }
@@ -170,7 +166,6 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 
     int K = -1;
 
-    //Mat var = Mat::zeros(1,N,CV_32F);
     for(int j=N-wSize-1; j>=wSize; j--) {
 
         // window around the point we're looking at
@@ -182,7 +177,6 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
         // calc stdDev inside window
         meanStdDev(window, mean,stdDev);
         float stdDevInWindow = stdDev[0]*stdDev[0];
-        //var.at<float>(0,j) = stdDevInWindow;
 
         varHist[j]=stdDevInWindow;
 
@@ -199,8 +193,7 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 
         // take first peak found.
         if (stdDevInWindow > stdDevInWindowTH && meanBehind<meanBehindTH && largePeak && K<0) {
-            logger->debug("stdDevInWindow="+QString::number(stdDevInWindow));
-            K= j;
+            K=j;
         }
 
     }

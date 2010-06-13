@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "module_scanningsonar.h"
 #include <QGraphicsScene>
+#include <log4qt/logger.h>
 
 namespace Ui {
     class ScanningSonarForm;
@@ -19,13 +20,14 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
+    Log4Qt::Logger *logger;
+
     Ui::ScanningSonarForm *ui;
     Module_ScanningSonar* sonar;
     QGraphicsScene scene;
-    QMap<double, QGraphicsPolygonItem*> map;
+    QQueue<QGraphicsPolygonItem*> queue;
     QGraphicsItem* scanLine;
-    int oldHeading;
-
+    float oldHeading;
 
 private slots:
     void on_fileReaderDelay_valueChanged(int );

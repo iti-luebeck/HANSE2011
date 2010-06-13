@@ -9,11 +9,21 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *paren
     ui->setupUi(this);
     this->sonar = sonar;
 
-    oldHeading = -1000;
+    oldHeading = NAN;
+
+    logger = Log4Qt::Logger::logger("ScanningSonarForm");
 
     this->ui->graphicsView->setScene(&scene);
-    scanLine = scene.addLine(0,0,0,500, QPen(QColor("red")));
-    scanLine->setZValue(1);
+    scanLine = scene.addLine(0,0,0,50, QPen(QColor("red")));
+    scanLine->setZValue(20);
+
+    scene.addLine(-50,0,50,0,QPen(QColor("white")))->setZValue(10);
+    scene.addLine(0,-50,0,50,QPen(QColor("white")))->setZValue(10);
+    scene.addEllipse(-50,-50,100,100,QPen(QColor("white")))->setZValue(10);
+    scene.addEllipse(-40,-40,80,80,QPen(QColor("white")))->setZValue(10);
+    scene.addEllipse(-30,-30,60,60,QPen(QColor("white")))->setZValue(10);
+    scene.addEllipse(-20,-20,40,40,QPen(QColor("white")))->setZValue(10);
+    scene.addEllipse(-10,-10,20,20,QPen(QColor("white")))->setZValue(10);
 
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(updateSonarView(SonarReturnData)));
 
@@ -60,54 +70,48 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 {
     float n = data.getEchoData().length();
 
+    float range = data.getRange();
+
     ui->time->setDateTime(data.dateTime);
     ui->heading->setText(QString::number(data.getHeadPosition()));
     ui->gain_2->setText(QString::number(data.startGain));
     ui->range_2->setText(QString::number(data.getRange()));
 
-    if (!ui->checkBox->isChecked())
-        return;
+    // TODO: if any of the parameters have changed; reset the scene
 
-    if (oldHeading>-1000) {
+    float newHeading = data.getHeadPosition();
 
-        if (!map.contains(data.getHeadPosition())) {
-            QPolygonF polygon;
-            float endX = n;
+    if (ui->checkBox->isChecked() && !isnan(oldHeading)
+        && (fabs(newHeading - oldHeading)<20 || fabs(newHeading - oldHeading)>340)) {
 
-            float diff = data.getHeadPosition() - oldHeading;
-            if (diff>20)
-                diff -= 360;
+        QPolygonF polygon;
 
-            float endY = tan(diff/180*M_PI)*endX;
+        QPointF endPoint1 = QTransform().rotate(oldHeading).map(QPointF(range,0));
+        QPointF endPoint2 = QTransform().rotate(newHeading).map(QPointF(range,0));
 
-//            QTransform t;
-//            t.rotate(oldHeading);
-//            QPointF endPoint1 = t.map(QPointF(n,0));
-//            t.reset();
-//            t.rotate(data.getHeadPosition());
-//            QPointF endPoint2 = t.map(QPointF(n,0));
+        polygon << QPointF(0,0) << endPoint1 << endPoint2;
+        QGraphicsPolygonItem *it = scene.addPolygon(polygon,QPen(Qt::NoPen));
+        queue.append(it);
 
-//            polygon << QPointF(0,0) << endPoint1 << endPoint2;
-            polygon << QPointF(0,0) << QPointF(endX,0)<< QPointF(endX,endY);
-            QGraphicsPolygonItem *it = scene.addPolygon(polygon,QPen(Qt::NoPen));
-            map[data.getHeadPosition()] = it;
-            it->setRotation(data.getHeadPosition()+90);
-        }
+        scanLine->setRotation(newHeading-90);
 
-        scanLine->setRotation(data.getHeadPosition());
-
-        QGraphicsPolygonItem *it = map[data.getHeadPosition()];
-
-        QLinearGradient g(QPointF(0, 0), QPointF(n,0));
-        for (int i = 0; i < data.getEchoData().length(); ++i) {
+        QLinearGradient g(QPointF(0, 0), endPoint2);
+        for (int i = 0; i < n; i++) {
             char b = data.getEchoData()[i];
-            g.setColorAt(i/n,QColor(0,b,0));
+            g.setColorAt(1.0*i/n,QColor(0,2*b,0));
         }
         it->setBrush(QBrush(g));
 
+        // this should ensure that a full circle is conserved even at highest resolution
+        // it may result in overlay, but this doesn't matter since newer items will always
+        // be drawn on top of older ones.
+        if (queue.size()>240) {
+            delete queue.takeFirst();
+        }
+
     }
 
-    oldHeading = data.getHeadPosition();
+    oldHeading = newHeading;
 }
 
 void ScanningSonarForm::on_save_clicked()
@@ -125,11 +129,9 @@ void ScanningSonarForm::on_save_clicked()
     sonar->reset();
 
     // the scan resolution may have changed, clear the graphics scene
-    foreach(QGraphicsItem* g, map.values()) {
-        scene.removeItem(g);
-        delete g;
+    foreach(QGraphicsItem* g, queue) {
+        delete queue.takeFirst();
     }
-    map.clear();
 }
 
 void ScanningSonarForm::on_fileCfgApply_clicked()
