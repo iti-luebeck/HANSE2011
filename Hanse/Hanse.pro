@@ -79,7 +79,10 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_PipeFollowing/pipefollowingform.h \
     Framework/hanseapp.h \
     Module_SonarLocalization/sonarechofilter.h \
-    Module_SonarLocalization/sonarparticlefilter.h
+    Module_SonarLocalization/sonarparticlefilter.h \
+    Module_ScanningSonar/sonarswitchcommand.h \
+    Module_ScanningSonar/sonardatacsvrecorder.h \
+    Module_ScanningSonar/sonardata852recorder.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -143,7 +146,10 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_PipeFollowing/pipefollowingform.cpp \
     Framework/hanseapp.cpp \
     Module_SonarLocalization/sonarechofilter.cpp \
-    Module_SonarLocalization/sonarparticlefilter.cpp
+    Module_SonarLocalization/sonarparticlefilter.cpp \
+    Module_ScanningSonar/sonarswitchcommand.cpp \
+    Module_ScanningSonar/sonardatacsvrecorder.cpp \
+    Module_ScanningSonar/sonardata852recorder.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \

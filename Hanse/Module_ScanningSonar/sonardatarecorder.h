@@ -11,25 +11,19 @@ class SonarDataRecorder: public QObject
 {
     Q_OBJECT
 public:
-    SonarDataRecorder(Module_ScanningSonar& sonar, bool formatCSV);
+    SonarDataRecorder(Module_ScanningSonar& sonar);
 
-    void start();
-    void reset();
-    void stop();
+    virtual void start()=0;
+    virtual void stop()=0;
 
 public slots:
     void newData(const SonarReturnData data);
 
-private:
+protected:
     Module_ScanningSonar& sonar;
-    QTextStream* stream;
-    QFile* file;
     Log4Qt::Logger *logger;
-    QTime time;
-    bool formatCSV;
 
-    void storeCSV(const SonarReturnData& data);
-    void store852(const SonarReturnData& data);
+    virtual void store(const SonarReturnData& data) = 0;
 
 };
 

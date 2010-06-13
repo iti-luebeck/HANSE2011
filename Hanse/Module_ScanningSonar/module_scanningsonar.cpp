@@ -5,7 +5,8 @@
 #include "sonarreturndata.h"
 #include "sonardatasourceserial.h"
 #include "sonardatasourcefile.h"
-#include "sonardatarecorder.h"
+#include "sonardatacsvrecorder.h"
+#include "sonardata852recorder.h"
 
 Module_ScanningSonar::Module_ScanningSonar(QString id)
     : reader(this), RobotModule(id)
@@ -123,8 +124,11 @@ void Module_ScanningSonar::reset()
         return;
 
     if (settings.value("enableRecording").toBool()) {
-        recorder = new SonarDataRecorder(*this, settings.value("formatCSV").toBool());
-        connect(this, SIGNAL(newSonarData(SonarReturnData)), recorder, SLOT(newData(SonarReturnData)));
+        if (settings.value("formatCSV").toBool())
+            recorder = new SonarDataCSVRecorder(*this);
+        else
+            recorder = new SonarData852Recorder(*this);
+
         recorder->start();
     }
 
