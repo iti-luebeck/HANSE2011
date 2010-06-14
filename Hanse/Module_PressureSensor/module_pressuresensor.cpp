@@ -82,9 +82,9 @@ void Module_PressureSensor::refreshData()
 
 void Module_PressureSensor::readPressure()
 {
-    char readBuffer[2];
+    unsigned char readBuffer[2];
 
-    if (!readRegister(REGISTER_PRESSURE, 2, readBuffer)) {
+    if (!readRegister(REGISTER_PRESSURE, 2, (char*)readBuffer)) {
         setHealthToSick(uid->getLastError());
         return;
     }
@@ -105,8 +105,8 @@ void Module_PressureSensor::readPressure()
 void Module_PressureSensor::readTemperature()
 {
 
-    char readBuffer[2];
-    if (!readRegister(REGISTER_TEMP, 2, readBuffer)) {
+    unsigned char readBuffer[2];
+    if (!readRegister(REGISTER_TEMP, 2, (char*)readBuffer)) {
         setHealthToSick(uid->getLastError());
         return;
     }
@@ -169,6 +169,7 @@ void Module_PressureSensor::doHealthCheck()
     }
 
     counter = readBuffer[0];
+    data["counter"] = counter;
 
     setHealthToOk();
 }
