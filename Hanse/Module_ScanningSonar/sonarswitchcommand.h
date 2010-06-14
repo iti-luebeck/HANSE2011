@@ -33,6 +33,8 @@ public:
     unsigned short totalBytes;
     unsigned short nToRead;
 
+    QByteArray origFileHeader;
+
 
 private:
     void extractHeader(const QByteArray& a);

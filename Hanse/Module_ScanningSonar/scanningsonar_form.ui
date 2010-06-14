@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>447</height>
+    <width>554</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="test">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -185,16 +185,6 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="1">
-        <widget class="QSpinBox" name="stepSize">
-         <property name="maximum">
-          <number>6</number>
-         </property>
-         <property name="singleStep">
-          <number>3</number>
-         </property>
-        </widget>
-       </item>
        <item row="13" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
@@ -252,6 +242,20 @@
          </property>
         </widget>
        </item>
+       <item row="11" column="1">
+        <widget class="QComboBox" name="stepSize">
+         <item>
+          <property name="text">
+           <string comment="1">Normal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string comment="2">Fast</string>
+          </property>
+         </item>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4">
@@ -264,28 +268,11 @@
          <property name="title">
           <string>Data source</string>
          </property>
-         <layout class="QFormLayout" name="formLayout_3">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::ExpandingFieldsGrow</enum>
-          </property>
+         <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
            <widget class="QLabel" name="label_14">
             <property name="text">
              <string>Data source:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QRadioButton" name="sourceFile">
-            <property name="text">
-             <string>File</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QRadioButton" name="sourceSerial">
-            <property name="text">
-             <string>Live</string>
             </property>
            </widget>
           </item>
@@ -296,7 +283,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="QSpinBox" name="fileReaderDelay">
             <property name="suffix">
              <string> ms</string>
@@ -323,8 +310,29 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="4" column="1" colspan="2">
            <widget class="QDateTimeEdit" name="startTime"/>
+          </item>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="selFile">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QRadioButton" name="sourceFile">
+            <property name="text">
+             <string>File</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QRadioButton" name="sourceSerial">
+            <property name="text">
+             <string>Live</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -338,12 +346,16 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_12">
             <property name="text">
-             <string>Save To File</string>
+             <string>Saving To File</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="recorderFilename"/>
+           <widget class="QLineEdit" name="recorderFilename">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_15">

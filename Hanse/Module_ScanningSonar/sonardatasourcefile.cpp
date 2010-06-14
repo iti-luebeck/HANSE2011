@@ -77,3 +77,13 @@ bool SonarDataSourceFile::isOpen()
 {
     return file && file->isOpen() && stream && !stream->atEnd();
 }
+
+SonarDataSourceFile::~SonarDataSourceFile()
+{
+
+}
+
+void SonarDataSourceFile::stop()
+{
+    file->close();
+}

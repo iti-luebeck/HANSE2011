@@ -7,6 +7,7 @@
 class SonarDataCSVRecorder : public SonarDataRecorder
 {
     Q_OBJECT
+    LOG4QT_DECLARE_QCLASS_LOGGER
 public:
     SonarDataCSVRecorder(Module_ScanningSonar& sonar);
 

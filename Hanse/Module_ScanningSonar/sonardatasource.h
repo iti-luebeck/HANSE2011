@@ -10,10 +10,13 @@ class SonarDataSource
 {
 public:
     SonarDataSource(Module_ScanningSonar& parent);
+    ~SonarDataSource();
 
     virtual const SonarReturnData getNextPacket() = 0;
 
     virtual bool isOpen() = 0;
+
+    virtual void stop() = 0;
 
 protected:
     Module_ScanningSonar& parent;

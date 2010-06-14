@@ -21,7 +21,7 @@ public slots:
 
 protected:
     Module_ScanningSonar& sonar;
-    Log4Qt::Logger *logger;
+    //Log4Qt::Logger *logger;
 
     virtual void store(const SonarReturnData& data) = 0;
 

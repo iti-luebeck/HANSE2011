@@ -11,10 +11,13 @@ class SonarDataSourceFile: public SonarDataSource
 {
 public:
     SonarDataSourceFile(Module_ScanningSonar& parent, QString file);
+    ~SonarDataSourceFile();
 
     const SonarReturnData getNextPacket();
 
     bool isOpen();
+
+    void stop();
 
 private:
     QFile* file;

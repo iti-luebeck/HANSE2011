@@ -2,6 +2,7 @@
 #include "sonarreturndata.h"
 #include <QtCore>
 #include "module_scanningsonar.h"
+#include <Framework/dataloghelper.h>
 
 SonarData852Recorder::SonarData852Recorder(Module_ScanningSonar& s)
     : SonarDataRecorder(s)
@@ -15,12 +16,12 @@ void SonarData852Recorder::start()
     if (file != NULL)
         stop();
 
-    file = new QFile(sonar.getSettings().value("recorderFilename").toString());
+    file = new QFile(DataLogHelper::getLogDir()+"sonarlog.852");
     if (file->open(QFile::WriteOnly | QFile::Truncate)) {
         stream = new QDataStream(file);
         stream->setVersion(QDataStream::Qt_4_6);
     } else {
-        logger->error("Could not open file "+file->fileName());
+        logger()->error("Could not open file "+file->fileName());
     }
 }
 
@@ -41,7 +42,7 @@ void SonarData852Recorder::stop()
 void SonarData852Recorder::store(const SonarReturnData &data)
 {
     if (!data.isPacketValid()) {
-        logger->warn("I'm not writing invalid packets to file, sorry.");
+        logger()->warn("I'm not writing invalid packets to file, sorry.");
         return;
     }
 
@@ -61,7 +62,7 @@ void SonarData852Recorder::store(const SonarReturnData &data)
         *stream << (unsigned short)640;
         *stream << (unsigned short)513;
     } else {
-        logger->error("Bad number of data bytes. cannot write to file: "+QString::number(data.getDataBytes()));
+        logger()->error("Bad number of data bytes. cannot write to file: "+QString::number(data.getDataBytes()));
         return;
     }
 
@@ -80,19 +81,21 @@ void SonarData852Recorder::store(const SonarReturnData &data)
     if (data.isCWDirection())
         flags |= 0x80;
     flags |= 0x08;
-    *stream <<  flags;
+    if (data.switchCommand.stepSize==2)
+        flags |= 0x01;
 
-    // TODO: write stepsize and mode
-    // i dont need it but maybe the official software does
+//    if (data.switchCommand.origFileHeader.length()<38)
+//        logger()->error("data.switchCommand.origFileHeader has length "+QString::number(data.switchCommand.origFileHeader.length()));
+//    else
+//        flags = data.switchCommand.origFileHeader[37];
+    *stream <<  flags;
 
     *stream << data.switchCommand.startGain;
     *stream << data.switchCommand.sectorWidth;
     *stream << data.switchCommand.trainAngle;
-
     *stream << (unsigned char)0;
     *stream << (unsigned char)20;
     *stream << (unsigned char)9;
-
     *stream << data.switchCommand.pulseLength;
 
     stream->writeRawData(QByteArray(42,0), 42);

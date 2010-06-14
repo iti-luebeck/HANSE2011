@@ -4,15 +4,6 @@
 #include "module_scanningsonar.h"
 #include "sonarswitchcommand.h"
 
-class SleeperThread : public QThread
-{
-public:
-static void msleep(unsigned long msecs)
-{
-QThread::msleep(msecs);
-}
-};
-
 SonarDataSourceSerial::SonarDataSourceSerial(Module_ScanningSonar& parent)
     : SonarDataSource(parent)
 {
@@ -43,7 +34,6 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
     port->write(sendArray);
 
     QByteArray retData;
-    SleeperThread t;
 
     int expectedLength;
     if (parent.getSettings().value("dataPoints", 50).toInt())
@@ -55,7 +45,7 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
     while(timeout>0 && (retData.length()==0 || retData[retData.length()-1] != (char)0xFC)) {
         QByteArray ret = port->read(expectedLength - retData.length());
         retData.append(ret);
-        t.msleep(5); timeout -= 5;
+        parent.msleep(5); timeout -= 5;
     }
     if (expectedLength - retData.length()>0) {
         logger->error("Received less than expected: "+QString::number(expectedLength - retData.length())+" bytes missing.");
@@ -87,4 +77,18 @@ void SonarDataSourceSerial::configurePort()
 bool SonarDataSourceSerial::isOpen()
 {
     return port && port->isOpen();
+}
+
+SonarDataSourceSerial::~SonarDataSourceSerial()
+{
+}
+
+void SonarDataSourceSerial::stop()
+{
+    logger->debug("Closing serial port.");
+    if (port != NULL) {
+        port->close();
+        delete port;
+        port = NULL;
+    }
 }

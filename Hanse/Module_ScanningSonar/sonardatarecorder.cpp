@@ -6,7 +6,7 @@
 SonarDataRecorder::SonarDataRecorder(Module_ScanningSonar& s)
     : sonar(s)
 {
-    logger = Log4Qt::Logger::logger("SonarRecorder");
+    //logger = Log4Qt::Logger::logger("SonarRecorder");
 
     connect(&s, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(newData(SonarReturnData)));
 

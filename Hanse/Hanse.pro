@@ -83,7 +83,8 @@ HEADERS += Framework/healthstatus.h \
     Module_ScanningSonar/sonardata852recorder.h \
     Module_Navigation/waypointdialog.h \
     Module_Navigation/module_navigation.h \
-    Module_Navigation/form_navigation.h
+    Module_Navigation/form_navigation.h \
+    Framework/dataloghelper.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -151,7 +152,8 @@ SOURCES += Framework/robotmodule.cpp \
     Module_ScanningSonar/sonardata852recorder.cpp \
     Module_Navigation/waypointdialog.cpp \
     Module_Navigation/module_navigation.cpp \
-    Module_Navigation/form_navigation.cpp
+    Module_Navigation/form_navigation.cpp \
+    Framework/dataloghelper.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -168,3 +170,4 @@ FORMS += Framework/mainwindow.ui \
     Behaviour_PipeFollowing/pipefollowingform.ui \
     Module_Navigation/waypointdialog.ui \
     Module_Navigation/form_navigation.ui
+OTHER_FILES += bin/log4qt.properties

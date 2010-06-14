@@ -1,6 +1,5 @@
 #include "sonardatacsvrecorder.h"
-
-
+#include <Framework/dataloghelper.h>
 #include "sonardatarecorder.h"
 #include "sonarreturndata.h"
 #include <QtCore>
@@ -18,11 +17,11 @@ void SonarDataCSVRecorder::start()
     if (file != NULL)
         stop();
 
-    file = new QFile(sonar.getSettings().value("recorderFilename").toString());
+    file = new QFile(DataLogHelper::getLogDir()+"sonarlog.csv");
     if (file->open(QFile::WriteOnly | QFile::Truncate)) {
         stream = new QTextStream(file);
     } else {
-        logger->error("Could not open file "+file->fileName());
+        logger()->error("Could not open file "+file->fileName());
     }
 }
 
@@ -43,7 +42,7 @@ void SonarDataCSVRecorder::stop()
 void SonarDataCSVRecorder::store(const SonarReturnData &data)
 {
     if (!stream || !file) {
-        logger->error("Cannot record. stream not open.");
+        logger()->error("Cannot record. stream not open.");
         return;
     }
 

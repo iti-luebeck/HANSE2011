@@ -1,4 +1,5 @@
 #include "datarecorder.h"
+#include <Framework/dataloghelper.h>
 
 DataRecorder::DataRecorder(RobotModule& module)
     : module(module)
@@ -8,9 +9,7 @@ DataRecorder::DataRecorder(RobotModule& module)
     connect(&module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(newDataReceived(RobotModule*)));
     connect(&module, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(newDataReceived(RobotModule*)));
 
-    path = "logs/"+QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm");
-    QDir(".").mkpath(path);
-    file = new QFile(path+"/"+module.getId()+".csv");
+    file = new QFile(DataLogHelper::getLogDir()+module.getId()+".csv");
 
     fileCount = 0;
 }

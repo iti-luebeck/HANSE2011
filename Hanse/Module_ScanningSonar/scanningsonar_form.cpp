@@ -1,6 +1,7 @@
 #include "scanningsonar_form.h"
 #include "ui_scanningsonar_form.h"
 #include "sonarreturndata.h"
+#include <Framework/dataloghelper.h>
 
 ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *parent) :
         QWidget(parent), scene(-200,-200,500,500),
@@ -33,7 +34,7 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *paren
     ui->pulseLength->setValue(sonar->getSettings().value("pulseLength").toInt());
     ui->range->setValue(sonar->getSettings().value("range").toInt());
     ui->sectorWidth->setValue(sonar->getSettings().value("sectorWidth").toInt());
-    ui->stepSize->setValue(sonar->getSettings().value("stepSize").toInt());
+    ui->stepSize->setCurrentIndex(sonar->getSettings().value("stepSize").toInt()-1);
     ui->switchDelay->setText(sonar->getSettings().value("switchDelay").toString());
     ui->trainAngle->setText(sonar->getSettings().value("trainAngle").toString());
     ui->dataPoints->setText(sonar->getSettings().value("dataPoints").toString());
@@ -41,12 +42,13 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *paren
     ui->sourceFile->setChecked(sonar->getSettings().value("readFromFile").toBool());
     ui->sourceSerial->setChecked(!sonar->getSettings().value("readFromFile").toBool());
     ui->fileName->setText(sonar->getSettings().value("filename").toString());
-    ui->recorderFilename->setText(sonar->getSettings().value("recorderFilename").toString());
     ui->enableRecording->setChecked(sonar->getSettings().value("enableRecording").toBool());
     ui->fileReaderDelay->setValue(sonar->getSettings().value("fileReaderDelay").toInt());
     ui->formatCSV->setChecked(sonar->getSettings().value("formatCSV").toBool());
     ui->format852->setChecked(!sonar->getSettings().value("formatCSV").toBool());
     ui->startTime->setDateTime(sonar->getSettings().value("startTime").toDateTime());
+
+    ui->recorderFilename->setText(DataLogHelper::getLogDir()+"sonarlog.XXX");
 }
 
 ScanningSonarForm::~ScanningSonarForm()
@@ -122,7 +124,7 @@ void ScanningSonarForm::on_save_clicked()
     sonar->getSettings().setValue("pulseLength", ui->pulseLength->value());
     sonar->getSettings().setValue("range", ui->range->value());
     sonar->getSettings().setValue("sectorWidth", ui->sectorWidth->value());
-    sonar->getSettings().setValue("stepSize", ui->stepSize->value());
+    sonar->getSettings().setValue("stepSize", ui->stepSize->currentIndex()+1);
     sonar->getSettings().setValue("switchDelay", ui->switchDelay->text().toInt());
     sonar->getSettings().setValue("trainAngle", ui->trainAngle->text().toInt());
     sonar->getSettings().setValue("dataPoints", ui->dataPoints->text().toInt());
@@ -136,7 +138,6 @@ void ScanningSonarForm::on_save_clicked()
 
 void ScanningSonarForm::on_fileCfgApply_clicked()
 {
-    sonar->getSettings().setValue("recorderFilename", ui->recorderFilename->text());
     sonar->getSettings().setValue("readFromFile", ui->sourceFile->isChecked());
     sonar->getSettings().setValue("filename", ui->fileName->text());
     sonar->getSettings().setValue("fileReaderDelay", ui->fileReaderDelay->value());
@@ -150,4 +151,12 @@ void ScanningSonarForm::on_fileCfgApply_clicked()
 void ScanningSonarForm::on_fileReaderDelay_valueChanged(int )
 {
     sonar->getSettings().setValue("fileReaderDelay", ui->fileReaderDelay->value());
+}
+
+void ScanningSonarForm::on_selFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+         tr("Open Sonar Recording"), ui->fileName->text(), tr("Recording (*.852)"));
+
+    ui->fileName->setText(fileName);
 }

@@ -110,6 +110,7 @@ void Module_ScanningSonar::reset()
 
     logger->debug("Destroying and sonar data source.");
     if (this->source != NULL) {
+        this->source->stop();
         delete this->source;
         source = NULL;
     }

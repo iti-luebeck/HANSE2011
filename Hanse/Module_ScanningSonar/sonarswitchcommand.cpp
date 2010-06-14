@@ -63,6 +63,8 @@ SonarSwitchCommand& SonarSwitchCommand::operator =(SonarSwitchCommand other) {
 
 void SonarSwitchCommand::extractHeader(const QByteArray &a)
 {
+    if (a.length()<100)
+        logger->error("852 header not long enough: "+QString::number(a.length()));
     QDataStream stream(a);
 
     stream.skipRawData(4);
@@ -114,6 +116,7 @@ void SonarSwitchCommand::extractHeader(const QByteArray &a)
     logger->trace("startGain=" + QString::number(startGain));
     logger->trace("DateTime=" + this->time.toString("ddd MMM d yyyy HH:mm:ss.zzz"));
 
+    origFileHeader = a;
 }
 
 void SonarSwitchCommand::clone(const SonarSwitchCommand &other)
@@ -131,4 +134,5 @@ void SonarSwitchCommand::clone(const SonarSwitchCommand &other)
     this->frequency = other.frequency;
     this->totalBytes = other.totalBytes;
     this->nToRead = other.nToRead;
+    this->origFileHeader = other.origFileHeader;
 }

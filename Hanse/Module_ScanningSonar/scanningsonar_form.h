@@ -30,6 +30,7 @@ private:
     float oldHeading;
 
 private slots:
+    void on_selFile_clicked();
     void on_fileReaderDelay_valueChanged(int );
     void on_fileCfgApply_clicked();
     void on_save_clicked();
