@@ -18,7 +18,7 @@ Module_UID::Module_UID(QString moduleId)
 #ifdef OS_UNIX // linux only supports timeouts in tenth of seconds and rounds down
     portSettings->Timeout_Millisec = 100;
 #else
-    portSettings->Timeout_Millisec = 10;
+    portSettings->Timeout_Millisec = 100;
 #endif
 
     setDefaultValue("uidId", "UIDC0001");
@@ -195,6 +195,8 @@ bool Module_UID::CheckErrorcode()
 bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_length) {
     logger->trace("SendCommand2");
 
+    QTime start(QTime::currentTime());
+
     logger->trace("Sending: 0x"+QString::fromAscii(send.toHex()));
 
     if (!uid) {
@@ -234,12 +236,14 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
             return false;
         }
 
-//        if (recvRet<recv_length) {
-//            setHealthToSick("Received less data from UID than expected: "+QString::number(recv_length-recvRet)+" bytes missing.");
-//            lastError = E_SHORT_READ;
-//            // this is an indication for an error. but wait for check command
-//            return true;
-//        }
+        if (recvRet<recv_length) {
+            logger->error("Received less data from UID than expected: "+QString::number(recv_length-recvRet)+" bytes missing.");
+            lastError = E_SHORT_READ;
+            // this is an indication for an error. but wait for check command
+            QTime stop(QTime::currentTime());
+            logger->trace("delta t: "+QString::number(stop.msecsTo(start)));
+            return true;
+        }
     }
 
     if (uid->bytesAvailable()>0) {
@@ -247,6 +251,9 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
         uid->flush();
         uid->readAll(); // don't care for the data
     }
+
+    QTime stop(QTime::currentTime());
+    logger->trace("delta t: "+QString::number(stop.msecsTo(start)));
 
     lastError = E_NO_ERROR;
     return true;
