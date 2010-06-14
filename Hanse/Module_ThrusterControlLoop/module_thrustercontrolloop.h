@@ -91,6 +91,8 @@ private:
     float setvalueDepth;
 
     bool control_loop_enabled;
+    bool ignoreHealth;
+    bool pressureSensor_isHealthOK;
 
     static const int maxHist = 600;
     QMap<QDateTime,float> historyIst;
@@ -100,6 +102,7 @@ private:
 private slots:
 
     void newDepthData(float depth);
+    void healthStatusChanged(HealthStatus pressureSensorHealth);
 
 };
 

@@ -2,6 +2,7 @@
 #include <Module_Thruster/module_thruster.h>
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include "tcl_form.h"
+#include <Framework/healthstatus.h>
 
 Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_PressureSensor *pressure, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster* thrusterDownFront)
     : RobotModule(id)
@@ -12,6 +13,8 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     this->thrusterDownFront = thrusterDownFront;
     this->pressure = pressure;
 
+    pressureSensor_isHealthOK=true;
+
     setDefaultValue("p_up",     1.0);
     setDefaultValue("p_down",   1.0);
     setDefaultValue("maxSpU",   0.3);
@@ -20,12 +23,15 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     setDefaultValue("maxDepthError", 0.05);
 
     setDefaultValue("horizSpM_exp", false);
+    setDefaultValue("ignoreHealth", false);
 
     updateConstantsFromInitNow();
 
     reset();
 
     connect(pressure, SIGNAL(newDepthData(float)), this, SLOT(newDepthData(float)));
+    connect(pressure, SIGNAL(healthStatusChanged(HealthStatus)), this, SLOT(healthStatusChanged(HealthStatus)));
+    //healthStatusChanged
 }
 
 void Module_ThrusterControlLoop::terminate()
@@ -59,10 +65,18 @@ void Module_ThrusterControlLoop::updateConstantsFromInitNow()
     neutrSpD  = getSettings().value("neutrSpD").toFloat();
     maxDepthError = getSettings().value("maxDepthError").toFloat();
 
-    horizSpM_exp = getSettings().value("horizSpM_exp").toBool();
+    horizSpM_exp = getSettings().value("horizSpM_exp").toBool();    
+    ignoreHealth = getSettings().value("ignoreHealth").toBool();
 }
 
+void Module_ThrusterControlLoop::healthStatusChanged(HealthStatus pressureSensorHealth) {
 
+    if (!getSettings().value("enabled").toBool())
+        return;
+
+    this->pressureSensor_isHealthOK = pressureSensorHealth.isHealthOk();
+
+}
 
 void Module_ThrusterControlLoop::newDepthData(float depth)
 {
@@ -80,6 +94,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         float speed = neutrSpD;
         float error = depth-setvalueDepth;
 
+
         data["depth_error"] = error; // for logging
 
         // control-loop step:
@@ -92,6 +107,13 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
                 speed += p_down*error;
             }
         }
+
+
+        //// Health-Check ////
+        // Can we believe the pressure sensor?
+        // If not stop the thrusterDown!
+        if (!pressureSensor_isHealthOK) { speed = 0; }
+
 
         // limit the speed:
         if (speed>maxSpU) { speed=maxSpU; }

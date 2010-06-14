@@ -78,6 +78,7 @@ void TCL_Form::on_save_clicked()
     module->getSettings().setValue("maxDepthError",  ui->maxDepthError->text().toFloat());
 
     module->getSettings().setValue("horizSpM_exp", ui->horizSpM_exp->isChecked() );
+    module->getSettings().setValue("ignoreHealth", ui->ignoreHealth->isChecked() );
 
     module->updateConstantsFromInitNow();
 }
