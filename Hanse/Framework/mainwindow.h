@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QCloseEvent>
+#include <QtGui>
 #include "modulesgraph.h"
 #include "healthmodel.h"
 #include "datamodel.h"
@@ -33,6 +34,8 @@ private:
     void writeSettings();
     void setupLog4Qt();
     QWidget* openNewTab(RobotModule* m);
+    QTimer timer;
+    QLabel* statusbarLabel;
 
     /**
       * Logger instance for this module
@@ -45,6 +48,9 @@ private slots:
     void on_filter_textChanged(QString );
     void disableAll();
     void enableAll();
+
+    void updateStatusBar();
+
 };
 
 #endif // MAINWINDOW_H

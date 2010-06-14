@@ -21,6 +21,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QList<RobotModule*> list = graph.getModules();
 
+    statusbarLabel = new QLabel(ui->statusBar);
+    ui->statusBar->addWidget(statusbarLabel);
+
+    connect(&timer, SIGNAL(timeout()), this, SLOT(updateStatusBar()));
+    timer.start(500);
+
     QStringList oldOpenTabs = settings.value("openTabs").toStringList();
     for (int i = 0; i < list.size(); ++i) {
         RobotModule* m = list.at(i);
@@ -161,4 +167,19 @@ QWidget* MainWindow::openNewTab(RobotModule* m) {
     openTabIds.append(m->getId());
     settings.setValue("openTabs",openTabIds);
     return widget;
+}
+
+void MainWindow::updateStatusBar()
+{
+    int badModules = 0;
+    int errorCount = 0;
+    foreach (RobotModule* r, graph.getModules()) {
+        if (!r->getHealthStatus().isHealthOk())
+            badModules++;
+
+        errorCount += r->getHealthStatus().getErrorCount();
+    }
+
+    statusbarLabel->setText(QString("Health status: %1/%2 sick modules. Total error count: %3")
+                            .arg(badModules).arg(graph.getModules().size()).arg(errorCount));
 }
