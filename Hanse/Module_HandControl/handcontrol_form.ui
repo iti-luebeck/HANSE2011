@@ -126,7 +126,7 @@
       <string>Thruster Control</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>Forward Speed</string>
@@ -146,7 +146,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QLabel" name="label_7">
         <property name="text">
          <string>Angular Speed</string>
@@ -166,7 +166,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
+      <item row="3" column="2">
        <widget class="QLabel" name="label_8">
         <property name="text">
          <string>UpDown Speed/Depth</string>
@@ -186,11 +186,111 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QSpinBox" name="spinBoxFw">
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="minimum">
+         <number>-127</number>
+        </property>
+        <property name="maximum">
+         <number>127</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="spinBoxLR">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="minimum">
+         <number>-127</number>
+        </property>
+        <property name="maximum">
+         <number>127</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QSpinBox" name="spinBoxUD">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="minimum">
+         <number>-127</number>
+        </property>
+        <property name="maximum">
+         <number>127</number>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>sliderFw</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxFw</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
+     <y>415</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>531</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderLR</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxLR</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>313</x>
+     <y>415</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>531</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderUD</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBoxUD</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>489</x>
+     <y>415</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>526</x>
+     <y>531</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
