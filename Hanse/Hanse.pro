@@ -48,12 +48,10 @@ HEADERS += Framework/healthstatus.h \
     Module_Compass/module_compass.h \
     Module_Compass/compass_form.h \
     Module_Localization/module_localization.h \
-    Module_Navigation/module_navigation.h \
     Module_VisualSLAM/module_visualslam.h \
     Module_SonarLocalization/module_sonarlocalization.h \
     Framework/position.h \
     Module_Localization/form_localization.h \
-    Module_Navigation/form_navigation.h \
     Module_SonarLocalization/form_sonarlocalization.h \
     Framework/robotbehaviour.h \
     Behaviour_PipeFollowing/behaviour_pipefollowing.h \
@@ -82,7 +80,10 @@ HEADERS += Framework/healthstatus.h \
     Module_SonarLocalization/sonarparticlefilter.h \
     Module_ScanningSonar/sonarswitchcommand.h \
     Module_ScanningSonar/sonardatacsvrecorder.h \
-    Module_ScanningSonar/sonardata852recorder.h
+    Module_ScanningSonar/sonardata852recorder.h \
+    Module_Navigation/waypointdialog.h \
+    Module_Navigation/module_navigation.h \
+    Module_Navigation/form_navigation.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -115,12 +116,10 @@ SOURCES += Framework/robotmodule.cpp \
     Module_Compass/module_compass.cpp \
     Module_Compass/compass_form.cpp \
     Module_Localization/module_localization.cpp \
-    Module_Navigation/module_navigation.cpp \
     Module_VisualSLAM/module_visualslam.cpp \
     Module_SonarLocalization/module_sonarlocalization.cpp \
     Framework/position.cpp \
     Module_Localization/form_localization.cpp \
-    Module_Navigation/form_navigation.cpp \
     Module_SonarLocalization/form_sonarlocalization.cpp \
     Framework/robotbehaviour.cpp \
     Behaviour_PipeFollowing/behaviour_pipefollowing.cpp \
@@ -149,7 +148,10 @@ SOURCES += Framework/robotmodule.cpp \
     Module_SonarLocalization/sonarparticlefilter.cpp \
     Module_ScanningSonar/sonarswitchcommand.cpp \
     Module_ScanningSonar/sonardatacsvrecorder.cpp \
-    Module_ScanningSonar/sonardata852recorder.cpp
+    Module_ScanningSonar/sonardata852recorder.cpp \
+    Module_Navigation/waypointdialog.cpp \
+    Module_Navigation/module_navigation.cpp \
+    Module_Navigation/form_navigation.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -160,8 +162,9 @@ FORMS += Framework/mainwindow.ui \
     Module_IMU/imu_form.ui \
     Module_Compass/compass_form.ui \
     Module_Localization/form_localization.ui \
-    Module_Navigation/form_navigation.ui \
     Module_SonarLocalization/form_sonarlocalization.ui \
     Module_ScanningSonar/scanningsonar_form.ui \
     Module_VisualSLAM/form_visualslam.ui \
-    Behaviour_PipeFollowing/pipefollowingform.ui
+    Behaviour_PipeFollowing/pipefollowingform.ui \
+    Module_Navigation/waypointdialog.ui \
+    Module_Navigation/form_navigation.ui

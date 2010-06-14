@@ -854,7 +854,7 @@ void NaiveSLAM::save( QTextStream &ts )
     }
 }
 
-void NaiveSLAM::load( QString path )
+void NaiveSLAM::load( QTextStream& path )
 {
     /*
     CvFileStorage *fileStorage = cvOpenFileStorage( fileName, storage, CV_STORAGE_READ );
