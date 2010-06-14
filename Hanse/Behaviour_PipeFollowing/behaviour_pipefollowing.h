@@ -71,6 +71,9 @@ private:
       Mat &binaryFrame - binary Image for Hough Transform
      */
     void computeLineBinary(Mat &frame, Mat &binaryFrame);
+    /** Median Filter
+        Eingabewerte werden gefiltert und deshalb ueberschrieben */
+    void medianFilter(float &rho, float &theta);
     Module_ThrusterControlLoop* tcl;
     QTimer timer;
     PipeFollowingForm *form;
@@ -94,6 +97,9 @@ private:
     float kpAngle;
     float maxDistance;
 
+    /* fuer den median */
+    double meanRho[5];
+    double meanTheta[5];
 
 private slots:
     void timerSlot();

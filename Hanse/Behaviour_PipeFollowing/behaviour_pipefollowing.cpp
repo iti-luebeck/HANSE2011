@@ -18,7 +18,8 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     Behaviour_PipeFollowing::active = false;
 
     form = new PipeFollowingForm( NULL, this);
-}
+
+ }
 
 bool Behaviour_PipeFollowing::isActive()
 {
@@ -248,6 +249,9 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         /* Parameter fuers Rohr bestimmen */
         avRhoClass1 = (avRhoClass1 + avRhoClass2) / 2.0;
         avThetaClass1 = (avThetaClass1 + avThetaClass2) / 2.0;
+        /* medianfilterung der Werte */
+        Behaviour_PipeFollowing::medianFilter(avRhoClass1,avThetaClass1);
+
         data["rohrRho"] =  avRhoClass1;
         data["rohrTheta"] = avThetaClass1;
 
@@ -278,6 +282,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 
         /* ins Qt Widget malen */
         emit printFrameOnUi(frame);
+        imshow("image",frame);
 
 
         if(debug)
@@ -394,5 +399,22 @@ void Behaviour_PipeFollowing::updateData()
  data["robCenter.x"] = robCenter.x;
  data["robCenter.y"] = robCenter.y;
  data["potential Vector"] = potentialVec;
+}
+
+void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
+{
+    for(int i = 0; i < sizeof(meanRho)-1; i++)
+    {
+        meanRho[i] = meanRho[i+1];
+        meanTheta[i] = meanTheta[i+1];
+    }
+    meanRho[sizeof(meanRho)] = rho;
+    meanTheta[sizeof(meanTheta)] = theta;
+
+    std::sort(meanRho, meanRho + 5);
+    std::sort(meanTheta, meanTheta + 5);
+
+    rho = meanRho[2];
+    theta = meanTheta[2];
 }
 
