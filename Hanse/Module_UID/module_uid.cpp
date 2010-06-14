@@ -228,7 +228,7 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
     uid->flush();
 
     // we expect a return
-    if (recv_length) {
+    if (recv_length>0) {
         int recvRet = uid->read(recv,recv_length);
         if (recvRet==-1) {
             setHealthToSick("Connection to UID died: "+uid->errorString());
@@ -244,12 +244,13 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
             logger->trace("delta t: "+QString::number(stop.msecsTo(start)));
             return true;
         }
-    }
 
-    if (uid->bytesAvailable()>0) {
-        setHealthToSick("found some orphaned bytes in the uid serial buffer after doing a command 0x"+QString::number(send[0],16));
-        uid->flush();
-        uid->readAll(); // don't care for the data
+        if (uid->bytesAvailable()>0) {
+            setHealthToSick("found some orphaned bytes in the uid serial buffer after doing a command 0x"+QString::number(send[0],16));
+            uid->flush();
+            uid->readAll(); // don't care for the data
+        }
+
     }
 
     QTime stop(QTime::currentTime());
@@ -266,9 +267,9 @@ QString Module_UID::UID_Revision() {
     QString identify;
     char sequence[] = {Module_UID::UID_REVISION};
     char result[8];
-    if ( !(SendCommand(sequence, sizeof(sequence))) ) return NULL;
+    if ( !(SendCommand(sequence, 1)) ) return QString("error1");
     qint64 ret = uid->read(result,sizeof(result));
-    if (ret==-1) return NULL;
+    if (ret<=0) return QString("error2");
     return QString::fromAscii(result, ret-1);
 }
 
