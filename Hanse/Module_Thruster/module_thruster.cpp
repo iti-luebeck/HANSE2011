@@ -56,6 +56,8 @@ void Module_Thruster::reset()
     RobotModule::reset();
 
     initController();
+
+    setSpeed(0);
 }
 
 void Module_Thruster::setSpeed(float speed)

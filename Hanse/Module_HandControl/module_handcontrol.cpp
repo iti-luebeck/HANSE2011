@@ -51,6 +51,8 @@ void Module_HandControl::reset()
 {
     RobotModule::reset();
 
+    newMessage(0,0,0);
+
     server->close();
     server->open(settings.value("port").toInt());
 }

@@ -4,7 +4,7 @@
 #include <QtCore>
 #include <QGraphicsScene>
 #include <Framework/robotmodule.h>
-#include <Framework/position.h>$
+#include <Framework/position.h>
 
 class Module_Localization;
 class Module_ThrusterControlLoop;
