@@ -117,6 +117,14 @@ QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
     const char sequence[] = {Module_UID::UID_IDENTIFY};
     char id[9];
 
+    /* Probing LPT in Virtualbox hangs the Application.
+     * Probling bluetooth on certain IBM Laptops kills Windows.
+     */
+    if (port->portName.contains("LPT") || port->friendName.contains("Bluetooth")) {
+        logger->info("Skipping port "+port->portName+" since probing it would be asking for trouble.");
+        return NULL;
+    }
+
     logger->debug("Using timeout of "+QString::number(portSettings->Timeout_Millisec)+" ms.");
     
     if ( !(sport->open(QIODevice::ReadWrite | QIODevice::Unbuffered) ) ) {
