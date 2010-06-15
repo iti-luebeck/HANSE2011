@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <Framework/moduledataview.h>
+#include <Framework/modulehealthview.h>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -53,13 +56,36 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionDisable_All, SIGNAL(triggered()), this, SLOT(disableAll()));
     connect(ui->actionEnable_All, SIGNAL(triggered()), this, SLOT(enableAll()));
-
+    connect(ui->actionNew_window, SIGNAL(triggered()), this, SLOT(openNewDataWindow()));
+    connect(ui->actionHealthDockItem, SIGNAL(triggered()), this, SLOT(openNewHealthWindow()));
     readSettings();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::openNewHealthWindow()
+{
+     QDockWidget *dockWidget = new QDockWidget("Health", this);
+     dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea |
+                                 Qt::TopDockWidgetArea |
+                                 Qt::LeftDockWidgetArea |
+                                 Qt::RightDockWidgetArea);
+     dockWidget->setWidget(new ModuleHealthView(&graph, dockWidget));
+     addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+}
+
+void MainWindow::openNewDataWindow()
+{
+     QDockWidget *dockWidget = new QDockWidget("Data", this);
+     dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea |
+                                 Qt::TopDockWidgetArea |
+                                 Qt::LeftDockWidgetArea |
+                                 Qt::RightDockWidgetArea);
+     dockWidget->setWidget(new ModuleDataView(&graph, dockWidget));
+     addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
 }
 
 void MainWindow::changeEvent(QEvent *e)

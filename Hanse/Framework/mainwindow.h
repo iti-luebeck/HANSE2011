@@ -51,6 +51,9 @@ private slots:
 
     void updateStatusBar();
 
+    void openNewDataWindow();
+    void openNewHealthWindow();
+
 };
 
 #endif // MAINWINDOW_H

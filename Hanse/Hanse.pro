@@ -86,7 +86,9 @@ HEADERS += Framework/healthstatus.h \
     Module_Navigation/form_navigation.h \
     Framework/dataloghelper.h \
     Module_VisualSLAM/slam/visualslamparticle.h \
-    Framework/qgraphicsviewextended.h
+    Framework/qgraphicsviewextended.h \
+    Framework/moduledataview.h \
+    Framework/modulehealthview.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -157,7 +159,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_Navigation/form_navigation.cpp \
     Framework/dataloghelper.cpp \
     Module_VisualSLAM/slam/visualslamparticle.cpp \
-    Framework/qgraphicsviewextended.cpp
+    Framework/qgraphicsviewextended.cpp \
+    Framework/moduledataview.cpp \
+    Framework/modulehealthview.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -173,5 +177,7 @@ FORMS += Framework/mainwindow.ui \
     Module_VisualSLAM/form_visualslam.ui \
     Behaviour_PipeFollowing/pipefollowingform.ui \
     Module_Navigation/waypointdialog.ui \
-    Module_Navigation/form_navigation.ui
+    Module_Navigation/form_navigation.ui \
+    Framework/moduledataview.ui \
+    Framework/modulehealthview.ui
 OTHER_FILES += bin/log4qt.properties
