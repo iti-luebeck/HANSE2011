@@ -9,7 +9,7 @@ ModuleDataView::ModuleDataView(ModulesGraph *graph, QWidget *parent) :
 
     this->graph = graph;
 
-    dataModel = new DataModel(graph);
+    dataModel = new DataModel(this, graph);
 
     ui->dataView->setModel(dataModel);
 
@@ -18,7 +18,6 @@ ModuleDataView::ModuleDataView(ModulesGraph *graph, QWidget *parent) :
 ModuleDataView::~ModuleDataView()
 {
     delete ui;
-    // TODO: delete model (or set this as parent)
 }
 
 void ModuleDataView::changeEvent(QEvent *e)

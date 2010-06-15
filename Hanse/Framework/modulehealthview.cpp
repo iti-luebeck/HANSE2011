@@ -7,7 +7,7 @@ ModuleHealthView::ModuleHealthView(ModulesGraph *graph, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    model = new HealthModel(graph);
+    model = new HealthModel(this, graph);
 
     ui->healthView->setModel(model);
 }
@@ -15,7 +15,6 @@ ModuleHealthView::ModuleHealthView(ModulesGraph *graph, QWidget *parent) :
 ModuleHealthView::~ModuleHealthView()
 {
     delete ui;
-    // TODO: delete model (or set this as parent)
 }
 
 void ModuleHealthView::changeEvent(QEvent *e)

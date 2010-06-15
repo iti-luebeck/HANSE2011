@@ -10,7 +10,7 @@ class DataModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    DataModel(ModulesGraph* graph);
+    DataModel(QObject *parent, ModulesGraph* graph);
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;

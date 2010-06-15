@@ -4,7 +4,8 @@
 #include <QFont>
 
 
-HealthModel::HealthModel(ModulesGraph* graph)
+HealthModel::HealthModel(QObject *parent, ModulesGraph* graph)
+    : QAbstractTableModel(parent)
 {
     this->graph = graph;
 

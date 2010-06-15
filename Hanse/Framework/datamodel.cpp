@@ -1,7 +1,8 @@
 #include "datamodel.h"
 #include <QtCore>
 
-DataModel::DataModel(ModulesGraph* graph)
+DataModel::DataModel(QObject *parent, ModulesGraph* graph)
+    : QAbstractTableModel(parent)
 {
     this->graph = graph;
 

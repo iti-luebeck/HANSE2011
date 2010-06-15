@@ -16,8 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    healthModel = new HealthModel(&graph);
-    dataModel = new DataModel(&graph);
+    healthModel = new HealthModel(this, &graph);
+    dataModel = new DataModel(this, &graph);
 
     ui->healthView->setModel(healthModel);
     ui->dataView->setModel(dataModel);
