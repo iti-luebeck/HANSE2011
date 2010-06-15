@@ -1,6 +1,7 @@
 #include "form_navigation.h"
 #include "ui_form_navigation.h"
 #include <Module_Navigation/waypointdialog.h>
+#include <QFileDialog>
 
 Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     QWidget(parent),
@@ -13,7 +14,6 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
 Form_Navigation::~Form_Navigation()
 {
     delete ui;
-    delete scene;
 }
 
 void Form_Navigation::changeEvent(QEvent *e)
@@ -71,4 +71,24 @@ void Form_Navigation::updateView( QGraphicsScene *scene )
 {
     ui->graphicsView->setScene( scene );
     ui->graphicsView->show();
+}
+
+void Form_Navigation::on_pushButton_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory( this, QString( "Choose map directory" ),
+                                                      QString( "maps" ) );
+    if ( !path.isEmpty() )
+    {
+        nav->save( path );
+    }
+}
+
+void Form_Navigation::on_pushButton_2_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory( this, QString( "Choose map directory" ),
+                                                      QString( "maps" ) );
+    if ( !path.isEmpty() )
+    {
+        nav->load( path );
+    }
 }

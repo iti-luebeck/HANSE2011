@@ -8,6 +8,7 @@ class Landmark
 {
 public:
     Landmark( CvMat *observation, CvMat *Robservation, int featureNr, int classNr );
+    Landmark( const Landmark& landmark );
     Landmark();
     ~Landmark();
     double update( CvMat *observation, CvMat *expectedObservation,
@@ -25,6 +26,11 @@ public:
 private:
     void initTemporaryMatrices();
 
+public:
+    int references;
+    int featureNr;
+    int classNr;
+
 private:
     CvMat *Sigma;
     CvMat *pos;
@@ -38,9 +44,6 @@ private:
     CvMat *Mtemp3;
     CvMat *Mtemp4;
     CvMat *L;
-    int references;
-    int featureNr;
-    int classNr;
 };
 
 #endif // LANDMARK_H

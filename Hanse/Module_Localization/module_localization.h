@@ -63,6 +63,8 @@ public:
 
     void save( QTextStream &ts );
 
+    void load( QTextStream &ts );
+
 public slots:
     /**
       * clears the history.

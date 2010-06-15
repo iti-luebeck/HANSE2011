@@ -25,12 +25,13 @@ private:
     Ui::Form_Navigation *ui;
     Module_Navigation *nav;
     QMap<QString, Position> waypoints;
-    QGraphicsScene *scene;
 
 signals:
     void removedWaypoint( QString name );
 
 private slots:
+    void on_pushButton_2_clicked();
+    void on_pushButton_clicked();
     void on_removeButton_clicked();
     void on_addButton_clicked();
     void on_listWidget_itemDoubleClicked(QListWidgetItem* item);

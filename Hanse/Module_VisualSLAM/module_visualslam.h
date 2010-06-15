@@ -65,6 +65,8 @@ public:
 
     void save( QTextStream &ts );
 
+    void load( QTextStream &ts );
+
     void run();
     void start();
     void stop();

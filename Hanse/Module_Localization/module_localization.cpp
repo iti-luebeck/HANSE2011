@@ -36,12 +36,18 @@ bool Module_Localization::isLocalizationLost()
 
 void Module_Localization::plot( QGraphicsScene *scene )
 {
+    scene->clear();
     visualSLAM->plot( scene );
 }
 
 void Module_Localization::save( QTextStream &ts )
 {
     visualSLAM->save( ts );
+}
+
+void Module_Localization::load( QTextStream &ts )
+{
+    visualSLAM->load( ts );
 }
 
 void Module_Localization::reset()

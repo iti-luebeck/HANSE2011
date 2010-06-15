@@ -84,7 +84,9 @@ HEADERS += Framework/healthstatus.h \
     Module_Navigation/waypointdialog.h \
     Module_Navigation/module_navigation.h \
     Module_Navigation/form_navigation.h \
-    Framework/dataloghelper.h
+    Framework/dataloghelper.h \
+    Module_VisualSLAM/slam/visualslamparticle.h \
+    Framework/qgraphicsviewextended.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -153,7 +155,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_Navigation/waypointdialog.cpp \
     Module_Navigation/module_navigation.cpp \
     Module_Navigation/form_navigation.cpp \
-    Framework/dataloghelper.cpp
+    Framework/dataloghelper.cpp \
+    Module_VisualSLAM/slam/visualslamparticle.cpp \
+    Framework/qgraphicsviewextended.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \

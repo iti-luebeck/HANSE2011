@@ -71,7 +71,7 @@ void Module_Navigation::plot()
 }
 
 void Module_Navigation::save( QString path )
-{    
+{
     QString slamFile = path;
     slamFile.append( "/slam.txt" );
 
@@ -79,4 +79,15 @@ void Module_Navigation::save( QString path )
     file.open( QIODevice::WriteOnly );
     QTextStream ts( &file );
     localization->save( ts );
+}
+
+void Module_Navigation::load( QString path )
+{
+    QString slamFile = path;
+    slamFile.append( "/slam.txt" );
+
+    QFile file( slamFile );
+    file.open( QIODevice::ReadOnly );
+    QTextStream ts( &file );
+    localization->load( ts );
 }

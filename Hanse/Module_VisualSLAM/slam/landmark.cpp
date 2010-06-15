@@ -3,17 +3,35 @@
 
 Landmark::Landmark( CvMat *observation, CvMat *Robservation, int featureNr, int classNr )
 {
-    references = 0;
+    pos = cvCreateMat( 3, 1, CV_32F );
+    cvCopy( observation, pos );
+    Sigma = cvCreateMat( 3, 3, CV_32F );
+    cvCopy( Robservation, Sigma );
+
+    references = 1;
     this->featureNr = featureNr;
     this->classNr = classNr;
-    cvCopy( observation, pos );
-    cvCopy( Robservation, Sigma );
+
+    initTemporaryMatrices();
+}
+
+Landmark::Landmark( const Landmark& landmark )
+{
+    pos = cvCreateMat( 3, 1, CV_32F );
+    cvCopy( landmark.pos, pos );
+    Sigma = cvCreateMat( 3, 3, CV_32F );
+    cvCopy( landmark.Sigma, Sigma );
+
+    references = landmark.references;
+    featureNr = landmark.featureNr;
+    classNr = landmark.classNr;
 
     initTemporaryMatrices();
 }
 
 Landmark::Landmark()
 {
+    references = 1;
     initTemporaryMatrices();
 }
 
@@ -35,8 +53,6 @@ Landmark::~Landmark()
 
 void Landmark::initTemporaryMatrices()
 {
-    pos = cvCreateMat( 3, 1, CV_32F );
-    Sigma = cvCreateMat( 3, 3, CV_32F );
     Z = cvCreateMat( 3, 3, CV_32F );
     Zinv = cvCreateMat( 3, 3, CV_32F );
     K = cvCreateMat( 3, 3, CV_32F );
@@ -156,6 +172,12 @@ void Landmark::save( QTextStream &ts )
     // Store references.
     ts << references << endl;
 
+    // Store feature number.
+    ts << featureNr << endl;
+
+    // Store class of landmark.
+    ts << classNr << endl;
+
     // Store position.
     ts << cvmGet( pos, 0, 0 ) << " "
        << cvmGet( pos, 1, 0 ) << " "
@@ -174,5 +196,24 @@ void Landmark::save( QTextStream &ts )
 
 void Landmark::load( QTextStream &ts )
 {
+    // Load feature number and class. References will be initialized to 1.
+    double temp;
+    ts >> temp >> featureNr >> classNr;
+    references = 1;
 
+    ts >> temp;
+    cvmSet( pos, 0, 0, temp );
+    ts >> temp;
+    cvmSet( pos, 1, 0, temp );
+    ts >> temp;
+    cvmSet( pos, 2, 0, temp );
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        for ( int j = 0; j < 3; j++ )
+        {
+            ts >> temp;
+            cvmSet( pos, i, j, temp );
+        }
+    }
 }

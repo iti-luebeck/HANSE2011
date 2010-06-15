@@ -5,7 +5,8 @@
 #include <QtGui>
 
 Module_VisualSLAM::Module_VisualSLAM(QString id, Module_SonarLocalization *sonarLocalization) :
-        RobotModule(id)
+        RobotModule(id),
+        slam( 100 )
 {
     this->sonarLocalization = sonarLocalization;
     cap.setMutex( &updateMutex );
@@ -66,7 +67,7 @@ void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>p
     logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     startClock = clock();
-    slam.update( descriptors, pos3D, pos2D, classesVector );
+    slam.update( descriptors, pos3D, classesVector );
     for ( int i = 0; i < descriptors.size(); i++ )
     {
         cvReleaseMat( &descriptors[i] );
@@ -143,6 +144,11 @@ void Module_VisualSLAM::plot( QGraphicsScene *scene )
 void Module_VisualSLAM::save( QTextStream &ts )
 {
     slam.save( ts );
+}
+
+void Module_VisualSLAM::load( QTextStream &ts )
+{
+    slam.load( ts );
 }
 
 QList<RobotModule*> Module_VisualSLAM::getDependencies()

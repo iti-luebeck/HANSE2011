@@ -80,6 +80,7 @@ public slots:
     void removeWaypoint( QString name );
     void plot();
     void save( QString path );
+    void load( QString path );
 
 signals:
     void healthStatusChanged(HealthStatus data);
