@@ -88,7 +88,8 @@ HEADERS += Framework/healthstatus.h \
     Module_VisualSLAM/slam/visualslamparticle.h \
     Framework/qgraphicsviewextended.h \
     Framework/moduledataview.h \
-    Framework/modulehealthview.h
+    Framework/modulehealthview.h \
+    Framework/qclosabledockwidget.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -161,7 +162,8 @@ SOURCES += Framework/robotmodule.cpp \
     Module_VisualSLAM/slam/visualslamparticle.cpp \
     Framework/qgraphicsviewextended.cpp \
     Framework/moduledataview.cpp \
-    Framework/modulehealthview.cpp
+    Framework/modulehealthview.cpp \
+    Framework/qclosabledockwidget.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
