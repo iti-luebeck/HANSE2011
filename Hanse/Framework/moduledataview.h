@@ -2,6 +2,7 @@
 #define MODULEDATAVIEW_H
 
 #include <QWidget>
+#include <QSettings>
 #include <Framework/modulesgraph.h>
 #include <Framework/datamodel.h>
 
@@ -23,6 +24,7 @@ private:
     Ui::ModuleDataView *ui;
     ModulesGraph *graph;
     DataModel *dataModel;
+    QSettings s;
 
 private slots:
     void on_filter_textChanged(QString );

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include<Framework/modulesgraph.h>
 #include <Framework/healthmodel.h>
+#include <QSettings>
 
 namespace Ui {
     class ModuleHealthView;
@@ -21,6 +22,7 @@ protected:
 private:
     Ui::ModuleHealthView *ui;
     HealthModel *model;
+    QSettings s;
 };
 
 #endif // MODULEHEALTHVIEW_H

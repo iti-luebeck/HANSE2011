@@ -13,6 +13,17 @@ ModuleDataView::ModuleDataView(ModulesGraph *graph, QWidget *parent) :
 
     ui->dataView->setModel(dataModel);
 
+    s.beginGroup("docks");
+
+    QStringList ds = s.value("openDataWidgets").toStringList();
+    ds.append(parent->objectName());
+    ds.removeDuplicates();
+    s.setValue("openDataWidgets",ds);
+
+    QString filter = s.value(parent->objectName()).toString();
+    dataModel->setFilter(filter);
+    ui->filter->setText(filter);
+
 }
 
 ModuleDataView::~ModuleDataView()
@@ -35,4 +46,5 @@ void ModuleDataView::changeEvent(QEvent *e)
 void ModuleDataView::on_filter_textChanged(QString filter)
 {
     dataModel->setFilter(filter);
+    s.setValue(parent()->objectName(),filter);
 }

@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <Framework/moduledataview.h>
 #include <Framework/modulehealthview.h>
+#include <Framework/qclosabledockwidget.h>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -58,6 +59,28 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionEnable_All, SIGNAL(triggered()), this, SLOT(enableAll()));
     connect(ui->actionNew_window, SIGNAL(triggered()), this, SLOT(openNewDataWindow()));
     connect(ui->actionHealthDockItem, SIGNAL(triggered()), this, SLOT(openNewHealthWindow()));
+
+    QSettings sets;
+    sets.beginGroup("docks");
+
+    QStringList s = sets.value("openHealthWidgets").toStringList();
+    s.removeDuplicates();
+    foreach (QString uuid, s) {
+        QClosableDockWidget *dockWidget = new QClosableDockWidget("Health", this, uuid);
+        dockWidget->setObjectName(uuid);
+        dockWidget->setWidget(new ModuleHealthView(&graph, dockWidget));
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+    }
+
+    QStringList ds = sets.value("openDataWidgets").toStringList();
+    ds.removeDuplicates();
+    foreach (QString uuid, ds) {
+        QClosableDockWidget *dockWidget = new QClosableDockWidget("Data", this, uuid);
+        dockWidget->setObjectName(uuid);
+        dockWidget->setWidget(new ModuleDataView(&graph, dockWidget));
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+    }
+
     readSettings();
 }
 
@@ -68,22 +91,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::openNewHealthWindow()
 {
-     QDockWidget *dockWidget = new QDockWidget("Health", this);
-     dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea |
-                                 Qt::TopDockWidgetArea |
-                                 Qt::LeftDockWidgetArea |
-                                 Qt::RightDockWidgetArea);
+     QClosableDockWidget *dockWidget = new QClosableDockWidget("Health", this, "");
      dockWidget->setWidget(new ModuleHealthView(&graph, dockWidget));
      addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
 }
 
 void MainWindow::openNewDataWindow()
 {
-     QDockWidget *dockWidget = new QDockWidget("Data", this);
-     dockWidget->setAllowedAreas(Qt::BottomDockWidgetArea |
-                                 Qt::TopDockWidgetArea |
-                                 Qt::LeftDockWidgetArea |
-                                 Qt::RightDockWidgetArea);
+     QClosableDockWidget *dockWidget = new QClosableDockWidget("Data", this, "");
      dockWidget->setWidget(new ModuleDataView(&graph, dockWidget));
      addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
 }
@@ -111,16 +126,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::writeSettings()
 {
-    settings.setValue("gui/pos", pos());
-    settings.setValue("gui/size", size());
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
 }
 
 void MainWindow::readSettings()
 {
-    QPoint pos = settings.value("gui/pos", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("gui/size", QSize(400, 400)).toSize();
-    resize(size);
-    move(pos);
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
 }
 
 void MainWindow::disableAll()

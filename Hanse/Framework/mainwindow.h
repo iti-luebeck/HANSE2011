@@ -53,7 +53,6 @@ private slots:
 
     void openNewDataWindow();
     void openNewHealthWindow();
-
 };
 
 #endif // MAINWINDOW_H

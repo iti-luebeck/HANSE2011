@@ -9,6 +9,13 @@ ModuleHealthView::ModuleHealthView(ModulesGraph *graph, QWidget *parent) :
 
     model = new HealthModel(this, graph);
 
+    s.beginGroup("docks");
+    
+    QStringList ds = s.value("openHealthWidgets").toStringList();
+    ds.append(parent->objectName());
+    ds.removeDuplicates();
+    s.setValue("openHealthWidgets",ds);
+
     ui->healthView->setModel(model);
 }
 
