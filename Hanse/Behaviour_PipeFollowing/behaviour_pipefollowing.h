@@ -61,7 +61,8 @@ public:
     void compIntersect(double rho, double theta);
     /** the p-controller. controls the angle speed of the robot */
     void controlPipeFollow();
-
+    /** reset first run for median filter */
+    void resetFirstRun();
 private:
 
     /** Update data on data panel */
@@ -80,7 +81,6 @@ private:
     bool active;
     VideoCapture vc;
     int cameraID;
-    int i;
     int threshSegmentation;
     int debug;
 
@@ -98,9 +98,10 @@ private:
     float maxDistance;
 
     /* fuer den median */
-    double meanRho[5];
-    double meanTheta[5];
+    float meanRho[5];
+    float meanTheta[5];
 
+    int firstRun;
 private slots:
     void timerSlot();
 

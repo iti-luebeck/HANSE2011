@@ -18,7 +18,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     Behaviour_PipeFollowing::active = false;
 
     form = new PipeFollowingForm( NULL, this);
-
+    Behaviour_PipeFollowing::firstRun = 1;
  }
 
 bool Behaviour_PipeFollowing::isActive()
@@ -110,8 +110,11 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
         vc >> frame;
         //            Mat tframe = frame;
         //            transpose(tframe,frame);
+        logger->debug("suche rohr");
         Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
+        logger->debug("rohr");
         Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
+        logger->debug("naechste");
     }
     vc.release();
 
@@ -403,18 +406,41 @@ void Behaviour_PipeFollowing::updateData()
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
 {
-    for(int i = 0; i < sizeof(meanRho)-1; i++)
+    qDebug() << Behaviour_PipeFollowing::firstRun;
+    if(Behaviour_PipeFollowing::firstRun > 0)
     {
-        meanRho[i] = meanRho[i+1];
-        meanTheta[i] = meanTheta[i+1];
+        for(int i = 0; i < 5;i++)
+        {
+            Behaviour_PipeFollowing::meanRho[i] = rho;
+            Behaviour_PipeFollowing::meanTheta[i] = theta;
+        }
+        Behaviour_PipeFollowing::firstRun = 0;
     }
-    meanRho[sizeof(meanRho)] = rho;
-    meanTheta[sizeof(meanTheta)] = theta;
+//    for(int i = 0; i < sizeof(Behaviour_PipeFollowing::meanRho)-1; i++)
+    for(int i = 0; i < 4; i++)
+    {
+        Behaviour_PipeFollowing::meanRho[i] = Behaviour_PipeFollowing::meanRho[i+1];
+        Behaviour_PipeFollowing::meanTheta[i] = Behaviour_PipeFollowing::meanTheta[i+1];
+    }
+    Behaviour_PipeFollowing::meanRho[5] = rho;
+    Behaviour_PipeFollowing::meanTheta[5] = theta;
+
+    qDebug() << sizeof(Behaviour_PipeFollowing::meanRho) / sizeof(float);
+    for(int i = 0; i < 5; i++)
+    {
+//        qDebug() << "mean" << Behaviour_PipeFollowing::meanRho[i]
+//                << Behaviour_PipeFollowing::meanTheta[i];
+    }
 
     std::sort(meanRho, meanRho + 5);
     std::sort(meanTheta, meanTheta + 5);
+
 
     rho = meanRho[2];
     theta = meanTheta[2];
 }
 
+void Behaviour_PipeFollowing::resetFirstRun()
+{
+    Behaviour_PipeFollowing::firstRun = 0;
+}

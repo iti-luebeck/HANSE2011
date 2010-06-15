@@ -71,6 +71,7 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
     pipefollow->setRobCenter(ui->robCenterXLineEdit->text().toDouble(),
                              ui->robCenterYLineEdit->text().toDouble());
     pipefollow->setDebug(ui->debugCheckBox->isChecked());
+    pipefollow->resetFirstRun();
 
 }
 
