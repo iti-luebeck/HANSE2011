@@ -119,7 +119,7 @@ void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>p
 void Module_VisualSLAM::plot( QGraphicsScene *scene )
 {
     sceneMutex.lock();
-    startClock = clock();
+//    startClock = clock();
 
 //    QImage image1((unsigned char*)cap.getFrame(0)->imageData, 640, 480, QImage::Format_RGB888);
 //    image1 = image1.scaledToHeight(120);
@@ -136,8 +136,8 @@ void Module_VisualSLAM::plot( QGraphicsScene *scene )
 //    pitem2->setPos( 260, 190 );
 
     slam.plot( scene );
-    stopClock = clock();
-    logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
+//    stopClock = clock();
+//    logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
     sceneMutex.unlock();
 }
 
