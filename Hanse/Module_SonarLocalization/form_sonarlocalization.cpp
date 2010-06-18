@@ -16,17 +16,29 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
 {
     ui->setupUi(this);
 
-    scene = new QGraphicsScene(parent);
-    ui->mapView->setScene(scene);
-    ui->mapView->scale(5,5);
-
     this->m = m;
+
+    currentPos = NULL;
+
+    createPlot();
+
+    scene = new QGraphicsScene(parent);
+    createMap();
+
+    setFields();
+
+    on_plotSelect_valueChanged(0);
+
+    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
+    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
+}
+
+void Form_SonarLocalization::createPlot()
+{
     QLayout* l = new QBoxLayout(QBoxLayout::LeftToRight);
     plot = new QwtPlot(ui->plotFrame);
     l->addWidget(plot);
     ui->plotFrame->setLayout(l);
-
-    currentPos = NULL;
 
     // add curves
     curveRaw = new QwtPlotCurve("Raw data");
@@ -45,11 +57,14 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     legend->setFrameStyle(QFrame::Box|| QFrame::Sunken);
     plot->insertLegend(legend,QwtPlot::BottomLegend);
 
-    on_plotSelect_valueChanged(0);
+}
 
-    ui->config_mapFile->setText(m->getSettings().value("mapFile").toString());
-    ui->config_satImage->setText(m->getSettings().value("satImgFile").toString());
+void Form_SonarLocalization::createMap()
+{
+    ui->mapView->setScene(scene);
+    ui->mapView->scale(5,5);
 
+    ui->PFactive->setVisible(false);
 
     QImage satImg(m->getSettings().value("satImgFile").toString());
     QGraphicsPixmapItem *result = scene->addPixmap(QPixmap::fromImage(satImg));
@@ -66,9 +81,32 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     foreach (QVector2D p, m->pf->mapPoints) {
         scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
     }
+}
 
-    //connect(m->filter, SIGNAL(newImage(QVector<QVector2D>)), this, SLOT(newImage(QVector<QVector2D>)));
-    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
+void Form_SonarLocalization::setFields()
+{
+
+    ui->config_mapFile->setText(m->getSettings().value("mapFile").toString());
+    ui->config_satImage->setText(m->getSettings().value("satImgFile").toString());
+
+    ui->debug->setChecked((m->getSettings().value("debug").toBool()));
+
+    ui->gaussFactor->setText((m->getSettings().value("gaussFactor").toString()));
+
+    ui->darknessCnt->setText((m->getSettings().value("darknessCnt").toString()));
+    ui->swipedArea->setText((m->getSettings().value("swipedArea").toString()));
+
+    ui->wallWindowSize->setText((m->getSettings().value("wallWindowSize").toString()));
+    ui->varTH->setText((m->getSettings().value("varTH").toString()));
+    ui->largePeakTH->setText((m->getSettings().value("largePeakTH").toString()));
+    ui->meanBehindTH->setText((m->getSettings().value("meanBehindTH").toString()));
+
+    ui->imgMinPixels->setText((m->getSettings().value("imgMinPixels").toString()));
+    ui->controlVariance->setText((m->getSettings().value("controlVariance").toString()));
+    ui->initVariance->setText((m->getSettings().value("initVariance").toString()));
+    ui->distanceCutoff->setText((m->getSettings().value("distanceCutoff").toString()));
+    ui->particleCount->setText((m->getSettings().value("particleCount").toString()));
+    ui->boltzmann->setText((m->getSettings().value("boltzmann").toString()));
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -133,22 +171,38 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
 
     curveVarTH->setSymbol(QwtSymbol(QwtSymbol::HLine, QBrush(), QPen("green"), QSize(2000,1)));
     curveVarTH->setXValue(0);
-    curveVarTH->setYValue(m->filter->stdDevInWindowTH);
+    curveVarTH->setYValue(m->getSettings().value("varTH").toFloat());
     curveVarTH->attach(plot);
 
     // finally, refresh the plot
     plot->replot();
 }
 
-void Form_SonarLocalization::newImage(QVector<QVector2D> observations)
-{
-
-}
-
 void Form_SonarLocalization::on_pushButton_clicked()
 {
     m->getSettings().setValue("mapFile", ui->config_mapFile->text());
     m->getSettings().setValue("satImgFile", ui->config_satImage->text());
+
+    m->getSettings().setValue("debug", ui->debug->isChecked());
+
+    m->getSettings().setValue("gaussFactor", ui->gaussFactor->text());
+
+    m->getSettings().setValue("darknessCnt", ui->darknessCnt->text());
+    m->getSettings().setValue("swipedArea", ui->swipedArea->text());
+
+    m->getSettings().setValue("wallWindowSize", ui->wallWindowSize->text());
+    m->getSettings().setValue("varTH", ui->varTH->text());
+    m->getSettings().setValue("largePeakTH", ui->largePeakTH->text());
+    m->getSettings().setValue("meanBehindTH", ui->meanBehindTH->text());
+
+    m->getSettings().setValue("imgMinPixels", ui->imgMinPixels->text());
+    m->getSettings().setValue("controlVariance", ui->controlVariance->text());
+    m->getSettings().setValue("initVariance", ui->initVariance->text());
+    m->getSettings().setValue("distanceCutoff", ui->distanceCutoff->text());
+    m->getSettings().setValue("particleCount", ui->particleCount->text());
+    m->getSettings().setValue("boltzmann", ui->boltzmann->text());
+
+    m->reset();
 }
 
 void Form_SonarLocalization::newPositionEstimate(QVector3D e)
@@ -164,11 +218,6 @@ void Form_SonarLocalization::newPositionEstimate(QVector3D e)
 
     on_spinBox_valueChanged(ui->spinBox->value());
 
-}
-
-void Form_SonarLocalization::on_nextz_clicked()
-{
-    m->pf->doNextUpdate();
 }
 
 void Form_SonarLocalization::on_spinBox_valueChanged(int p)
@@ -202,4 +251,26 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
         delete currentPos;
     currentPos = scene->addEllipse(m->pf->getParticles()[p].x(), m->pf->getParticles()[p].y(), 1,1,QPen(QColor("red")));
     currentPos->setZValue(10);
+}
+
+void Form_SonarLocalization::particleFilterStatus(bool status) {
+    ui->PFactive->setVisible(status);
+}
+
+void Form_SonarLocalization::on_selMap_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+         "Open Map file", ui->config_mapFile->text(), "Selfmade map file (*.png *.jpg)");
+
+    if (fileName.length()>0)
+        ui->config_mapFile->setText(fileName);
+}
+
+void Form_SonarLocalization::on_selSat_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+         "Open satellite image", ui->config_satImage->text(), "satellite image file (*.png *.jpg)");
+
+    if (fileName.length()>0)
+        ui->config_satImage->setText(fileName);
 }

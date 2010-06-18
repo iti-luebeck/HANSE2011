@@ -1,41 +1,44 @@
 #include "sonarechofilter.h"
-
 #include <Module_ScanningSonar/sonarreturndata.h>
 #include <opencv/cv.h>
 #include <QtCore>
 #include <Module_ScanningSonar/module_scanningsonar.h>
+#include <Module_SonarLocalization/module_sonarlocalization.h>
 
 using namespace cv;
 
-SonarEchoFilter::SonarEchoFilter(Module_ScanningSonar* sonar)
-    :QObject()
+SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent)
+    : s(parent->getSettings())
 {
-    this->sonar = sonar;
+    this->sloc = parent;
 
     logger = Log4Qt::Logger::logger("SonarFilter");
 
-    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(newSonarData(SonarReturnData)));
-
-    this->darknessCount = 0;
-    this->swipedArea = 0;
-    this->currentID = 0;
-
+    reset();
 }
 
-
+/**
+  * do some preprocessing on newly received sonar data.
+  * try to find the wall, and put the wall position in a queue.
+  * if we found a sufficiently long consequtive piece of wall,
+  * group them in an image and send it off to the particle filter.
+  */
 void SonarEchoFilter::newSonarData(SonarReturnData data)
 {
-    if (!sonar->isEnabled())
+    if (!sloc->isEnabled())
         return;
 
     QByteArray byteEcho = data.getEchoData();
-    logger->trace("Received " + QString::number(byteEcho.size())+ " sonar echos.");
+    
+    if (byteEcho.size() != 252)
+        logger->warn("Received " + QString::number(N)+ " sonar echos: Didn't test this!");
 
-    // TODO: why 252??? it should be 250, or not?
+    // throw away the last two samples to make some calculations easier
     byteEcho.chop(byteEcho.size()-N);
     Mat echo = byteArray2Mat(byteEcho);
 
-    echo = echo/127.0;
+    // normalize
+    echo /= MAX;
 
     // filter out noise etc.
     Mat echoFiltered = filterEcho(data,echo);
@@ -55,7 +58,6 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     } else {
         logger->trace("found peak at "+QString::number(K));
         darknessCount=0;
-        K_history.append(K);
         kHistory[data.switchCommand.time]=K;
 
         localKlist.append(K);
@@ -75,10 +77,12 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     }
 
     // todo: this must be absolutely robust!!
-    if (localKlist.size()>0 && (darknessCount>=20 || swipedArea>350)) {
+    if (localKlist.size()>0 && (darknessCount>=s.value("darknessCnt").toInt() || swipedArea>s.value("swipedArea").toInt())) {
         // connect Ks until we have a closed image
         // transform from polar coordinates int euclid coordinates
         // form lines between points
+
+        QList<QVector2D> posArray;
 
         posArray.clear();
         for(int i=0; i<localKlist.size(); i++) {
@@ -98,7 +102,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 //            }
 
             if (sqrt(x*x+y*y)>10) // ahhhh: evil heuristic!
-                this->posArray.append(QVector2D(x,y)); // TODO mirror then adaptively
+                posArray.append(QVector2D(x,y)); // TODO mirror then adaptively
         }
         localKlist.clear();
         localKlistHeading.clear();
@@ -120,18 +124,20 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
 
     QVector<double> thresh;
 
-    int wSize = 1;
+    int wSize = 1; // fixed!!!
 
     // remove noise from signal
     for(int i=wSize; i<N-wSize; i++) {
         Mat window = echo.colRange(i-wSize, i+wSize);
 
         // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
-        echoFiltered.at<float>(0,i) = 0.1065*window.at<float>(0,0)
-                                     + 0.7870*window.at<float>(0,1)
-                                     + 0.1065*window.at<float>(0,2);
+        float gF = s.value("gaussFactor").toFloat();
+        echoFiltered.at<float>(0,i) =  window.at<float>(0,0)*(1-gF)/2
+                                     + window.at<float>(0,1)*gF
+                                     + window.at<float>(0,2)*(1-gF)/2;
 
         //GAIN=16: sensorNoiseThresh=max((7/20)*((1:250)-50),0);
+        // TODO: either adapt or settings!
         float cutOff=0;
         if (data.switchCommand.startGain==15)
             cutOff = (7.0/20)*(i-50)/127;
@@ -159,7 +165,7 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 {
     // find last maximum
 
-    int wSize=3;
+    int wSize=s.value("wallWindowSize").toInt();
 
     QVector<double> varHist(N);
     QVector<double> meanHist(N);
@@ -181,8 +187,7 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
         varHist[j]=stdDevInWindow;
 
         // TODO: fiddle with TH, or move it a little bit to the left
-        bool largePeak = mean[0]>0.5;
-
+        bool largePeak = mean[0]>s.value("largePeakTH").toFloat();
 
         // calc mean in area behind our current pos.
         Mat prev = echo.colRange(j+wSize,echo.cols-1);
@@ -192,16 +197,43 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
         meanHist[j]=meanBehind;
 
         // take first peak found.
-        if (stdDevInWindow > stdDevInWindowTH && meanBehind<meanBehindTH && largePeak && K<0) {
+        if (stdDevInWindow > s.value("varTH").toFloat()
+            && meanBehind<s.value("meanBehindTH").toFloat()
+            && largePeak && K<0) {
             K=j;
         }
 
     }
 
-    varHistory[data.switchCommand.time] = varHist;
-    meanHistory[data.switchCommand.time] = meanHist;
-
+    // we could optimize some more, but it shouldn't matter
+    if (DEBUG) {
+        varHistory[data.switchCommand.time] = varHist;
+        meanHistory[data.switchCommand.time] = meanHist;
+    }
     return K;
+}
+
+void SonarEchoFilter::reset()
+{
+    this->DEBUG = s.value("DEBUG").toBool();
+
+    this->darknessCount = 0;
+    this->swipedArea = 0;
+    this->currentID = 0;
+
+    rawHistory.clear();
+    filteredHistory.clear();
+    kHistory.clear();
+    threshHistory.clear();
+    varHistory.clear();
+    meanHistory.clear();
+
+    localKlist.clear();
+    localKlistHeading.clear();
+    localKlistID.clear();
+    currentID = -1;
+    swipedArea = 0;
+    darknessCount = 0;
 }
 
 Mat SonarEchoFilter::byteArray2Mat(QByteArray array)

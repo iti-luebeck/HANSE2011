@@ -13,16 +13,24 @@ Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSo
     : RobotModule(id)
 {
     this->sonar = sonar;
-    this->filter = new SonarEchoFilter(sonar);
+    this->filter = new SonarEchoFilter(this);
+    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), filter, SLOT(newSonarData(SonarReturnData)));
+
+    // run particle filter in own thread
     this->pf = new SonarParticleFilter(this, filter);
+    qRegisterMetaType< QList<QVector2D> >("QList<QVector2D>");
+    connect(filter, SIGNAL(newImage(QList<QVector2D>)), pf, SLOT(newImage(QList<QVector2D>)));
     pfThread.start();
-    //pf->moveToThread(&pfThread);
+    pf->moveToThread(&pfThread);
+
+
 }
 
 void Module_SonarLocalization::reset()
 {
     RobotModule::reset();
-    // TODO
+    filter->reset();
+    pf->reset();
 }
 
 void Module_SonarLocalization::terminate()

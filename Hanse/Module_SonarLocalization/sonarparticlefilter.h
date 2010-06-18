@@ -27,23 +27,27 @@ public:
 
     SonarParticleFilter(Module_SonarLocalization* sonar, SonarEchoFilter *filter);
 
+    void reset();
+
     QVector<QVector4D> getParticles();
 
 signals:
     void newPosition(QVector3D position);
+    void working(bool);
 
 public slots:
     void doNextUpdate();
 
 private:
 
-    QQueue< QVector<QVector2D> > zList;
-    QVector<QVector2D> lastZ;
+    QSettings& s;
+
+    QQueue< QList<QVector2D> > zList;
+    QList<QVector2D> lastZ;
 
     Log4Qt::Logger *logger;
     QMutex particlesMutex;
-    const static int N = 1000;
-    const static double DISTANCE_CUTOFF = 10000;
+    int N;
 
     QVector3D controlVariance;
     QVector3D initialVariance;
@@ -57,8 +61,6 @@ private:
     Mat forbiddenArea;
 
     void loadMap();
-
-    void reset();
 
     QVector3D getBestEstimate();
 
@@ -80,7 +82,7 @@ private:
     double min(QVector<double>);
     double sum(QVector<double>);
 private slots:
-    void newImage(QVector<QVector2D> observations);
+    void newImage(QList<QVector2D> observations);
 };
 
 #endif // SONARPARTICLEFILTER_H

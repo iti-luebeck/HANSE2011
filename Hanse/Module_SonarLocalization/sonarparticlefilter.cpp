@@ -9,36 +9,56 @@ using namespace cv;
 using namespace std;
 
 SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization* sonar, SonarEchoFilter *filter)
-    : QObject(), controlVariance(15,15,1.5), initialVariance(180,180,1.5)
+    : controlVariance(0,0,0), initialVariance(0,0,0), s(sonar->getSettings())
 {
     logger = Log4Qt::Logger::logger("SonarFilter");
     this->sonar = sonar;
     this->filter = filter;
-
-    //QMutexLocker m(&particlesMutex);
-
-    qRegisterMetaType< QVector<QVector2D> >("QVector<QVector2D>");
-    connect(filter, SIGNAL(newImage(QVector<QVector2D>)), this, SLOT(newImage(QVector<QVector2D>)));
-
-    // LOAD MAP (walls and forbidden areas)
 
     loadMap();
 
     reset();
 }
 
-void SonarParticleFilter::newImage(QVector<QVector2D> observations)
+void SonarParticleFilter::newImage(QList<QVector2D> observations)
 {
 
     logger->debug("Queued new observation.");
     zList.append(observations);
-    //doNextUpdate();
+    emit working(true);
+    doNextUpdate();
+    emit working(false);
 }
 
 void SonarParticleFilter::reset()
 {
     QMutexLocker m(&particlesMutex);
+
+    N = s.value("particleCount").toInt();
+    if (N<1)
+        N=100;
+
     particles.resize(N);
+
+    QStringList initVarString = s.value("initVariance").toString().split(";");
+    if (initVarString.size()<3) {
+        logger->error("could not parse initVariance");
+    } else {
+        initialVariance = QVector3D(initVarString[0].toFloat(),
+                                    initVarString[1].toFloat(),
+                                    initVarString[2].toFloat());
+    }
+
+    QStringList controlVarString = s.value("controlVariance").toString().split(";");
+    if (controlVarString.size()<3) {
+        logger->error("could not parse controlVariance");
+    } else {
+        controlVariance = QVector3D(controlVarString[0].toFloat(),
+                                    controlVarString[1].toFloat(),
+                                    controlVarString[2].toFloat());
+    }
+
+    // TODO: initial pos!!!
     QVector3D initialPos = img2map(QVector2D(370,300)).toVector3D();
     initialPos.setZ(-M_PI/4+0.5);
     for (int i=0; i<N; i++) {
@@ -76,7 +96,7 @@ void SonarParticleFilter::loadMap()
             if (channels[0].at<unsigned char>(r,c)==0
                 && channels[1].at<unsigned char>(r,c)==0
                 && channels[2].at<unsigned char>(r,c)==0
-                && qrand() < RAND_MAX/5 ) {
+                && qrand() < RAND_MAX/5 ) {  // TODo
                 this->mapPoints.append(img2map(QVector2D(c,r)));
             }
         }
@@ -95,6 +115,8 @@ QVector2D SonarParticleFilter::img2map(QVector2D imgPoint)
 
 QVector3D SonarParticleFilter::getBestEstimate()
 {
+    QMutexLocker m(&particlesMutex);
+
     // assume that the list is already sorted.
     return particles[0].toVector3D();
 }
@@ -122,6 +144,9 @@ double SonarParticleFilter::meassureObservation(QVector<QVector2D> observations)
 {
     // TODO can likely be optimized by putting the mappoints into a quadtree or something...
 
+    float cutoff = s.value("distanceCutoff").toFloat();
+    float b = s.value("boltzmann").toFloat();
+
     double index = 1;
     foreach (QVector2D obsevationPoint, observations) {
         double bestVal = INFINITY;
@@ -136,9 +161,9 @@ double SonarParticleFilter::meassureObservation(QVector<QVector2D> observations)
         }
 
         if (isinf(bestVal))
-            bestVal = DISTANCE_CUTOFF;
+            bestVal = cutoff;
 
-        index *= std::exp(-bestVal/100);
+        index *= std::exp(-bestVal/b);
     }
 
     return index;
@@ -200,9 +225,13 @@ void SonarParticleFilter::doNextUpdate()
 
     logger->debug("Dequeued new observation.");
 
-    QVector<QVector2D> observations = zList.takeFirst();
+    QList<QVector2D> observations = zList.takeFirst();
 
-    if (observations.size()<10) {
+    particlesMutex.lock();
+    QVector<QVector4D> oldParticles = particles;
+    particlesMutex.unlock();
+
+    if (observations.size()<s.value("imgMinPixels").toInt()) {
         logger->warn("not enough points. dropping meassurement.");
         return;
     }
@@ -216,10 +245,10 @@ void SonarParticleFilter::doNextUpdate()
     // update paricles filter
     for(int i=0; i<N; i++) {
 
-        QVector3D oldPos = particles[i].toVector3D();
+        QVector3D oldPos = oldParticles[i].toVector3D();
 
         QVector3D newPos = oldPos + sampleGauss(QVector3D(), controlVariance);
-        particles[i] = newPos.toVector4D();
+        oldParticles[i] = newPos.toVector4D();
 
         QVector<QVector2D> observationsTransformed(observations.size());
 
@@ -239,7 +268,7 @@ void SonarParticleFilter::doNextUpdate()
             weights[i] = index;
 
         }
-        particles[i].setW(weights[i]);
+        oldParticles[i].setW(weights[i]);
         logger->debug("Particle "+QString::number(i)+" has weight "+QString::number(weights[i]));
     }
 
@@ -257,7 +286,7 @@ void SonarParticleFilter::doNextUpdate()
     cumsum[N]=1; // safety entry on top
     for (int i=0; i<N; i++) {
         weights[i] /= sumW;
-        particles[i].setW(weights[i]);
+        oldParticles[i].setW(weights[i]);
         if (i==0) cumsum[i]=weights[i];
         else      cumsum[i]=cumsum[i-1]+weights[i];
     }
@@ -277,7 +306,7 @@ void SonarParticleFilter::doNextUpdate()
         if (particle==N)
             logger->error("BUG while resampling!");
 
-        resampledParticles[i] = particles[particle];
+        resampledParticles[i] = oldParticles[particle];
     }
     particlesMutex.lock();
     particles = resampledParticles;

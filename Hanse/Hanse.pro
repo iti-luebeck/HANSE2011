@@ -35,7 +35,6 @@ HEADERS += Framework/healthstatus.h \
     Module_ScanningSonar/sonarreturndata.h \
     Module_ScanningSonar/sonardatasource.h \
     Module_ScanningSonar/sonardatarecorder.h \
-    Module_ScanningSonar/qsonarview.h \
     Module_ScanningSonar/module_scanningsonar.h \
     Module_Thruster/thruster_form.h \
     Module_Thruster/module_thruster.h \
@@ -109,7 +108,6 @@ SOURCES += Framework/robotmodule.cpp \
     Module_ScanningSonar/sonarreturndata.cpp \
     Module_ScanningSonar/sonardatasource.cpp \
     Module_ScanningSonar/sonardatarecorder.cpp \
-    Module_ScanningSonar/qsonarview.cpp \
     Module_ScanningSonar/module_scanningsonar.cpp \
     Module_Thruster/thruster_form.cpp \
     Module_Thruster/module_thruster.cpp \

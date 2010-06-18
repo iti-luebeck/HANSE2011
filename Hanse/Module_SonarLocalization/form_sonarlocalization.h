@@ -40,13 +40,20 @@ private:
 
     Module_SonarLocalization* m;
 
+    void setFields();
+    void createPlot();
+    void createMap();
+
 private slots:
+    void on_selSat_clicked();
+    void on_selMap_clicked();
     void on_spinBox_valueChanged(int );
-    void on_nextz_clicked();
     void on_pushButton_clicked();
     void on_plotSelect_valueChanged(int );
-    void newImage(QVector<QVector2D> observations);
     void newPositionEstimate(QVector3D estimate);
+
+    void particleFilterStatus(bool);
+
 };
 
 #endif // FORM_SONARLOCALIZATION_H

@@ -6,19 +6,18 @@
 #include <QtCore>
 #include <log4qt/logger.h>
 
-class Module_ScanningSonar;
+class Module_SonarLocalization;
 
 class SonarEchoFilter: public QObject
 {
     Q_OBJECT
 
 public:
-    SonarEchoFilter(Module_ScanningSonar* sonar);
+    SonarEchoFilter(Module_SonarLocalization* sonar);
 
     const static int N = 250;
 
-    const static float stdDevInWindowTH = 0.04;
-    const static float meanBehindTH = 1;
+    void reset();
 
     QMap<QDateTime,QVector<double> > rawHistory;
     QMap<QDateTime,QVector<double> > filteredHistory;
@@ -26,37 +25,39 @@ public:
     QMap<QDateTime, QVector<double> > threshHistory;
     QMap<QDateTime, QVector<double> > varHistory;
     QMap<QDateTime, QVector<double> > meanHistory;
-    QVector<int> K_history;
-    QVector<int> localKlist;
-    QVector<double> localKlistHeading;
-    QVector<int> localKlistID;
-    int currentID;
-    QVector<QVector2D> posArray;
-
-    double swipedArea;
-
-    int darknessCount;
-
-    Module_ScanningSonar* sonar;
-
-    cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
-
-    int findWall(SonarReturnData data,const cv::Mat& echo);
-
-    cv::Mat byteArray2Mat(QByteArray array);
-    QVector<double> mat2QVector(cv::Mat& mat);
 
 signals:
-    void newImage(QVector<QVector2D> observations);
+    void newImage(QList<QVector2D> observations);
 
 private slots:
     void newSonarData(SonarReturnData data);
 
 private:
+    // max value of any samples coming from the sonar
+    const static float MAX = 127;
+
+    QList<int> localKlist;
+    QList<double> localKlistHeading;
+    QList<int> localKlistID;
+    int currentID;
+    double swipedArea;
+    int darknessCount;
+
+    bool DEBUG;
+    QSettings& s;
+
+    Module_SonarLocalization* sloc;
+
     /**
       * Logger instance for this module
       */
     Log4Qt::Logger *logger;
+
+    cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
+    int findWall(SonarReturnData data,const cv::Mat& echo);
+    cv::Mat byteArray2Mat(QByteArray array);
+    QVector<double> mat2QVector(cv::Mat& mat);
+
 };
 
 #endif // SONARECHOFILTER_H

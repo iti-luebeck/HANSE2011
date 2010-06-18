@@ -4,7 +4,7 @@
 #include <Framework/dataloghelper.h>
 
 ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *parent) :
-        QWidget(parent), scene(-200,-200,500,500),
+        QWidget(parent), scene(),
     ui(new Ui::ScanningSonarForm)
 {
     ui->setupUi(this);
@@ -156,7 +156,8 @@ void ScanningSonarForm::on_fileReaderDelay_valueChanged(int )
 void ScanningSonarForm::on_selFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-         tr("Open Sonar Recording"), ui->fileName->text(), tr("Recording (*.852)"));
+         "Open Sonar Recording", ui->fileName->text(), "Recording (*.852)");
 
-    ui->fileName->setText(fileName);
+    if (fileName.length()>0)
+        ui->fileName->setText(fileName);
 }
