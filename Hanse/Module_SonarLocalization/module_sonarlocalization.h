@@ -66,6 +66,9 @@ private:
     SonarParticleFilter* pf;
     QThread pfThread;
 
+private slots:
+    void newPositionEst(QVector3D p);
+
 };
 
 #endif // MODULE_SONARLOCALIZATION_H

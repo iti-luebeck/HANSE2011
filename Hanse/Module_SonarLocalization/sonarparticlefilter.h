@@ -15,13 +15,10 @@ using namespace std;
 
 class Module_SonarLocalization;
 class SonarEchoFilter;
-class Form_SonarLocalization;
 
 class SonarParticleFilter : public QObject
 {
 Q_OBJECT
-
-friend class Form_SonarLocalization;
 
 public:
 
@@ -32,6 +29,7 @@ public:
     QVector<QVector4D> getParticles();
     QVector<QVector2D> getMapPoints();
     QList<QVector2D> getLatestObservation();
+    int getParticleCount();
 
 signals:
     void newPosition(QVector3D position);

@@ -23,6 +23,7 @@ Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSo
     pfThread.start();
     pf->moveToThread(&pfThread);
 
+    connect(pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
 
 }
 
@@ -53,4 +54,9 @@ QWidget* Module_SonarLocalization::createView(QWidget* parent)
 SonarParticleFilter& Module_SonarLocalization::particleFilter() const
 {
     return *(this->pf);
+}
+
+void Module_SonarLocalization::newPositionEst(QVector3D p)
+{
+    emit newLocalizationEstimate();
 }

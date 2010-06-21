@@ -30,6 +30,10 @@ private:
     QGraphicsItem *waypointsItem;
 
     QGraphicsItem* masterParticle;
+    QGraphicsItem* masterMapPoint;
+    QGraphicsItem* masterObsPoint;
+    QGraphicsPixmapItem *satImage;
+    QGraphicsEllipseItem *sonarPosition;
 
     void createMap();
 
@@ -39,6 +43,12 @@ public slots:
     void updateVisualSLAM();
     void updateWaypoints( QMap<QString, Position> waypoints );
     void newSonarLocEstimate();
+
+private slots:
+    void on_showParticles_toggled(bool checked);
+    void on_showSatImg_toggled(bool checked);
+    void on_showSonarObs_toggled(bool checked);
+    void on_showSonarMap_toggled(bool checked);
 };
 
 #endif // MAPWIDGET_H

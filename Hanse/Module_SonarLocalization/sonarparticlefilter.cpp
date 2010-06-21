@@ -236,7 +236,9 @@ void SonarParticleFilter::doNextUpdate()
         return;
     }
 
+    particlesMutex.lock();
     lastZ = observations;
+    particlesMutex.unlock();
 
     QVector<double> weights(N);
 
@@ -322,11 +324,17 @@ void SonarParticleFilter::doNextUpdate()
 
 QList<QVector2D> SonarParticleFilter::getLatestObservation()
 {
-    // TODO: mutex
+    QMutexLocker m(&particlesMutex);
     return lastZ;
 }
 
 QVector<QVector2D> SonarParticleFilter::getMapPoints()
 {
+    QMutexLocker m(&particlesMutex);
     return mapPoints;
+}
+
+int SonarParticleFilter::getParticleCount()
+{
+    return N;
 }

@@ -78,7 +78,7 @@ void Form_SonarLocalization::createMap()
     }
 
     // draw map
-    foreach (QVector2D p, m->pf->mapPoints) {
+    foreach (QVector2D p, m->pf->getMapPoints()) {
         scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
     }
 }
@@ -222,12 +222,13 @@ void Form_SonarLocalization::newPositionEstimate(QVector3D e)
 
 void Form_SonarLocalization::on_spinBox_valueChanged(int p)
 {
-    if (m->pf->lastZ.size()==0 || m->pf->N-1<p)
+    QList<QVector2D> z = m->pf->getLatestObservation();
+    if (z.size()==0 || m->pf->getParticleCount() < p)
         return;
 
     m->logger->debug("");
     //ui->time->setTime( QTime::currentTime() );
-    ui->no_points->setText(QString::number(m->pf->lastZ.size()));
+    ui->no_points->setText(QString::number(z.size()));
 
     foreach (QGraphicsEllipseItem* it, volatileItems) {
         delete it;
@@ -238,8 +239,8 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
     m->logger->debug("particle: X="+QString::number(particle.x())+",Y="+QString::number(particle.y())+",Z="
                      +QString::number(particle.z())+",W="+QString::number(particle.w()));
 
-    for (int i=0; i<m->pf->lastZ.size(); i++) {
-        QVector2D o = m->pf->lastZ[i];
+    for (int i=0; i<z.size(); i++) {
+        QVector2D o = z[i];
 
         QTransform rotM = QTransform().rotate(particle.z()/M_PI*180) * QTransform().translate(particle.x(), particle.y());
         QPointF q = rotM.map(o.toPointF());
