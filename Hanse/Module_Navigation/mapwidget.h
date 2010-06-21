@@ -16,7 +16,7 @@ public:
     MapWidget(QWidget *parent = 0);
     ~MapWidget();
 
-    QGraphicsScene *getGraphicsScene();
+    QGraphicsScene* scene;
 
     void setNavigation(Module_Navigation* nav);
 
@@ -28,8 +28,10 @@ private:
     Module_Navigation* nav;
 
 public slots:
-    void updateView( QGraphicsScene *scene );
+//    void updateView( QGraphicsScene *scene );
     void graphicsMouseReleased( QPointF point );
+
+    void newSonarLocEstimate();
 };
 
 #endif // MAPWIDGET_H

@@ -11,8 +11,11 @@ class Module_SonarLocalization;
 class Module_VisualSLAM;
 class Module_ThrusterControlLoop;
 
+class MapWidget;
+
 class Module_Navigation : public RobotModule
 {
+    friend class MapWidget;
     Q_OBJECT
 public:
     Module_Navigation(QString id, Module_SonarLocalization *sonarLoc, Module_VisualSLAM* visSLAM, Module_ThrusterControlLoop* tcl);
