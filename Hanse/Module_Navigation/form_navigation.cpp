@@ -9,6 +9,7 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
 {
     ui->setupUi(this);
     this->nav = nav;
+    ui->mapWidget->setNavigation(nav);
 }
 
 Form_Navigation::~Form_Navigation()

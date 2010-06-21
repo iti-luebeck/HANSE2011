@@ -2,6 +2,9 @@
 #define MAPWIDGET_H
 
 #include <QWidget>
+#include <QtGui>
+
+#include <Module_Navigation/module_navigation.h>
 
 namespace Ui {
     class MapWidget;
@@ -13,11 +16,20 @@ public:
     MapWidget(QWidget *parent = 0);
     ~MapWidget();
 
+    QGraphicsScene *getGraphicsScene();
+
+    void setNavigation(Module_Navigation* nav);
+
 protected:
     void changeEvent(QEvent *e);
 
 private:
     Ui::MapWidget *ui;
+    Module_Navigation* nav;
+
+public slots:
+    void updateView( QGraphicsScene *scene );
+    void graphicsMouseReleased( QPointF point );
 };
 
 #endif // MAPWIDGET_H

@@ -16,7 +16,6 @@ class Form_Navigation : public QWidget {
 public:
     Form_Navigation( Module_Navigation *nav, QWidget *parent = 0);
     ~Form_Navigation();
-    QGraphicsScene *getGraphicsScene();
     QMutex *getSceneMutex();
 
 protected:
@@ -39,8 +38,6 @@ private slots:
 
 public slots:
     void updateList( QMap<QString, Position> waypoints );
-    void updateView( QGraphicsScene *scene );
-    void graphicsMouseReleased( QPointF point );
 };
 
 #endif // FORM_NAVIGATION_H

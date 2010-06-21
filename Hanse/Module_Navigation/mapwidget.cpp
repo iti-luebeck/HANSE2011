@@ -2,7 +2,7 @@
 #include "ui_mapwidget.h"
 #include <Module_Navigation/waypointdialog.h>
 
-MapWidget::MapWidget(QWidget *parent) :
+MapWidget::MapWidget( QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MapWidget)
 {
@@ -19,6 +19,11 @@ MapWidget::~MapWidget()
     delete ui;
 }
 
+void MapWidget::setNavigation(Module_Navigation *nav)
+{
+    this->nav = nav;
+}
+
 void MapWidget::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
@@ -30,7 +35,6 @@ void MapWidget::changeEvent(QEvent *e)
         break;
     }
 }
-
 
 QGraphicsScene *MapWidget::getGraphicsScene()
 {
