@@ -319,3 +319,14 @@ void SonarParticleFilter::doNextUpdate()
 
     emit newPosition(getBestEstimate());
 }
+
+QList<QVector2D> SonarParticleFilter::getLatestObservation()
+{
+    // TODO: mutex
+    return lastZ;
+}
+
+QVector<QVector2D> SonarParticleFilter::getMapPoints()
+{
+    return mapPoints;
+}

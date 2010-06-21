@@ -50,3 +50,7 @@ QWidget* Module_SonarLocalization::createView(QWidget* parent)
     return new Form_SonarLocalization(parent, this);
 }
 
+SonarParticleFilter& Module_SonarLocalization::particleFilter() const
+{
+    return *(this->pf);
+}

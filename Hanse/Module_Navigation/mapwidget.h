@@ -28,6 +28,8 @@ private:
     Module_Navigation* nav;
     QGraphicsItem *visualSLAMItem;
 
+    QGraphicsItem* masterParticle;
+
     void createMap();
 
 public slots:

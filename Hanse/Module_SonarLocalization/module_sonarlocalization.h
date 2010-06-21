@@ -48,6 +48,8 @@ public:
       */
     bool isLocalizationLost();
 
+    SonarParticleFilter& particleFilter() const;
+
 public slots:
     void reset();
     void terminate();

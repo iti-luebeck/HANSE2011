@@ -3,6 +3,7 @@
 #include <Module_Navigation/waypointdialog.h>
 #include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
+#include <Module_SonarLocalization/sonarparticlefilter.h>
 
 MapWidget::MapWidget( QWidget *parent) :
     QWidget(parent),
@@ -113,18 +114,21 @@ void MapWidget::createMap()
     s.beginGroup("sonarLocalize");
     QImage satImg(s.value("satImgFile").toString());
     QGraphicsPixmapItem *result = scene->addPixmap(QPixmap::fromImage(satImg));
-    result->scale(5,5); // 1 unit == 5m
     result->setPos(0,0);
     result->setZValue(-1);
-    result->setScale(0.2);
+    result->setScale(0.2);// 5 px == 1m
 
-//    QVector<QVector4D> particles = m->pf->getParticles();
-//    foreach (QVector4D p, particles) {
-//        particleItems.append(scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("green"))));
-//    }
-//
-//    // draw map
-//    foreach (QVector2D p, m->pf->mapPoints) {
-//        scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
-//    }
+    // draw map
+    QVector<QVector2D> mapPoints = nav->sonarLoc->particleFilter().getMapPoints();
+    foreach (QVector2D p, mapPoints) {
+        scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
+    }
+
+    masterParticle = new QGraphicsLineItem();
+    QVector<QVector4D> particles = nav->sonarLoc->particleFilter().getParticles();
+    foreach (QVector4D p, particles) {
+        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), 1,1, masterParticle);
+        e->setPen(QPen(QColor("green")));
+    }
+
 }

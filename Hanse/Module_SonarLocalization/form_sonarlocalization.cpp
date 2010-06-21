@@ -226,7 +226,7 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
         return;
 
     m->logger->debug("");
-    ui->time->setTime( QTime::currentTime() );
+    //ui->time->setTime( QTime::currentTime() );
     ui->no_points->setText(QString::number(m->pf->lastZ.size()));
 
     foreach (QGraphicsEllipseItem* it, volatileItems) {

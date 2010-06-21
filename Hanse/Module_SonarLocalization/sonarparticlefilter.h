@@ -30,6 +30,8 @@ public:
     void reset();
 
     QVector<QVector4D> getParticles();
+    QVector<QVector2D> getMapPoints();
+    QList<QVector2D> getLatestObservation();
 
 signals:
     void newPosition(QVector3D position);
