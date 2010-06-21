@@ -10,7 +10,6 @@
 #include <Module_Compass/module_compass.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_VisualSLAM/module_visualslam.h>
-#include <Module_Localization/module_localization.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 
@@ -60,10 +59,7 @@ void ModulesGraph::build()
     Module_VisualSLAM* visualLoc = new Module_VisualSLAM("visualSLAM", sonarLoc);
     this->modules.append(visualLoc);
 
-    Module_Localization* local = new Module_Localization("localization",visualLoc, sonarLoc,pressure);
-    this->modules.append(local);
-
-    Module_Navigation* navi = new Module_Navigation("navigation",local, controlLoop);
+    Module_Navigation* navi = new Module_Navigation("navigation",sonarLoc, visualLoc, controlLoop);
     this->modules.append(navi);
 
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop);

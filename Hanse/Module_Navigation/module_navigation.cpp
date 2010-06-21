@@ -6,10 +6,11 @@
 #include <Module_Localization/module_localization.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
-Module_Navigation::Module_Navigation(QString id, Module_Localization *localization, Module_ThrusterControlLoop *tcl) :
+Module_Navigation::Module_Navigation(QString id, Module_SonarLocalization *sonarLoc, Module_VisualSLAM* visSLAM, Module_ThrusterControlLoop *tcl) :
         RobotModule(id)
 {
-    this->localization = localization;
+    this->sonarLoc = sonarLoc;
+    this->visSLAM = visSLAM;
     this->tcl = tcl;
 }
 

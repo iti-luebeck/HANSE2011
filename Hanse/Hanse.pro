@@ -46,11 +46,9 @@ HEADERS += Framework/healthstatus.h \
     Module_IMU/imu_form.h \
     Module_Compass/module_compass.h \
     Module_Compass/compass_form.h \
-    Module_Localization/module_localization.h \
     Module_VisualSLAM/module_visualslam.h \
     Module_SonarLocalization/module_sonarlocalization.h \
     Framework/position.h \
-    Module_Localization/form_localization.h \
     Module_SonarLocalization/form_sonarlocalization.h \
     Framework/robotbehaviour.h \
     Behaviour_PipeFollowing/behaviour_pipefollowing.h \
@@ -119,11 +117,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_IMU/imu_form.cpp \
     Module_Compass/module_compass.cpp \
     Module_Compass/compass_form.cpp \
-    Module_Localization/module_localization.cpp \
     Module_VisualSLAM/module_visualslam.cpp \
     Module_SonarLocalization/module_sonarlocalization.cpp \
     Framework/position.cpp \
-    Module_Localization/form_localization.cpp \
     Module_SonarLocalization/form_sonarlocalization.cpp \
     Framework/robotbehaviour.cpp \
     Behaviour_PipeFollowing/behaviour_pipefollowing.cpp \
@@ -171,7 +167,6 @@ FORMS += Framework/mainwindow.ui \
     Module_PressureSensor/pressure_form.ui \
     Module_IMU/imu_form.ui \
     Module_Compass/compass_form.ui \
-    Module_Localization/form_localization.ui \
     Module_SonarLocalization/form_sonarlocalization.ui \
     Module_ScanningSonar/scanningsonar_form.ui \
     Module_VisualSLAM/form_visualslam.ui \

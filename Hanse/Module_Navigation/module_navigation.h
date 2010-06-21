@@ -7,13 +7,15 @@
 #include <Framework/position.h>
 
 class Module_Localization;
+class Module_SonarLocalization;
+class Module_VisualSLAM;
 class Module_ThrusterControlLoop;
 
 class Module_Navigation : public RobotModule
 {
     Q_OBJECT
 public:
-    Module_Navigation(QString id, Module_Localization *localization, Module_ThrusterControlLoop* tcl);
+    Module_Navigation(QString id, Module_SonarLocalization *sonarLoc, Module_VisualSLAM* visSLAM, Module_ThrusterControlLoop* tcl);
 
     QWidget* createView(QWidget* parent);
 
@@ -93,7 +95,8 @@ protected:
 
 private:    
     Position defaultPos;
-    Module_Localization *localization;
+    Module_SonarLocalization *sonarLoc;
+    Module_SonarLocalization *visSLAM;
     Module_ThrusterControlLoop* tcl;
     QMap<QDateTime, QString> history;
     QMap<QString, Position> waypoints;
