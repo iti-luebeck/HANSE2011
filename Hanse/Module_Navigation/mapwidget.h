@@ -45,6 +45,7 @@ public slots:
     void newSonarLocEstimate();
 
 private slots:
+    void on_showVisSLAM_toggled(bool checked);
     void on_showParticles_toggled(bool checked);
     void on_showSatImg_toggled(bool checked);
     void on_showSonarObs_toggled(bool checked);

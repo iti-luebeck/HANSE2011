@@ -16,7 +16,7 @@ MapWidget::MapWidget( QWidget *parent) :
     QObject::connect( ui->graphicsView, SIGNAL( mouseReleaseEventAt(QPointF) ),
                       this, SLOT( graphicsMouseReleased(QPointF)) );
 
-    scene = new QGraphicsScene( QRectF(), ui->graphicsView );
+    scene = new QGraphicsScene( QRectF(-1000,-1000,2000,2000), ui->graphicsView );
     ui->graphicsView->setScene( scene );
 
     visualSLAMItem = NULL;
@@ -33,11 +33,18 @@ void MapWidget::setNavigation(Module_Navigation *nav)
 {
     this->nav = nav;
 
+    createMap();
+
+    ui->showParticles->setChecked(nav->getSettings().value("showParticles").toBool());
+    ui->showSatImg->setChecked(nav->getSettings().value("showSatImg").toBool());
+    ui->showSonarMap->setChecked(nav->getSettings().value("showSonarMap").toBool());
+    ui->showSonarObs->setChecked(nav->getSettings().value("showSonarObs").toBool());
+    ui->showVisSLAM->setChecked(nav->getSettings().value("showVisSLAM").toBool());
+
     connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
     connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
     connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Position>)), this, SLOT(updateWaypoints(QMap<QString,Position>)) );
 
-    createMap();
 }
 
 void MapWidget::changeEvent(QEvent *e)
@@ -223,19 +230,33 @@ void MapWidget::createMap()
 void MapWidget::on_showSonarMap_toggled(bool checked)
 {
     masterMapPoint->setVisible(checked);
+    if (nav)
+        nav->getSettings().setValue("showSonarMap", checked);
 }
 
 void MapWidget::on_showSonarObs_toggled(bool checked)
 {
     masterObsPoint->setVisible(checked);
+    if (nav)
+        nav->getSettings().setValue("showSonarObs", checked);
 }
 
 void MapWidget::on_showSatImg_toggled(bool checked)
 {
     satImage->setVisible(checked);
+    if (nav)
+        nav->getSettings().setValue("showSatImg", checked);
 }
 
 void MapWidget::on_showParticles_toggled(bool checked)
 {
     masterParticle->setVisible(checked);
+    if (nav)
+        nav->getSettings().setValue("showParticles", checked);
+}
+
+void MapWidget::on_showVisSLAM_toggled(bool checked)
+{
+    if (nav)
+        nav->getSettings().setValue("showVisSLAM", checked);
 }

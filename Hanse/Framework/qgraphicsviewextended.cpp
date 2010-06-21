@@ -5,6 +5,7 @@ QGraphicsViewExtended::QGraphicsViewExtended( QWidget* parent )
     : QGraphicsView(parent)
 {
     this->setBackgroundBrush(QBrush(QColor("black")));
+    this->setDragMode(QGraphicsView::ScrollHandDrag);
 }
 
 QGraphicsViewExtended::~QGraphicsViewExtended()
@@ -14,8 +15,6 @@ QGraphicsViewExtended::~QGraphicsViewExtended()
 void QGraphicsViewExtended::wheelEvent(QWheelEvent *event)
 {
     this->setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
-    // Center view on the current mouse position.
-    //this->centerOn( this->mapToScene( event->pos() ) );
 
     // Scale view.
     qreal d = event->delta() / 100.0;
@@ -28,6 +27,7 @@ void QGraphicsViewExtended::wheelEvent(QWheelEvent *event)
 
 void QGraphicsViewExtended::keyPressEvent( QKeyEvent *event )
 {
+    QGraphicsView::keyPressEvent(event);
     this->setTransformationAnchor( QGraphicsView::NoAnchor );
     switch( event->key() )
     {
@@ -48,10 +48,12 @@ void QGraphicsViewExtended::keyPressEvent( QKeyEvent *event )
 
 void QGraphicsViewExtended::mouseDoubleClickEvent( QMouseEvent *event )
 {
+    QGraphicsView::mouseDoubleClickEvent(event);
     mouseDoubleClickEventAt( this->mapToScene( event->pos() ) );
 }
 
 void QGraphicsViewExtended::mouseReleaseEvent( QMouseEvent *event )
 {
+    QGraphicsView::mouseReleaseEvent(event);
     mouseReleaseEventAt( this->mapToScene( event->pos() ) );
 }
