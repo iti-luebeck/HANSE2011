@@ -9,8 +9,21 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     pipefollow = pipefollowing;
     ui->setupUi(this);
 
-    videoFile = "../../../pipe_handy.avi";
-    ui->curVideofileLabel->setText(videoFile);
+    this->videoFile = "../../../pipe_handy.avi" ;
+    pipefollow->getSettings().setValue("videoFilePath",this->videoFile);
+
+    ui->curVideofileLabel->setText(pipefollow->getSettings().value("videFilePath").toString());
+    ui->thresholdLineEdit->setText(pipefollow->getSettings().value("threshold").toString());
+    ui->cameraID_LineEdit->setText(pipefollow->getSettings().value("cameraID").toString());
+    ui->deltaDistPipeLineEdit->setText(pipefollow->getSettings().value("deltaDist").toString());
+    ui->deltaAnglePipeLineEdit->setText(pipefollow->getSettings().value("deltaAngle").toString());
+    ui->kpDistLineEdit->setText(pipefollow->getSettings().value("kpDist").toString());
+    ui->kpAngleLineEdit->setText(pipefollow->getSettings().value("kpAngle").toString());
+    ui->robCenterXLineEdit->setText(pipefollow->getSettings().value("robCenterX").toString());
+    ui->robCenterYLineEdit->setText(pipefollow->getSettings().value("robCenterY").toString());
+    ui->debugCheckBox->setChecked(pipefollow->getSettings().value("debug").toBool());
+    ui->useCameraRadioButton->setChecked(pipefollow->getSettings().value("useCamera").toBool());
+
 
  QObject::connect( pipefollow, SIGNAL( printFrameOnUi(cv::Mat&)) , SLOT( printFrame(cv::Mat&))  );
 
@@ -35,16 +48,17 @@ void PipeFollowingForm::changeEvent(QEvent *e)
 
 void PipeFollowingForm::on_startPipeFollowingButton_clicked()
 {
-    if(ui->useCameraRadioButton->isChecked())
-    {
-        pipefollow->start();
-    }
-    else if(ui->useVideofileRadioButton->isChecked())
-    {
-        pipefollow->setDebug(ui->debugCheckBox->isChecked());
-        pipefollow->setThresh(ui->thresholdLineEdit->text().toInt());
-        pipefollow->analyzeVideo(videoFile);
-    }
+    pipefollow->start();
+//    if(ui->useCameraRadioButton->isChecked())
+//    {
+//        pipefollow->start();
+//    }
+//    else if(ui->useVideofileRadioButton->isChecked())
+//    {
+//        pipefollow->setDebug(ui->debugCheckBox->isChecked());
+//        pipefollow->setThresh(ui->thresholdLineEdit->text().toInt());
+//        pipefollow->analyzeVideo(videoFile);
+//    }
 }
 
 void PipeFollowingForm::on_startFromVideoFileButton_clicked()
@@ -56,21 +70,24 @@ void PipeFollowingForm::on_startFromVideoFileButton_clicked()
 
 void PipeFollowingForm::on_openVideofileButton_clicked()
 {
-    videoFile = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.avi *.mpg *.divx *.png)"));
-    ui->curVideofileLabel->setText(videoFile);
+    QString file = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.avi *.mpg *.divx *.png)"));
+    pipefollow->getSettings().setValue("videoFilePath",file);
+    ui->curVideofileLabel->setText(file);
 }
 
 void PipeFollowingForm::on_saveApplyButton_clicked()
 {
-    pipefollow->setThresh(ui->thresholdLineEdit->text().toInt());
-    pipefollow->setCameraID(ui->cameraID_LineEdit->text().toInt());
-    pipefollow->setDeltaPipe(ui->deltaDistPipeLineEdit->text().toFloat() ,
-                             ui->deltaAnglePipeLineEdit->text().toFloat());
-    pipefollow->setKpDist(ui->kpDistLineEdit->text().toFloat());
-    pipefollow->setKpAngle(ui->kpAngleLineEdit->text().toFloat());
-    pipefollow->setRobCenter(ui->robCenterXLineEdit->text().toDouble(),
-                             ui->robCenterYLineEdit->text().toDouble());
-    pipefollow->setDebug(ui->debugCheckBox->isChecked());
+    pipefollow->getSettings().setValue("useCamera",ui->useCameraRadioButton->isChecked());
+    pipefollow->getSettings().setValue("threshold",ui->thresholdLineEdit->text().toInt());
+    pipefollow->getSettings().setValue("cameraID",ui->cameraID_LineEdit->text().toInt());
+    pipefollow->getSettings().setValue("deltaDist",ui->deltaDistPipeLineEdit->text().toFloat());
+    pipefollow->getSettings().setValue("deltaAngle",ui->deltaAnglePipeLineEdit->text().toFloat());
+    pipefollow->getSettings().setValue("kpDist",ui->kpDistLineEdit->text().toFloat());
+    pipefollow->getSettings().setValue("kpAngle",ui->kpAngleLineEdit->text().toFloat());
+    pipefollow->getSettings().setValue("robCenterX",ui->robCenterXLineEdit->text().toDouble());
+    pipefollow->getSettings().setValue("robCenterY",ui->robCenterYLineEdit->text().toDouble());
+    pipefollow->getSettings().setValue("debug",ui->debugCheckBox->isChecked());
+    pipefollow->getSettings().setValue("videoFilePath",ui->curVideofileLabel->text());
     pipefollow->resetFirstRun();
 
 }

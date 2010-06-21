@@ -100,7 +100,6 @@ private:
     /* fuer den median */
     float meanRho[5];
     float meanTheta[5];
-
     int firstRun;
 private slots:
     void timerSlot();
