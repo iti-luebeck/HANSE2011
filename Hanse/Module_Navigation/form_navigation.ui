@@ -54,16 +54,11 @@
       <attribute name="title">
        <string>Map</string>
       </attribute>
-      <widget class="QGraphicsViewExtended" name="graphicsView">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>361</width>
-         <height>241</height>
-        </rect>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="MapWidget" name="mapWidget" native="true"/>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -112,9 +107,10 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QGraphicsViewExtended</class>
-   <extends>QGraphicsView</extends>
-   <header location="global">Framework/qgraphicsviewextended.h</header>
+   <class>MapWidget</class>
+   <extends>QWidget</extends>
+   <header>mapwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

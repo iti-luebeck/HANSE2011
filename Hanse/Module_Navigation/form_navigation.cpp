@@ -9,10 +9,6 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
 {
     ui->setupUi(this);
     this->nav = nav;
-    QObject::connect( ui->graphicsView, SIGNAL( mouseEventAt(QPointF) ),
-                      this, SLOT( graphicsMouseReleased(QPointF) ) );
-    QGraphicsScene *scene = new QGraphicsScene( QRectF(), ui->graphicsView );
-    ui->graphicsView->setScene( scene );
 }
 
 Form_Navigation::~Form_Navigation()
@@ -51,13 +47,6 @@ void Form_Navigation::on_addButton_clicked()
     wd.exec();
 }
 
-void Form_Navigation::graphicsMouseReleased( QPointF point )
-{
-    WaypointDialog wd( QString(), point.x(), -point.y(), 2.5, 0.0, 0.0, this );
-    QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Position) ),
-                      nav, SLOT( addWaypoint(QString,Position) ) );
-    wd.exec();
-}
 
 void Form_Navigation::updateList( QMap<QString, Position> waypoints )
 {
@@ -77,22 +66,6 @@ void Form_Navigation::on_removeButton_clicked()
     {
         removedWaypoint( selectedItems[i]->text() );
     }
-}
-
-QGraphicsScene *Form_Navigation::getGraphicsScene()
-{
-    return ui->graphicsView->scene();
-}
-
-void Form_Navigation::updateView( QGraphicsScene *scene )
-{
-    ui->graphicsView->scene()->clear();
-    QList<QGraphicsItem *> items = scene->items();
-    for ( int i = 0; i < items.size(); i++ )
-    {
-        ui->graphicsView->scene()->addItem( items[i] );
-    }
-    ui->graphicsView->show();
 }
 
 void Form_Navigation::on_pushButton_clicked()

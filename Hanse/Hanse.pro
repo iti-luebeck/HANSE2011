@@ -86,7 +86,8 @@ HEADERS += Framework/healthstatus.h \
     Framework/qgraphicsviewextended.h \
     Framework/moduledataview.h \
     Framework/modulehealthview.h \
-    Framework/qclosabledockwidget.h
+    Framework/qclosabledockwidget.h \
+    Module_Navigation/mapwidget.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -157,7 +158,8 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/qgraphicsviewextended.cpp \
     Framework/moduledataview.cpp \
     Framework/modulehealthview.cpp \
-    Framework/qclosabledockwidget.cpp
+    Framework/qclosabledockwidget.cpp \
+    Module_Navigation/mapwidget.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -174,5 +176,6 @@ FORMS += Framework/mainwindow.ui \
     Module_Navigation/waypointdialog.ui \
     Module_Navigation/form_navigation.ui \
     Framework/moduledataview.ui \
-    Framework/modulehealthview.ui
+    Framework/modulehealthview.ui \
+    Module_Navigation/mapwidget.ui
 OTHER_FILES += bin/log4qt.properties
