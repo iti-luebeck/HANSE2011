@@ -41,8 +41,6 @@ QWidget* Module_Navigation::createView(QWidget* parent)
                       form, SLOT( updateList(QMap<QString,Position>) ) );
     QObject::connect( form, SIGNAL( removedWaypoint(QString) ),
                       SLOT( removeWaypoint(QString) ) );
-//    QObject::connect( localization, SIGNAL( viewUpdated( QGraphicsScene * ) ),
-//                      form, SLOT( updateView( QGraphicsScene * ) ) );
     updatedWaypoints( waypoints );
     return form;
 }

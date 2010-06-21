@@ -78,6 +78,7 @@ void Module_VisualSLAM::startUpdate()
     logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     startClock = clock();
+    updateMutex.lock();
     slam.update( cap.getDescriptors(), cap.getPos(), cap.getClasses() );
 }
 
@@ -118,17 +119,14 @@ void Module_VisualSLAM::finishUpdate()
     data["Goal - bounding box h"] = boundingBox.height();
     data["Goal - lastSeen"] = lastSeen.toString();
 
-    if ( scene != NULL )
-    {
-        slam.plot( this->scene );
-    }
+    updateMutex.unlock();
 
     stopClock = clock();
     logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     emit dataChanged( this );
     emit updateFinished();
-    emit viewUpdated( scene );
+    emit viewUpdated();
 
     if ( !stopped )
     {
@@ -189,7 +187,17 @@ QMutex *Module_VisualSLAM::getUpdateMutex()
     return &updateMutex;
 }
 
+void Module_VisualSLAM::getPlotData( QList<QPointF> &landmarkPositions, Position &position )
+{
+    updateMutex.lock();
+    slam.getLandmarkPositions( landmarkPositions );
+    position = slam.getPosition();
+    updateMutex.unlock();
+}
+
 void Module_VisualSLAM::changeSettings( double v_observation, double v_translation, double v_rotation )
 {
-
+    slam.setObservationVariance( v_observation );
+    slam.setTranslationVariance( v_translation );
+    slam.setRotationVariance( v_rotation );
 }

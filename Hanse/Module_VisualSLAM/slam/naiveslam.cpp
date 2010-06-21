@@ -293,6 +293,17 @@ void NaiveSLAM::load( QTextStream &ts )
     }
 }
 
+void NaiveSLAM::getLandmarkPositions( QList<QPointF> &landmarkPositions )
+{
+    if ( bestParticle >= 0 && bestParticle < (int)particles.size() )
+    {
+        for ( int i = 0; i < (int)particles.at( bestParticle )->landmarks.size(); i++ )
+        {
+            landmarkPositions.append( particles.at( bestParticle )->getLandmarkPosition( i ) );
+        }
+    }
+}
+
 /*
 void NaiveSLAM::test()
 {

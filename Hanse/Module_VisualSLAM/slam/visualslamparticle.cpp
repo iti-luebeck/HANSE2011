@@ -691,3 +691,11 @@ void VisualSLAMParticle::load( QTextStream &ts, int landmarkCount )
         l->load( ts );
     }
 }
+
+QPointF VisualSLAMParticle::getLandmarkPosition( int i )
+{
+    QPointF position;
+    position.setX( landmarks[i]->getPos( 0 ) );
+    position.setY( landmarks[i]->getPos( 2 ) );
+    return position;
+}

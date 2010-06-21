@@ -27,6 +27,7 @@ public:
     void setObservationVariance( double v );
     void setTranslationVariance( double v );
     void setRotationVariance( double v );
+    void getLandmarkPositions( QList<QPointF> &landmarkPositions );
 
     void test();
     void reset();

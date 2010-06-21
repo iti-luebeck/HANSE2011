@@ -26,13 +26,13 @@ protected:
 private:
     Ui::MapWidget *ui;
     Module_Navigation* nav;
+    QGraphicsItem *visualSLAMItem;
 
     void createMap();
 
 public slots:
-//    void updateView( QGraphicsScene *scene );
     void graphicsMouseReleased( QPointF point );
-
+    void updateVisualSLAM();
     void newSonarLocEstimate();
 };
 

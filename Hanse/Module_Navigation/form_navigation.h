@@ -38,6 +38,7 @@ private slots:
 
 public slots:
     void updateList( QMap<QString, Position> waypoints );
+    void updateVSLAM();
 };
 
 #endif // FORM_NAVIGATION_H

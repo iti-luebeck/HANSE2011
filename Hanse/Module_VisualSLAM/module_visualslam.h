@@ -72,6 +72,8 @@ public:
     QMutex *getSceneMutex();
     QMutex *getUpdateMutex();
 
+    void getPlotData( QList<QPointF> &landmarkPositions, Position &position );
+
 public slots:
     void reset();
     void terminate();
@@ -86,7 +88,7 @@ signals:
     void newLocalizationEstimate();
     void lostLocalization();
     void updateFinished();
-    void viewUpdated( QGraphicsScene *scene );
+    void viewUpdated();
 
 private:
     Module_SonarLocalization* sonarLocalization;

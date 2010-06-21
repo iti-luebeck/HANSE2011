@@ -33,6 +33,8 @@ public:
     void save( QTextStream &ts );
     void load( QTextStream &ts, int landmarkCount );
 
+    QPointF getLandmarkPosition( int i );
+
 private:
     bool updatePosition( vector<CvScalar> *newPositions, vector<CvPoint> *mapMatches );
     double updateMap( vector<CvScalar> *newPositions, bool *found, vector<CvPoint> *mapMatches );

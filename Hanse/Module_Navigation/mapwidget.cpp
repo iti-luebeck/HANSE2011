@@ -1,6 +1,7 @@
 #include "mapwidget.h"
 #include "ui_mapwidget.h"
 #include <Module_Navigation/waypointdialog.h>
+#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 
 MapWidget::MapWidget( QWidget *parent) :
@@ -15,8 +16,8 @@ MapWidget::MapWidget( QWidget *parent) :
     scene = new QGraphicsScene( QRectF(), ui->graphicsView );
     ui->graphicsView->setScene( scene );
 
+    visualSLAMItem = NULL;
     nav = NULL;
-
 }
 
 MapWidget::~MapWidget()
@@ -45,24 +46,53 @@ void MapWidget::changeEvent(QEvent *e)
     }
 }
 
-//void MapWidget::updateView( QGraphicsScene *scene )
-//{
-//    ui->graphicsView->scene()->clear();
-//    QList<QGraphicsItem *> items = scene->items();
-//    for ( int i = 0; i < items.size(); i++ )
-//    {
-//        ui->graphicsView->scene()->addItem( items[i] );
-//    }
-//    ui->graphicsView->show();
-//}
-
-
 void MapWidget::graphicsMouseReleased( QPointF point )
 {
     WaypointDialog wd( QString(), point.x(), -point.y(), 2.5, 0.0, 0.0, this );
     QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Position) ),
                       nav, SLOT( addWaypoint(QString,Position) ) );
     wd.exec();
+}
+
+void MapWidget::updateVisualSLAM()
+{
+    if ( visualSLAMItem != NULL ) delete( visualSLAMItem );
+
+    if ( ui->showVisSLAM->isChecked() )
+    {
+        QBrush brush( Qt::blue );
+        QPen pen( Qt::blue );
+
+        QGraphicsScene *scene = ui->graphicsView->scene();
+        visualSLAMItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
+
+        QList<QPointF> landmarks;
+        Position pos;
+        nav->visSLAM->getPlotData( landmarks, pos );
+
+        double width = 0.1;
+        for ( int i = 0; i < landmarks.size(); i++ )
+        {
+            QGraphicsItem *item =
+                    scene->addEllipse( landmarks[i].x() + width/4,
+                                       -(landmarks[i].y() + width/4),
+                                       width, width, pen, brush );
+            item->setParentItem( visualSLAMItem );
+            item->setZValue( 1000 );
+        }
+
+        brush = QBrush( Qt::blue );
+        pen = QPen( Qt::blue );
+        width = 0.3;
+        QGraphicsItem *item =
+                scene->addEllipse( pos.getX() + width/4,
+                                   -(pos.getZ() + width/4),
+                                   width, width, pen, brush );
+        item->setParentItem( visualSLAMItem );
+        item->setZValue( 1100 );
+
+        ui->graphicsView->show();
+    }
 }
 
 void MapWidget::newSonarLocEstimate()
