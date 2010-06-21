@@ -9,11 +9,11 @@ WaypointDialog::WaypointDialog(QString name, double x, double y, double depth, d
 {
     ui->setupUi(this);
     ui->nameEdit->setText( name );
-    ui->xEdit->setText( QString( "%1" ).arg( x, 0, 'f', 0 ) );
-    ui->yEdit->setText( QString( "%1" ).arg( y, 0, 'f', 0 ) );
-    ui->depthEdit->setText( QString( "%1" ).arg( depth, 0, 'f', 0 ) );
-    ui->arrivalAngleEdit->setText( QString( "%1" ).arg( arrivalAngle, 0, 'f', 0 ) );
-    ui->exitAngleEdit->setText( QString( "%1" ).arg( exitAngle, 0, 'f', 0 ) );
+    ui->xEdit->setText( QString( "%1" ).arg( x, 0, 'f', -1 ) );
+    ui->yEdit->setText( QString( "%1" ).arg( y, 0, 'f', -1 ) );
+    ui->depthEdit->setText( QString( "%1" ).arg( depth, 0, 'f', -1 ) );
+    ui->arrivalAngleEdit->setText( QString( "%1" ).arg( arrivalAngle, 0, 'f', -1 ) );
+    ui->exitAngleEdit->setText( QString( "%1" ).arg( exitAngle, 0, 'f', -1 ) );
 }
 
 WaypointDialog::~WaypointDialog()

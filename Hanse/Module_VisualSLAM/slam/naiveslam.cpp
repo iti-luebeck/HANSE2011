@@ -98,6 +98,7 @@ void NaiveSLAM::run()
 
         // Calculate position from best particle.
         pos = Position( meanTranslation, meanRotation );
+        printMatrix( meanRotation.getRotation() );
 
         delete( found );
     }
@@ -121,7 +122,7 @@ void NaiveSLAM::resampleParticles( double *weights )
 
     // Calculate cumulative sum. (and weighted position)
     weights[0] = weights[0] / sum;
-    meanRotation.w = 0;
+    meanRotation.setZero();
     cvSetZero( meanTranslation );
     for ( int i = 1; i < M; i++ )
     {

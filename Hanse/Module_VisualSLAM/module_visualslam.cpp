@@ -18,21 +18,10 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
 
     stopped = true;
 
-    double v_observation = DEFAULT_OBSERVATION_VARIANCE;
-    if ( settings.contains( QString("v_observation") ) )
-    {
-        v_observation = settings.value( "v_observation" ).toDouble();
-    }
-    double v_translation = DEFAULT_TRANSLATION_VARIANCE;
-    if ( settings.contains( QString("v_translation") ) )
-    {
-        v_translation = settings.value( "v_translation" ).toDouble();
-    }
-    double v_rotation = DEFAULT_ROTATION_VARIANCE;
-    if ( settings.contains( QString("v_rotation") ) )
-    {
-        v_rotation = settings.value( "v_rotation" ).toDouble();
-    }
+    double v_observation = settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
+    double v_translation = settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
+    double v_rotation = settings.value( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
+    changeSettings( v_observation, v_translation, v_rotation );
 }
 
 Module_VisualSLAM::~Module_VisualSLAM()
@@ -195,11 +184,28 @@ void Module_VisualSLAM::getPlotData( QList<QPointF> &landmarkPositions, Position
     updateMutex.unlock();
 }
 
+double Module_VisualSLAM::getObservationVariance()
+{
+    return settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
+}
+
+double Module_VisualSLAM::getTranslationVariance()
+{
+    return settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
+}
+double Module_VisualSLAM::getRotationVariance()
+{
+    return settings.value( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
+}
+
 void Module_VisualSLAM::changeSettings( double v_observation, double v_translation, double v_rotation )
 {
     updateMutex.lock();
     slam.setObservationVariance( v_observation );
+    settings.setValue( "v_observation", v_observation );
     slam.setTranslationVariance( v_translation );
+    settings.setValue( "v_translation", v_translation );
     slam.setRotationVariance( v_rotation );
+    settings.setValue( "v_rotation", v_rotation );
     updateMutex.unlock();
 }

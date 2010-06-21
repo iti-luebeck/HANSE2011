@@ -14,9 +14,11 @@ public:
     void wheelEvent( QWheelEvent *event );
     void keyPressEvent( QKeyEvent *event );
     void mouseDoubleClickEvent( QMouseEvent *event );
+    void mouseReleaseEvent( QMouseEvent *event );
 
 signals:
-    void mouseEventAt( QPointF point );
+    void mouseDoubleClickEventAt( QPointF point );
+    void mouseReleaseEventAt( QPointF point );
 
 };
 

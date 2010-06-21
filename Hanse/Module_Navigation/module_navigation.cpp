@@ -50,6 +50,11 @@ void Module_Navigation::doHealthCheck()
 
 }
 
+QMap<QString, Position> Module_Navigation::getWaypoints()
+{
+    return waypoints;
+}
+
 void Module_Navigation::addWaypoint( QString name, Position pos )
 {
     waypoints[ name ] = pos;

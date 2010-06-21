@@ -27,14 +27,17 @@ private:
     Ui::MapWidget *ui;
     Module_Navigation* nav;
     QGraphicsItem *visualSLAMItem;
+    QGraphicsItem *waypointsItem;
 
     QGraphicsItem* masterParticle;
 
     void createMap();
 
 public slots:
+    void graphicsMouseDoubleClicked( QPointF point );
     void graphicsMouseReleased( QPointF point );
     void updateVisualSLAM();
+    void updateWaypoints( QMap<QString, Position> waypoints );
     void newSonarLocEstimate();
 };
 

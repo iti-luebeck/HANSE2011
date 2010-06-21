@@ -19,7 +19,7 @@ void QGraphicsViewExtended::wheelEvent(QWheelEvent *event)
 
     // Scale view.
     qreal d = event->delta() / 100.0;
-    if (d>0)
+    if ( d>0 )
         this->scale(d,d);
     else
         this->scale(-1/d,-1/d);
@@ -48,5 +48,10 @@ void QGraphicsViewExtended::keyPressEvent( QKeyEvent *event )
 
 void QGraphicsViewExtended::mouseDoubleClickEvent( QMouseEvent *event )
 {
-    mouseEventAt( this->mapToScene( event->pos() ) );
+    mouseDoubleClickEventAt( this->mapToScene( event->pos() ) );
+}
+
+void QGraphicsViewExtended::mouseReleaseEvent( QMouseEvent *event )
+{
+    mouseReleaseEventAt( this->mapToScene( event->pos() ) );
 }

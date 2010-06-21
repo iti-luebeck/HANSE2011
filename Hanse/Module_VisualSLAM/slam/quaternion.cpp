@@ -29,14 +29,30 @@ CvMat *Quaternion::getRotation()
 
 void Quaternion::getYawPitchRoll( float &yaw, float &pitch, float &roll )
 {
-    yaw = atan2( 2 * ( x*y + w*z ), w*w  + x*x - y*y - z*z ) * 180 / CV_PI;
-    pitch = asin( -2 * ( x*z - w*y ) ) * 180 / CV_PI;
-    roll = atan2( 2 * ( w*x + y*z ), w*w - x*x - y*y + z*z ) * 180 / CV_PI;
+    CvMat *R = getRotation();
+    double r31 = cvmGet( R, 2, 0 );
+    double r11 = cvmGet( R, 0, 0 );
+    double r21 = cvmGet( R, 1, 0 );
+    double r32 = cvmGet( R, 2, 1 );
+    double r33 = cvmGet( R, 2, 2 );
+    double beta = atan2( -r31, sqrt( r11*r11 + r21*r21 ) );
+    double cb = cos( beta );
+    double alpha = atan2( r21 / cb, r11 / cb );
+    double gamma = atan2( r32 / cb, r33 / cb );
+    cvReleaseMat( &R );
 
-    float temp = pitch;
-    pitch = roll;
-    roll = yaw;
-    yaw = temp;
+    yaw = beta * 180 / CV_PI;
+    pitch = gamma * 180 / CV_PI;
+    roll = alpha * 180 / CV_PI;
+
+//    yaw = atan2( 2 * ( x*y + w*z ), w*w  + x*x - y*y - z*z ) * 180 / CV_PI;
+//    pitch = asin( -2 * ( x*z - w*y ) ) * 180 / CV_PI;
+//    roll = atan2( 2 * ( w*x + y*z ), w*w - x*x - y*y + z*z ) * 180 / CV_PI;
+//
+//    float temp = pitch;
+//    pitch = roll;
+//    roll = yaw;
+//    yaw = temp;
 }
 
 Quaternion Quaternion::fromRotation( CvMat *R )
@@ -88,7 +104,7 @@ Quaternion Quaternion::fromRotation( CvMat *R )
 }
 
 Quaternion Quaternion::fromYawPitchRoll( float yaw, float pitch, float roll )
-{
+{    
     float cy = cos( yaw / 2 );
     float cp = cos( pitch / 2 );
     float cr = cos( roll / 2 );
@@ -142,6 +158,14 @@ void Quaternion::normalize()
     x = x / d;
     y = y / d;
     z = z / d;
+}
+
+void Quaternion::setZero()
+{
+    w = 0;
+    x = 0;
+    y = 0;
+    z = 0;
 }
 
 Quaternion Quaternion::operator+( const Quaternion q )

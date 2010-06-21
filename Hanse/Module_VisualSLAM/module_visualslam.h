@@ -73,6 +73,9 @@ public:
     QMutex *getUpdateMutex();
 
     void getPlotData( QList<QPointF> &landmarkPositions, Position &position );
+    double getObservationVariance();
+    double getTranslationVariance();
+    double getRotationVariance();
 
 public slots:
     void reset();

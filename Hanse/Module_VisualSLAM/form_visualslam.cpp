@@ -10,6 +10,10 @@ Form_VisualSLAM::Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent
     this->visualSlam = visualSlam;
     QObject::connect( this, SIGNAL( settingsChanged(double,double,double) ),
                       visualSlam, SLOT( changeSettings(double,double,double) ) );
+
+    ui->observationEdit->setText( QString("%1").arg( visualSlam->getObservationVariance() ) );
+    ui->translationEdit->setText( QString("%1").arg( visualSlam->getTranslationVariance() ) );
+    ui->rotationEdit->setText( QString("%1").arg( visualSlam->getRotationVariance() ) );
 }
 
 Form_VisualSLAM::~Form_VisualSLAM()

@@ -27,7 +27,7 @@ public:
     /**
       * get the list of all waypoints.
       */
-    QStringList getWayPoints();
+    QMap<QString, Position> getWaypoints();
 
     /**
       * get the position of a waypoint

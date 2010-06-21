@@ -21,6 +21,7 @@ public:
     static void rotate( Quaternion q, CvMat *x );
     float norm();
     void normalize();
+    void setZero();
     Quaternion operator+( const Quaternion q );
     Quaternion operator-( const Quaternion q );
     Quaternion operator*( const Quaternion q );
