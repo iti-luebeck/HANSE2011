@@ -304,6 +304,30 @@ void NaiveSLAM::getLandmarkPositions( QList<QPointF> &landmarkPositions )
     }
 }
 
+void NaiveSLAM::setObservationVariance( double v )
+{
+    for ( int i = 0; i < (int)particles.size(); i++ )
+    {
+        particles.at( i )->setObservationVariance( v );
+    }
+}
+
+void NaiveSLAM::setRotationVariance( double v )
+{
+    for ( int i = 0; i < (int)particles.size(); i++ )
+    {
+        particles.at( i )->setRotationVariance( v );
+    }
+}
+
+void NaiveSLAM::setTranslationVariance( double v )
+{
+    for ( int i = 0; i < (int)particles.size(); i++ )
+    {
+        particles.at( i )->setTranslationVariance( v );
+    }
+}
+
 /*
 void NaiveSLAM::test()
 {

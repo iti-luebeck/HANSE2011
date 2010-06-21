@@ -8,7 +8,7 @@ Form_VisualSLAM::Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent
 {
     ui->setupUi(this);
     this->visualSlam = visualSlam;
-    QObject::connect( this, SIGNAL( changedSettings(double,double,double) ),
+    QObject::connect( this, SIGNAL( settingsChanged(double,double,double) ),
                       visualSlam, SLOT( changeSettings(double,double,double) ) );
 }
 

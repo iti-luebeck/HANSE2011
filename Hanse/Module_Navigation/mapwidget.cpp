@@ -30,6 +30,7 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     this->nav = nav;
 
     connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
+    connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
 
     createMap();
 }
@@ -81,8 +82,8 @@ void MapWidget::updateVisualSLAM()
             item->setZValue( 1000 );
         }
 
-        brush = QBrush( Qt::blue );
-        pen = QPen( Qt::blue );
+        brush = QBrush( Qt::red );
+        pen = QPen( Qt::red );
         width = 0.3;
         QGraphicsItem *item =
                 scene->addEllipse( pos.getX() + width/4,

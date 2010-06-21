@@ -197,7 +197,9 @@ void Module_VisualSLAM::getPlotData( QList<QPointF> &landmarkPositions, Position
 
 void Module_VisualSLAM::changeSettings( double v_observation, double v_translation, double v_rotation )
 {
+    updateMutex.lock();
     slam.setObservationVariance( v_observation );
     slam.setTranslationVariance( v_translation );
     slam.setRotationVariance( v_rotation );
+    updateMutex.unlock();
 }
