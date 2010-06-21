@@ -57,7 +57,11 @@ void MapWidget::graphicsMouseReleased( QPointF point )
 
 void MapWidget::updateVisualSLAM()
 {
-    if ( visualSLAMItem != NULL ) delete( visualSLAMItem );
+    if ( visualSLAMItem != NULL )
+    {
+        delete( visualSLAMItem );
+        visualSLAMItem = NULL;
+    }
 
     if ( ui->showVisSLAM->isChecked() )
     {
