@@ -27,6 +27,8 @@ private:
     Ui::MapWidget *ui;
     Module_Navigation* nav;
 
+    void createMap();
+
 public slots:
 //    void updateView( QGraphicsScene *scene );
     void graphicsMouseReleased( QPointF point );

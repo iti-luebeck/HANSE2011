@@ -56,21 +56,7 @@
       </attribute>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="MapWidget" name="mapWidget" native="true">
-         <widget class="QToolButton" name="toolButton">
-          <property name="geometry">
-           <rect>
-            <x>30</x>
-            <y>10</y>
-            <width>25</width>
-            <height>19</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </widget>
+        <widget class="MapWidget" name="mapWidget" native="true"/>
        </item>
       </layout>
      </widget>
