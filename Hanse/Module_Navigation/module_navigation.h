@@ -78,7 +78,6 @@ public slots:
     void terminate();
     void addWaypoint( QString name, Position pos );
     void removeWaypoint( QString name );
-    void plot();
     void save( QString path );
     void load( QString path );
 
@@ -88,7 +87,6 @@ signals:
     void reachedWaypoint(QString waypoint);
     void failedToReachWayPoint(QString waypoint);
     void updatedWaypoints( QMap<QString, Position> waypoints );
-    void updatedView( QGraphicsScene *scene );
 
 protected:
     virtual void doHealthCheck();
@@ -99,8 +97,6 @@ private:
     Module_ThrusterControlLoop* tcl;
     QMap<QDateTime, QString> history;
     QMap<QString, Position> waypoints;
-    QTimer updateTimer;
-    QGraphicsScene scene;
 
 };
 #endif // MODULE_NAVIGATION_H

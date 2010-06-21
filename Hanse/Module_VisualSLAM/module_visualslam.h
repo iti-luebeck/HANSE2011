@@ -17,13 +17,13 @@
 using namespace std;
 
 class Module_SonarLocalization;
-class Form_VisualSLAM;
 
 class Module_VisualSLAM : public RobotModule {
     Q_OBJECT
 
 public:
     Module_VisualSLAM(QString id, Module_SonarLocalization* sonarLocalization);
+    ~Module_VisualSLAM();
 
     QWidget* createView(QWidget* parent);
 
@@ -62,9 +62,7 @@ public:
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
 
     void plot( QGraphicsScene *scene );
-
     void save( QTextStream &ts );
-
     void load( QTextStream &ts );
 
     void run();
@@ -77,8 +75,10 @@ public:
 public slots:
     void reset();
     void terminate();
-    void update();
-    void updateMap( vector<CvMat *> descriptors, vector<CvScalar> pos2D, vector<CvScalar> pos3D, vector<int> classesVector );
+    void startGrab();
+    void startUpdate();
+    void finishUpdate();
+    void changeSettings( double v_observation, double v_translation, double v_rotation );
 
 signals:
     void healthStatusChanged(HealthStatus data);
@@ -86,6 +86,7 @@ signals:
     void newLocalizationEstimate();
     void lostLocalization();
     void updateFinished();
+    void viewUpdated( QGraphicsScene *scene );
 
 private:
     Module_SonarLocalization* sonarLocalization;
@@ -93,10 +94,10 @@ private:
     QDateTime lastRefreshTime;
     clock_t startClock;
     clock_t stopClock;
-    QMutex sceneMutex;
     QMutex updateMutex;
 
     QGraphicsScene *scene;
+    QMutex *sceneMutex;
     StereoCapture cap;
     Feature feature;
     NaiveSLAM slam;

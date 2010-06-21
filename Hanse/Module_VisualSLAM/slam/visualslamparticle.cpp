@@ -3,10 +3,6 @@
 #include <QGraphicsTextItem>
 #include <time.h>
 
-#define DEFAULT_OBSERVATION_VARIANCE    0.09
-#define DEFAULT_TRANSLATION_VARIANCE    0.09
-#define DEFAULT_ROTATION_VARIANCE       0.01
-
 VisualSLAMParticle::VisualSLAMParticle()
 {
     currentTranslation = cvCreateMat( 3, 1, CV_32F );
@@ -117,16 +113,16 @@ VisualSLAMParticle::~VisualSLAMParticle()
     }
 }
 
-double VisualSLAMParticle::update( vector<CvScalar> pos3D, vector<CvPoint> mapMatches, bool *found )
+double VisualSLAMParticle::update( vector<CvScalar> *pos3D, vector<CvPoint> *mapMatches, bool *found )
 {
-    int totalFeatures = (int)pos3D.size();
+    int totalFeatures = (int)pos3D->size();
     double score = 1.0;
 
     if ( totalFeatures > 0 )
     {
         // Determine current Position from the matched features. This will
         // only work if there are at least 3 matches.
-        if ( mapMatches.size() >= 3 )
+        if ( mapMatches->size() >= 3 )
         {
             updatePosition( pos3D, mapMatches );
         }
@@ -138,19 +134,19 @@ double VisualSLAMParticle::update( vector<CvScalar> pos3D, vector<CvPoint> mapMa
     return score;
 }
 
-bool VisualSLAMParticle::updatePosition( vector<CvScalar> newPositions, vector<CvPoint> matches )
+bool VisualSLAMParticle::updatePosition( vector<CvScalar> *newPositions, vector<CvPoint> *matches )
 {
     bool success = true;
 
     lastRotation = currentRotation;
     cvCopy( currentTranslation, lastTranslation );
 
-    int numPositions = (int)newPositions.size();
+    int numPositions = (int)newPositions->size();
     bool *maxConsensusSet = new bool[numPositions];
     bool *tempConsensusSet = new bool[numPositions];
     int maxConsensus = 0;
     int tempMaxConsensus = 0;
-    for ( int i = 0; i < 20; i++ )
+    for ( int i = 0; i < 40; i++ )
     {
         // Calculate position with three random samples.
         memset( tempConsensusSet, false, numPositions*sizeof(bool) );
@@ -159,7 +155,7 @@ bool VisualSLAMParticle::updatePosition( vector<CvScalar> newPositions, vector<C
         calcPosition( newPositions, matches, tempConsensusSet, 3 );
 
         // Check which samples are inside the threshold.
-        errorGreaterT( newPositions, matches, 0.3, tempConsensusSet, tempMaxConsensus );
+        errorGreaterT( newPositions, matches, RANSAC_THRESHOLD, tempConsensusSet, tempMaxConsensus );
 
         // Update maximum consensus set if the consensus is higher.
         if ( tempMaxConsensus > maxConsensus )
@@ -231,7 +227,7 @@ void VisualSLAMParticle::drawRandomSamples( int num, bool *selected )
     }
 }
 
-void VisualSLAMParticle::calcPosition( vector<CvScalar> newPositions, vector<CvPoint> matches, bool *selected, int num )
+void VisualSLAMParticle::calcPosition( vector<CvScalar> *newPositions, vector<CvPoint> *matches, bool *selected, int num )
 {
     cvZero( meanLocalPosition );
     cvZero( meanGlobalPosition );
@@ -253,14 +249,14 @@ void VisualSLAMParticle::calcPosition( vector<CvScalar> newPositions, vector<CvP
     cvSetZero( Q );
 
     int k = 0;
-    for ( int i = 0; i < (int) matches.size(); i++ )
+    for ( int i = 0; i < (int)matches->size(); i++ )
     {
         if ( selected[i] )
         {
             for ( int j = 0; j < 3; j++ )
             {
-                cvmSet( P, j, k, (float)newPositions[matches[i].x].val[j] );
-                cvmSet( Q, j, k, (float)landmarks[matches[i].y]->getPos(j) );
+                cvmSet( P, j, k, (float)newPositions->at( matches->at( i ).x ).val[j] );
+                cvmSet( Q, j, k, (float)landmarks.at( matches->at( i ).y )->getPos(j) );
 
                 cvmSet( meanLocalPosition, j, 0, cvmGet( meanLocalPosition, j, 0 ) + cvmGet( P, j, k ) );
                 cvmSet( meanGlobalPosition, j, 0, cvmGet( meanGlobalPosition, j, 0 ) + cvmGet( Q, j, k ) );
@@ -310,18 +306,18 @@ void VisualSLAMParticle::calcPosition( vector<CvScalar> newPositions, vector<CvP
     }
 }
 
-void VisualSLAMParticle::errorGreaterT( vector<CvScalar> newPositions, vector<CvPoint> matches, double T, bool *check, int &count )
+void VisualSLAMParticle::errorGreaterT( vector<CvScalar> *newPositions, vector<CvPoint> *matches, double T, bool *check, int &count )
 {
     count = 0;
     CvMat *tempLocalPosition = cvCreateMat( 3, 1, CV_32F );
     CvMat *tempGlobalPosition;
-    for ( int i = 0; i < (int)matches.size(); i++ )
+    for ( int i = 0; i < (int)matches->size(); i++ )
     {
         for ( int j = 0; j < 3; j++ )
         {
-            cvmSet( tempLocalPosition, j, 0, newPositions[matches[i].x].val[j] );
+            cvmSet( tempLocalPosition, j, 0, newPositions->at( matches->at( i ).x ).val[j] );
         }
-        tempGlobalPosition = landmarks[matches[i].y]->getPos();
+        tempGlobalPosition = landmarks[matches->at( i ).y]->getPos();
         Quaternion::rotate( currentRotation, tempLocalPosition );
         cvAdd( tempLocalPosition, currentTranslation, tempLocalPosition );
 
@@ -338,8 +334,14 @@ void VisualSLAMParticle::errorGreaterT( vector<CvScalar> newPositions, vector<Cv
     cvReleaseMat( &tempLocalPosition );
 }
 
-double VisualSLAMParticle::updateMap( vector<CvScalar> newPositions, bool *found, vector<CvPoint> matches )
+double VisualSLAMParticle::updateMap( vector<CvScalar> *newPositions, bool *found, vector<CvPoint> *matches )
 {
+    for ( int i = 0; i < (int)items.size(); i++ )
+    {
+        delete( items[i] );
+    }
+    items.clear();
+
     confidence = 1.0;
 
     CvMat *newPosition = cvCreateMat( 3, 1, CV_32F );
@@ -372,20 +374,20 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> newPositions, bool *found
     // Build proposal distribution.
     // for j = 1:length(matches)
     int count = 0;
-    for ( int i = 0; i < (int)matches.size(); i++ )
+    for ( int i = 0; i < (int)matches->size(); i++ )
     {
-        cvmSet( newPosition, 0, 0, newPositions[matches[i].x].val[0] );
-        cvmSet( newPosition, 1, 0, newPositions[matches[i].x].val[1] );
-        cvmSet( newPosition, 2, 0, newPositions[matches[i].x].val[2] );
+        cvmSet( newPosition, 0, 0, newPositions->at( matches->at( i ).x ).val[0] );
+        cvmSet( newPosition, 1, 0, newPositions->at( matches->at( i ).x ).val[1] );
+        cvmSet( newPosition, 2, 0, newPositions->at( matches->at( i ).x ).val[2] );
 
         // Expected measurement.
         // zhat = quat(obj.s(4:7))' * (obj.mu(:,matches(i)) - obj.s(1:3));
-        cvSub( landmarks[matches[i].y]->getPos(), currentTranslation, expectedPosition );
+        cvSub( landmarks[matches->at( i ).y]->getPos(), currentTranslation, expectedPosition );
         cvGEMM( R, expectedPosition, 1, NULL, 1, expectedPosition, CV_GEMM_A_T );
 
         // [ Gs, Gtheta ] = obj.jacobians(obj.mu(:,matches(i)), z(:,i), zhat);
         getObservationJacobian( Gobservation );
-        getStateJacobian( matches[i].y, Gstate );
+        getStateJacobian( matches->at( i ).y, Gstate );
 
 //        if z(3,i) > 2.0
 //            Roprime = ( z(3,i) / 2.0 ) * Ro;
@@ -393,7 +395,7 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> newPositions, bool *found
 //            Roprime = Ro;
 //        end
         // Z = Roprime + Gtheta * obj.sigma(:,(3*matches(i)-2):(3*matches(i))) * Gtheta';
-        cvGEMM( Gobservation, landmarks[matches[i].y]->getSigma(), 1, NULL, 1, Z );
+        cvGEMM( Gobservation, landmarks[matches->at( i ).y]->getSigma(), 1, NULL, 1, Z );
         cvGEMM( Z, Gobservation, 1, Robservation, 1, Z, CV_GEMM_B_T );
 
         // pi = mvnpdf(z(:,i),quat(obj.s(4:7))' * ((obj.mu(:,matches(i)) - obj.s(1:3))), Z);
@@ -407,8 +409,7 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> newPositions, bool *found
 //        else
 //            obj.valid(matches(i)) = false;
 //        end
-        double p0 = 0.01;
-        if ( p > p0 )
+        if ( p > P0 )
         {
             cvInv( Z, Zinv, CV_SVD );
             cvInv( Sigma, Sigmainv, CV_SVD );
@@ -435,8 +436,8 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> newPositions, bool *found
         }
         else
         {
-            toDelete[matches[i].y] = true;
-            confidence *= p0;
+            toDelete[matches->at( i ).y] = true;
+            confidence *= P0;
         }
     }
 
@@ -463,41 +464,41 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> newPositions, bool *found
     cvReleaseMat( &Mtemp1 );
     cvReleaseMat( &diffPos );
 
-    for ( int i = 0; i < (int)matches.size(); i++ )
+    for ( int i = 0; i < (int)matches->size(); i++ )
     {
-        cvmSet( newPosition, 0, 0, newPositions[matches[i].x].val[0] );
-        cvmSet( newPosition, 1, 0, newPositions[matches[i].x].val[1] );
-        cvmSet( newPosition, 2, 0, newPositions[matches[i].x].val[2] );
+        cvmSet( newPosition, 0, 0, newPositions->at( matches->at( i ).x ).val[0] );
+        cvmSet( newPosition, 1, 0, newPositions->at( matches->at( i ).x ).val[1] );
+        cvmSet( newPosition, 2, 0, newPositions->at( matches->at( i ).x ).val[2] );
 
-        cvSub( landmarks[matches[i].y]->getPos(), currentTranslation, expectedPosition );
+        cvSub( landmarks[matches->at( i ).y]->getPos(), currentTranslation, expectedPosition );
         cvGEMM( R, expectedPosition, 1, NULL, 1, expectedPosition, CV_GEMM_A_T );
 
         getObservationJacobian( Gobservation );
-        getStateJacobian( matches[i].y, Gstate );
+        getStateJacobian( matches->at( i ).y, Gstate );
 
         // Check if this landmark belongs only to this particle. If there are
         // more particles referencing the landmark, create a copy.
-        if ( landmarks[matches[i].y]->references > 1 )
+        if ( landmarks[matches->at( i ).y]->references > 1 )
         {
-            landmarks[matches[i].y]->references--;
-            Landmark *copy = new Landmark( *landmarks[matches[i].y] );
+            landmarks[matches->at( i ).y]->references--;
+            Landmark *copy = new Landmark( *landmarks[matches->at( i ).y] );
             copy->references = 1;
-            landmarks[matches[i].y] = copy;
+            landmarks[matches->at( i ).y] = copy;
         }
 
-        landmarks[matches[i].y]->update( newPosition, expectedPosition,
+        landmarks[matches->at( i ).y]->update( newPosition, expectedPosition,
                                          Robservation, Rstate,
                                          Gobservation, Gstate );
     }
 
-    for ( int i = 0; i < (int)newPositions.size(); i++ )
+    for ( int i = 0; i < (int)newPositions->size(); i++ )
     {
         if ( !found[i] )
         {
             // Calculate global position of the feature.
-            cvmSet( newPosition, 0, 0, newPositions[i].val[0] );
-            cvmSet( newPosition, 1, 0, newPositions[i].val[1] );
-            cvmSet( newPosition, 2, 0, newPositions[i].val[2] );
+            cvmSet( newPosition, 0, 0, newPositions->at( i ).val[0] );
+            cvmSet( newPosition, 1, 0, newPositions->at( i ).val[1] );
+            cvmSet( newPosition, 2, 0, newPositions->at( i ).val[2] );
             cvMatMulAdd( R, newPosition, currentTranslation, newPosition );
 
             landmarks.push_back( new Landmark( newPosition, Robservation, (int)landmarks.size(), 0 ) );
@@ -573,56 +574,74 @@ void VisualSLAMParticle::getStateJacobian( int landmarkNr, CvMat *Gstate )
     }
 }
 
+void VisualSLAMParticle::setObservationVariance( double v )
+{
+    cvSetIdentity( Robservation, cvScalar( v ) );
+}
+
+void VisualSLAMParticle::setTranslationVariance( double v )
+{
+    cvmSet( Rstate, 0, 0, v );
+    cvmSet( Rstate, 1, 1, v );
+    cvmSet( Rstate, 2, 2, v );
+}
+
+void VisualSLAMParticle::setRotationVariance( double v )
+{
+    cvmSet( Rstate, 3, 0, v );
+    cvmSet( Rstate, 4, 0, v );
+    cvmSet( Rstate, 5, 0, v );
+    cvmSet( Rstate, 6, 0, v );
+}
+
 void VisualSLAMParticle::plot( QGraphicsScene *scene )
 {
-    double w = scene->width();
-    double h = scene->height();
-
     QPen pen(Qt::red);
     QBrush brush(Qt::red);
     pen.setWidth( 1.0 );
-    double pos1 = cvmGet( this->currentTranslation, 0, 0 );
-    double pos2 = -cvmGet( this->currentTranslation, 2, 0 );
-    CvMat *R = currentRotation.getRotation();
-    double z1 = cvmGet( R, 2, 0 );
-    double z2 = cvmGet( R, 2, 2 );
-    cvReleaseMat( &R );
-    scene->addEllipse( w/2 + 10*pos1 - 0.5,
-                       h/2 + 10*pos2 - 0.5,
-                       1, 1, pen, brush );
-    scene->addLine( w/2 + 10*pos1,
-                    h/2 + 10*pos2,
-                    w/2 + 10*(pos1 - z1),
-                    h/2 + 10*(pos2 - z2),
-                    pen );
-
-    QFont font( "Arial", 1 );
-    QGraphicsTextItem *textItem = scene->addText( QString( "(%1,%2)" ).arg( pos1, 0, 'f', 2 ).arg( pos2, 0, 'f', 2 ), font );
-    textItem->setPos( w/2 + 10*pos1 - textItem->boundingRect().width()/2, h/2 + 10*pos2 + 0.5 );
+//    double pos1 = cvmGet( this->currentTranslation, 0, 0 );
+//    double pos2 = -cvmGet( this->currentTranslation, 2, 0 );
+//    CvMat *R = currentRotation.getRotation();
+//    double z1 = cvmGet( R, 2, 0 );
+//    double z2 = cvmGet( R, 2, 2 );
+//    cvReleaseMat( &R );
+//    scene->addEllipse( w/2 + 10*pos1 - 0.5,
+//                       h/2 + 10*pos2 - 0.5,
+//                       1, 1, pen, brush );
+//    scene->addLine( w/2 + 10*pos1,
+//                    h/2 + 10*pos2,
+//                    w/2 + 10*(pos1 - z1),
+//                    h/2 + 10*(pos2 - z2),
+//                    pen );
+//
+//    QFont font( "Arial", 1 );
+//    QGraphicsTextItem *textItem = scene->addText( QString( "(%1,%2)" ).arg( pos1, 0, 'f', 2 ).arg( pos2, 0, 'f', 2 ), font );
+//    textItem->setPos( w/2 + 10*pos1 - textItem->boundingRect().width()/2, h/2 + 10*pos2 + 0.5 );
 
     for ( int i = 0; i < (int)landmarks.size(); i++ )
     {
-        switch ( landmarks[i]->getClass() )
-        {
-        case 0:
-            pen = QPen(Qt::blue);
-            brush = QBrush(Qt::blue);
-            break;
-        case 1:
-            pen = QPen(Qt::green);
-            brush = QBrush(Qt::green);
-            break;
-        case 2:
-            pen = QPen(Qt::red);
-            brush = QBrush(Qt::red);
-            break;
-        }
-
-        double p0 = landmarks[i]->getPos(0);
-        double p2 = landmarks[i]->getPos(2);
-        scene->addEllipse( w/2 + 10*p0,
-                           h/2 - 10*p2,
-                           0.3, 0.3, pen, brush );
+        items.push_back( landmarks[i]->plot( scene ) );
+//        switch ( landmarks[i]->getClass() )
+//        {
+//        case 0:
+//            pen = QPen(Qt::blue);
+//            brush = QBrush(Qt::blue);
+//            break;
+//        case 1:
+//            pen = QPen(Qt::green);
+//            brush = QBrush(Qt::green);
+//            break;
+//        case 2:
+//            pen = QPen(Qt::red);
+//            brush = QBrush(Qt::red);
+//            break;
+//        }
+//
+//        double p0 = landmarks[i]->getPos(0);
+//        double p2 = landmarks[i]->getPos(2);
+//        scene->addEllipse( w/2 + 10*p0,
+//                           h/2 - 10*p2,
+//                           0.3, 0.3, pen, brush );
     }
 }
 

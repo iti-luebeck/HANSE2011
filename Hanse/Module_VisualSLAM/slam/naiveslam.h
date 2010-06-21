@@ -12,23 +12,32 @@
 
 using namespace std;
 
-class NaiveSLAM
+class NaiveSLAM : public QObject
 {
+    Q_OBJECT
 public:
     NaiveSLAM( int particleCount );
     ~NaiveSLAM();
-    bool update( vector<CvMat *> descriptor, vector<CvScalar> pos3D, vector<int> classLabels );
+    void update( vector<CvMat *> *descriptor, vector<CvScalar> *pos3D, vector<int> *classLabels );
     void plot( QGraphicsScene *scene );
     void save( QTextStream &ts );
     void load( QTextStream &ts );
     Position getPosition();
     double getConfidence();
+    void setObservationVariance( double v );
+    void setTranslationVariance( double v );
+    void setRotationVariance( double v );
 
     void test();
     void reset();
 
+    void run();
+
 private:
     void resampleParticles( double *weights );
+
+signals:
+    void updateDone();
 
 private:
     CvMemStorage *storage;
@@ -39,7 +48,17 @@ private:
     int bestParticle;
 
     Position pos;
+    CvMat *meanTranslation;
+    Quaternion meanRotation;
     double confidence;
+
+    vector<CvMat *> *descriptor;
+    vector<CvScalar> *pos3D;
+    vector<int> *classLabels;
+
+    vector<QGraphicsEllipseItem *> particlePositionItems;
+    QGraphicsEllipseItem *meanPositionItem;
+    QGraphicsLineItem *meanOrientationItem;
 };
 
 #endif // NAIVESLAM_H

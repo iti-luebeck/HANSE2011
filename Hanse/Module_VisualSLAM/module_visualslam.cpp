@@ -4,28 +4,40 @@
 #include <Module_VisualSLAM/form_visualslam.h>
 #include <QtGui>
 
-Module_VisualSLAM::Module_VisualSLAM(QString id, Module_SonarLocalization *sonarLocalization) :
+Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sonarLocalization ) :
         RobotModule(id),
         slam( 100 )
 {
     this->sonarLocalization = sonarLocalization;
     cap.setMutex( &updateMutex );
+    scene = new QGraphicsScene( QRectF() );
 
-    // updateThread.start();
-    // updateTimer.moveToThread( this );
-    QObject::connect( &updateTimer, SIGNAL( timeout() ), SLOT( update() ) );
-
-    scene = new QGraphicsScene( 5, 5, 470, 310, NULL );
-
-    QObject::connect( &cap, SIGNAL( grabFinished( vector<CvMat *>, vector<CvScalar>, vector<CvScalar>, vector<int> ) ),
-                      SLOT( updateMap( vector<CvMat *>, vector<CvScalar>, vector<CvScalar>, vector<int> ) ) );
+    QObject::connect( &updateTimer, SIGNAL( timeout() ), SLOT( startGrab() ) );
+    QObject::connect( &cap, SIGNAL( grabFinished() ), SLOT( startUpdate() ) );
+    QObject::connect( &slam, SIGNAL( updateDone() ), SLOT( finishUpdate() ) );
 
     stopped = true;
+
+    double v_observation = DEFAULT_OBSERVATION_VARIANCE;
+    if ( settings.contains( QString("v_observation") ) )
+    {
+        v_observation = settings["v_observation"];
+    }
+    double v_translation = DEFAULT_TRANSLATION_VARIANCE;
+    if ( settings.contains( QString("v_translation") ) )
+    {
+        v_translation = settings["v_translation"];
+    }
+    double v_rotation = DEFAULT_ROTATION_VARIANCE;
+    if ( settings.contains( QString("v_rotation") ) )
+    {
+        v_rotation = settings["v_rotation"];
+    }
 }
 
-void Module_VisualSLAM::run()
+Module_VisualSLAM::~Module_VisualSLAM()
 {
-
+    delete( scene );
 }
 
 void Module_VisualSLAM::start()
@@ -53,31 +65,30 @@ void Module_VisualSLAM::terminate()
     RobotModule::terminate();
 }
 
-void Module_VisualSLAM::update()
+void Module_VisualSLAM::startGrab()
 {
     updateTimer.stop();
     startClock = clock();
     cap.grab();
 }
 
-void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>pos2D,
-                                   vector<CvScalar>pos3D, vector<int>classesVector )
+void Module_VisualSLAM::startUpdate()
 {
     stopClock = clock();
     logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     startClock = clock();
-    slam.update( descriptors, pos3D, classesVector );
-    for ( int i = 0; i < descriptors.size(); i++ )
-    {
-        cvReleaseMat( &descriptors[i] );
-    }
-    descriptors.clear();
+    slam.update( cap.getDescriptors(), cap.getPos(), cap.getClasses() );
+}
+
+void Module_VisualSLAM::finishUpdate()
+{
     stopClock = clock();
     logger->debug( QString( "UPDATE %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     lastRefreshTime = QDateTime::currentDateTime();
 
+    startClock = clock();
     Position pos = slam.getPosition();
     logger->debug( QString( "POSITION (%1,%2,%3), (%4,%5,%6) with confidence %7" )
                    .arg( pos.getX(), 0, 'f', 3 )
@@ -101,44 +112,28 @@ void Module_VisualSLAM::updateMap( vector<CvMat *>descriptors, vector<CvScalar>p
     QRectF boundingBox;
     QDateTime lastSeen;
     cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
-    data["Goal - bounding box x"] = boundingBox.left();;
+    data["Goal - bounding box x"] = boundingBox.left();
     data["Goal - bounding box y"] = boundingBox.top();
     data["Goal - bounding box w"] = boundingBox.width();
     data["Goal - bounding box h"] = boundingBox.height();
     data["Goal - lastSeen"] = lastSeen.toString();
 
+    if ( scene != NULL )
+    {
+        slam.plot( this->scene );
+    }
+
+    stopClock = clock();
+    logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
+
     emit dataChanged( this );
     emit updateFinished();
+    emit viewUpdated( scene );
 
     if ( !stopped )
     {
         updateTimer.start( 0 );
     }
-}
-
-void Module_VisualSLAM::plot( QGraphicsScene *scene )
-{
-    sceneMutex.lock();
-//    startClock = clock();
-
-//    QImage image1((unsigned char*)cap.getFrame(0)->imageData, 640, 480, QImage::Format_RGB888);
-//    image1 = image1.scaledToHeight(120);
-//    image1 = image1.scaledToWidth(160);
-//
-//    QGraphicsPixmapItem *pitem1 = scene->addPixmap( QPixmap::fromImage( image1 ) );
-//    pitem1->setPos( 50, 190 );
-//
-//    QImage image2((unsigned char*)cap.getFrame(1)->imageData, 640, 480, QImage::Format_RGB888);
-//    image2 = image2.scaledToHeight(120);
-//    image2 = image2.scaledToWidth(160);
-//
-//    QGraphicsPixmapItem *pitem2 = scene->addPixmap( QPixmap::fromImage( image2 ) );
-//    pitem2->setPos( 260, 190 );
-
-    slam.plot( scene );
-//    stopClock = clock();
-//    logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
-    sceneMutex.unlock();
 }
 
 void Module_VisualSLAM::save( QTextStream &ts )
@@ -161,7 +156,6 @@ QList<RobotModule*> Module_VisualSLAM::getDependencies()
 QWidget* Module_VisualSLAM::createView(QWidget* parent)
 {
     Form_VisualSLAM *form = new Form_VisualSLAM( this, parent );
-    form->setScene( scene );
     return form;
 }
 
@@ -187,7 +181,7 @@ bool Module_VisualSLAM::isLocalizationLost()
 
 QMutex *Module_VisualSLAM::getSceneMutex()
 {
-    return &sceneMutex;
+    return sceneMutex;
 }
 
 QMutex *Module_VisualSLAM::getUpdateMutex()

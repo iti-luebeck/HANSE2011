@@ -3,6 +3,7 @@
 
 #include <opencv/cxcore.h>
 #include <QTextStream>
+#include <QGraphicsScene>
 
 class Landmark
 {
@@ -22,6 +23,7 @@ public:
     int getClass();
     void save( QTextStream &ts );
     void load( QTextStream &ts );
+    QGraphicsEllipseItem *plot( QGraphicsScene *scene );
 
 private:
     void initTemporaryMatrices();
@@ -32,6 +34,8 @@ public:
     int classNr;
 
 private:
+    QGraphicsEllipseItem *item;
+
     CvMat *Sigma;
     CvMat *pos;
     CvMat *Z;

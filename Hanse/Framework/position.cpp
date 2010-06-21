@@ -20,6 +20,20 @@ Position::Position( double x, double y, double z, double roll, double pitch, dou
     setYaw( yaw );
 }
 
+Position::Position( CvMat *translation, Quaternion rotation )
+{
+    float yaw;
+    float pitch;
+    float roll;
+    rotation.getYawPitchRoll( yaw, pitch, roll );
+    setRoll( (double)roll );
+    setPitch( (double)pitch );
+    setYaw( (double)yaw );
+    setX( cvmGet( translation, 0, 0 ) );
+    setY( cvmGet( translation, 1, 0 ) );
+    setZ( cvmGet( translation, 2, 0 ) );
+}
+
 Position& Position::operator=( const Position& pos )
 {
     setX( pos.x );

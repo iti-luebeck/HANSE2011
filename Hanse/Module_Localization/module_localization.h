@@ -20,6 +20,7 @@ public:
 
     Module_Localization(QString id, Module_VisualSLAM* visualSLAM, Module_SonarLocalization *sonarLoc,
                         Module_PressureSensor* pressure);
+    ~Module_Localization();
 
     QWidget* createView(QWidget* parent);
 
@@ -59,8 +60,6 @@ public:
       */
     const QMap<QDateTime, Position> getPath();
 
-    void plot( QGraphicsScene *scene );
-
     void save( QTextStream &ts );
 
     void load( QTextStream &ts );
@@ -72,8 +71,11 @@ public slots:
     void reset();
     void terminate();
 
+    void updateView( QGraphicsScene *scene );
+
 signals:
     void healthStatusChanged(HealthStatus data);
+    void viewUpdated( QGraphicsScene *scene );
 
     /**
       * is emitted when a new localization update has arrived.
@@ -96,6 +98,7 @@ private:
     Module_SonarLocalization *sonarLocalization;
     Module_PressureSensor *pressure;
     QMap<QDateTime, Position> path;
+    QGraphicsScene *scene;
 
 };
 

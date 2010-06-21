@@ -16,7 +16,6 @@ class Form_VisualSLAM : public QWidget {
 public:
     Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent = 0 );
     ~Form_VisualSLAM();
-    void setScene( QGraphicsScene *scene );
 
 protected:
     void changeEvent(QEvent *e);
@@ -24,17 +23,15 @@ protected:
 private:
     Ui::Form_VisualSLAM *ui;
     Module_VisualSLAM *visualSlam;
-    QMutex *sceneMutex;
-
-public slots:
-    void updateView();
 
 private slots:
+    void on_applyButton_clicked();
     void on_resetButton_clicked();
-    void on_zoomInButton_clicked();
-    void on_zoomOutButton_clicked();
     void on_stopButton_clicked();
     void on_startButton_clicked();
+
+signals:
+    void settingsChanged( double v_observation, double v_translation, double v_rotation );
 };
 
 #endif // FORM_VISUALSLAM_H

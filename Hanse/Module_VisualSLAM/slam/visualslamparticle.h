@@ -10,23 +10,35 @@
 
 using namespace std;
 
+#define DEFAULT_OBSERVATION_VARIANCE    0.09
+#define DEFAULT_TRANSLATION_VARIANCE    0.01
+#define DEFAULT_ROTATION_VARIANCE       0.0025
+#define RANSAC_THRESHOLD                0.2
+#define P0                              0.001
+
 class VisualSLAMParticle
 {
 public:
     VisualSLAMParticle();
     VisualSLAMParticle( const VisualSLAMParticle *particle );
     ~VisualSLAMParticle();
-    double update( vector<CvScalar> pos3D, vector<CvPoint> matches, bool *found );
+
+    double update( vector<CvScalar> *pos, vector<CvPoint> *matches, bool *found );
+
+    void setObservationVariance( double v );
+    void setTranslationVariance( double v );
+    void setRotationVariance( double v );
+
     void plot( QGraphicsScene *scene );
     void save( QTextStream &ts );
     void load( QTextStream &ts, int landmarkCount );
 
 private:
-    bool updatePosition( vector<CvScalar> newPositions, vector<CvPoint> matches );
-    double updateMap( vector<CvScalar> newPositions, bool *found, vector<CvPoint> mapMatches );
+    bool updatePosition( vector<CvScalar> *newPositions, vector<CvPoint> *mapMatches );
+    double updateMap( vector<CvScalar> *newPositions, bool *found, vector<CvPoint> *mapMatches );
 
-    void errorGreaterT( vector<CvScalar> newPositions, vector<CvPoint> matches, double T, bool *check, int &count );
-    void calcPosition( vector<CvScalar> newPositions, vector<CvPoint> matches, bool *selected, int num );
+    void errorGreaterT( vector<CvScalar> *newPositions, vector<CvPoint> *matches, double T, bool *check, int &count );
+    void calcPosition( vector<CvScalar> *newPositions, vector<CvPoint> *matches, bool *selected, int num );
     void drawRandomSamples( int num, bool *selected );
 
     void getObservationJacobian( CvMat *Gobservation );
@@ -34,6 +46,7 @@ private:
 
 public:
     vector<Landmark *> landmarks;
+    vector<QGraphicsEllipseItem *> items;
 
     Quaternion currentRotation;
     CvMat *currentTranslation;

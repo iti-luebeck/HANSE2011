@@ -64,6 +64,8 @@ void Landmark::initTemporaryMatrices()
     Mtemp3 = cvCreateMat( 3, 3, CV_32F );
     Mtemp4 = cvCreateMat( 3, 3, CV_32F );
     L = cvCreateMat( 3, 3, CV_32F );
+
+    item = NULL;
 }
 
 double Landmark::update( CvMat *observation, CvMat *expectedObservation,
@@ -216,4 +218,13 @@ void Landmark::load( QTextStream &ts )
             cvmSet( pos, i, j, temp );
         }
     }
+}
+
+QGraphicsEllipseItem *Landmark::plot( QGraphicsScene *scene )
+{
+    QBrush brush( Qt::blue );
+    QPen pen( Qt::blue );
+    double width = 0.1;
+    return scene->addEllipse( cvmGet( pos, 0, 0 ) + width/4, -(cvmGet( pos, 2, 0 ) + width/4),
+                              width, width, pen, brush );
 }

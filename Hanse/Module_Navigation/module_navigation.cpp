@@ -7,13 +7,10 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
 Module_Navigation::Module_Navigation(QString id, Module_Localization *localization, Module_ThrusterControlLoop *tcl) :
-        RobotModule(id),
-        scene( 1, 1, 638, 478, NULL )
+        RobotModule(id)
 {
     this->localization = localization;
     this->tcl = tcl;
-    updateTimer.start( 1000 );
-    QObject::connect( &updateTimer, SIGNAL( timeout() ), SLOT( plot() ) );
 }
 
 void Module_Navigation::reset()
@@ -41,8 +38,8 @@ QWidget* Module_Navigation::createView(QWidget* parent)
                       form, SLOT( updateList(QMap<QString,Position>) ) );
     QObject::connect( form, SIGNAL( removedWaypoint(QString) ),
                       SLOT( removeWaypoint(QString) ) );
-    QObject::connect( this, SIGNAL( updatedView(QGraphicsScene *) ),
-                      form, SLOT( updateView(QGraphicsScene *) ) );
+    QObject::connect( localization, SIGNAL( viewUpdated( QGraphicsScene * ) ),
+                      form, SLOT( updateView( QGraphicsScene * ) ) );
     updatedWaypoints( waypoints );
     return form;
 }
@@ -62,12 +59,6 @@ void Module_Navigation::removeWaypoint( QString name )
 {
     waypoints.remove( name );
     updatedWaypoints( waypoints );
-}
-
-void Module_Navigation::plot()
-{
-    localization->plot( &scene );
-    updatedView( &scene );
 }
 
 void Module_Navigation::save( QString path )

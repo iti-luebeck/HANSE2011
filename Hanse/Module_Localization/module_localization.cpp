@@ -12,6 +12,15 @@ Module_Localization::Module_Localization(QString id, Module_VisualSLAM *visualSL
     this->visualSLAM = visualSLAM;
     this->sonarLocalization = sonarLoc;
     this->pressure = pressure;
+    scene = new QGraphicsScene( QRectF() );
+
+    QObject::connect( visualSLAM, SIGNAL( viewUpdated( QGraphicsScene * ) ),
+                      SLOT( updateView( QGraphicsScene * ) ) );
+}
+
+Module_Localization::~Module_Localization()
+{
+    delete scene;
 }
 
 Position Module_Localization::getLocalization()
@@ -32,12 +41,6 @@ float Module_Localization::getLocalizationConfidence()
 bool Module_Localization::isLocalizationLost()
 {
     return visualSLAM->isLocalizationLost();
-}
-
-void Module_Localization::plot( QGraphicsScene *scene )
-{
-    scene->clear();
-    visualSLAM->plot( scene );
 }
 
 void Module_Localization::save( QTextStream &ts )
@@ -76,4 +79,15 @@ QWidget* Module_Localization::createView(QWidget* parent)
 void Module_Localization::doHealthCheck()
 {
 
+}
+
+void Module_Localization::updateView( QGraphicsScene *scene )
+{
+    this->scene->clear();
+    QList<QGraphicsItem *> items = scene->items();
+    for ( int i = 0; i < items.size(); i++ )
+    {
+        this->scene->addItem( items[i] );
+    }
+    emit viewUpdated( this->scene );
 }

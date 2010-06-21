@@ -29,14 +29,18 @@ public:
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
     void setMutex( QMutex *mutex );
 
+    vector<CvMat *> *getDescriptors();
+    vector<CvScalar> *getPos();
+    vector<int> *getClasses();
+
 public slots:
     void surfDone1();
     void surfDone2();
 
 private:
     void initStereoCalibration();
-    void normalizePixels( CvMat *x, CvMat *xn, double f, double cm, double cn);
-    void stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> &X, double T);
+    void normalizePixels( CvMat *x, double f, double cm, double cn);
+    void stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> *X, double T);
     void doCalculations();
 
 private:
@@ -74,9 +78,8 @@ private:
     IplImage *frame1;
     IplImage *frame2;
     vector<CvMat *> *descriptors;
-    vector<CvScalar> *pos2D;
-    vector<CvScalar> *pos3D;
-    vector<int> *classesVector;
+    vector<CvScalar> *pos;
+    vector<int> *classes;
 
     vector<CvMat *> classFeatures;
     vector<int> classLabels;
@@ -86,7 +89,7 @@ private:
     QMutex *grabMutex;
 
 signals:
-    void grabFinished( vector<CvMat *> descriptors, vector<CvScalar> pos2D, vector<CvScalar> pos3D, vector<int> classesVector );
+    void grabFinished();
 };
 
 #endif // STEREOCAPTURE_H

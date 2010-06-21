@@ -7,6 +7,10 @@ QGraphicsViewExtended::QGraphicsViewExtended( QWidget* parent )
     this->setBackgroundBrush(QBrush(QColor("black")));
 }
 
+QGraphicsViewExtended::~QGraphicsViewExtended()
+{
+}
+
 void QGraphicsViewExtended::wheelEvent(QWheelEvent *event)
 {
     this->setTransformationAnchor( QGraphicsView::AnchorUnderMouse );
@@ -40,4 +44,9 @@ void QGraphicsViewExtended::keyPressEvent( QKeyEvent *event )
         this->translate( -10, 0 );
         break;
     }
+}
+
+void QGraphicsViewExtended::mouseDoubleClickEvent( QMouseEvent *event )
+{
+    mouseEventAt( this->mapToScene( event->pos() ) );
 }

@@ -15,6 +15,10 @@ NaiveSLAM::NaiveSLAM( int particleCount )
     {
         particles.push_back( new VisualSLAMParticle() );
     }
+    meanTranslation = cvCreateMat( 3, 1, CV_32F );
+
+    meanPositionItem = NULL;
+    meanOrientationItem = NULL;
 }
 
 NaiveSLAM::~NaiveSLAM()
@@ -24,12 +28,20 @@ NaiveSLAM::~NaiveSLAM()
     {
         delete( particles[i] );
     }
+    cvReleaseMat( &meanTranslation );
 }
 
-bool NaiveSLAM::update( vector<CvMat *> descriptor, vector<CvScalar> pos3D, vector<int> classLabels )
+void NaiveSLAM::update( vector<CvMat *> *descriptors, vector<CvScalar> *pos3D, vector<int> *classLabels )
 {
-    int totalFeatures = (int)descriptor.size();
-    bool success = false;
+    this->descriptor = descriptors;
+    this->pos3D = pos3D;
+    this->classLabels = classLabels;
+    this->run();
+}
+
+void NaiveSLAM::run()
+{
+    int totalFeatures = (int)descriptor->size();
 
     if ( totalFeatures > 0 )
     {
@@ -37,7 +49,7 @@ bool NaiveSLAM::update( vector<CvMat *> descriptor, vector<CvScalar> pos3D, vect
         CvSeq *newFeatures = cvCreateSeq( 0, sizeof(CvSeq), 64*sizeof(float), storage );
         for ( int i = 0; i < totalFeatures; i++ )
         {
-            cvSeqPush(newFeatures, descriptor[i]->data.fl);
+            cvSeqPush(newFeatures, descriptor->at( i )->data.fl);
         }
 
         // Check which of the new features are in the map.
@@ -57,14 +69,14 @@ bool NaiveSLAM::update( vector<CvMat *> descriptor, vector<CvScalar> pos3D, vect
         {
             if ( !found[i] )
             {
-                cvSeqPush( features, descriptor[i]->data.fl );
+                cvSeqPush( features, descriptor->at( i )->data.fl );
             }
         }
 
         // Add class for each new feature.
         for ( int i = 0; i < (int)mapMatches.size(); i++ )
         {
-            classes.push_back( classLabels[mapMatches[i].x] );
+            classes.push_back( classLabels->at( mapMatches[i].x ) );
         }
 
         // Update all particles and store weights. Also calculate best current particle.
@@ -73,7 +85,7 @@ bool NaiveSLAM::update( vector<CvMat *> descriptor, vector<CvScalar> pos3D, vect
         double bestParticleWeight = -1;
         for ( int i = 0; i < (int)particles.size(); i++ )
         {
-            weights[i] = particles[i]->update( pos3D, mapMatches, found );
+            weights[i] = particles[i]->update( pos3D, &mapMatches, found );
             if ( weights[i] > bestParticleWeight )
             {
                 bestParticle = i;
@@ -85,19 +97,12 @@ bool NaiveSLAM::update( vector<CvMat *> descriptor, vector<CvScalar> pos3D, vect
         resampleParticles( weights );
 
         // Calculate position from best particle.
-        float yaw;
-        float pitch;
-        float roll;
-        particles[bestParticle]->currentRotation.getYawPitchRoll( yaw, pitch, roll );
-        double x = cvmGet( particles[bestParticle]->currentTranslation, 0, 0 );
-        double y = cvmGet( particles[bestParticle]->currentTranslation, 1, 0 );
-        double z = cvmGet( particles[bestParticle]->currentTranslation, 2, 0 );
-        pos = Position( x, y, z, roll, pitch, yaw );
+        pos = Position( meanTranslation, meanRotation );
 
         delete( found );
     }
 
-    return success;
+    emit updateDone();
 }
 
 void NaiveSLAM::resampleParticles( double *weights )
@@ -116,13 +121,19 @@ void NaiveSLAM::resampleParticles( double *weights )
 
     // Calculate cumulative sum. (and weighted position)
     weights[0] = weights[0] / sum;
+    meanRotation.w = 0;
+    cvSetZero( meanTranslation );
     for ( int i = 1; i < M; i++ )
     {
-        pos.setX( pos.getX() + (weights[i] / sum) * cvmGet( particles[i]->currentTranslation, 0, 0 ) );
-        pos.setY( pos.getY() + (weights[i] / sum) * cvmGet( particles[i]->currentTranslation, 1, 0 ) );
-        pos.setZ( pos.getZ() + (weights[i] / sum) * cvmGet( particles[i]->currentTranslation, 2, 0 ) );
+        cvAddWeighted( meanTranslation, 1, particles[i]->currentTranslation, weights[i] / sum, 0, meanTranslation );
+        meanRotation.w = meanRotation.w + (weights[i] / sum) * particles[i]->currentRotation.w;
+        meanRotation.x = meanRotation.x + (weights[i] / sum) * particles[i]->currentRotation.x;
+        meanRotation.y = meanRotation.y + (weights[i] / sum) * particles[i]->currentRotation.y;
+        meanRotation.z = meanRotation.z + (weights[i] / sum) * particles[i]->currentRotation.z;
+
         weights[i] = weights[i-1] + weights[i] / sum;
     }
+    meanRotation.normalize();
 
     // Select M random particles.
     CvRNG rng = cvRNG( cvGetTickCount() );
@@ -161,42 +172,52 @@ double NaiveSLAM::getConfidence()
 
 void NaiveSLAM::plot( QGraphicsScene *scene )
 {
-    // Plot all particle positions.
-    double w = scene->width();
-    double h = scene->height();
-
     QPen pen(Qt::gray);
     QBrush brush(Qt::gray);
-    pen.setWidth( 1.0 );
+    pen.setWidth( 0.01 );
+    double positionWidth = 0.05;
+
+    for ( int i = 0; i < (int)particlePositionItems.size(); i++ )
+    {
+        delete( particlePositionItems[i] );
+    }
+    particlePositionItems.clear();
+
     for ( int i = 0; i < (int)particles.size(); i++ )
     {
         double pos1 = cvmGet( particles[i]->currentTranslation, 0, 0 );
         double pos2 = -cvmGet( particles[i]->currentTranslation, 2, 0 );
-//        CvMat *R = currentRotation.getRotation();
-//        double z1 = cvmGet( R, 2, 0 );
-//        double z2 = cvmGet( R, 2, 2 );
-//        cvReleaseMat( &R );
-        scene->addEllipse( w/2 + 10*pos1 - 0.25,
-                           h/2 + 10*pos2 - 0.25,
-                           0.5, 0.5, pen, brush );
-//        scene->addLine( w/2 + 10*pos1,
-//                        h/2 + 10*pos2,
-//                        w/2 + 10*(pos1 - z1),
-//                        h/2 + 10*(pos2 - z2),
-//                        pen );
+        particlePositionItems.push_back( scene->addEllipse( pos1 - positionWidth/4,
+                                                            pos2 - positionWidth/4,
+                                                            positionWidth, positionWidth,
+                                                            pen, brush ) );
+        particlePositionItems[i]->setZValue( 1000 );
     }
 
     // Plot mean position.
     pen = QPen(Qt::green);
     brush = QBrush(Qt::green);
-    scene->addEllipse( w/2 + 10*pos.getX() - 0.5,
-                       h/2 - 10*pos.getZ() - 0.5,
-                       1.0, 1.0, pen, brush );
+    meanPositionItem = scene->addEllipse( cvmGet( meanTranslation, 0, 0 ) - positionWidth/4,
+                                          -cvmGet( meanTranslation, 2, 0 ) - positionWidth/4,
+                                          positionWidth, positionWidth,
+                                          pen, brush );
+    meanPositionItem->setZValue( 1010 );
+
+    CvMat *R = meanRotation.getRotation();
+    meanOrientationItem = scene->addLine( cvmGet( meanTranslation, 0, 0 ),
+                                          -cvmGet( meanTranslation, 2, 0 ),
+                                          cvmGet( meanTranslation, 0, 0 ) - cvmGet( R, 2, 0 ),
+                                          -cvmGet( meanTranslation, 2, 0 ) - cvmGet( R, 2, 2 ),
+                                          pen );
+    meanOrientationItem->setZValue( 1010 );
+    cvReleaseMat( &R );
 
     // Plot best particle map.
     if ( bestParticle >= 0 && bestParticle < (int)particles.size() )
     {
+        qDebug("plot1");
         particles[bestParticle]->plot( scene );
+        qDebug("plot2");
     }
 }
 
