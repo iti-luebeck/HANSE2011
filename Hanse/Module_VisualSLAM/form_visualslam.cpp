@@ -49,7 +49,7 @@ void Form_VisualSLAM::on_applyButton_clicked()
     bool ok;
     double v_observation, v_translation, v_rotation;
 
-    v_observation = ui->observationEdit->text().toDouble( ok );
+    v_observation = ui->observationEdit->text().toDouble( &ok );
     if ( !ok )
     {
         QMessageBox msgBox;
@@ -58,7 +58,7 @@ void Form_VisualSLAM::on_applyButton_clicked()
         return;
     }
 
-    v_translation = ui->translationEdit->text().toDouble( ok );
+    v_translation = ui->translationEdit->text().toDouble( &ok );
     if ( !ok )
     {
         QMessageBox msgBox;
@@ -67,7 +67,7 @@ void Form_VisualSLAM::on_applyButton_clicked()
         return;
     }
 
-    v_rotation = ui->rotationEdit->text().toDouble( ok );
+    v_rotation = ui->rotationEdit->text().toDouble( &ok );
     if ( !ok )
     {
         QMessageBox msgBox;
@@ -76,5 +76,5 @@ void Form_VisualSLAM::on_applyButton_clicked()
         return;
     }
 
-    changedSettings( v_observation, v_translation, v_rotation );
+    settingsChanged( v_observation, v_translation, v_rotation );
 }

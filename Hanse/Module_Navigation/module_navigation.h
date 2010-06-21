@@ -96,7 +96,7 @@ protected:
 private:    
     Position defaultPos;
     Module_SonarLocalization *sonarLoc;
-    Module_SonarLocalization *visSLAM;
+    Module_VisualSLAM *visSLAM;
     Module_ThrusterControlLoop* tcl;
     QMap<QDateTime, QString> history;
     QMap<QString, Position> waypoints;

@@ -3,8 +3,9 @@
 #include <QtGui>
 #include "form_navigation.h"
 
-#include <Module_Localization/module_localization.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
+#include <Module_SonarLocalization/module_sonarlocalization.h>
+#include <Module_VisualSLAM/module_visualslam.h>
 
 Module_Navigation::Module_Navigation(QString id, Module_SonarLocalization *sonarLoc, Module_VisualSLAM* visSLAM, Module_ThrusterControlLoop *tcl) :
         RobotModule(id)
@@ -27,7 +28,8 @@ void Module_Navigation::terminate()
 QList<RobotModule*> Module_Navigation::getDependencies()
 {
     QList<RobotModule*> ret;
-    ret.append(localization);
+    ret.append( sonarLoc );
+    ret.append( visSLAM );
     ret.append(tcl);
     return ret;
 }
@@ -39,8 +41,8 @@ QWidget* Module_Navigation::createView(QWidget* parent)
                       form, SLOT( updateList(QMap<QString,Position>) ) );
     QObject::connect( form, SIGNAL( removedWaypoint(QString) ),
                       SLOT( removeWaypoint(QString) ) );
-    QObject::connect( localization, SIGNAL( viewUpdated( QGraphicsScene * ) ),
-                      form, SLOT( updateView( QGraphicsScene * ) ) );
+//    QObject::connect( localization, SIGNAL( viewUpdated( QGraphicsScene * ) ),
+//                      form, SLOT( updateView( QGraphicsScene * ) ) );
     updatedWaypoints( waypoints );
     return form;
 }
@@ -70,7 +72,8 @@ void Module_Navigation::save( QString path )
     QFile file( slamFile );
     file.open( QIODevice::WriteOnly );
     QTextStream ts( &file );
-    localization->save( ts );
+    visSLAM->save( ts );
+//    localization->save( ts );
 }
 
 void Module_Navigation::load( QString path )
@@ -81,5 +84,6 @@ void Module_Navigation::load( QString path )
     QFile file( slamFile );
     file.open( QIODevice::ReadOnly );
     QTextStream ts( &file );
-    localization->load( ts );
+    visSLAM->load( ts );
+//    localization->load( ts );
 }

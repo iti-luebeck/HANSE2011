@@ -23,7 +23,7 @@
 
 #include <time.h>
 #include <QDebug>
-#include "../fast/cvfast.h"
+//#include "../fast/cvfast.h"
 
 
 //! Library function builds vector of described interest points

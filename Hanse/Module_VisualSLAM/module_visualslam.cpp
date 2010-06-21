@@ -21,17 +21,17 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     double v_observation = DEFAULT_OBSERVATION_VARIANCE;
     if ( settings.contains( QString("v_observation") ) )
     {
-        v_observation = settings["v_observation"];
+        v_observation = settings.value( "v_observation" ).toDouble();
     }
     double v_translation = DEFAULT_TRANSLATION_VARIANCE;
     if ( settings.contains( QString("v_translation") ) )
     {
-        v_translation = settings["v_translation"];
+        v_translation = settings.value( "v_translation" ).toDouble();
     }
     double v_rotation = DEFAULT_ROTATION_VARIANCE;
     if ( settings.contains( QString("v_rotation") ) )
     {
-        v_rotation = settings["v_rotation"];
+        v_rotation = settings.value( "v_rotation" ).toDouble();
     }
 }
 
@@ -187,4 +187,9 @@ QMutex *Module_VisualSLAM::getSceneMutex()
 QMutex *Module_VisualSLAM::getUpdateMutex()
 {
     return &updateMutex;
+}
+
+void Module_VisualSLAM::changeSettings( double v_observation, double v_translation, double v_rotation )
+{
+
 }
