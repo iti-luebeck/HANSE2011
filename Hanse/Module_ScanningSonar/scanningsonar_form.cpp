@@ -11,6 +11,7 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *paren
     this->sonar = sonar;
 
     oldHeading = NAN;
+    oldStepSize = 0;
 
     logger = Log4Qt::Logger::logger("ScanningSonarForm");
 
@@ -74,6 +75,16 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 
     float range = data.getRange();
 
+    logger->debug("oldStepSize: " + QString::number(oldStepSize));
+    logger->debug("data.switchCommand.stepSize: " + QString::number(data.switchCommand.stepSize));
+    if (oldStepSize != data.switchCommand.stepSize) {
+        oldStepSize = data.switchCommand.stepSize;
+        foreach (QGraphicsPolygonItem* o, queue) {
+            delete o;
+        }
+        queue.clear();
+    }
+
     ui->time->setDateTime(data.switchCommand.time);
     ui->heading->setText(QString::number(data.getHeadPosition()));
     ui->gain_2->setText(QString::number(data.switchCommand.startGain));
@@ -107,7 +118,8 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
         // this should ensure that a full circle is conserved even at highest resolution
         // it may result in overlay, but this doesn't matter since newer items will always
         // be drawn on top of older ones.
-        if (queue.size()>240) {
+        // 480: don't ask, it just works :)
+        while (queue.size()>480/(oldStepSize*3+3)) {
             delete queue.takeFirst();
         }
 

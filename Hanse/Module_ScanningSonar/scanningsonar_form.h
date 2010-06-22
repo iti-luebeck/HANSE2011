@@ -28,6 +28,7 @@ private:
     QQueue<QGraphicsPolygonItem*> queue;
     QGraphicsItem* scanLine;
     float oldHeading;
+    int oldStepSize;
 
 private slots:
     void on_selFile_clicked();
