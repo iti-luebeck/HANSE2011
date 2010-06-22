@@ -19,6 +19,7 @@ public:
 
     void reset();
 
+    /* DEBUG information; for View's eyes only */
     QMap<QDateTime,QVector<double> > rawHistory;
     QMap<QDateTime,QVector<double> > filteredHistory;
     QMap<QDateTime, int > kHistory;
@@ -42,6 +43,8 @@ private:
     int currentID;
     double swipedArea;
     int darknessCount;
+
+    void addToList(QList<QVector2D>& list, const QVector2D p);
 
     bool DEBUG;
     QSettings& s;

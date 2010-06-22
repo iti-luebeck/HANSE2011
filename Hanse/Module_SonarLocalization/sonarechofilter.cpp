@@ -87,22 +87,36 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
         posArray.clear();
         for(int i=0; i<localKlist.size(); i++) {
             double x,y;
-            int range = 50;
-            x = cos(localKlistHeading[i]/180*M_PI)*localKlist[i]/N*range;
-            y = sin(localKlistHeading[i]/180*M_PI)*localKlist[i]/N*range;
+            float range = data.getRange();
+            x = cos(localKlistHeading[i]/180*M_PI)*localKlist[i]*range/N;
+            y = sin(localKlistHeading[i]/180*M_PI)*localKlist[i]*range/N;
 
-            // connect points: XXX: buggy
-//            if (i>0 && localKlistID[i]==localKlistID[i-1]+1) {
-//                for (int k=localKlist[i-1]; k<=localKlist[i]; k++) {
-//                    double ax = cos(localKlistHeading[i]/180*M_PI)*k/N*range;
-//                    double ay = sin(localKlistHeading[i]/180*M_PI)*k/N*range;
-//                    this->posArrayX.append(ax);
-//                    this->posArrayY.append(ay);
-//                }
-//            }
+            if (sqrt(x*x+y*y)>10) { // ahhhh: evil heuristic!
+                addToList(posArray, QVector2D(x,y));
 
-            if (sqrt(x*x+y*y)>10) // ahhhh: evil heuristic!
-                posArray.append(QVector2D(x,y)); // TODO mirror then adaptively
+                // connect points
+
+                // XXX: this is very sensitive to false positives, not very useful atm
+                if (i>0 && localKlistID[i]==localKlistID[i-1]+1) {
+                    for (int k=localKlist[i-1]; k<localKlist[i]; k=k+3) {
+                        float param = ((k - (float)localKlist[i-1]) / ((float)localKlist[i] - localKlist[i-1]));
+                        float interpolatedHeading = localKlistHeading[i-1]
+                                                    + param*(localKlistHeading[i]-localKlistHeading[i-1]);
+                        double ax = cos(interpolatedHeading/180*M_PI)*k*range/N;
+                        double ay = sin(interpolatedHeading/180*M_PI)*k*range/N;
+                        addToList(posArray, QVector2D(ax,ay));
+                    }
+                    // TODO: barely tested
+                    for (int k=localKlist[i]; k<localKlist[i-1]; k=k+3) {
+                        float param = 1-((k - (float)localKlist[i-1]) / ((float)localKlist[i] - localKlist[i-1]));
+                        float interpolatedHeading = localKlistHeading[i-1]
+                                                    + param*(localKlistHeading[i]-localKlistHeading[i-1]);
+                        double ax = cos(interpolatedHeading/180*M_PI)*k*range/N;
+                        double ay = sin(interpolatedHeading/180*M_PI)*k*range/N;
+                        addToList(posArray, QVector2D(ax,ay));
+                    }
+                }
+            }
         }
         localKlist.clear();
         localKlistHeading.clear();
@@ -159,6 +173,18 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
 
     threshHistory[data.switchCommand.time] = thresh;
     return echoFiltered;
+}
+
+void SonarEchoFilter::addToList(QList<QVector2D>& list, const QVector2D p)
+{
+    if (list.length()==0) {
+        list.append(p);
+        return;
+    }
+
+    QVector2D& q = list[list.length()-1];
+    if ((q-p).length()>1)
+        list.append(p);
 }
 
 int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
