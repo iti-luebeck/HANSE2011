@@ -18,10 +18,11 @@ void QGraphicsViewExtended::wheelEvent(QWheelEvent *event)
 
     // Scale view.
     qreal d = event->delta() / 100.0;
-    if ( d>0 )
+    if ( d>0 && this->transform().m22()<2000 )
         this->scale(d,d);
-    else
+    else if ( d<0 && this->transform().m22()>0.1 )
         this->scale(-1/d,-1/d);
+
     event->accept();
 }
 
