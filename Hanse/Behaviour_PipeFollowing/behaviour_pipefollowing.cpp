@@ -6,10 +6,7 @@
 //#include <OpenCV/include/opencv/cv.h>
 #include <opencv/cxcore.h>
 
-
 //using namespace cv;
-
-
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl)
     : RobotBehaviour(id)
@@ -46,7 +43,7 @@ void Behaviour_PipeFollowing::start()
     this->deltaDistPipe = this->getSettings().value("deltaDist").toFloat();
     this->kpAngle = this->getSettings().value("kpDist").toFloat();
     this->kpDist = this->getSettings().value("kpAngle").toFloat();
-    robCenter = Point(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
+    Behaviour_PipeFollowing::setRobCenter(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
 
     if(!vc.isOpened())
         logger->error("cannot open camera device");
@@ -92,10 +89,9 @@ void Behaviour_PipeFollowing::timerSlot()
           vc >> frame;
     }
     Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
-    logger->debug("rohr gefunden");
     Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
-    logger->debug("update data");
     Behaviour_PipeFollowing::updateData();
+    Behaviour_PipeFollowing::controlPipeFollow();
 }
 
 
@@ -109,18 +105,18 @@ void Behaviour_PipeFollowing::controlPipeFollow()
    float tmp;
    if(curAbsAngle > Behaviour_PipeFollowing::deltaAngPipe)
    {
-       tmp = (-1) * Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 180.0;
-       ctrAngleSpeed= tmp;
+       ctrAngleSpeed = (-1) * Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
    }
 
-   if(Behaviour_PipeFollowing::distance > this->getSettings().value("deltaDist").toFloat())
+   if(Behaviour_PipeFollowing::distance > Behaviour_PipeFollowing::deltaDistPipe)
    {
-       tmp = Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
-       ctrAngleSpeed += tmp;
+       ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
    }
 
-   tcl->setAngularSpeed(ctrAngleSpeed);
-   tcl->setForwardSpeed(ctrFwSpeed);
+//   tcl->setAngularSpeed(ctrAngleSpeed);
+//   tcl->setForwardSpeed(ctrFwSpeed);
+   data["ctrAngleSpeed"] = ctrAngleSpeed;
+   data["ctrForwardSpeed"] = ctrFwSpeed;
 }
 
 void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
@@ -138,22 +134,12 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
         vc >> frame;
         //            Mat tframe = frame;
         //            transpose(tframe,frame);
-        logger->debug("suche rohr");
         Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
-        logger->debug("rohr");
         Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
-        logger->debug("naechste");
         waitKey(100);
     }
     vc.release();
-
-
-
-
 }
-
-
-
 
 void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
 {
@@ -176,10 +162,8 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
                 h.at<unsigned char>(i, j) = hsvV[0];
                 s.at<unsigned char>(i, j) = hsvV[1];
                 v.at<unsigned char>(i, j) = hsvV[2];
-
             }
         }
-
         /**** Segmentation */
         Mat thresh;
         threshold(s,thresh,threshSegmentation,255,THRESH_BINARY);
@@ -201,15 +185,13 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
             u = waitKey();
             imshow("Canny",binaryFrame);
             u = waitKey();
-              cvDestroyWindow("Canny");
-
+            cvDestroyWindow("Canny");
         }
     }
 }
 
 void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 {
-
         /* hough transformation */
         vector<Vec2f> lines;
         HoughLines(binaryFrame, lines, 1, CV_PI/180, 100 );
@@ -223,7 +205,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             if(debug)
             {
                 Behaviour_PipeFollowing::drawLineHough(frame,lines[i][0],lines[i][1],Scalar(0,0,255));
-                qDebug() << "rho theta" << lines[i][0] << lines[i][1];
+                logger->debug("rho " + QString::number(lines[i][0]));
+                logger->debug("theta " + QString::number(lines[i][1]));
             }
             avRho += lines[i][0];
             avTheta += lines[i][1];
@@ -233,8 +216,9 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 
         if(debug)
         {
-            qDebug() << "****************";
-            qDebug() << "= " << avRho << avTheta;
+
+            logger->debug("****************");
+            logger->debug("= " +QString::number(avRho) + " " + QString::number(avTheta));
             Behaviour_PipeFollowing::drawLineHough(frame,avRho,avTheta,Scalar(255,0,255));
         }
 
@@ -271,8 +255,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         /***** DEBUG linkes und recht berechnen und Zeichnen */
         if(debug)
         {
-            qDebug() << "Class 1" << avRhoClass1 << avThetaClass1;
-            qDebug() << "Class 2" << avRhoClass2 << avThetaClass2;
+            logger->debug("Class 1 " + QString::number(avRhoClass1) + " " + QString::number(avThetaClass1));
+            logger->debug("Class 2 " + QString::number(avRhoClass2) + " " + QString::number(avThetaClass2));
             Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass1,avThetaClass1,Scalar(255,255,255));
             Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass2,avThetaClass2,Scalar(255,255,255));
 
@@ -299,7 +283,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         Behaviour_PipeFollowing::compIntersect(avRhoClass1,avThetaClass1);
         if(debug)
         {
-            qDebug() << "Schnittpunkt " << intersect.x << " " << intersect.y;
+            logger->debug("Schnittpunkt " + QString::number(intersect.x) + " " + QString::number(intersect.y));
             circle(frame,intersect,3,Scalar(255,0,255),3,8);
             circle(frame,robCenter,3,Scalar(255,0,255),3,8);
 
@@ -419,10 +403,10 @@ void Behaviour_PipeFollowing::updateData()
  data["intersect.x"] = this->intersect.x;
  data["intersect.y"] = this->intersect.y;
  data["distance to robCenter"] = this->distance;
-// data["deltaPipe"] = deltaPipe;
+ data["deltaDistPipe"] = this->deltaDistPipe;
+ data["deltaAnglePipe"] = this->deltaAngPipe;
  data["kpAngle"] = this->kpAngle;
  data["kpDist"] = this->kpDist;
-// data["robot speed"] = speed;
  data["robCenter.x"] = this->robCenter.x;
  data["robCenter.y"] = this->robCenter.y;
  data["potential Vector"] = this->potentialVec;
@@ -430,22 +414,18 @@ void Behaviour_PipeFollowing::updateData()
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
 {
-
-
-    qDebug() << "rho" <<rho;
-    qDebug() << "theta" << theta;
+    logger->debug("in median: rho " +QString::number(rho));
+    logger->debug("in median: theta " +QString::number(theta));
 
     if(std::isnan(rho))
-        qDebug() << "uuuuuuuuuu";
+        logger->error("rho is NAN");
     if(std::isnan(theta))
-        qDebug() << "uuuuuuuuuu";
+        logger->error("rho is NAN");
 
     int arrSize = sizeof(Behaviour_PipeFollowing::meanRho) / sizeof(float);
     float sortRho[arrSize];
     float sortTheta[arrSize];
 
-
-    qDebug() << "first" << Behaviour_PipeFollowing::firstRun << arrSize;
     if(Behaviour_PipeFollowing::firstRun > 0)
     {
         for(int i = 0; i < arrSize;i++)
@@ -461,10 +441,6 @@ void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
         {
             Behaviour_PipeFollowing::meanRho[i] = Behaviour_PipeFollowing::meanRho[i+1];
             Behaviour_PipeFollowing::meanTheta[i] = Behaviour_PipeFollowing::meanTheta[i+1];
-
-            qDebug() << i;
-            qDebug() << Behaviour_PipeFollowing::meanRho[i];
-            qDebug() << Behaviour_PipeFollowing::meanTheta[i];
         }
         Behaviour_PipeFollowing::meanRho[arrSize-1] = rho;
         Behaviour_PipeFollowing::meanTheta[arrSize-1] = theta;
@@ -479,14 +455,6 @@ void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
         std::sort(sortTheta, sortTheta + arrSize);
     }
 
-    qDebug() << "****************************";
-
-//    for(int i =0;i < arrSize; i++)
-//    {
-//        qDebug() << i;
-//        qDebug() << Behaviour_PipeFollowing::meanRho[i];
-//        qDebug() << Behaviour_PipeFollowing::meanTheta[i];
-//    }
     rho = sortRho[2];
     theta = sortTheta[2];
 }

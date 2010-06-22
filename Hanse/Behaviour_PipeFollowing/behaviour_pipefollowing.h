@@ -73,7 +73,7 @@ private:
      */
     void computeLineBinary(Mat &frame, Mat &binaryFrame);
     /** Median Filter
-        Eingabewerte werden gefiltert und deshalb ueberschrieben */
+        Eingabewerte werden gefiltert und mit gefilterten ueberschrieben */
     void medianFilter(float &rho, float &theta);
     Module_ThrusterControlLoop* tcl;
     QTimer timer;
@@ -84,6 +84,7 @@ private:
     int threshSegmentation;
     int debug;
 
+    /* Parameter fuer den p-Regler */
     double distance;
     float curAngle;
     Point intersect;

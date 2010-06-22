@@ -23,7 +23,7 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     ui->robCenterYLineEdit->setText(pipefollow->getSettings().value("robCenterY").toString());
     ui->debugCheckBox->setChecked(pipefollow->getSettings().value("debug").toBool());
     ui->useCameraRadioButton->setChecked(pipefollow->getSettings().value("useCamera").toBool());
-
+    ui->maxDistLineEdti->setText(pipefollow->getSettings().value("maxDistance").toString());
 
  QObject::connect( pipefollow, SIGNAL( printFrameOnUi(cv::Mat&)) , SLOT( printFrame(cv::Mat&))  );
 
@@ -88,6 +88,7 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
     pipefollow->getSettings().setValue("robCenterY",ui->robCenterYLineEdit->text().toDouble());
     pipefollow->getSettings().setValue("debug",ui->debugCheckBox->isChecked());
     pipefollow->getSettings().setValue("videoFilePath",ui->curVideofileLabel->text());
+    pipefollow->getSettings().setValue("maxDistance",ui->maxDistLineEdti->text().toFloat());
     pipefollow->resetFirstRun();
 
 }
