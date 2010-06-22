@@ -31,12 +31,11 @@ public:
     QList<QVector2D> getLatestObservation();
     int getParticleCount();
 
+    void setLocalization(QVector2D position);
+
 signals:
     void newPosition(QVector3D position);
     void working(bool);
-
-public slots:
-    void doNextUpdate();
 
 private:
 
@@ -81,6 +80,8 @@ private:
     double max(QVector<double>);
     double min(QVector<double>);
     double sum(QVector<double>);
+
+    void updateParticleFilter(QList<QVector2D> observations);
 private slots:
     void newImage(QList<QVector2D> observations);
 };

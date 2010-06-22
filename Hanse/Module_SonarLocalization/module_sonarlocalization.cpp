@@ -60,3 +60,8 @@ void Module_SonarLocalization::newPositionEst(QVector3D p)
 {
     emit newLocalizationEstimate();
 }
+
+void Module_SonarLocalization::setLocalization(QVector2D position)
+{
+    pf->setLocalization(position);
+}

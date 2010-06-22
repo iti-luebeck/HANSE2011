@@ -19,6 +19,8 @@ MapWidget::MapWidget( QWidget *parent) :
     scene = new QGraphicsScene( QRectF(-1000,-1000,2000,2000), ui->graphicsView );
     ui->graphicsView->setScene( scene );
 
+    isSonarLocalizationInProgress = false;
+
     visualSLAMItem = NULL;
     waypointsItem = NULL;
     nav = NULL;
@@ -69,7 +71,8 @@ void MapWidget::graphicsMouseDoubleClicked( QPointF point )
 
 void MapWidget::graphicsMouseReleased( QPointF point )
 {
-    //TODO Initiale Lokalisation.
+    if (isSonarLocalizationInProgress)
+        stopSonarLocalization(point);
 }
 
 void MapWidget::updateVisualSLAM()
@@ -172,7 +175,6 @@ void MapWidget::newSonarLocEstimate()
     }
 
     QVector4D particle = particles[0];
-    //sonarPosition->setPos(particle.toPointF());
     sonarPosition->setRect(particle.x(), particle.y(), 1,1);
 
     delete masterObsPoint;
@@ -259,4 +261,24 @@ void MapWidget::on_showVisSLAM_toggled(bool checked)
 {
     if (nav)
         nav->getSettings().setValue("showVisSLAM", checked);
+}
+
+void MapWidget::on_pushButton_clicked()
+{
+    startSonarLocalization();
+}
+
+void MapWidget::startSonarLocalization()
+{
+    if (!isSonarLocalizationInProgress)
+        QApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
+
+    isSonarLocalizationInProgress = true;
+}
+
+void MapWidget::stopSonarLocalization(QPointF point)
+{
+    nav->sonarLoc->setLocalization(QVector2D(point));
+    QApplication::restoreOverrideCursor();
+    isSonarLocalizationInProgress = false;
 }

@@ -75,8 +75,6 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 
     float range = data.getRange();
 
-    logger->debug("oldStepSize: " + QString::number(oldStepSize));
-    logger->debug("data.switchCommand.stepSize: " + QString::number(data.switchCommand.stepSize));
     if (oldStepSize != data.switchCommand.stepSize) {
         oldStepSize = data.switchCommand.stepSize;
         foreach (QGraphicsPolygonItem* o, queue) {

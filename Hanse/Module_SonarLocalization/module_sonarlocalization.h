@@ -48,6 +48,8 @@ public:
       */
     bool isLocalizationLost();
 
+    void setLocalization(QVector2D position);
+
     SonarParticleFilter& particleFilter() const;
 
 public slots:

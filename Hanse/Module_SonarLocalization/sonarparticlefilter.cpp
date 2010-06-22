@@ -9,7 +9,8 @@ using namespace cv;
 using namespace std;
 
 SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization* sonar, SonarEchoFilter *filter)
-    : controlVariance(0,0,0), initialVariance(0,0,0), s(sonar->getSettings())
+    : controlVariance(0,0,0), initialVariance(0,0,0),
+      s(sonar->getSettings()), particlesMutex(QMutex::Recursive)
 {
     logger = Log4Qt::Logger::logger("SonarFilter");
     this->sonar = sonar;
@@ -22,11 +23,9 @@ SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization* sonar, SonarE
 
 void SonarParticleFilter::newImage(QList<QVector2D> observations)
 {
-
-    logger->debug("Queued new observation.");
-    zList.append(observations);
+    // TODO: find out somehow, when there is a jam
     emit working(true);
-    doNextUpdate();
+    updateParticleFilter(observations);
     emit working(false);
 }
 
@@ -58,9 +57,7 @@ void SonarParticleFilter::reset()
                                     controlVarString[2].toFloat());
     }
 
-    // TODO: initial pos!!!
-    QVector3D initialPos = img2map(QVector2D(370,300)).toVector3D();
-    initialPos.setZ(-M_PI/4+0.5);
+    QVector3D initialPos = QVector3D(sonar->getSettings().value("savedPosition").toPointF());
     for (int i=0; i<N; i++) {
         particles[i] = sampleGauss(initialPos, initialVariance).toVector4D();
     }
@@ -216,16 +213,9 @@ QVector<QVector4D> SonarParticleFilter::getParticles()
     return particles;
 }
 
-void SonarParticleFilter::doNextUpdate()
+void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
 {
     logger->debug("pressed next button.");
-
-    if (zList.isEmpty())
-        return;
-
-    logger->debug("Dequeued new observation.");
-
-    QList<QVector2D> observations = zList.takeFirst();
 
     particlesMutex.lock();
     QVector<QVector4D> oldParticles = particles;
@@ -319,6 +309,8 @@ void SonarParticleFilter::doNextUpdate()
 
     logger->debug("Updating the particle filter... DONE");
 
+    this->sonar->getSettings().setValue("savedPosition", getBestEstimate().toPointF());
+
     emit newPosition(getBestEstimate());
 }
 
@@ -337,4 +329,18 @@ QVector<QVector2D> SonarParticleFilter::getMapPoints()
 int SonarParticleFilter::getParticleCount()
 {
     return N;
+}
+
+void SonarParticleFilter::setLocalization(QVector2D position)
+{
+    QMutexLocker m(&particlesMutex);
+    logger->info("Doing manual localization");
+
+    QVector3D initialPos = position.toVector3D();
+    for (int i=0; i<N; i++) {
+        particles[i] = sampleGauss(initialPos, initialVariance).toVector4D();
+    }
+
+    //re-evaluate on last observation; sort particles; send signal
+    this->updateParticleFilter(lastZ);
 }
