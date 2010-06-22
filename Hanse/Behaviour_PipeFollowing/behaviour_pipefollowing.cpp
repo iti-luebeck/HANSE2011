@@ -43,6 +43,7 @@ void Behaviour_PipeFollowing::start()
     this->deltaDistPipe = this->getSettings().value("deltaDist").toFloat();
     this->kpAngle = this->getSettings().value("kpDist").toFloat();
     this->kpDist = this->getSettings().value("kpAngle").toFloat();
+    this->constFWSpeed = this->getSettings().value("fwSpeed").toFloat();
     Behaviour_PipeFollowing::setRobCenter(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
 
     if(!vc.isOpened())
@@ -74,7 +75,6 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::timerSlot()
 {
-    logger->debug("timerSlot");
     Mat frame, binaryFrame;
     if(!vc.isOpened())
     {
@@ -98,7 +98,7 @@ void Behaviour_PipeFollowing::timerSlot()
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
    float ctrAngleSpeed = 0.0;
-   float ctrFwSpeed = 0.3;
+//   float ctrFwSpeed = 0.0
    float curAbsAngle = (Behaviour_PipeFollowing::curAngle < 0) ?
                        ((-1) * Behaviour_PipeFollowing::curAngle)
                            : Behaviour_PipeFollowing::curAngle;
@@ -114,9 +114,9 @@ void Behaviour_PipeFollowing::controlPipeFollow()
    }
 
 //   tcl->setAngularSpeed(ctrAngleSpeed);
-//   tcl->setForwardSpeed(ctrFwSpeed);
+//   tcl->setForwardSpeed(this->constFWSpeed);
    data["ctrAngleSpeed"] = ctrAngleSpeed;
-   data["ctrForwardSpeed"] = ctrFwSpeed;
+   data["ctrForwardSpeed"] = this->constFWSpeed;
 }
 
 void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
@@ -410,6 +410,19 @@ void Behaviour_PipeFollowing::updateData()
  data["robCenter.x"] = this->robCenter.x;
  data["robCenter.y"] = this->robCenter.y;
  data["potential Vector"] = this->potentialVec;
+}
+
+void Behaviour_PipeFollowing::updateFromSettings()
+{
+    this->cameraID = this->getSettings().value("cameraID").toInt();
+    this->threshSegmentation = this->getSettings().value("threshold").toInt();
+    this->debug = this->getSettings().value("debug").toInt();
+    this->deltaAngPipe = this->getSettings().value("deltaAngle").toFloat();
+    this->deltaDistPipe = this->getSettings().value("deltaDist").toFloat();
+    this->kpAngle = this->getSettings().value("kpDist").toFloat();
+    this->kpDist = this->getSettings().value("kpAngle").toFloat();
+    this->constFWSpeed = this->getSettings().value("fwSpeed").toFloat();
+    Behaviour_PipeFollowing::setRobCenter(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
 }
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)

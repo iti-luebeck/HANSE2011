@@ -63,6 +63,8 @@ public:
     void controlPipeFollow();
     /** reset first run for median filter */
     void resetFirstRun();
+    /** updates local variables */
+    void updateFromSettings();
 private:
 
     /** Update data on data panel */
@@ -79,29 +81,31 @@ private:
     QTimer timer;
     PipeFollowingForm *form;
     bool active;
+
     VideoCapture vc;
+    /* konstante parameter */
     int cameraID;
     int threshSegmentation;
     int debug;
-
-    /* Parameter fuer den p-Regler */
-    double distance;
-    float curAngle;
-    Point intersect;
-    float potentialVec;
     Point robCenter;
-    float distanceY;
-
+    float constFWSpeed;
     float deltaDistPipe;
     float deltaAngPipe;
     float kpDist;
     float kpAngle;
     float maxDistance;
 
+    /* dynamische parameter */
+    double distance;
+    float potentialVec;
+    float distanceY;
+    float curAngle;
+    Point intersect;
     /* fuer den median */
     float meanRho[5];
     float meanTheta[5];
     int firstRun;
+
 private slots:
     void timerSlot();
 
