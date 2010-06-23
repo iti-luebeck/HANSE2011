@@ -19,7 +19,6 @@ public:
     NaiveSLAM( int particleCount );
     ~NaiveSLAM();
     void update( vector<CvMat *> *descriptor, vector<CvScalar> *pos3D, vector<int> *classLabels );
-    void plot( QGraphicsScene *scene );
     void save( QTextStream &ts );
     void load( QTextStream &ts );
     Position getPosition();
@@ -59,9 +58,7 @@ private:
     vector<CvScalar> *pos3D;
     vector<int> *classLabels;
 
-    vector<QGraphicsEllipseItem *> particlePositionItems;
-    QGraphicsEllipseItem *meanPositionItem;
-    QGraphicsLineItem *meanOrientationItem;
+    QMutex updateMutex;
 };
 
 #endif // NAIVESLAM_H

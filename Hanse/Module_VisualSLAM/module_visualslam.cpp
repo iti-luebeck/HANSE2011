@@ -9,8 +9,6 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
         slam( 100 )
 {
     this->sonarLocalization = sonarLocalization;
-    cap.setMutex( &updateMutex );
-    scene = new QGraphicsScene( QRectF() );
 
     QObject::connect( &updateTimer, SIGNAL( timeout() ), SLOT( startGrab() ) );
     QObject::connect( &cap, SIGNAL( grabFinished() ), SLOT( startUpdate() ) );
@@ -28,13 +26,14 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
 
 Module_VisualSLAM::~Module_VisualSLAM()
 {
-    delete( scene );
 }
 
 void Module_VisualSLAM::start()
 {
     logger->info( "Started" );
-    updateTimer.start( 0 );
+    cap.init( settings.value( QString( "left_camera" ), VSLAM_CAMERA_LEFT ).toInt(),
+              settings.value( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
+    updateTimer.start( 1000 );
     stopped = false;
 }
 
@@ -58,6 +57,7 @@ void Module_VisualSLAM::terminate()
 
 void Module_VisualSLAM::startGrab()
 {
+    qDebug("Start GRAB");
     updateTimer.stop();
     startClock = clock();
     cap.grab();
@@ -69,7 +69,6 @@ void Module_VisualSLAM::startUpdate()
     logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     startClock = clock();
-    updateMutex.lock();
     slam.update( cap.getDescriptors(), cap.getPos(), cap.getClasses() );
 }
 
@@ -80,7 +79,6 @@ void Module_VisualSLAM::finishUpdate()
 
     lastRefreshTime = QDateTime::currentDateTime();
 
-    startClock = clock();
     Position pos = slam.getPosition();
     logger->debug( QString( "POSITION (%1,%2,%3), (%4,%5,%6) with confidence %7" )
                    .arg( pos.getX(), 0, 'f', 3 )
@@ -109,11 +107,6 @@ void Module_VisualSLAM::finishUpdate()
     data["Goal - bounding box w"] = boundingBox.width();
     data["Goal - bounding box h"] = boundingBox.height();
     data["Goal - lastSeen"] = lastSeen.toString();
-
-    updateMutex.unlock();
-
-    stopClock = clock();
-    logger->debug( QString( "PLOT %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     emit dataChanged( this );
     emit updateFinished();
@@ -168,22 +161,10 @@ bool Module_VisualSLAM::isLocalizationLost()
     return false;
 }
 
-QMutex *Module_VisualSLAM::getSceneMutex()
-{
-    return sceneMutex;
-}
-
-QMutex *Module_VisualSLAM::getUpdateMutex()
-{
-    return &updateMutex;
-}
-
 void Module_VisualSLAM::getPlotData( QList<QPointF> &landmarkPositions, Position &position )
 {
-    updateMutex.lock();
     slam.getLandmarkPositions( landmarkPositions );
     position = slam.getPosition();
-    updateMutex.unlock();
 }
 
 double Module_VisualSLAM::getObservationVariance()
@@ -203,20 +184,18 @@ double Module_VisualSLAM::getRotationVariance()
 
 void Module_VisualSLAM::changeSettings( double v_observation, double v_translation, double v_rotation )
 {
-    updateMutex.lock();
     slam.setObservationVariance( v_observation );
     settings.setValue( "v_observation", v_observation );
     slam.setTranslationVariance( v_translation );
     settings.setValue( "v_translation", v_translation );
     slam.setRotationVariance( v_rotation );
     settings.setValue( "v_rotation", v_rotation );
-    updateMutex.unlock();
 }
 
 void Module_VisualSLAM::updateSonarData()
 {
     //TODO welches feld auslesen???
-    Position sonarPos = Position(); //sonarLocalization->getLocalization();
+    Position sonarPos = sonarLocalization->getLocalization();
     Position vslamPos = getLocalization();
 
     // Calculate position difference.

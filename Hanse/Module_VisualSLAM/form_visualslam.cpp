@@ -14,6 +14,22 @@ Form_VisualSLAM::Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent
     ui->observationEdit->setText( QString("%1").arg( visualSlam->getObservationVariance() ) );
     ui->translationEdit->setText( QString("%1").arg( visualSlam->getTranslationVariance() ) );
     ui->rotationEdit->setText( QString("%1").arg( visualSlam->getRotationVariance() ) );
+
+    videoInput VI;
+    int numCameras = VI.listDevices( true );
+    for ( int i = 0; i < numCameras; i++ )
+    {
+        QString boxName = QString( "(%1) " ).arg( i );
+        boxName.append( VI.getDeviceName( i ) );
+        ui->leftCameraBox->addItem( boxName );
+        ui->rightCameraBox->addItem( boxName );
+    }
+
+    QSettings& settings = visualSlam->getSettings();
+    ui->leftCameraBox->setCurrentIndex(
+            settings.value( QString( "left_camera" ), VSLAM_CAMERA_LEFT ).toInt() );
+    ui->rightCameraBox->setCurrentIndex(
+            settings.value( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
 }
 
 Form_VisualSLAM::~Form_VisualSLAM()
@@ -81,4 +97,18 @@ void Form_VisualSLAM::on_applyButton_clicked()
     }
 
     settingsChanged( v_observation, v_translation, v_rotation );
+
+    int device1 = ui->leftCameraBox->currentIndex();
+    int device2 = ui->rightCameraBox->currentIndex();
+
+    if ( device1 == device2 )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Left and right Cameras must be different." );
+        msgBox.exec();
+        return;
+    }
+    QSettings& settings = visualSlam->getSettings();
+    settings.setValue( QString( "left_camera"), device1 );
+    settings.setValue( QString( "right_camera"), device2 );
 }

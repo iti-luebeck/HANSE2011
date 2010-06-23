@@ -16,9 +16,6 @@ NaiveSLAM::NaiveSLAM( int particleCount )
         particles.push_back( new VisualSLAMParticle() );
     }
     meanTranslation = cvCreateMat( 3, 1, CV_32F );
-
-    meanPositionItem = NULL;
-    meanOrientationItem = NULL;
 }
 
 NaiveSLAM::~NaiveSLAM()
@@ -41,6 +38,9 @@ void NaiveSLAM::update( vector<CvMat *> *descriptors, vector<CvScalar> *pos3D, v
 
 void NaiveSLAM::run()
 {
+    updateMutex.lock();
+
+    qDebug( "d = %d, p = %d, c = %d", (int)descriptor->size(), (int)pos3D->size(), (int)classLabels->size() );
     int totalFeatures = (int)descriptor->size();
 
     if ( totalFeatures > 0 )
@@ -102,6 +102,8 @@ void NaiveSLAM::run()
 
         delete( found );
     }
+
+    updateMutex.unlock();
 
     emit updateDone();
 }
@@ -169,57 +171,6 @@ Position NaiveSLAM::getPosition()
 double NaiveSLAM::getConfidence()
 {
     return confidence;
-}
-
-void NaiveSLAM::plot( QGraphicsScene *scene )
-{
-    QPen pen(Qt::gray);
-    QBrush brush(Qt::gray);
-    pen.setWidth( 0.01 );
-    double positionWidth = 0.05;
-
-    for ( int i = 0; i < (int)particlePositionItems.size(); i++ )
-    {
-        delete( particlePositionItems[i] );
-    }
-    particlePositionItems.clear();
-
-    for ( int i = 0; i < (int)particles.size(); i++ )
-    {
-        double pos1 = cvmGet( particles[i]->currentTranslation, 0, 0 );
-        double pos2 = -cvmGet( particles[i]->currentTranslation, 2, 0 );
-        particlePositionItems.push_back( scene->addEllipse( pos1 - positionWidth/4,
-                                                            pos2 - positionWidth/4,
-                                                            positionWidth, positionWidth,
-                                                            pen, brush ) );
-        particlePositionItems[i]->setZValue( 1000 );
-    }
-
-    // Plot mean position.
-    pen = QPen(Qt::green);
-    brush = QBrush(Qt::green);
-    meanPositionItem = scene->addEllipse( cvmGet( meanTranslation, 0, 0 ) - positionWidth/4,
-                                          -cvmGet( meanTranslation, 2, 0 ) - positionWidth/4,
-                                          positionWidth, positionWidth,
-                                          pen, brush );
-    meanPositionItem->setZValue( 1010 );
-
-    CvMat *R = meanRotation.getRotation();
-    meanOrientationItem = scene->addLine( cvmGet( meanTranslation, 0, 0 ),
-                                          -cvmGet( meanTranslation, 2, 0 ),
-                                          cvmGet( meanTranslation, 0, 0 ) - cvmGet( R, 2, 0 ),
-                                          -cvmGet( meanTranslation, 2, 0 ) - cvmGet( R, 2, 2 ),
-                                          pen );
-    meanOrientationItem->setZValue( 1010 );
-    cvReleaseMat( &R );
-
-    // Plot best particle map.
-    if ( bestParticle >= 0 && bestParticle < (int)particles.size() )
-    {
-        qDebug("plot1");
-        particles[bestParticle]->plot( scene );
-        qDebug("plot2");
-    }
 }
 
 void NaiveSLAM::reset()
@@ -296,6 +247,7 @@ void NaiveSLAM::load( QTextStream &ts )
 
 void NaiveSLAM::getLandmarkPositions( QList<QPointF> &landmarkPositions )
 {
+    updateMutex.lock();
     if ( bestParticle >= 0 && bestParticle < (int)particles.size() )
     {
         for ( int i = 0; i < (int)particles.at( bestParticle )->landmarks.size(); i++ )
@@ -310,30 +262,37 @@ void NaiveSLAM::getLandmarkPositions( QList<QPointF> &landmarkPositions )
             landmarkPositions.append( position );
         }
     }
+    updateMutex.unlock();
 }
 
 void NaiveSLAM::setObservationVariance( double v )
 {
+    updateMutex.lock();
     for ( int i = 0; i < (int)particles.size(); i++ )
     {
         particles.at( i )->setObservationVariance( v );
     }
+    updateMutex.unlock();
 }
 
 void NaiveSLAM::setRotationVariance( double v )
 {
+    updateMutex.lock();
     for ( int i = 0; i < (int)particles.size(); i++ )
     {
         particles.at( i )->setRotationVariance( v );
     }
+    updateMutex.unlock();
 }
 
 void NaiveSLAM::setTranslationVariance( double v )
 {
+    updateMutex.lock();
     for ( int i = 0; i < (int)particles.size(); i++ )
     {
         particles.at( i )->setTranslationVariance( v );
     }
+    updateMutex.unlock();
 }
 
 void NaiveSLAM::setOffset( Position diffPos )

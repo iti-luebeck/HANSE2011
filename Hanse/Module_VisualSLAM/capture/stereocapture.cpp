@@ -13,16 +13,156 @@ StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
     this->device1 = device1;
     this->device2 = device2;
 
+    Q = NULL;
+    mapX_left = NULL;
+    mapY_left = NULL;
+    mapX_right = NULL;
+    mapY_right = NULL;
+    descriptors = NULL;
+    pos = NULL;
+    classes = NULL;
+    frame1 = NULL;
+    frame2 = NULL;
+    connected1 = false;
+    connected2 = false;
+    feature1 = NULL;
+    feature2 = NULL;
+}
+
+StereoCapture::~StereoCapture()
+{
+    clear();
+}
+
+void StereoCapture::clear()
+{
+    if ( Q )
+    {
+        cvReleaseMat( &Q );
+        Q = NULL;
+    }
+    if ( mapX_left )
+    {
+        cvReleaseMat(&mapX_left);
+        mapX_left = NULL;
+    }
+    if ( mapY_left )
+    {
+        cvReleaseMat(&mapY_left);
+        mapY_left = NULL;
+    }
+    if ( mapX_right )
+    {
+        cvReleaseMat(&mapX_right);
+        mapX_right = NULL;
+    }
+    if ( mapY_right )
+    {
+        cvReleaseMat(&mapY_right);
+        mapY_right = NULL;
+    }
+
+    keypoints1.clear();
+    keypoints2.clear();
+    if ( frame1 )
+    {
+        cvReleaseImage( &frame1 );
+        frame1 = NULL;
+    }
+    if ( frame2 )
+    {
+        cvReleaseImage( &frame2 );
+        frame2 = NULL;
+    }
+    if ( descriptors )
+    {
+        for ( int i = 0; i < (int)descriptors->size(); i++ )
+        {
+            cvReleaseMat( &descriptors->at(i) );
+        }
+        delete( descriptors );
+        descriptors = NULL;
+    }
+    if ( pos )
+    {
+        delete( pos );
+        pos = NULL;
+    }
+    if ( classes )
+    {
+        delete( classes );
+        classes = NULL;
+    }
+
+    for ( int i = 0; i < (int)classFeatures.size(); i++ )
+    {
+        cvReleaseMat( &classFeatures[i] );
+    }
+    classFeatures.clear();
+    classLabels.clear();
+    classRects.clear();
+    classLastSeen.clear();
+
+    if ( connected1 )
+    {
+        VI.stopDevice( device1 );
+        connected1 = false;
+    }
+    if ( connected2 )
+    {
+        VI.stopDevice( device2 );
+        connected2 = false;
+    }
+
+    if ( feature1 )
+    {
+        delete( feature1 );
+        feature1 = NULL;
+    }
+    if ( feature2 )
+    {
+        delete( feature2 );
+        feature2 = NULL;
+    }
+}
+
+void StereoCapture::init( int device1, int device2 )
+{
+    clear();
+
+    this->device1 = device1;
+    this->device2 = device2;
+
+    int numDevices = VI.listDevices( true );
+
     // Enable callback. This should improve synchronicity.
     VI.setUseCallback(true);
 
-    // Set the framerate as high as we can (also for synchronicity reasons).
-    VI.setIdealFramerate(device1, 60);
-    VI.setIdealFramerate(device2, 60);
+    if ( device1 < numDevices )
+    {
+        // Set the framerate as high as we can (also for synchronicity reasons).
+        VI.setIdealFramerate(device1, 60);
 
-    // Set up the devices with the specified frame sizes.
-    connected1 = VI.setupDevice(device1, width, height);
-    connected2 = VI.setupDevice(device2, width, height);
+        // Set up the devices with the specified frame sizes.
+        connected1 = VI.setupDevice(device1, width, height);
+    }
+    else
+    {
+        connected1 = false;
+    }
+
+    if ( device2 < numDevices )
+    {
+        // Set the framerate as high as we can (also for synchronicity reasons).
+        VI.setIdealFramerate(device2, 60);
+
+        // Set up the devices with the specified frame sizes.
+        connected2 = VI.setupDevice(device2, width, height);
+    }
+    else
+    {
+        connected2 = false;
+    }
 
     // Create frame images.
     frame1 = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 3 );
@@ -50,9 +190,8 @@ StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
         classRects.push_back( QRectF() );
         classLastSeen.push_back( QDateTime() );
     }
+    cvReleaseFileStorage( &fileStorage );
 
-    QObject::connect( &feature1, SIGNAL( finished() ), SLOT( surfDone1() ) );
-    QObject::connect( &feature2, SIGNAL( finished() ), SLOT( surfDone2() ) );
     done1 = false;
     done2 = false;
 
@@ -60,25 +199,13 @@ StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
     pos = new vector<CvScalar>;
     classes = new vector<int>;
 
+    feature1 = new Feature();
+    feature2 = new Feature();
+    QObject::connect( feature1, SIGNAL( finished() ), SLOT( surfDone1() ) );
+    QObject::connect( feature2, SIGNAL( finished() ), SLOT( surfDone2() ) );
+
     // Calibrate the stereo cameras.
     initStereoCalibration();
-}
-
-StereoCapture::~StereoCapture()
-{
-    cvReleaseMat(&Q);
-    cvReleaseMat(&mapX_left);
-    cvReleaseMat(&mapY_left);
-    cvReleaseMat(&mapX_right);
-    cvReleaseMat(&mapY_right);
-
-    for ( int i = 0; i < (int)descriptors->size(); i++ )
-    {
-        cvReleaseMat( &descriptors->at(i) );
-    }
-    delete( descriptors );
-    delete( pos );
-    delete( classes );
 }
 
 void StereoCapture::initStereoCalibration()
@@ -177,20 +304,22 @@ void StereoCapture::initStereoCalibration()
 
 void StereoCapture::grab()
 {
+    captureMutex.lock();
+
     if (connected1) VI.getPixels(device1, (unsigned char *)frame1->imageData, true, true);
     if (connected2) VI.getPixels(device2, (unsigned char *)frame2->imageData, true, true);
 
     keypoints1.clear();
-    feature1.findFeatures( frame1, keypoints1 );
+    feature1->findFeatures( frame1, keypoints1 );
 
     keypoints2.clear();
-    feature2.findFeatures( frame2, keypoints2 );
+    feature2->findFeatures( frame2, keypoints2 );
 }
 
 void StereoCapture::doCalculations()
 {
-    CvMat *descriptors1 = feature1.getDescriptor();
-    CvMat *descriptors2 = feature2.getDescriptor();
+    CvMat *descriptors1 = feature1->getDescriptor();
+    CvMat *descriptors2 = feature2->getDescriptor();
 
     for ( int i = 0; i < (int)descriptors->size(); i++ )
     {
@@ -217,7 +346,7 @@ void StereoCapture::doCalculations()
         double xmax = -1;
         double ymin = 1000;
         double ymax = -1;
-        feature1.matchFeatures(descriptors1, classFeatures[i], classMatches);
+        feature1->matchFeatures(descriptors1, classFeatures[i], classMatches);
         for ( int j = 0; j < (int)classMatches.size(); j++ )
         {
             int idx = classMatches[j].x;
@@ -247,10 +376,6 @@ void StereoCapture::doCalculations()
             classLastSeen[i] = QDateTime::currentDateTime();
         }
     }
-    for ( int i = 0; i < (int)keypoints1.size(); i++ )
-    {
-        classes->push_back( classArray[i] );
-    }
 
     for (int i = 0; i < (int)keypoints2.size(); i++)
     {
@@ -260,9 +385,9 @@ void StereoCapture::doCalculations()
     }
 
     vector<CvPoint> matches;
-    feature1.matchFeatures(descriptors1, descriptors2, matches);
-    feature1.updateThreshold( matches.size() );
-    feature2.updateThreshold( matches.size() );
+    feature1->matchFeatures(descriptors1, descriptors2, matches);
+    feature1->updateThreshold( matches.size() );
+    feature2->updateThreshold( matches.size() );
 
     if ((int)matches.size() > 0)
     {
@@ -287,6 +412,8 @@ void StereoCapture::doCalculations()
                 cvmSet( feature, j, 0, cvmGet( descriptors1, matchix, j ) );
             }
             descriptors->push_back( feature );
+
+            classes->push_back( classArray[matchix] );
 
             // Map is transposed !!!
             point = keypoints1[matchix];
@@ -342,6 +469,8 @@ void StereoCapture::doCalculations()
             }
         }
     }
+
+    captureMutex.unlock();
 
     grabFinished();
 }
@@ -492,11 +621,6 @@ void StereoCapture::surfDone2()
     {
         done2 = true;
     }
-}
-
-void StereoCapture::setMutex( QMutex *mutex )
-{
-    grabMutex = mutex;
 }
 
 vector<CvMat *> *StereoCapture::getDescriptors()

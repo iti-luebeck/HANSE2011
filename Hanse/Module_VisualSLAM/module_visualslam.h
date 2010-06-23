@@ -14,6 +14,9 @@
 #include <Module_VisualSLAM/feature/feature.h>
 #include <Module_VisualSLAM/slam/naiveslam.h>
 
+#define VSLAM_CAMERA_LEFT   0
+#define VSLAM_CAMERA_RIGHT  1
+
 using namespace std;
 
 class Module_SonarLocalization;
@@ -69,9 +72,6 @@ public:
     void start();
     void stop();
 
-    QMutex *getSceneMutex();
-    QMutex *getUpdateMutex();
-
     void getPlotData( QList<QPointF> &landmarkPositions, Position &position );
     double getObservationVariance();
     double getTranslationVariance();
@@ -100,10 +100,7 @@ private:
     QDateTime lastRefreshTime;
     clock_t startClock;
     clock_t stopClock;
-    QMutex updateMutex;
 
-    QGraphicsScene *scene;
-    QMutex *sceneMutex;
     StereoCapture cap;
     Feature feature;
     NaiveSLAM slam;

@@ -23,11 +23,11 @@ class StereoCapture : public QObject
 public:
     StereoCapture( int width = 640, int height = 480, int device1 = 0, int device2 = 1 );
     ~StereoCapture();
+    void init( int device1 = 0, int device2 = 1 );
     void grab();
     bool isConnected( int device );
     IplImage *getFrame( int cam );
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
-    void setMutex( QMutex *mutex );
 
     vector<CvMat *> *getDescriptors();
     vector<CvScalar> *getPos();
@@ -38,6 +38,7 @@ public slots:
     void surfDone2();
 
 private:
+    void clear();
     void initStereoCalibration();
     void normalizePixels( CvMat *x, double f, double cm, double cn);
     void stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> *X, double T);
@@ -68,8 +69,8 @@ private:
     double cm;
     double newT;
 
-    Feature feature1;
-    Feature feature2;
+    Feature *feature1;
+    Feature *feature2;
     bool done1;
     bool done2;
 
@@ -86,7 +87,7 @@ private:
     vector<QRectF> classRects;
     vector<QDateTime> classLastSeen;
 
-    QMutex *grabMutex;
+    QMutex captureMutex;
 
 signals:
     void grabFinished();
