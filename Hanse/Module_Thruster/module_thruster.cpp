@@ -49,6 +49,7 @@ Module_Thruster::~Module_Thruster()
 void Module_Thruster::terminate()
 {
     RobotModule::terminate();
+    setSpeed(0);
 }
 
 void Module_Thruster::reset()
