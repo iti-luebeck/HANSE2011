@@ -32,7 +32,9 @@ signals:
       *
       * "success" indicates if the behaviour succeeded in its task.
       */
-    void finished(bool success);
+    void finished(RobotBehaviour* module, bool success);
+
+    void started(RobotBehaviour* module);
 
 };
 

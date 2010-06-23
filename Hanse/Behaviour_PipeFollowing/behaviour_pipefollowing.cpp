@@ -14,7 +14,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->tcl = tcl;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
-    Behaviour_PipeFollowing::active = false;
+    setEnabled(false);
     Behaviour_PipeFollowing::noPipeCnt = 0;
     form = new PipeFollowingForm( NULL, this);
     Behaviour_PipeFollowing::firstRun = 1;
@@ -22,12 +22,12 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
 bool Behaviour_PipeFollowing::isActive()
 {
-    return Behaviour_PipeFollowing::active;
+    return isEnabled();
 }
 
 void Behaviour_PipeFollowing::start()
 {
-    if(!this->active)
+    if(!isEnabled())
     {
         Behaviour_PipeFollowing::updateFromSettings();
 
@@ -39,28 +39,26 @@ void Behaviour_PipeFollowing::start()
             || (vc.isOpened() && !this->getSettings().value("useCamera").toBool()))
         {
             this->setHealthToOk();
-            Behaviour_PipeFollowing::active = true;
+            setEnabled(true);
             timer.start(200);
+            emit started(this);
         }
         else this->setHealthToSick("fail - open camera or video");
+
     }
-    else logger->error("pipefollow already running");
 }
 
 void Behaviour_PipeFollowing::stop()
 {
-    if (!active)
-    {
-        logger->error("pipefollow wasnt active, so why stop?");
-        return;
-    }
-   timer.stop();
-   vc.release();
-   vi.stopDevice(this->cameraID);
-   this->tcl->setForwardSpeed(0.0);
-   this->tcl->setAngularSpeed(0.0);
-   Behaviour_PipeFollowing::active = false;
-   emit finished(false);
+    if (isEnabled()) {
+       timer.stop();
+       vc.release();
+       vi.stopDevice(this->cameraID);
+       this->tcl->setForwardSpeed(0.0);
+       this->tcl->setAngularSpeed(0.0);
+       setEnabled(false);
+       emit finished(this,false);
+   }
 }
 
 void Behaviour_PipeFollowing::reset()
@@ -312,7 +310,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             if(noPipeCnt > this->getSettings().value("badFrames").toInt())
             {
                 this->setHealthToSick("20 frames without pipe");
-                emit finished(false);
+                emit finished(this,false);
                 this->stop();
             }
         }

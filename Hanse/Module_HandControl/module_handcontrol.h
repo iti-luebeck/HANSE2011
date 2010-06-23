@@ -1,14 +1,14 @@
 #ifndef MODULE_HANDCONTROL_H
 #define MODULE_HANDCONTROL_H
 
-#include <Framework/robotmodule.h>
+#include <Framework/robotbehaviour.h>
 
 class Server;
 class Module_Thruster;
 class Module_ThrusterControlLoop;
 class HandControl_Form;
 
-class Module_HandControl : public RobotModule {
+class Module_HandControl : public RobotBehaviour {
     Q_OBJECT
     friend class HandControl_Form;
 
@@ -21,6 +21,10 @@ public:
 
     void reset();
     void terminate();
+
+    void start();
+    void stop();
+    bool isActive();
 
 private:
 

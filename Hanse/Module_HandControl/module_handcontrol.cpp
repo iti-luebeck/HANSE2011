@@ -5,7 +5,7 @@
 #include "server.h"
 
 Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster *thrusterDownFront)
-    : RobotModule(id)
+    : RobotBehaviour(id)
 {
     this->controlLoop = tcl,
     this->thrusterDown = thrusterDown;
@@ -13,6 +13,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     this->thrusterLeft = thrusterLeft;
     this->thrusterRight = thrusterRight;
 
+    setEnabled(false);
     setDefaultValue("port",1234);
     setDefaultValue("receiver","thruster");
     setDefaultValue("divLR",127);
@@ -43,13 +44,13 @@ QWidget* Module_HandControl::createView(QWidget* parent)
 
 void Module_HandControl::terminate()
 {
-    RobotModule::terminate();
+    RobotBehaviour::terminate();
     server->close();
 }
 
 void Module_HandControl::reset()
 {
-    RobotModule::reset();
+    RobotBehaviour::reset();
 
     newMessage(0,0,0);
 
@@ -88,6 +89,8 @@ void Module_HandControl::sendNewControls()
     float divUD = settings.value("divUD").toFloat();
 
     if (settings.value("receiver").toString()=="thruster") {
+        controlLoop->setEnabled(false);
+
         float left = forwardSpeed/divFw+angularSpeed/divLR;
         float right = forwardSpeed/divFw-angularSpeed/divLR;
         float updown = (float)speedUpDown / divUD;
@@ -97,6 +100,8 @@ void Module_HandControl::sendNewControls()
         thrusterRight->setSpeed(right);
 
     } else {
+        controlLoop->setEnabled(true);
+
         controlLoop->setAngularSpeed(angularSpeed/divLR);
         controlLoop->setForwardSpeed(forwardSpeed/divFw);
         float dVal = speedUpDown/divUD;
@@ -110,4 +115,21 @@ void Module_HandControl::sendNewControls()
 void Module_HandControl::serverReportedError(QString error)
 {
     setHealthToSick(error);
+}
+
+void Module_HandControl::start()
+{
+    setEnabled(true);
+    emit started(this);
+}
+
+void Module_HandControl::stop()
+{
+    setEnabled(false);
+    emit finished(this, true);
+}
+
+bool Module_HandControl::isActive()
+{
+    return isEnabled();
 }
