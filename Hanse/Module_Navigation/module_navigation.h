@@ -6,10 +6,28 @@
 #include <Framework/robotmodule.h>
 #include <Framework/position.h>
 
+#define NAV_STATE_IDLE                  500
+#define NAV_STATE_GO_TO_GOAL            501
+#define NAV_STATE_FAILED_TO_GO_TO_GOAL  502
+#define NAV_STATE_REACHED_GOAL          503
+
+#define NAV_SUBSTATE_ADJUST_DEPTH       600
+#define NAV_SUBSTATE_ADJUST_HEADING     601
+#define NAV_SUBSTATE_MOVE_FORWARD       602
+
+#define NAV_P_HEADING           0.005
+#define NAV_HYSTERESIS_HEADING  10
+#define NAV_HYSTERESIS_GOAL     0.5
+#define NAV_HYSTERESIS_DEPTH    0.1
+#define NAV_FORWARD_SPEED       0.1
+#define NAV_FORWARD_TIME        5
+
 class Module_Localization;
 class Module_SonarLocalization;
 class Module_VisualSLAM;
 class Module_ThrusterControlLoop;
+class Module_PressureSensor;
+class Module_Compass;
 
 class MapWidget;
 
@@ -18,7 +36,12 @@ class Module_Navigation : public RobotModule
     friend class MapWidget;
     Q_OBJECT
 public:
-    Module_Navigation(QString id, Module_SonarLocalization *sonarLoc, Module_VisualSLAM* visSLAM, Module_ThrusterControlLoop* tcl);
+    Module_Navigation( QString id,
+                       Module_SonarLocalization *sonarLoc,
+                       Module_VisualSLAM* visSLAM,
+                       Module_ThrusterControlLoop* tcl,
+                       Module_PressureSensor *pressure,
+                       Module_Compass *compass );
 
     QWidget* createView(QWidget* parent);
 
@@ -54,6 +77,8 @@ public:
       */
     void gotoWayPoint(QString name, Position delta);
 
+    void clearGoal();
+
     /**
       * Returns the current destination or an empty String (""),
       * when we are at rest.
@@ -74,6 +99,10 @@ public:
       */
     const QMap<QDateTime, QString> getWayPointHistory();
 
+private:
+    void saveWaypoints( QTextStream &ts );
+    void loadWaypoints( QTextStream &ts );
+
 public slots:
 
     /**
@@ -86,12 +115,19 @@ public slots:
     void save( QString path );
     void load( QString path );
 
+    void depthUpdate( RobotModule * );
+    void headingUpdate( RobotModule * );
+    void vslamPositionUpdate( RobotModule * );
+    void forwardDone();
+
 signals:
     void healthStatusChanged(HealthStatus data);
 
-    void reachedWaypoint(QString waypoint);
-    void failedToReachWayPoint(QString waypoint);
+    void reachedWaypoint( QString waypoint );
+    void failedToReachWayPoint( QString waypoint );
     void updatedWaypoints( QMap<QString, Position> waypoints );
+    void setNewGoal( Position goal );
+    void clearedGoal();
 
 protected:
     virtual void doHealthCheck();
@@ -101,8 +137,18 @@ private:
     Module_SonarLocalization *sonarLoc;
     Module_VisualSLAM *visSLAM;
     Module_ThrusterControlLoop* tcl;
+    Module_PressureSensor *pressure;
+    Module_Compass *compass;
     QMap<QDateTime, QString> history;
     QMap<QString, Position> waypoints;
+
+    QString currentGoalName;
+    Position currentGoalPosition;
+    double headingToGoal;
+    float initialCompassHeading;
+
+    int state;
+    int substate;
 
 };
 #endif // MODULE_NAVIGATION_H

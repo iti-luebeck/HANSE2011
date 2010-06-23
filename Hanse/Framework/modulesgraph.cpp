@@ -59,7 +59,7 @@ void ModulesGraph::build()
     Module_VisualSLAM* visualLoc = new Module_VisualSLAM("visualSLAM", sonarLoc);
     this->modules.append(visualLoc);
 
-    Module_Navigation* navi = new Module_Navigation("navigation",sonarLoc, visualLoc, controlLoop);
+    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, visualLoc, controlLoop, pressure, compass );
     this->modules.append(navi);
 
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop);

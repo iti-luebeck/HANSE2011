@@ -15,6 +15,8 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     QObject::connect( &updateTimer, SIGNAL( timeout() ), SLOT( startGrab() ) );
     QObject::connect( &cap, SIGNAL( grabFinished() ), SLOT( startUpdate() ) );
     QObject::connect( &slam, SIGNAL( updateDone() ), SLOT( finishUpdate() ) );
+    QObject::connect( sonarLocalization, SIGNAL(newLocalizationEstimate()),
+                      this, SLOT(updateSonarData()) );
 
     stopped = true;
 
@@ -193,6 +195,7 @@ double Module_VisualSLAM::getTranslationVariance()
 {
     return settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
 }
+
 double Module_VisualSLAM::getRotationVariance()
 {
     return settings.value( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
@@ -208,4 +211,17 @@ void Module_VisualSLAM::changeSettings( double v_observation, double v_translati
     slam.setRotationVariance( v_rotation );
     settings.setValue( "v_rotation", v_rotation );
     updateMutex.unlock();
+}
+
+void Module_VisualSLAM::updateSonarData()
+{
+    //TODO welches feld auslesen???
+    Position sonarPos = Position(); //sonarLocalization->getLocalization();
+    Position vslamPos = getLocalization();
+
+    // Calculate position difference.
+    Position diffPos = sonarPos - vslamPos;
+
+    // Set position difference as offset.
+    slam.setOffset( diffPos );
 }

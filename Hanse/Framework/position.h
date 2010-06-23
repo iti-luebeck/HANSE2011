@@ -35,6 +35,8 @@ public:
     Position( CvMat *translation, Quaternion rotation );
 
     Position& operator=( const Position& );
+    Position operator+( Position pos );
+    Position operator-( Position pos );
 
     // Setters & Getters for using Position as a 6D position.
     double getX();

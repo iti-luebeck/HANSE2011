@@ -3,7 +3,8 @@
 #include <QDebug>
 #include <opencv/cv.h>
 
-#define SCALE   2
+#define FEATURE_IMAGE_SCALE     2
+#define FEATURE_P_THRESHOLD     0.8
 
 Feature::Feature()
 {
@@ -21,7 +22,8 @@ Feature::~Feature()
 
 void Feature::run()
 {
-    IplImage *copy = cvCreateImage( cvSize( image->width / SCALE, image->height / SCALE ), image->depth, image->nChannels );
+    IplImage *copy = cvCreateImage( cvSize( image->width / FEATURE_IMAGE_SCALE, image->height / FEATURE_IMAGE_SCALE ),
+                                    image->depth, image->nChannels );
     cvResize( image, copy, CV_INTER_LINEAR );
     IpVec ipts;
     surfDetDes( copy, ipts, false, 4, 4, 2, surfThreshold );
@@ -60,7 +62,7 @@ void Feature::run()
             {
                 cvmSet( descriptor, i, j, point.descriptor[j] );
             }
-            keypoints->push_back( cvScalar( SCALE * point.x, SCALE * point.y ) );
+            keypoints->push_back( cvScalar( FEATURE_IMAGE_SCALE * point.x, FEATURE_IMAGE_SCALE * point.y ) );
         }
         cvReleaseImage( &copy );
     }
@@ -96,15 +98,15 @@ void Feature::updateThreshold(int numFeatures)
 {
     if (numFeatures <= 10)
     {
-        params.hessianThreshold = 0.9 * params.hessianThreshold;
-        surfThreshold = 0.9 * surfThreshold;
-        fastThreshold = fastThreshold -= 5;
+//        params.hessianThreshold = FEATURE_P_THRESHOLD * params.hessianThreshold;
+        surfThreshold = FEATURE_P_THRESHOLD * surfThreshold;
+//        fastThreshold = fastThreshold -= 5;
     }
     else if (numFeatures >= 20)
     {
-        params.hessianThreshold = params.hessianThreshold / 0.9;
-        surfThreshold = surfThreshold / 0.9;
-        fastThreshold = fastThreshold += 5;
+//        params.hessianThreshold = params.hessianThreshold / FEATURE_P_THRESHOLD;
+        surfThreshold = surfThreshold / FEATURE_P_THRESHOLD;
+//        fastThreshold = fastThreshold += 5;
     }
 }
 

@@ -10,6 +10,20 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     ui->setupUi(this);
     this->nav = nav;
     ui->mapWidget->setNavigation(nav);
+
+    QSettings& settings = nav->getSettings();
+    ui->headingPEdit->setText( settings.value( QString( "p_heading" ),
+                                               NAV_P_HEADING ).toString() );
+    ui->headingHysteresisEdit->setText( settings.value( QString( "hysteresis_heading" ),
+                                                        NAV_HYSTERESIS_HEADING ).toString() );
+    ui->goalHysteresisEdit->setText( settings.value( QString( "hysteresis_goal" ),
+                                                    NAV_HYSTERESIS_GOAL ).toString() );
+    ui->depthHysteresisEdit->setText( settings.value( QString( "hysteresis_depth" ),
+                                                      NAV_HYSTERESIS_DEPTH ).toString() );
+    ui->forwardSpeedEdit->setText( settings.value( QString( "forward_speed" ),
+                                                   NAV_FORWARD_SPEED ).toString() );
+    ui->forwardTimeEdit->setText( settings.value( QString( "forward_time" ),
+                                                  NAV_FORWARD_TIME).toString() );
 }
 
 Form_Navigation::~Form_Navigation()
@@ -87,4 +101,85 @@ void Form_Navigation::on_pushButton_2_clicked()
     {
         nav->load( path );
     }
+}
+
+void Form_Navigation::on_applyButton_clicked()
+{
+    bool ok;
+    double p_heading = ui->headingPEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect heading P value." );
+        msgBox.exec();
+        return;
+    }
+
+    double hysteresis_heading = ui->headingHysteresisEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect heading hysteresis." );
+        msgBox.exec();
+        return;
+    }
+
+    double hysteresis_goal = ui->goalHysteresisEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect goal hysteresis." );
+        msgBox.exec();
+        return;
+    }
+
+    double hysteresis_depth = ui->depthHysteresisEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect depth hysteresis." );
+        msgBox.exec();
+        return;
+    }
+
+    double forward_speed = ui->forwardSpeedEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect forward speed." );
+        msgBox.exec();
+        return;
+    }
+
+    double forward_time = ui->forwardTimeEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect forward time." );
+        msgBox.exec();
+        return;
+    }
+
+    QSettings& settings = nav->getSettings();
+    settings.setValue( QString( "p_heading" ), p_heading );
+    settings.setValue( QString( "hysteresis_heading" ), hysteresis_heading );
+    settings.setValue( QString( "hysteresis_goal" ), hysteresis_goal );
+    settings.setValue( QString( "hysteresis_depth" ), hysteresis_depth );
+    settings.setValue( QString( "forward_speed" ), forward_speed );
+    settings.setValue( QString( "forward_time" ), forward_time );
+}
+
+void Form_Navigation::on_gotoButton_clicked()
+{
+    QList<QListWidgetItem *> selectedItems = ui->listWidget->selectedItems();
+    if ( selectedItems.size() == 1 )
+    {
+        QString goal = selectedItems[0]->text();
+        nav->gotoWayPoint( goal, Position() );
+    }
+}
+
+void Form_Navigation::on_clearGoalButton_clicked()
+{
+    nav->clearGoal();
 }

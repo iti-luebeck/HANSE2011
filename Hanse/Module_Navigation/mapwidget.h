@@ -26,8 +26,10 @@ protected:
 private:
     Ui::MapWidget *ui;
     Module_Navigation* nav;
+
     QGraphicsItem *visualSLAMItem;
     QGraphicsItem *waypointsItem;
+    QGraphicsItem *goalItem;
 
     QGraphicsItem* masterParticle;
     QGraphicsItem* masterMapPoint;
@@ -43,8 +45,12 @@ private:
 public slots:
     void graphicsMouseDoubleClicked( QPointF point );
     void graphicsMouseReleased( QPointF point );
+
     void updateVisualSLAM();
     void updateWaypoints( QMap<QString, Position> waypoints );
+    void updateGoal( Position goal );
+    void clearGoal();
+
     void newSonarLocEstimate();
 
 private slots:

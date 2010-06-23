@@ -84,6 +84,7 @@ public slots:
     void startUpdate();
     void finishUpdate();
     void changeSettings( double v_observation, double v_translation, double v_rotation );
+    void updateSonarData();
 
 signals:
     void healthStatusChanged(HealthStatus data);

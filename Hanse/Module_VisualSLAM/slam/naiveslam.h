@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class NaiveSLAM : public QObject
+class NaiveSLAM : public QThread
 {
     Q_OBJECT
 public:
@@ -28,6 +28,7 @@ public:
     void setTranslationVariance( double v );
     void setRotationVariance( double v );
     void getLandmarkPositions( QList<QPointF> &landmarkPositions );
+    void setOffset( Position diffPos );
 
     void test();
     void reset();
@@ -49,6 +50,7 @@ private:
     int bestParticle;
 
     Position pos;
+    Position offset;
     CvMat *meanTranslation;
     Quaternion meanRotation;
     double confidence;

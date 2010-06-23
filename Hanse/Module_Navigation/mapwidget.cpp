@@ -23,6 +23,7 @@ MapWidget::MapWidget( QWidget *parent) :
 
     visualSLAMItem = NULL;
     waypointsItem = NULL;
+    goalItem = NULL;
     nav = NULL;
 }
 
@@ -46,6 +47,8 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
     connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
     connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Position>)), this, SLOT(updateWaypoints(QMap<QString,Position>)) );
+    connect( nav, SIGNAL(setNewGoal(Position)), this, SLOT(updateGoal(Position)) );
+    connect( nav, SIGNAL(clearedGoal()), this, SLOT(clearGoal()) );
 
 }
 
@@ -63,7 +66,7 @@ void MapWidget::changeEvent(QEvent *e)
 
 void MapWidget::graphicsMouseDoubleClicked( QPointF point )
 {
-    WaypointDialog wd( QString(), point.x(), -point.y(), 2.5, 0.0, 0.0, this );
+    WaypointDialog wd( QString(), point.x(), point.y(), 2.5, 0.0, 0.0, this );
     QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Position) ),
                       nav, SLOT( addWaypoint(QString,Position) ) );
     wd.exec();
@@ -101,7 +104,7 @@ void MapWidget::updateVisualSLAM()
         {
             QGraphicsItem *item =
                     scene->addEllipse( landmarks[i].x() - width/2,
-                                       -landmarks[i].y() - width/2,
+                                       landmarks[i].y() - width/2,
                                        width, width, pen, brush );
             item->setParentItem( visualSLAMItem );
             item->setZValue( 1000 );
@@ -112,14 +115,14 @@ void MapWidget::updateVisualSLAM()
         width = 0.3;
         QGraphicsItem *item =
                 scene->addEllipse( pos.getX() - width/2,
-                                   -pos.getZ() - width/2,
+                                   pos.getY() - width/2,
                                    width, width, pen, brush );
         item->setParentItem( visualSLAMItem );
         item->setZValue( 1100 );
         pen = QPen( Qt::red );
-        item = scene->addLine( pos.getX(), -pos.getZ(),
+        item = scene->addLine( pos.getX(), pos.getY(),
                                pos.getX() + sin( pos.getYaw() * CV_PI / 180 ),
-                               -(pos.getZ() + cos( pos.getYaw() * CV_PI / 180 )),
+                               pos.getY() + cos( pos.getYaw() * CV_PI / 180 ),
                                pen );
         item->setParentItem( visualSLAMItem );
         item->setZValue( 1100 );
@@ -149,7 +152,7 @@ void MapWidget::updateWaypoints( QMap<QString, Position> waypoints )
         Position pos = waypoints[waypointNames[i]];
         QGraphicsItem *item =
                 scene->addRect( pos.getX() - width/2,
-                                -pos.getY() - width/2,
+                                pos.getY() - width/2,
                                 width, width, pen, brush );
         item->setParentItem( waypointsItem );
         item->setZValue( 1200 );
@@ -158,8 +161,44 @@ void MapWidget::updateWaypoints( QMap<QString, Position> waypoints )
         QGraphicsTextItem *textItem = scene->addText( waypointNames[i], f );
         textItem->setParentItem( waypointsItem );
         textItem->setZValue( 1210 );
-        textItem->setPos( pos.getX() + width / 2, -pos.getY() );
-        textItem->scale( 0.02, 0.02 );
+        textItem->setPos( pos.getX() + width / 1.5, pos.getY() - width/2 );
+        textItem->scale( 0.03, 0.03 );
+        textItem->setDefaultTextColor( Qt::white );
+    }
+}
+
+void MapWidget::updateGoal( Position goal )
+{
+    if ( goalItem != NULL )
+    {
+        delete( goalItem );
+        goalItem = NULL;
+    }
+
+    QPen pen( Qt::yellow );
+    QBrush brush;
+    pen.setWidthF( 0.2 );
+
+    QGraphicsScene *scene = ui->graphicsView->scene();
+    goalItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
+    goalItem->setZValue( 1150 );
+
+    Position pos = nav->visSLAM->getLocalization();
+    QGraphicsItem *item = scene->addLine( goal.getX(), goal.getY(),
+                           pos.getX(), pos.getY(),
+                           pen );
+    item->setParentItem( goalItem );
+    item->setZValue( 1100 );
+
+    ui->graphicsView->show();
+}
+
+void MapWidget::clearGoal()
+{
+    if ( goalItem != NULL )
+    {
+        delete( goalItem );
+        goalItem = NULL;
     }
 }
 

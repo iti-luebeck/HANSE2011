@@ -36,7 +36,7 @@ void NaiveSLAM::update( vector<CvMat *> *descriptors, vector<CvScalar> *pos3D, v
     this->descriptor = descriptors;
     this->pos3D = pos3D;
     this->classLabels = classLabels;
-    this->run();
+    this->start();
 }
 
 void NaiveSLAM::run()
@@ -163,7 +163,7 @@ void NaiveSLAM::resampleParticles( double *weights )
 
 Position NaiveSLAM::getPosition()
 {
-    return pos;
+    return pos + offset;
 }
 
 double NaiveSLAM::getConfidence()
@@ -300,7 +300,14 @@ void NaiveSLAM::getLandmarkPositions( QList<QPointF> &landmarkPositions )
     {
         for ( int i = 0; i < (int)particles.at( bestParticle )->landmarks.size(); i++ )
         {
-            landmarkPositions.append( particles.at( bestParticle )->getLandmarkPosition( i ) );
+            QPointF position = particles.at( bestParticle )->getLandmarkPosition( i );
+            position.setX( cos( offset.getYaw() * CV_PI / 180 ) * position.x() +
+                           sin( offset.getYaw() * CV_PI / 180 ) * position.y() +
+                           offset.getX() );
+            position.setY( sin( offset.getYaw() * CV_PI / 180 ) * position.x() +
+                           cos( offset.getYaw() * CV_PI / 180 ) * position.y() +
+                           offset.getY() );
+            landmarkPositions.append( position );
         }
     }
 }
@@ -327,6 +334,11 @@ void NaiveSLAM::setTranslationVariance( double v )
     {
         particles.at( i )->setTranslationVariance( v );
     }
+}
+
+void NaiveSLAM::setOffset( Position diffPos )
+{
+    offset = diffPos;
 }
 
 /*

@@ -30,6 +30,9 @@ signals:
     void removedWaypoint( QString name );
 
 private slots:
+    void on_clearGoalButton_clicked();
+    void on_gotoButton_clicked();
+    void on_applyButton_clicked();
     void on_pushButton_2_clicked();
     void on_pushButton_clicked();
     void on_removeButton_clicked();

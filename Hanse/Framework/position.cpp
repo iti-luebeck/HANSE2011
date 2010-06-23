@@ -30,8 +30,8 @@ Position::Position( CvMat *translation, Quaternion rotation )
     setPitch( (double)pitch );
     setYaw( (double)yaw );
     setX( cvmGet( translation, 0, 0 ) );
-    setY( cvmGet( translation, 1, 0 ) );
-    setZ( cvmGet( translation, 2, 0 ) );
+    setY( -cvmGet( translation, 2, 0 ) );
+    setZ( -cvmGet( translation, 1, 0 ) );
 }
 
 Position& Position::operator=( const Position& pos )
@@ -42,6 +42,26 @@ Position& Position::operator=( const Position& pos )
     setRoll( pos.roll );
     setPitch( pos.pitch );
     setYaw( pos.yaw );
+}
+
+Position Position::operator+( Position pos )
+{
+    return Position( getX() + pos.getX(),
+                     getY() + pos.getY(),
+                     getZ() + pos.getZ(),
+                     getRoll() + pos.getRoll(),
+                     getPitch() + pos.getPitch(),
+                     getYaw() + pos.getYaw() );
+}
+
+Position Position::operator-( Position pos )
+{
+    return Position( getX() - pos.getX(),
+                     getY() - pos.getY(),
+                     getZ() - pos.getZ(),
+                     getRoll() - pos.getRoll(),
+                     getPitch() - pos.getPitch(),
+                     getYaw() - pos.getYaw() );
 }
 
 double Position::getX()
