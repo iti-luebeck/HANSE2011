@@ -15,7 +15,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     Behaviour_PipeFollowing::active = false;
-
+    Behaviour_PipeFollowing::noPipeCnt = 0;
     form = new PipeFollowingForm( NULL, this);
     Behaviour_PipeFollowing::firstRun = 1;
  }
@@ -27,37 +27,46 @@ bool Behaviour_PipeFollowing::isActive()
 
 void Behaviour_PipeFollowing::start()
 {
-    if(this->getSettings().value("useCamera").toBool())
+    if(!this->active)
     {
-    vc = VideoCapture(this->getSettings().value("cameraID").toInt());
+        Behaviour_PipeFollowing::updateFromSettings();
+
+        if(this->getSettings().value("useCamera").toBool()) this->initCam();
+        else vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
+
+        logger->debug("cameraID" +QString::number(this->cameraID));
+        if((this->connected && this->getSettings().value("useCamera").toBool())
+            || (vc.isOpened() && !this->getSettings().value("useCamera").toBool()))
+        {
+            this->setHealthToOk();
+            Behaviour_PipeFollowing::active = true;
+            timer.start(200);
+        }
+        else this->setHealthToSick("fail - open camera or video");
     }
-    else
-    {
-        vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
-    }
-
-    this->cameraID = this->getSettings().value("cameraID").toInt();
-    this->threshSegmentation = this->getSettings().value("threshold").toInt();
-    this->debug = this->getSettings().value("debug").toInt();
-    this->deltaAngPipe = this->getSettings().value("deltaAngle").toFloat();
-    this->deltaDistPipe = this->getSettings().value("deltaDist").toFloat();
-    this->kpAngle = this->getSettings().value("kpDist").toFloat();
-    this->kpDist = this->getSettings().value("kpAngle").toFloat();
-    this->constFWSpeed = this->getSettings().value("fwSpeed").toFloat();
-    Behaviour_PipeFollowing::setRobCenter(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
-
-    if(!vc.isOpened())
-        logger->error("cannot open camera device");
-
-    Behaviour_PipeFollowing::active = true;
-    timer.start(200);
+    else logger->error("pipefollow already running");
 }
 
 void Behaviour_PipeFollowing::stop()
 {
-   vc.release();
-   Behaviour_PipeFollowing::active = false;
+    if (!active)
+    {
+        logger->error("pipefollow wasnt active, so why stop?");
+        return;
+    }
    timer.stop();
+   vc.release();
+   vi.stopDevice(this->cameraID);
+   this->tcl->setForwardSpeed(0.0);
+   this->tcl->setAngularSpeed(0.0);
+   Behaviour_PipeFollowing::active = false;
+   emit finished(false);
+}
+
+void Behaviour_PipeFollowing::reset()
+{
+    RobotBehaviour::reset();
+    Behaviour_PipeFollowing::stop();
 }
 
 QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
@@ -75,23 +84,50 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::timerSlot()
 {
-    Mat frame, binaryFrame;
-    if(!vc.isOpened())
-    {
-        logger->error("cannot retrive frame from camera device");
-    }
+    Mat binaryFrame;
     if(this->getSettings().value("useCamera").toBool())
     {
-        vc.retrieve(frame,0);
+        if(!this->connected) logger->error("cannot retrieve frame from camera");
+        else this->grab(frame);
     }
     else
     {
-          vc >> frame;
+        if(!vc.isOpened())
+            logger->error("cannot retrive frame from video file");
+        else
+            vc >> frame;
     }
-    Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
-    Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
-    Behaviour_PipeFollowing::updateData();
-    Behaviour_PipeFollowing::controlPipeFollow();
+    if(!frame.empty())
+    {
+        this->setHealthToOk();
+        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
+        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
+        binaryFrame.release();
+        Behaviour_PipeFollowing::updateData();
+        Behaviour_PipeFollowing::controlPipeFollow();
+    }
+    else this->setHealthToSick("empty frame");
+}
+
+void Behaviour_PipeFollowing::initCam()
+{
+    vi.setUseCallback(true);
+    vi.listDevices(false);
+    vi.setIdealFramerate(this->cameraID,30);
+    this->connected = vi.setupDevice(this->cameraID,this->getSettings().value("camWidth").toInt(),this->getSettings().value("camHeight").toInt());
+
+}
+
+void Behaviour_PipeFollowing::grab(Mat &frame)
+{
+    if (this->connected)
+    {
+        frame2 = cvCreateImage(cvSize(this->getSettings().value("camWidth").toInt(),this->getSettings().value("camHeight").toInt()), IPL_DEPTH_8U, 3);
+        vi.getPixels(this->cameraID, (unsigned char *)frame2->imageData, true, true);
+        frame = Mat(frame2,false);
+        this->setHealthToOk();
+    }
+    else this->setHealthToSick("camera not connected");
 }
 
 
@@ -148,6 +184,7 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
         int u;
         Mat frameHSV, h, s, v;
         cvtColor(frame,frameHSV,CV_BGR2HSV);
+
         /*****convert HSV Image to 3 Binary */
         int rows = frameHSV.rows;
         int cols = frameHSV.cols;
@@ -267,6 +304,19 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         avThetaClass1 = (avThetaClass1 + avThetaClass2) / 2.0;
         /* medianfilterung der Werte */
         Behaviour_PipeFollowing::medianFilter(avRhoClass1,avThetaClass1);
+
+        /* ueberpruefen ob rohr zu sehen */
+        if(counterClass1 == 0 && counterClass2 == 0)
+        {
+            this->noPipeCnt++;
+            if(noPipeCnt > this->getSettings().value("badFrames").toInt())
+            {
+                this->setHealthToSick("20 frames without pipe");
+                emit finished(false);
+                this->stop();
+            }
+        }
+        else this->noPipeCnt = 0;
 
         data["rohrRho"] =  avRhoClass1;
         data["rohrTheta"] = avThetaClass1;

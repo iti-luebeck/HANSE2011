@@ -25,7 +25,9 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     ui->useCameraRadioButton->setChecked(pipefollow->getSettings().value("useCamera").toBool());
     ui->maxDistLineEdti->setText(pipefollow->getSettings().value("maxDistance").toString());
     ui->speedFwLineEdit->setText(pipefollow->getSettings().value("fwSpeed").toString());
-
+    ui->camHeightLineEdit->setText(pipefollow->getSettings().value("camHeight").toString());
+    ui->camWidthLineEdit->setText(pipefollow->getSettings().value("camWidth").toString());
+    ui->badFramesLineEdit->setText(pipefollow->getSettings().value("badFrames").toString());
  QObject::connect( pipefollow, SIGNAL( printFrameOnUi(cv::Mat&)) , SLOT( printFrame(cv::Mat&))  );
 
  }
@@ -49,6 +51,7 @@ void PipeFollowingForm::changeEvent(QEvent *e)
 
 void PipeFollowingForm::on_startPipeFollowingButton_clicked()
 {
+    pipefollow->getSettings().setValue("useCamera",ui->useCameraRadioButton->isChecked());
     pipefollow->start();
 //    if(ui->useCameraRadioButton->isChecked())
 //    {
@@ -91,6 +94,9 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
     pipefollow->getSettings().setValue("videoFilePath",ui->curVideofileLabel->text());
     pipefollow->getSettings().setValue("maxDistance",ui->maxDistLineEdti->text().toFloat());
     pipefollow->getSettings().setValue("fwSpeed",ui->speedFwLineEdit->text().toFloat());
+    pipefollow->getSettings().setValue("camHeight",ui->camHeightLineEdit->text().toInt());
+    pipefollow->getSettings().setValue("camWidth",ui->camWidthLineEdit->text().toInt());
+    pipefollow->getSettings().setValue("badFrames",ui->badFramesLineEdit->text().toInt());
     pipefollow->resetFirstRun();
     pipefollow->updateFromSettings();
 
@@ -104,4 +110,9 @@ void PipeFollowingForm::printFrame(cv::Mat &frame)
     ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
 //    ui->curVideofileLabel->setText("Blub");
 
+}
+
+void PipeFollowingForm::on_stopButton_clicked()
+{
+    pipefollow->stop();
 }

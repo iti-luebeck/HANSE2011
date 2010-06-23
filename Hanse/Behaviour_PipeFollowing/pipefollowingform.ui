@@ -123,6 +123,19 @@
       <string>open videofile</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="stopButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>75</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>KILL</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
@@ -287,8 +300,8 @@
     <widget class="QPushButton" name="saveApplyButton">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>220</y>
+       <x>240</x>
+       <y>10</y>
        <width>101</width>
        <height>23</height>
       </rect>
@@ -399,6 +412,84 @@
      </property>
      <property name="text">
       <string>0.3</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="camWidthLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>210</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>cam width</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="camWidthLineEdit">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>210</y>
+       <width>113</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>640</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="camHieghtLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>230</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>cam height</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="camHeightLineEdit">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>230</y>
+       <width>113</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>480</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="badFramesLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>250</y>
+       <width>91</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>number bad frames</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="badFramesLineEdit">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>250</y>
+       <width>113</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>20</string>
      </property>
     </widget>
    </widget>

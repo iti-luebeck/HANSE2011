@@ -5,6 +5,7 @@
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+#include <videoInput.h>
 
 #include <Behaviour_PipeFollowing/pipefollowingform.h>
 
@@ -27,6 +28,8 @@ public:
     void start();
     /** stops PipeFollow Behaviour */
     void stop();
+
+    void reset();
     /** returns true if Behaviour is active
         return false if the Behaviour is not active
     */
@@ -77,11 +80,18 @@ private:
     /** Median Filter
         Eingabewerte werden gefiltert und mit gefilterten ueberschrieben */
     void medianFilter(float &rho, float &theta);
+    /** grabs frame from camera device */
+    void grab(Mat &frame);
+    /** */
+    void initCam();
+
     Module_ThrusterControlLoop* tcl;
     QTimer timer;
     PipeFollowingForm *form;
     bool active;
+    bool connected;
 
+    videoInput vi;
     VideoCapture vc;
     /* konstante parameter */
     int cameraID;
@@ -94,6 +104,9 @@ private:
     float kpDist;
     float kpAngle;
     float maxDistance;
+    IplImage *frame2;
+    cv::Mat frame;
+
 
     /* dynamische parameter */
     double distance;
@@ -105,6 +118,8 @@ private:
     float meanRho[5];
     float meanTheta[5];
     int firstRun;
+    /* sonstige */
+    int noPipeCnt;
 
 private slots:
     void timerSlot();
