@@ -23,19 +23,19 @@ void HealthModel::moduleEnabled(bool)
 {
     // we don't easily know which module changed, so just refresh the whole table
     int size = graph->getModules().size();
-    emit dataChanged(index(0,0), index(size,3));
+    emit dataChanged(index(0,0), index(size,4));
 }
 
 void HealthModel::timerEvent()
 {
     int s = graph->getModules().size();
-    emit dataChanged(index(0,0), index(s-1,3));
+    emit dataChanged(index(0,0), index(s-1,4));
 }
 
 void HealthModel::healthStatusChanged(RobotModule *module)
 {
     int mi = graph->getModules().indexOf(module);
-    emit dataChanged(index(mi,0), index(mi,3));
+    emit dataChanged(index(mi,0), index(mi,4));
 }
 
 int HealthModel::rowCount(const QModelIndex &parent) const
@@ -46,7 +46,7 @@ int HealthModel::rowCount(const QModelIndex &parent) const
 
 int HealthModel::columnCount(const QModelIndex &parent) const
 {
-    return 4;
+    return 5;
 }
 
 QVariant HealthModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -54,16 +54,17 @@ QVariant HealthModel::headerData(int section, Qt::Orientation orientation, int r
     if (role == Qt::DisplayRole) {
 
         if (orientation == Qt::Vertical) {
-            return graph->getModules().at(section)->getTabName();
         } else {
             switch (section) {
             case 0:
-                return "Enabled";
+                return "Module";
             case 1:
-                return "Health OK";
+                return "Enabled";
             case 2:
-                return "Error count";
+                return "Health OK";
             case 3:
+                return "Error count";
+            case 4:
                 return "Last error";
             }
         }
@@ -80,19 +81,21 @@ QVariant HealthModel::data(const QModelIndex &index, int role) const
         switch (index.column())
         {
         case 0:
-            return m->isEnabled();
+            return m->getTabName();
         case 1:
-            return m->getHealthStatus().isHealthOk();
+            return m->isEnabled();
         case 2:
-            return m->getHealthStatus().getErrorCount();
+            return m->getHealthStatus().isHealthOk();
         case 3:
+            return m->getHealthStatus().getErrorCount();
+        case 4:
             return m->getHealthStatus().getLastError();
         }
     } else if (role == Qt::DecorationRole) {
-        if (index.column()==1) {
+        if (index.column()==2) {
             return m->getHealthStatus().isHealthOk() ? QColor("green") : QColor("red");
         }
-    } else if (role == Qt::FontRole && !m->isEnabled() && index.column()>0){
+    } else if (role == Qt::FontRole && !m->isEnabled() && index.column()>1){
         QFont f;
         f.setStrikeOut(true);
         return f;

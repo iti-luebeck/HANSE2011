@@ -12,15 +12,17 @@ MetaBehaviourForm::MetaBehaviourForm(MetaBehaviour* meta, QWidget *parent) :
 
     this->meta = meta;
 
+    int row = 0;
     foreach (RobotBehaviour* b, meta->behaviours) {
         QPushButton* p = new QPushButton(b->getId(), ui->behavioursWidget);
         connect(p, SIGNAL(clicked()), &signalMapperClicked, SLOT(map()));
         signalMapperClicked.setMapping(p, b);
-        ui->formLayout->addWidget(p);
+        ui->gridLayout_2->addWidget(p,row,0);
 
         QLabel* label = new QLabel("stopped", ui->behavioursWidget);
-        ui->formLayout->addWidget(label);
+        ui->gridLayout_2->addWidget(label,row,1);
         mapLabels[b]=label;
+        row++;
 
         connect(b, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(moduleFinished(RobotBehaviour*,bool)));
         connect(b, SIGNAL(started(RobotBehaviour*)), this, SLOT(moduleStarted(RobotBehaviour*)));
@@ -73,7 +75,7 @@ void MetaBehaviourForm::activateModule(QObject *o) {
 
 void MetaBehaviourForm::moduleFinished(RobotBehaviour *module, bool success)
 {
-    mapLabels[module]->setText(success?"stopped: success":"stopped: failed");
+    mapLabels[module]->setText(success?"stopped: no problem":"stopped after failure");
 }
 
 void MetaBehaviourForm::moduleStarted(RobotBehaviour *module)

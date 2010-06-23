@@ -21,7 +21,6 @@ private:
     ModulesGraph* graph;
     QTimer timer;
 
-
 private slots:
     void healthStatusChanged(RobotModule *module);
     void moduleEnabled(bool);
