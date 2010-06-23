@@ -1,7 +1,8 @@
 #ifndef POSITION_H
 #define POSITION_H
 
-#include <QObject>
+#include <QtCore>
+#include <QVector3D>
 #include <opencv/cxcore.h>
 #include <Module_VisualSLAM/slam/quaternion.h>
 
@@ -23,13 +24,14 @@
   * pitch: rotation along y axis
   * roll: rotation along x axis
   *
-  * TODO: should this class be used in math code? as a matrix? a vector?
+  * Angles are in deg!
   *
   */
 class Position : public QObject
 {
 public:
     Position( const Position& );
+    Position( const QVector3D& pos );
     Position( double x = 0, double y = 0, double z = 0,
               double roll = 0, double pitch = 0, double yaw = 0 );
     Position( CvMat *translation, Quaternion rotation );

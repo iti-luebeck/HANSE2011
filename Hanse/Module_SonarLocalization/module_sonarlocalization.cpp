@@ -65,3 +65,25 @@ void Module_SonarLocalization::setLocalization(QVector2D position)
 {
     pf->setLocalization(position);
 }
+
+Position Module_SonarLocalization::getLocalization()
+{
+    QVector3D p = pf->getBestEstimate();
+    p.setZ(p.z()*180/M_PI);
+    return Position(p);
+}
+
+float Module_SonarLocalization::getLocalizationConfidence()
+{
+    return 1; // TODO
+}
+
+QDateTime Module_SonarLocalization::getLastRefreshTime()
+{
+    return QDateTime::currentDateTime(); // TODO
+}
+
+bool Module_SonarLocalization::isLocalizationLost()
+{
+    return false; // TODO
+}

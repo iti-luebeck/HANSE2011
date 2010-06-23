@@ -31,6 +31,8 @@ public:
     QList<QVector2D> getLatestObservation();
     int getParticleCount();
 
+    QVector3D getBestEstimate();
+
     void setLocalization(QVector2D position);
 
 signals:
@@ -60,8 +62,6 @@ private:
     Mat forbiddenArea;
 
     void loadMap();
-
-    QVector3D getBestEstimate();
 
     /* sort particles in descending quality */
     void sortParticles();
