@@ -7,6 +7,7 @@
 Server::Server() {
     tcpServer = new QTcpServer(this);
     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(openSocket()));
+    stream = NULL;
 }
 
 void Server::open(int port)
@@ -40,6 +41,9 @@ void Server::receiveMessage() {
     signed short forwardSpeed, angularSpeed, upDownSpeed;
     bool emergencyButton;
     *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton;
+
+    if (emergencyButton)
+        emit emergencyStop();
 
     emit newMessage(forwardSpeed,angularSpeed,upDownSpeed);
 }

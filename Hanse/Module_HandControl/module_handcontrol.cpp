@@ -23,6 +23,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     server = new Server();
     connect(server,SIGNAL(newMessage(int,int,int)), this, SLOT(newMessage(int,int,int)));
     connect(server, SIGNAL(healthProblem(QString)), this, SLOT(serverReportedError(QString)));
+    connect(server, SIGNAL(emergencyStop()), this, SLOT(emergencyStopReceived()));
 
     reset();
 }
@@ -57,6 +58,11 @@ void Module_HandControl::reset()
 
     server->close();
     server->open(settings.value("port").toInt());
+}
+
+void Module_HandControl::emergencyStopReceived()
+{
+    emit emergencyStop();
 }
 
 void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int speedUpDown)
@@ -126,6 +132,7 @@ void Module_HandControl::start()
 
 void Module_HandControl::stop()
 {
+    newMessage(0,0,0);
     setEnabled(false);
     emit finished(this, true);
 }

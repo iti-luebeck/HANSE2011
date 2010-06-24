@@ -28,6 +28,9 @@ public:
 private:
     Module_ThrusterControlLoop* tcl;
     QList<RobotBehaviour*> behaviours;
+
+private slots:
+    void emergencyStop();
 };
 
 

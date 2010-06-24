@@ -26,6 +26,8 @@ public:
     void stop();
     bool isActive();
 
+signals:
+    void emergencyStop();
 private:
 
     Module_Thruster* thrusterLeft;
@@ -41,6 +43,7 @@ private:
 private slots:
     void newMessage(int forwardSpeed, int angularSpeed, int speedUpDown);
     void serverReportedError(QString error);
+    void emergencyStopReceived();
 
 };
 

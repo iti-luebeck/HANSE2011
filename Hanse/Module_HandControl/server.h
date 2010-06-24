@@ -20,6 +20,7 @@ signals:
     void newMessage(int forwardSpeed, int angularSpeed, int speedUpDown);
     void statusChanged();
     void healthProblem(QString);
+    void emergencyStop();
 
 private slots:
     void openSocket();

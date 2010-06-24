@@ -17,6 +17,17 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
         if (b)
             this->behaviours.append(b);
     }
+
+    connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));
+}
+
+void MetaBehaviour::emergencyStop()
+{
+    foreach (RobotBehaviour* b, behaviours) {
+        b->stop();
+    }
+    tcl->reset();
+
 }
 
 QList<RobotModule*> MetaBehaviour::getDependencies()

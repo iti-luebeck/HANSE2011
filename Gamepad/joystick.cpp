@@ -17,6 +17,8 @@ Joystick::Joystick(HINSTANCE hInstance)
         while (1) QTest::qWait(1000);
     }
 
+    connect(&timer, SIGNAL(timeout()), this, SLOT(timerElapsed()));
+
     timer.start(50);
 }
 
@@ -29,6 +31,6 @@ void Joystick::timerElapsed()
         cout << gamepad.x1 << " " << gamepad.y1 << " " << gamepad.x2 << " " << gamepad.y2 << " ";
         for (int i=0; i<4; i++) cout << ((gamepad.button[i] > 0 ) ?  "1 " : "0 ");
         cout << endl;
-        client.sendMessage(gamepad.x1, gamepad.y1, gamepad.x2, gamepad.button[1]);
+        client.sendMessage(gamepad.y1, gamepad.x1, gamepad.y2, gamepad.button[1]);
     }
 }
