@@ -93,19 +93,33 @@ void SonarParticleFilter::loadMap()
             if (channels[0].at<unsigned char>(r,c)==0
                 && channels[1].at<unsigned char>(r,c)==0
                 && channels[2].at<unsigned char>(r,c)==0
-                && qrand() < RAND_MAX/5 ) {  // TODo
-                this->mapPoints.append(img2map(QVector2D(c,r)));
+                ) {
+//                && qrand() < RAND_MAX/5 ) {  // TODo
+//                this->mapPoints.append(img2map(QVector2D(c,r)));
+                addToList(mapPoints, img2map(QVector2D(c,r)));
             }
         }
     }
 }
 
-QVector2D SonarParticleFilter::map2img(QVector2D mapPoint)
+void SonarParticleFilter::addToList(QVector<QVector2D>& list, const QVector2D p)
+{
+    if (list.size()==0) {
+        list.append(p);
+        return;
+    }
+
+    QVector2D& q = list[list.size()-1];
+    if ((q-p).length()>2)
+        list.append(p);
+}
+
+QVector2D SonarParticleFilter::map2img(const QVector2D& mapPoint)
 {
     return mapPoint/0.2;
 }
 
-QVector2D SonarParticleFilter::img2map(QVector2D imgPoint)
+QVector2D SonarParticleFilter::img2map(const QVector2D& imgPoint)
 {
     return imgPoint*0.2;
 }
@@ -128,7 +142,7 @@ void SonarParticleFilter::sortParticles()
      qSort(particles.begin(), particles.end(), particleComparator);
 }
 
-QVector3D SonarParticleFilter::sampleGauss(QVector3D mean, QVector3D variance)
+QVector3D SonarParticleFilter::sampleGauss(const QVector3D& mean, const QVector3D& variance)
 {
     QVector3D g;
     g.setX(rand.gaussian(sqrt(variance.x())));
@@ -137,7 +151,7 @@ QVector3D SonarParticleFilter::sampleGauss(QVector3D mean, QVector3D variance)
     return mean + g;
 }
 
-double SonarParticleFilter::meassureObservation(QVector<QVector2D> observations)
+double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations)
 {
     // TODO can likely be optimized by putting the mappoints into a quadtree or something...
 
@@ -167,7 +181,7 @@ double SonarParticleFilter::meassureObservation(QVector<QVector2D> observations)
 
 }
 
-bool SonarParticleFilter::isPositionForbidden(QVector2D pos)
+bool SonarParticleFilter::isPositionForbidden(const QVector2D& pos)
 {
     QPoint imgPos = map2img(pos).toPoint();
 
@@ -177,7 +191,7 @@ bool SonarParticleFilter::isPositionForbidden(QVector2D pos)
     return forbiddenArea.at<unsigned char>(imgPos.y(), imgPos.x())==0;
 }
 
-double SonarParticleFilter::max(QVector<double> v)
+double SonarParticleFilter::max(const QVector<double>& v)
 {
     double max=0;
     for (int i=0; i<N; i++)
@@ -187,7 +201,7 @@ double SonarParticleFilter::max(QVector<double> v)
     return max;
 }
 
-double SonarParticleFilter::min(QVector<double> v)
+double SonarParticleFilter::min(const QVector<double>& v)
 {
     double min=1;
     for (int i=0; i<N; i++)
@@ -197,7 +211,7 @@ double SonarParticleFilter::min(QVector<double> v)
     return min;
 }
 
-double SonarParticleFilter::sum(QVector<double> v)
+double SonarParticleFilter::sum(const QVector<double>& v)
 {
     double sum=0;
     for (int i=0; i<N; i++)
@@ -213,7 +227,7 @@ QVector<QVector4D> SonarParticleFilter::getParticles()
     return particles;
 }
 
-void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
+void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observations)
 {
     logger->debug("pressed next button.");
 

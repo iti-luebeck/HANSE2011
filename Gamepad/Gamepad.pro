@@ -11,9 +11,11 @@ CONFIG += qtestlib
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += main.cpp \
-    client.cpp
+    client.cpp \
+    joystick.cpp
 HEADERS += gamepad.h \
-    client.h
+    client.h \
+    joystick.h
 INCLUDEPATH += Gamepaddriver
 LIBPATH += Gamepaddriver
 LIBS += -ldinput8

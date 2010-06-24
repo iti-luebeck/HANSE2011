@@ -20,6 +20,15 @@ void Server::open(int port)
 void Server::openSocket() {
     std::cout << "openSocket()" << std::endl;
     tcpSocket = tcpServer->nextPendingConnection();
+
+    // we allow only one connection at a time
+    if (stream) {
+        tcpSocket->close();
+        return;
+    }
+
+    stream = new QDataStream(tcpSocket);
+
     connect(tcpSocket, SIGNAL(disconnected()), tcpSocket, SLOT(deleteLater()));
     connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(receiveMessage()));
@@ -27,14 +36,11 @@ void Server::openSocket() {
 }
 
 void Server::receiveMessage() {
-    QByteArray a = tcpSocket->readLine(255);
-    if (a.size()<6) {
-        emit healthProblem("Received message to small.");
-        return;
-    }
-    int angularSpeed = a.at(2);
-    int forwardSpeed = a.at(3);
-    int upDownSpeed = a.at(5);
+
+    signed short forwardSpeed, angularSpeed, upDownSpeed;
+    bool emergencyButton;
+    *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton;
+
     emit newMessage(forwardSpeed,angularSpeed,upDownSpeed);
 }
 
@@ -50,5 +56,7 @@ bool Server::isConnected()
 void Server::clientDisconnected()
 {
     tcpSocket->close();
+    delete stream;
+    stream = NULL;
     emit statusChanged();
 }

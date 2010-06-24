@@ -68,20 +68,23 @@ private:
 
     cv::RNG rand;
 
-    QVector3D sampleGauss(QVector3D mean, QVector3D variance);
+    QVector3D sampleGauss(const QVector3D& mean, const QVector3D& variance);
 
-    QVector2D map2img(QVector2D mapPoint);
-    QVector2D img2map(QVector2D imgPoint);
+    QVector2D map2img(const QVector2D& mapPoint);
+    QVector2D img2map(const QVector2D& imgPoint);
 
-    double meassureObservation(QVector<QVector2D> observations);
+    double meassureObservation(const QVector<QVector2D>& observations);
 
-    bool isPositionForbidden(QVector2D pos);
+    bool isPositionForbidden(const QVector2D& pos);
 
-    double max(QVector<double>);
-    double min(QVector<double>);
-    double sum(QVector<double>);
+    double max(const QVector<double>&);
+    double min(const QVector<double>&);
+    double sum(const QVector<double>&);
 
-    void updateParticleFilter(QList<QVector2D> observations);
+    void updateParticleFilter(const QList<QVector2D>& observations);
+
+    void addToList(QVector<QVector2D>& list, const QVector2D p);
+
 private slots:
     void newImage(QList<QVector2D> observations);
 };

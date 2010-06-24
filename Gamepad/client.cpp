@@ -3,29 +3,52 @@
 #include "client.h"
 
 
-Client::Client(int port)
+Client::Client()
 {
     tcpSocket = new QTcpSocket(this);
-
-    tcpSocket->connectToHost("localhost",port);
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(receiveMessage()));
+    dataStream = new QDataStream(tcpSocket);
+    connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 }
 
-Client::~Client() {
-    //delete tcpSocket;
-}
-
-void Client::sendMessage(char* message)
+Client::~Client()
 {
-    short len = message[0];
-    //tcpSocket->write(message);
-    tcpSocket->write(message, len);
 }
 
-void Client::receiveMessage()
+void Client::sendMessage(signed short forward, signed short rotation, signed short upDown, bool emergencyButton)
 {
-    //char received[256];
 
-    //qint64 count = tcpSocket->read(received, 255);
-    //memcpy(++received,message,count);
+    if (tcpSocket->isOpen()) {
+        *dataStream << forward;
+        *dataStream << rotation;
+        *dataStream << upDown;
+        *dataStream << emergencyButton;
+    } else {
+        qDebug() << "NOT CONNECTED with Hanse.";
+    }
+}
+
+void Client::disconnected()
+{
+    qDebug() << "DISCONNECTED from host ";
+    tcpSocket->close();
+}
+
+void Client::openConnection()
+{
+    if (tcpSocket->isOpen())
+        return;
+
+    int port = s.value("port", 1234).toInt();
+
+    // try all available hostnames, stop once we're connected.
+    foreach(QString host, s.value("hostname", "localhost").toStringList()) {
+        qDebug() << "TRYING to connect to host " << host;
+        tcpSocket->connectToHost("hostname",port);
+        bool status = tcpSocket->waitForConnected(500);
+        if (status) {
+            qDebug() << "SUCCESSFULLY connected to host " << host;
+            break;
+        }
+        qDebug() << "FAILED to connect to host " << host;
+    }
 }

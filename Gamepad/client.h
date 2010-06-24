@@ -25,6 +25,7 @@
 #define CLIENT_H
 
 #include <QTcpSocket>
+#include <QtCore>
 
 class QTcpSocket;
 
@@ -33,16 +34,19 @@ class Client : public QObject
     Q_OBJECT
 
 public:
-    Client(int port);
+    Client();
     ~Client();
-    void sendMessage(char* message);
-
-private slots:
-
-    void receiveMessage();
+    void sendMessage(signed short forward, signed short rotation, signed short upDown, bool emergencyButton);
 
 private:
     QTcpSocket *tcpSocket;
+    QDataStream *dataStream;
+    QSettings s;
+
+    void openConnection();
+
+private slots:
+    void disconnected();
 
 };
 

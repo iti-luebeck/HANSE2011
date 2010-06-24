@@ -3,6 +3,7 @@
 #define SERVER_H
 
 #include <QTcpSocket>
+#include <QDataStream>
 
 class QTcpServer;
 
@@ -28,6 +29,7 @@ private slots:
 private:
     QTcpServer *tcpServer;
     QTcpSocket *tcpSocket;
+    QDataStream *stream;
 
 };
 
