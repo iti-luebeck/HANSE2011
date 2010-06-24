@@ -16,7 +16,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
     setEnabled(false);
     Behaviour_PipeFollowing::noPipeCnt = 0;
-    form = new PipeFollowingForm( NULL, this);
+
     Behaviour_PipeFollowing::firstRun = 1;
  }
 
@@ -76,8 +76,7 @@ QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
 
 QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 {
-    form->setParent( parent );
-    return form;
+    return new PipeFollowingForm( parent, this);
 }
 
 void Behaviour_PipeFollowing::timerSlot()

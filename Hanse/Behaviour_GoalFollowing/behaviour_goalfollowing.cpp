@@ -13,8 +13,7 @@ Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterCont
 
     setEnabled(false);
 
-    form = new GoalFollowingForm( NULL, this);
-   }
+}
 
 bool Behaviour_GoalFollowing::isActive()
 {
@@ -56,12 +55,12 @@ QList<RobotModule*> Behaviour_GoalFollowing::getDependencies()
 
 QWidget* Behaviour_GoalFollowing::createView(QWidget* parent)
 {
-    form->setParent( parent );
-    return form;
+    return new GoalFollowingForm(parent, this);
 }
 
 void Behaviour_GoalFollowing::ctrGoalFollowing()
 {
     QRectF rect;
-    vsl->getObjectPosition(1,rect,last);
+//    vsl->getObjectPosition(1,rect,last);
+
 }

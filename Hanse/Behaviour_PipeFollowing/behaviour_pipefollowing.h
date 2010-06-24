@@ -87,7 +87,6 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     QTimer timer;
-    PipeFollowingForm *form;
     bool connected;
 
     videoInput vi;

@@ -36,7 +36,6 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     Module_VisualSLAM* vsl;
-    GoalFollowingForm *form;
     QObject robMod;
     QDateTime last;
 
