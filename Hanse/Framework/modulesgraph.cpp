@@ -12,6 +12,7 @@
 #include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
+#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <MetaBehaviour/metabehaviour.h>
 
 ModulesGraph::ModulesGraph()
@@ -66,8 +67,13 @@ void ModulesGraph::build()
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop);
     this->modules.append(behavPipe);
 
+    Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
+    this->modules.append(behavGoal);
+
     MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl);
     this->modules.append(metaBehaviour);
+
+
 
     logger->info("Loading all Modules... Done");
 }
