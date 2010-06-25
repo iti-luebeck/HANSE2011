@@ -98,23 +98,23 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 
                 // XXX: this is very sensitive to false positives, not very useful atm
                 if (i>0 && localKlistID[i]==localKlistID[i-1]+1) {
-                    for (int k=localKlist[i-1]; k<localKlist[i]; k=k+3) {
-                        float param = ((k - (float)localKlist[i-1]) / ((float)localKlist[i] - localKlist[i-1]));
-                        float interpolatedHeading = localKlistHeading[i-1]
-                                                    + param*(localKlistHeading[i]-localKlistHeading[i-1]);
-                        double ax = cos(interpolatedHeading/180*M_PI)*k*range/N;
-                        double ay = sin(interpolatedHeading/180*M_PI)*k*range/N;
-                        addToList(posArray, QVector2D(ax,ay));
-                    }
-                    // TODO: barely tested
-                    for (int k=localKlist[i]; k<localKlist[i-1]; k=k+3) {
-                        float param = 1-((k - (float)localKlist[i-1]) / ((float)localKlist[i] - localKlist[i-1]));
-                        float interpolatedHeading = localKlistHeading[i-1]
-                                                    + param*(localKlistHeading[i]-localKlistHeading[i-1]);
-                        double ax = cos(interpolatedHeading/180*M_PI)*k*range/N;
-                        double ay = sin(interpolatedHeading/180*M_PI)*k*range/N;
-                        addToList(posArray, QVector2D(ax,ay));
-                    }
+//                    for (int k=localKlist[i-1]; k<localKlist[i]; k=k+3) {
+//                        float param = ((k - (float)localKlist[i-1]) / ((float)localKlist[i] - localKlist[i-1]));
+//                        float interpolatedHeading = localKlistHeading[i-1]
+//                                                    + param*(localKlistHeading[i]-localKlistHeading[i-1]);
+//                        double ax = cos(interpolatedHeading/180*M_PI)*k*range/N;
+//                        double ay = sin(interpolatedHeading/180*M_PI)*k*range/N;
+//                        addToList(posArray, QVector2D(ax,ay));
+//                    }
+//                    // TODO: barely tested
+//                    for (int k=localKlist[i]; k<localKlist[i-1]; k=k+3) {
+//                        float param = 1-((k - (float)localKlist[i-1]) / ((float)localKlist[i] - localKlist[i-1]));
+//                        float interpolatedHeading = localKlistHeading[i-1]
+//                                                    + param*(localKlistHeading[i]-localKlistHeading[i-1]);
+//                        double ax = cos(interpolatedHeading/180*M_PI)*k*range/N;
+//                        double ay = sin(interpolatedHeading/180*M_PI)*k*range/N;
+//                        addToList(posArray, QVector2D(ax,ay));
+//                    }
                 }
             }
         }

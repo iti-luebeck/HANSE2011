@@ -92,14 +92,25 @@ void SonarParticleFilter::loadMap()
         for ( int c=0; c<map.cols; c++) {
             if (channels[0].at<unsigned char>(r,c)==0
                 && channels[1].at<unsigned char>(r,c)==0
-                && channels[2].at<unsigned char>(r,c)==0
-                ) {
-//                && qrand() < RAND_MAX/5 ) {  // TODo
-//                this->mapPoints.append(img2map(QVector2D(c,r)));
+                && channels[2].at<unsigned char>(r,c)==0) {
                 addToList(mapPoints, img2map(QVector2D(c,r)));
             }
         }
     }
+
+    // the flann data structure keeps referencing the original Mat object!!!
+    mapPointsMat = new Mat(Mat::zeros(mapPoints.size(),2,CV_32F));
+    for(int i=0;i<mapPoints.size();i++) {
+        mapPointsMat->at<float>(i,0) = mapPoints[i].x();
+        mapPointsMat->at<float>(i,1) = mapPoints[i].y();
+        logger->trace("Adding point x="+QString::number(mapPointsMat->at<float>(i,0))
+                      +" y="+QString::number(mapPointsMat->at<float>(i,1)));
+    }
+
+    //this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::KDTreeIndexParams(4));
+    //this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::LinearIndexParams());
+    this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::AutotunedIndexParams());
+
 }
 
 void SonarParticleFilter::addToList(QVector<QVector2D>& list, const QVector2D p)
@@ -153,32 +164,25 @@ QVector3D SonarParticleFilter::sampleGauss(const QVector3D& mean, const QVector3
 
 double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations)
 {
-    // TODO can likely be optimized by putting the mappoints into a quadtree or something...
-
-    float cutoff = s.value("distanceCutoff").toFloat();
+    int N = observations.size();
     float b = s.value("boltzmann").toFloat();
 
+    // TODO: this data copying can be avoided by doing all math in opencv data structures
+    Mat zPoints(N, 2, CV_32F);
+    for (int i=0; i<N; i++) {
+        zPoints.at<float>(i,0) = observations[i].x();
+        zPoints.at<float>(i,1) = observations[i].y();
+    }
+    Mat indices = Mat::zeros(N, 1, CV_32S);
+    Mat dists = Mat::zeros(N, 1, CV_32F);
+    this->mapPointsFlann->knnSearch(zPoints, indices, dists, 1, cv::flann::SearchParams(32));
     double index = 1;
-    foreach (QVector2D obsevationPoint, observations) {
-        double bestVal = INFINITY;
-
-        // compare with all elements in map
-        foreach (QVector2D mapPoint, mapPoints) {
-
-            double l = (mapPoint - obsevationPoint).length();
-
-            if (l<bestVal)
-                bestVal = l;
-        }
-
-        if (isinf(bestVal))
-            bestVal = cutoff;
-
+    for (int i=0; i<N; i++) {
+        double bestVal = sqrt(dists.at<float>(i,0));
         index *= std::exp(-bestVal/b);
     }
 
     return index;
-
 }
 
 bool SonarParticleFilter::isPositionForbidden(const QVector2D& pos)
@@ -275,7 +279,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
 
         }
         oldParticles[i].setW(weights[i]);
-        logger->debug("Particle "+QString::number(i)+" has weight "+QString::number(weights[i]));
+        logger->trace("Particle "+QString::number(i)+" has weight "+QString::number(weights[i]));
     }
 
     // normalize particle weights

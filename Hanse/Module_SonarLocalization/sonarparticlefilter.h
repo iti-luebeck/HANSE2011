@@ -58,6 +58,8 @@ private:
     QVector<QVector4D> particles;
 
     QVector<QVector2D> mapPoints;
+    cv::flann::Index* mapPointsFlann;
+    Mat* mapPointsMat;
 
     Mat forbiddenArea;
 
