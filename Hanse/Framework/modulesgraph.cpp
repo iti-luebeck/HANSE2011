@@ -13,6 +13,7 @@
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
+#include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 #include <MetaBehaviour/metabehaviour.h>
 
 ModulesGraph::ModulesGraph()
@@ -68,6 +69,9 @@ void ModulesGraph::build()
 
     Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
     this->modules.append(behavGoal);
+
+    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, visualLoc);
+    this->modules.append(behavBall);
 
     MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl);
     this->modules.append(metaBehaviour);

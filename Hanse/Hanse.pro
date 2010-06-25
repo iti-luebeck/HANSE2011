@@ -91,7 +91,9 @@ HEADERS += Framework/healthstatus.h \
     MetaBehaviour/metabehaviour.h \
     MetaBehaviour/metabehaviourform.h \
     Behaviour_GoalFollowing/behaviour_goalfollowing.h \
-    Behaviour_GoalFollowing/goalfollowingform.h
+    Behaviour_GoalFollowing/goalfollowingform.h \
+    Behaviour_BallFollowing/ballfollowingform.h \
+    Behaviour_BallFollowing/behaviour_ballfollowing.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -167,7 +169,9 @@ SOURCES += Framework/robotmodule.cpp \
     MetaBehaviour/metabehaviour.cpp \
     MetaBehaviour/metabehaviourform.cpp \
     Behaviour_GoalFollowing/goalfollowingform.cpp \
-    Behaviour_GoalFollowing/behaviour_goalfollowing.cpp
+    Behaviour_GoalFollowing/behaviour_goalfollowing.cpp \
+    Behaviour_BallFollowing/ballfollowingform.cpp \
+    Behaviour_BallFollowing/behaviour_ballfollowing.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -187,5 +191,6 @@ FORMS += Framework/mainwindow.ui \
     Framework/modulehealthview.ui \
     Module_Navigation/mapwidget.ui \
     MetaBehaviour/metabehaviourform.ui \
-    Behaviour_GoalFollowing/goalfollowingform.ui
+    Behaviour_GoalFollowing/goalfollowingform.ui \
+    Behaviour_BallFollowing/ballfollowingform.ui
 OTHER_FILES += bin/log4qt.properties
