@@ -450,13 +450,11 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> *newPositions, bool *foun
         }
     }
 
-    /*
     // Choose random position according to given covariance.
     cholesky( Sigma, L );
     CvRNG rng = cvRNG( cvGetTickCount() );
     cvRandArr( &rng, X, CV_RAND_NORMAL, cvRealScalar( 0 ), cvRealScalar( 1 ) );
     cvGEMM( L, X, 1, sfilt, 1, sfilt );
-    */
 
     cvmSet( currentTranslation, 0, 0, cvmGet( sfilt, 0, 0 ) );
     cvmSet( currentTranslation, 1, 0, cvmGet( sfilt, 1, 0 ) );
@@ -515,22 +513,6 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> *newPositions, bool *foun
             landmarks.push_back( new Landmark( newPosition, Robservation, (int)landmarks.size(), 0 ) );
         }
     }
-
-//    stop = clock();
-//    qDebug( "NEW LANDMARKS %0.3f msec", (double)(1000 * (stop - start) / CLOCKS_PER_SEC) );
-
-    // Delete bad landmarks.
-    /*
-    for ( int i = oldLandmarkCount - 1; i >= 0; i-- )
-    {
-        if ( toDelete[i] )
-        {
-            delete( landmarks[i] );
-            landmarks.erase( landmarks.begin() + i );
-            cvSeqRemove( features, i );
-        }
-    }
-    */
 
     delete( toDelete );
     cvReleaseMat( &newPosition );
@@ -603,57 +585,6 @@ void VisualSLAMParticle::setRotationVariance( double v )
     cvmSet( Rstate, 4, 0, v );
     cvmSet( Rstate, 5, 0, v );
     cvmSet( Rstate, 6, 0, v );
-}
-
-void VisualSLAMParticle::plot( QGraphicsScene *scene )
-{
-    QPen pen(Qt::red);
-    QBrush brush(Qt::red);
-    pen.setWidth( 1.0 );
-//    double pos1 = cvmGet( this->currentTranslation, 0, 0 );
-//    double pos2 = -cvmGet( this->currentTranslation, 2, 0 );
-//    CvMat *R = currentRotation.getRotation();
-//    double z1 = cvmGet( R, 2, 0 );
-//    double z2 = cvmGet( R, 2, 2 );
-//    cvReleaseMat( &R );
-//    scene->addEllipse( w/2 + 10*pos1 - 0.5,
-//                       h/2 + 10*pos2 - 0.5,
-//                       1, 1, pen, brush );
-//    scene->addLine( w/2 + 10*pos1,
-//                    h/2 + 10*pos2,
-//                    w/2 + 10*(pos1 - z1),
-//                    h/2 + 10*(pos2 - z2),
-//                    pen );
-//
-//    QFont font( "Arial", 1 );
-//    QGraphicsTextItem *textItem = scene->addText( QString( "(%1,%2)" ).arg( pos1, 0, 'f', 2 ).arg( pos2, 0, 'f', 2 ), font );
-//    textItem->setPos( w/2 + 10*pos1 - textItem->boundingRect().width()/2, h/2 + 10*pos2 + 0.5 );
-
-    for ( int i = 0; i < (int)landmarks.size(); i++ )
-    {
-        items.push_back( landmarks[i]->plot( scene ) );
-//        switch ( landmarks[i]->getClass() )
-//        {
-//        case 0:
-//            pen = QPen(Qt::blue);
-//            brush = QBrush(Qt::blue);
-//            break;
-//        case 1:
-//            pen = QPen(Qt::green);
-//            brush = QBrush(Qt::green);
-//            break;
-//        case 2:
-//            pen = QPen(Qt::red);
-//            brush = QBrush(Qt::red);
-//            break;
-//        }
-//
-//        double p0 = landmarks[i]->getPos(0);
-//        double p2 = landmarks[i]->getPos(2);
-//        scene->addEllipse( w/2 + 10*p0,
-//                           h/2 - 10*p2,
-//                           0.3, 0.3, pen, brush );
-    }
 }
 
 void VisualSLAMParticle::save( QTextStream &ts )

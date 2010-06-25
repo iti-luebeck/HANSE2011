@@ -6,7 +6,7 @@
 
 Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sonarLocalization ) :
         RobotModule(id),
-        slam( 100 )
+        slam( 50 )
 {
     this->sonarLocalization = sonarLocalization;
 
@@ -180,6 +180,11 @@ float Module_VisualSLAM::getLocalizationConfidence()
 bool Module_VisualSLAM::isLocalizationLost()
 {
     return false;
+}
+
+void Module_VisualSLAM::getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen )
+{
+    cap.getObjectPosition( classNr, boundingBox, lastSeen );
 }
 
 void Module_VisualSLAM::getPlotData( QList<Position> &landmarkPositions, QList<Position> &particlePositions, int &bestParticle )

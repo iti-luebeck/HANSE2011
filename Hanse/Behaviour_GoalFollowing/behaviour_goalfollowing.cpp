@@ -61,6 +61,7 @@ QWidget* Behaviour_GoalFollowing::createView(QWidget* parent)
 void Behaviour_GoalFollowing::ctrGoalFollowing()
 {
     QRectF rect;
-//    vsl->getObjectPosition(1,rect,last);
+    QDateTime current;
+    vsl->getObjectPosition( 1, rect, current );
 
 }

@@ -176,6 +176,7 @@ double NaiveSLAM::getConfidence()
 
 void NaiveSLAM::reset()
 {
+    updateMutex.lock();
     for ( int i = 0; i < (int)particles.size(); i++ )
     {
         delete( particles[i] );
@@ -186,6 +187,7 @@ void NaiveSLAM::reset()
     }
     cvClearSeq( features );
     classes.clear();
+    updateMutex.unlock();
 }
 
 void NaiveSLAM::save( QTextStream &ts )
