@@ -22,7 +22,6 @@ ModulesGraph::ModulesGraph()
 
 void ModulesGraph::build()
 {
-
     logger->info("Loading all Modules...");
 
     Module_UID* uid = new Module_UID("uid");

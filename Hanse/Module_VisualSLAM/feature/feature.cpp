@@ -10,7 +10,7 @@ Feature::Feature()
 {
     storage = cvCreateMemStorage(0);
     params = cvSURFParams(2000, 0);
-    surfThreshold = 0.001;
+    surfThreshold = 0.002;
     descriptor = NULL;
     fastThreshold = 100;
 }

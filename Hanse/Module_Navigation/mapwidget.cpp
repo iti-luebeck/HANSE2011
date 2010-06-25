@@ -95,34 +95,50 @@ void MapWidget::updateVisualSLAM()
         visualSLAMItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
         visualSLAMItem->setZValue( 1000 );
 
-        QList<QPointF> landmarks;
-        Position pos;
-        nav->visSLAM->getPlotData( landmarks, pos );
+        QList<Position> landmarks;
+        QList<Position> particles;
+        int bestParticle;
+        nav->visSLAM->getPlotData( landmarks, particles, bestParticle );
 
         double width = 0.1;
         for ( int i = 0; i < landmarks.size(); i++ )
         {
             QGraphicsItem *item =
-                    scene->addEllipse( landmarks[i].x() - width/2,
-                                       landmarks[i].y() - width/2,
+                    scene->addEllipse( landmarks[i].getX() - width/2,
+                                       landmarks[i].getY() - width/2,
                                        width, width, pen, brush );
             item->setParentItem( visualSLAMItem );
             item->setZValue( 1000 );
         }
 
+        width = 0.1;
+        brush = QBrush( Qt::lightGray );
+        pen = QPen( Qt::lightGray );
+        for ( int i = 0; i < particles.size(); i++ )
+        {
+            QGraphicsItem *item =
+                    scene->addEllipse( particles[i].getX() - width/2,
+                                       particles[i].getY() - width/2,
+                                       width, width, pen, brush );
+            item->setParentItem( visualSLAMItem );
+            item->setZValue( 1000 );
+        }
+
+        width = 0.3;
         brush = QBrush( Qt::red );
         pen = QPen( Qt::white );
-        width = 0.3;
         QGraphicsItem *item =
-                scene->addEllipse( pos.getX() - width/2,
-                                   pos.getY() - width/2,
+                scene->addEllipse( particles[bestParticle].getX() - width/2,
+                                   particles[bestParticle].getY() - width/2,
                                    width, width, pen, brush );
         item->setParentItem( visualSLAMItem );
         item->setZValue( 1100 );
+
         pen = QPen( Qt::red );
-        item = scene->addLine( pos.getX(), pos.getY(),
-                               pos.getX() + sin( pos.getYaw() * CV_PI / 180 ),
-                               pos.getY() + cos( pos.getYaw() * CV_PI / 180 ),
+        pen.setWidthF( 0.2 );
+        item = scene->addLine( particles[bestParticle].getX(), particles[bestParticle].getY(),
+                               particles[bestParticle].getX() - sin( particles[bestParticle].getYaw() * CV_PI / 180 ),
+                               particles[bestParticle].getY() + cos( particles[bestParticle].getYaw() * CV_PI / 180 ),
                                pen );
         item->setParentItem( visualSLAMItem );
         item->setZValue( 1100 );

@@ -64,22 +64,24 @@ public:
       */
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
 
-    void plot( QGraphicsScene *scene );
     void save( QTextStream &ts );
     void load( QTextStream &ts );
 
-    void run();
-    void start();
-    void stop();
-
-    void getPlotData( QList<QPointF> &landmarkPositions, Position &position );
+    void getPlotData( QList<Position> &landmarkPositions, QList<Position> &particlePositions, int &bestParticle );
     double getObservationVariance();
     double getTranslationVariance();
     double getRotationVariance();
 
+private:
+    void start();
+    void stop();
+
 public slots:
+    void statusChange( bool value );
+    void setEnabled( bool value );
     void reset();
     void terminate();
+
     void startGrab();
     void startUpdate();
     void finishUpdate();
@@ -104,7 +106,7 @@ private:
     StereoCapture cap;
     Feature feature;
     NaiveSLAM slam;
-    bool stopped;
+    bool enabled;
 };
 
 #endif // MODULE_VISUALSLAM_H

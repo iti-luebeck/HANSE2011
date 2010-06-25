@@ -1,5 +1,7 @@
 #include "visualslamparticle.h"
 #include <Module_VisualSLAM/helpers.h>
+#include <Module_VisualSLAM/slam/landmark.h>
+#include <Framework/position.h>
 #include <QGraphicsTextItem>
 #include <time.h>
 
@@ -105,10 +107,17 @@ VisualSLAMParticle::~VisualSLAMParticle()
     int references = 0;
     for ( int i = 0; i < (int)landmarks.size(); i++ )
     {
-        references = landmarks[i]->removeReference();
-        if ( references < 1 )
+        try
         {
-            delete( landmarks[i] );
+            references = landmarks[i]->removeReference();
+            if ( references < 1 )
+            {
+                delete( landmarks[i] );
+            }
+        }
+        catch (...)
+        {
+
         }
     }
 }
@@ -441,11 +450,13 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> *newPositions, bool *foun
         }
     }
 
+    /*
     // Choose random position according to given covariance.
     cholesky( Sigma, L );
     CvRNG rng = cvRNG( cvGetTickCount() );
     cvRandArr( &rng, X, CV_RAND_NORMAL, cvRealScalar( 0 ), cvRealScalar( 1 ) );
     cvGEMM( L, X, 1, sfilt, 1, sfilt );
+    */
 
     cvmSet( currentTranslation, 0, 0, cvmGet( sfilt, 0, 0 ) );
     cvmSet( currentTranslation, 1, 0, cvmGet( sfilt, 1, 0 ) );
@@ -692,10 +703,13 @@ void VisualSLAMParticle::load( QTextStream &ts, int landmarkCount )
     }
 }
 
-QPointF VisualSLAMParticle::getLandmarkPosition( int i )
+Position VisualSLAMParticle::getLandmarkPosition( int i )
 {
-    QPointF position;
-    position.setX( landmarks[i]->getPos( 0 ) );
-    position.setY( landmarks[i]->getPos( 2 ) );
-    return position;
+    CvMat *landmarkPos = landmarks[i]->getPos();
+    return Position( landmarkPos, Quaternion() );
+}
+
+Position VisualSLAMParticle::getParticlePosition()
+{
+    return Position( currentTranslation, currentRotation );
 }

@@ -15,17 +15,51 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     QObject::connect( &slam, SIGNAL( updateDone() ), SLOT( finishUpdate() ) );
     QObject::connect( sonarLocalization, SIGNAL(newLocalizationEstimate()),
                       this, SLOT(updateSonarData()) );
-
-    stopped = true;
+    QObject::connect( this, SIGNAL( enabled(bool) ), this, SLOT( statusChange(bool) ) );
 
     double v_observation = settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
     double v_translation = settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
     double v_rotation = settings.value( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
     changeSettings( v_observation, v_translation, v_rotation );
+
+    if ( isEnabled() )
+    {
+        start();
+    }
 }
 
 Module_VisualSLAM::~Module_VisualSLAM()
 {
+}
+
+void Module_VisualSLAM::setEnabled( bool value )
+{
+    RobotModule::setEnabled( value );
+}
+
+void Module_VisualSLAM::statusChange( bool value )
+{
+    if ( value )
+    {
+        this->start();
+    }
+    else
+    {
+        this->stop();
+    }
+}
+
+void Module_VisualSLAM::reset()
+{
+    logger->info( "Reset" );
+    RobotModule::reset();
+    slam.reset();
+}
+
+void Module_VisualSLAM::terminate()
+{
+    logger->info( "Terminated" );
+    RobotModule::terminate();
 }
 
 void Module_VisualSLAM::start()
@@ -34,30 +68,16 @@ void Module_VisualSLAM::start()
     cap.init( settings.value( QString( "left_camera" ), VSLAM_CAMERA_LEFT ).toInt(),
               settings.value( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
     updateTimer.start( 1000 );
-    stopped = false;
 }
 
 void Module_VisualSLAM::stop()
 {
     logger->info( "Stopped" );
     updateTimer.stop();
-    stopped = true;
-}
-
-void Module_VisualSLAM::reset()
-{
-    RobotModule::reset();
-    slam.reset();
-}
-
-void Module_VisualSLAM::terminate()
-{
-    RobotModule::terminate();
 }
 
 void Module_VisualSLAM::startGrab()
 {
-    qDebug("Start GRAB");
     updateTimer.stop();
     startClock = clock();
     cap.grab();
@@ -111,8 +131,9 @@ void Module_VisualSLAM::finishUpdate()
     emit dataChanged( this );
     emit updateFinished();
     emit viewUpdated();
+    emit newLocalizationEstimate();
 
-    if ( !stopped )
+    if ( this->isEnabled() )
     {
         updateTimer.start( 0 );
     }
@@ -161,10 +182,11 @@ bool Module_VisualSLAM::isLocalizationLost()
     return false;
 }
 
-void Module_VisualSLAM::getPlotData( QList<QPointF> &landmarkPositions, Position &position )
+void Module_VisualSLAM::getPlotData( QList<Position> &landmarkPositions, QList<Position> &particlePositions, int &bestParticle )
 {
-    slam.getLandmarkPositions( landmarkPositions );
-    position = slam.getPosition();
+    bestParticle = slam.getBestParticle();
+    slam.getLandmarkPositions( landmarkPositions, bestParticle );
+    slam.getParticlePositions( particlePositions );
 }
 
 double Module_VisualSLAM::getObservationVariance()
@@ -200,6 +222,9 @@ void Module_VisualSLAM::updateSonarData()
 
     // Calculate position difference.
     Position diffPos = sonarPos - vslamPos;
+    diffPos.setZ( .0 );
+    diffPos.setPitch( .0 );
+    diffPos.setRoll( .0 );
 
     // Set position difference as offset.
     slam.setOffset( diffPos );

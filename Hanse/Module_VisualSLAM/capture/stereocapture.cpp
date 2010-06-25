@@ -417,32 +417,46 @@ void StereoCapture::doCalculations()
 
             // Map is transposed !!!
             point = keypoints1[matchix];
-            float i0f = floor( (float)point.val[0] );
-            float i0c = ceil( (float)point.val[0] );
-            float i1f = floor( (float)point.val[1] );
-            float i1c = ceil( (float)point.val[1] );
-            cvmSet( xl, 0, i, 0.25 * ( cvmGet(mapX_left, i1f, i0f) +
-                                       cvmGet(mapX_left, i1f, i0c) +
-                                       cvmGet(mapX_left, i1c, i0f) +
-                                       cvmGet(mapX_left, i1c, i0c) ) );
-            cvmSet( xl, 1, i, 0.25 * ( cvmGet(mapY_left, i1f, i0f) +
-                                       cvmGet(mapY_left, i1f, i0c) +
-                                       cvmGet(mapY_left, i1c, i0f) +
-                                       cvmGet(mapY_left, i1c, i0c) ) );
+            float i0 = (float)point.val[0];
+            float i1 = (float)point.val[1];
+            float i0f = floor( i0 );
+            float i0c = ceil( i0 );
+            float i1f = floor( i1 );
+            float i1c = ceil( i1 );
+
+            float f1 = (i1-i1f) * (i0-i0f);
+            float f2 = (i1-i1f) * (i0c-i0);
+            float f3 = (i1c-i1) * (i0-i0f);
+            float f4 = (i1c-i1) * (i0c-i0);
+            cvmSet( xl, 0, i, ( f1 * cvmGet(mapX_left, i1f, i0f) +
+                                f2 * cvmGet(mapX_left, i1f, i0c) +
+                                f3 * cvmGet(mapX_left, i1c, i0f) +
+                                f4 * cvmGet(mapX_left, i1c, i0c) ) );
+            cvmSet( xl, 1, i, ( f1 * cvmGet(mapY_left, i1f, i0f) +
+                                f2 * cvmGet(mapY_left, i1f, i0c) +
+                                f3 * cvmGet(mapY_left, i1c, i0f) +
+                                f4 * cvmGet(mapY_left, i1c, i0c) ) );
 
             point = keypoints2[matchiy];
+            i0 = (float)point.val[0];
+            i1 = (float)point.val[1];
             i0f = floor( (float)point.val[0] );
             i0c = ceil( (float)point.val[0] );
             i1f = floor( (float)point.val[1] );
             i1c = ceil( (float)point.val[1] );
-            cvmSet( xr, 0, i, 0.25 * ( cvmGet(mapX_right, i1f, i0f) +
-                                       cvmGet(mapX_right, i1f, i0c) +
-                                       cvmGet(mapX_right, i1c, i0f) +
-                                       cvmGet(mapX_right, i1c, i0c) ) );
-            cvmSet( xr, 1, i, 0.25 * ( cvmGet(mapY_right, i1f, i0f) +
-                                       cvmGet(mapY_right, i1f, i0c) +
-                                       cvmGet(mapY_right, i1c, i0f) +
-                                       cvmGet(mapY_right, i1c, i0c) ) );
+
+            f1 = (i1-i1f) * (i0-i0f);
+            f2 = (i1-i1f) * (i0c-i0);
+            f3 = (i1c-i1) * (i0-i0f);
+            f4 = (i1c-i1) * (i0c-i0);
+            cvmSet( xr, 0, i, ( f1 * cvmGet(mapX_right, i1f, i0f) +
+                                f2 * cvmGet(mapX_right, i1f, i0c) +
+                                f3 * cvmGet(mapX_right, i1c, i0f) +
+                                f4 * cvmGet(mapX_right, i1c, i0c) ) );
+            cvmSet( xr, 1, i, ( f1 * cvmGet(mapY_right, i1f, i0f) +
+                                f2 * cvmGet(mapY_right, i1f, i0c) +
+                                f3 * cvmGet(mapY_right, i1c, i0f) +
+                                f4 * cvmGet(mapY_right, i1c, i0c) ) );
         }
 
         stereoTriangulation( xl, xr, pos, this->newT );

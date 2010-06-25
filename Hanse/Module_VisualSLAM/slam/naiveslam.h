@@ -26,7 +26,9 @@ public:
     void setObservationVariance( double v );
     void setTranslationVariance( double v );
     void setRotationVariance( double v );
-    void getLandmarkPositions( QList<QPointF> &landmarkPositions );
+    void getLandmarkPositions( QList<Position> &landmarkPositions, int particleNr );
+    void getParticlePositions( QList<Position> &particlePositions );
+    int getBestParticle();
     void setOffset( Position diffPos );
 
     void test();

@@ -38,7 +38,7 @@ Position::Position( CvMat *translation, Quaternion rotation )
     setPitch( (double)pitch );
     setYaw( (double)yaw );
     setX( cvmGet( translation, 0, 0 ) );
-    setY( -cvmGet( translation, 2, 0 ) );
+    setY( cvmGet( translation, 2, 0 ) );
     setZ( -cvmGet( translation, 1, 0 ) );
 }
 

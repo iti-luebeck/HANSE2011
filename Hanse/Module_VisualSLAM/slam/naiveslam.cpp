@@ -16,6 +16,8 @@ NaiveSLAM::NaiveSLAM( int particleCount )
         particles.push_back( new VisualSLAMParticle() );
     }
     meanTranslation = cvCreateMat( 3, 1, CV_32F );
+
+    bestParticle = 0;
 }
 
 NaiveSLAM::~NaiveSLAM()
@@ -81,7 +83,6 @@ void NaiveSLAM::run()
 
         // Update all particles and store weights. Also calculate best current particle.
         double *weights = new double[(int)particles.size()];
-        bestParticle = -1;
         double bestParticleWeight = -1;
         for ( int i = 0; i < (int)particles.size(); i++ )
         {
@@ -245,24 +246,37 @@ void NaiveSLAM::load( QTextStream &ts )
     }
 }
 
-void NaiveSLAM::getLandmarkPositions( QList<QPointF> &landmarkPositions )
+void NaiveSLAM::getLandmarkPositions( QList<Position> &landmarkPositions, int particleNr )
 {
     updateMutex.lock();
-    if ( bestParticle >= 0 && bestParticle < (int)particles.size() )
+    if ( particleNr >= 0 && particleNr < (int)particles.size() )
     {
-        for ( int i = 0; i < (int)particles.at( bestParticle )->landmarks.size(); i++ )
+        for ( int i = 0; i < (int)particles.at( particleNr )->landmarks.size(); i++ )
         {
-            QPointF position = particles.at( bestParticle )->getLandmarkPosition( i );
-            position.setX( cos( offset.getYaw() * CV_PI / 180 ) * position.x() +
-                           sin( offset.getYaw() * CV_PI / 180 ) * position.y() +
+            Position position = particles.at( particleNr )->getLandmarkPosition( i );
+            position.setX( cos( offset.getYaw() * CV_PI / 180 ) * position.getX() +
+                           sin( offset.getYaw() * CV_PI / 180 ) * position.getY() +
                            offset.getX() );
-            position.setY( sin( offset.getYaw() * CV_PI / 180 ) * position.x() +
-                           cos( offset.getYaw() * CV_PI / 180 ) * position.y() +
+            position.setY( sin( offset.getYaw() * CV_PI / 180 ) * position.getX() +
+                           cos( offset.getYaw() * CV_PI / 180 ) * position.getY() +
                            offset.getY() );
             landmarkPositions.append( position );
         }
     }
     updateMutex.unlock();
+}
+
+void NaiveSLAM::getParticlePositions( QList<Position> &particlePositions )
+{
+    for ( int i = 0; i < (int)particles.size(); i++ )
+    {
+        particlePositions.append( particles[i]->getParticlePosition() );
+    }
+}
+
+int NaiveSLAM::getBestParticle()
+{
+    return bestParticle;
 }
 
 void NaiveSLAM::setObservationVariance( double v )

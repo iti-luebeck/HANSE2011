@@ -5,7 +5,6 @@
 #include <QGraphicsScene>
 #include <opencv/cxcore.h>
 #include <vector>
-#include <Module_VisualSLAM/slam/landmark.h>
 #include <Module_VisualSLAM/slam/quaternion.h>
 
 using namespace std;
@@ -15,6 +14,9 @@ using namespace std;
 #define DEFAULT_ROTATION_VARIANCE       0.0025
 #define RANSAC_THRESHOLD                0.3
 #define P0                              0.001
+
+class Position;
+class Landmark;
 
 class VisualSLAMParticle
 {
@@ -33,7 +35,8 @@ public:
     void save( QTextStream &ts );
     void load( QTextStream &ts, int landmarkCount );
 
-    QPointF getLandmarkPosition( int i );
+    Position getLandmarkPosition( int i );
+    Position getParticlePosition();
 
 private:
     bool updatePosition( vector<CvScalar> *newPositions, vector<CvPoint> *mapMatches );

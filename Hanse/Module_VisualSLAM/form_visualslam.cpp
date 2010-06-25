@@ -51,17 +51,17 @@ void Form_VisualSLAM::changeEvent(QEvent *e)
 
 void Form_VisualSLAM::on_startButton_clicked()
 {
-    visualSlam->start();
+    visualSlam->setEnabled( true );
 }
 
 void Form_VisualSLAM::on_stopButton_clicked()
 {
-    visualSlam->stop();
+    visualSlam->setEnabled( false );
 }
 
 void Form_VisualSLAM::on_resetButton_clicked()
 {
-    visualSlam->reset();
+    visualSlam->reset();;
 }
 
 void Form_VisualSLAM::on_applyButton_clicked()
