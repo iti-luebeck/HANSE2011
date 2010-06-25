@@ -63,5 +63,16 @@ void Behaviour_GoalFollowing::ctrGoalFollowing()
     QRectF rect;
     QDateTime current;
     vsl->getObjectPosition( 1, rect, current );
+    float x = (rect.topLeft().x() + rect.topRight().x()) / 2;
+    float robCenterX = this->getSettings().value("robCenterX").toFloat();
+    float diff = robCenterX - x;
+    float angleSpeed = 0.0;
+    diff < 0.0 ? diff *= (-1) : diff;
+    if(diff > this->getSettings().value("deltaGoal").toFloat())
+    {
+        angleSpeed = this->getSettings().value("kpGoal").toFloat() * ((robCenterX - x)/this->getSettings().value("maxDistance").toFloat());
+    }
+    tcl->setAngularSpeed(angleSpeed);
+    tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat());
 
 }

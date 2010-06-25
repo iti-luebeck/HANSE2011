@@ -11,6 +11,10 @@ GoalFollowingForm::GoalFollowingForm(QWidget *parent, Behaviour_GoalFollowing *g
 
     ui->kpGoallineEdit->setText(goalfollow->getSettings().value("kpGoal").toString());
     ui->deltaGoalLineEdit->setText(goalfollow->getSettings().value("deltaGoal").toString());
+    ui->robCenterXLineEdit->setText(goalfollow->getSettings().value("robCenterX").toString());
+    ui->robCenterYLineEdit->setText(goalfollow->getSettings().value("robCenterY").toString());
+    ui->fwSpeedLineEdit->setText(goalfollow->getSettings().value("fwSpeed").toString());
+    ui->maxDistanceLineEdit->setText(goalfollow->getSettings().value("maxDistance").toString());
  }
 
 GoalFollowingForm::~GoalFollowingForm()
@@ -47,4 +51,8 @@ void GoalFollowingForm::on_saveAndApplyButton_clicked()
 {
     goalfollow->getSettings().setValue("kpGoal",ui->kpGoallineEdit->text().toFloat());
     goalfollow->getSettings().setValue("deltaGoal",ui->deltaGoalLineEdit->text().toFloat());
+    goalfollow->getSettings().setValue("robCenterX",ui->robCenterXLineEdit->text().toFloat());
+    goalfollow->getSettings().setValue("robCenterY",ui->robCenterYLineEdit->text().toFloat());
+    goalfollow->getSettings().setValue("fwSpeed",ui->fwSpeedLineEdit->text().toFloat());
+    goalfollow->getSettings().setValue("maxDistance",ui->maxDistanceLineEdit->text().toFloat());
 }
