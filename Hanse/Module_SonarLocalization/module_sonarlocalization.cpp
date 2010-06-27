@@ -1,18 +1,20 @@
 #include "module_sonarlocalization.h"
-
 #include <QtGui>
 #include "form_sonarlocalization.h"
 #include "sonarechofilter.h"
 #include "sonarparticlefilter.h"
 #include <opencv/cv.h>
 #include <Module_ScanningSonar/module_scanningsonar.h>
+#include <Module_PressureSensor/module_pressuresensor.h>
 
 using namespace cv;
 
-Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar)
+Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_PressureSensor* pressure)
     : RobotModule(id)
 {
     this->sonar = sonar;
+    this->pressure = pressure;
+
     this->filter = new SonarEchoFilter(this);
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), filter, SLOT(newSonarData(SonarReturnData)));
 
@@ -69,13 +71,17 @@ void Module_SonarLocalization::setLocalization(QVector2D position)
 Position Module_SonarLocalization::getLocalization()
 {
     QVector3D p = pf->getBestEstimate();
-    p.setZ(p.z()*180/M_PI);
-    return Position(p);
+    Position r;
+    r.setX(p.x());
+    r.setY(p.y());
+    r.setZ(pressure->getDepth());
+    r.setYaw(p.z()*180/M_PI);
+    return r;
 }
 
 float Module_SonarLocalization::getLocalizationConfidence()
 {
-    return 1; // TODO
+    return pf->getParticles()[0].w();
 }
 
 QDateTime Module_SonarLocalization::getLastRefreshTime()
@@ -85,5 +91,5 @@ QDateTime Module_SonarLocalization::getLastRefreshTime()
 
 bool Module_SonarLocalization::isLocalizationLost()
 {
-    return false; // TODO
+    return false; // TODO must involve some kind of threshold
 }

@@ -55,7 +55,7 @@ void ModulesGraph::build()
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);
     this->modules.append(handControl);
 
-    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar);
+    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, pressure);
     this->modules.append(sonarLoc);
 
     Module_VisualSLAM* visualLoc = new Module_VisualSLAM("visualSLAM", sonarLoc);
@@ -73,10 +73,9 @@ void ModulesGraph::build()
     Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, visualLoc);
     this->modules.append(behavBall);
 
+    // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
     MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl);
     this->modules.append(metaBehaviour);
-
-
 
     logger->info("Loading all Modules... Done");
 }

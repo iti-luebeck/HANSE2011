@@ -1,6 +1,5 @@
 #include "form_sonarlocalization.h"
 #include "ui_form_sonarlocalization.h"
-
 #include <qwt-qt4/qwt_plot.h>
 #include <qwt-qt4/qwt_plot_curve.h>
 #include <qwt-qt4/qwt_plot_marker.h>
@@ -207,6 +206,9 @@ void Form_SonarLocalization::on_pushButton_clicked()
 
 void Form_SonarLocalization::newPositionEstimate(QVector3D e)
 {
+    if (!ui->update->isChecked())
+        return;
+
     foreach (QGraphicsEllipseItem* it, particleItems) {
         delete it;
     }
@@ -222,6 +224,9 @@ void Form_SonarLocalization::newPositionEstimate(QVector3D e)
 
 void Form_SonarLocalization::on_spinBox_valueChanged(int p)
 {
+    if (!ui->update->isChecked())
+        return;
+
     QList<QVector2D> z = m->pf->getLatestObservation();
     if (z.size()==0 || m->pf->getParticleCount() < p)
         return;

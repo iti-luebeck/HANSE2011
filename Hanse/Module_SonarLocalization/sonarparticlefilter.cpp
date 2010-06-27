@@ -1,5 +1,4 @@
 #include "sonarparticlefilter.h"
-
 #include "module_sonarlocalization.h"
 #include "sonarechofilter.h"
 #include <opencv/cv.h>

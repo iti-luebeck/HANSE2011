@@ -9,6 +9,7 @@
 class Module_ScanningSonar;
 class SonarEchoFilter;
 class SonarParticleFilter;
+class Module_PressureSensor;
 
 class Module_SonarLocalization : public RobotModule {
     Q_OBJECT
@@ -16,7 +17,7 @@ class Module_SonarLocalization : public RobotModule {
     friend class Form_SonarLocalization;
 
 public:
-    Module_SonarLocalization(QString id, Module_ScanningSonar* sonar);
+    Module_SonarLocalization(QString id, Module_ScanningSonar* sonar, Module_PressureSensor* pressure);
 
     QWidget* createView(QWidget* parent);
 
@@ -64,6 +65,8 @@ signals:
 
 private:
     Module_ScanningSonar* sonar;
+    Module_PressureSensor* pressure;
+
     SonarEchoFilter* filter;
     SonarParticleFilter* pf;
     QThread pfThread;

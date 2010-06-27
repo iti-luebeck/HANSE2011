@@ -38,6 +38,9 @@ void MapWidget::setNavigation(Module_Navigation *nav)
 
     createMap();
 
+    // TODO: somehow doesn't work
+    ui->graphicsView->setTransform(nav->getSettings().value("mapPosition").value<QTransform>());
+
     ui->showParticles->setChecked(nav->getSettings().value("showParticles").toBool());
     ui->showSatImg->setChecked(nav->getSettings().value("showSatImg").toBool());
     ui->showSonarMap->setChecked(nav->getSettings().value("showSonarMap").toBool());
@@ -49,6 +52,10 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Position>)), this, SLOT(updateWaypoints(QMap<QString,Position>)) );
     connect( nav, SIGNAL(setNewGoal(Position)), this, SLOT(updateGoal(Position)) );
     connect( nav, SIGNAL(clearedGoal()), this, SLOT(clearGoal()) );
+
+    // save current pos twice a second
+    connect(&t, SIGNAL(timeout()), this, SLOT(timerElapsed()));
+    t.start(500);
 
 }
 
@@ -230,7 +237,11 @@ void MapWidget::newSonarLocEstimate()
     }
 
     QVector4D particle = particles[0];
-    sonarPosition->setRect(particle.x(), particle.y(), 1,1);
+    sonarPosition->setRect(particle.x()-0.5, particle.y()-0.5, 1,1);
+    sonarPositionOrient->setLine(particle.x(), particle.y(),
+                                 particle.x() - 3*sin( particle.z() ),
+                                 particle.y() + 3*cos( particle.z() )
+                                 );
 
     delete masterObsPoint;
     masterObsPoint = scene->addLine(0,0,0,0);
@@ -280,7 +291,12 @@ void MapWidget::createMap()
     }
 
     sonarPosition = scene->addEllipse(particles[0].x(), particles[0].y(), 1,1, QPen(QColor("red")));
+    sonarPositionOrient = scene->addLine( particles[0].x(), particles[0].y(),
+                           particles[0].x() - sin( particles[0].z() ),
+                           particles[0].y() + cos( particles[0].z() ),
+                           QPen(QColor("red")) );
     sonarPosition->setZValue(3);
+    sonarPositionOrient->setZValue(3);
 
 }
 
@@ -336,4 +352,9 @@ void MapWidget::stopSonarLocalization(QPointF point)
     nav->sonarLoc->setLocalization(QVector2D(point));
     QApplication::restoreOverrideCursor();
     isSonarLocalizationInProgress = false;
+}
+
+void MapWidget::timerElapsed()
+{
+    nav->getSettings().setValue("mapPosition", ui->graphicsView->transform());
 }

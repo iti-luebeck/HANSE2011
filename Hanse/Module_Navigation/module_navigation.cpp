@@ -2,7 +2,6 @@
 
 #include <QtGui>
 #include "form_navigation.h"
-
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_VisualSLAM/module_visualslam.h>

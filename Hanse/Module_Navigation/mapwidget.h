@@ -27,6 +27,8 @@ private:
     Ui::MapWidget *ui;
     Module_Navigation* nav;
 
+    QTimer t;
+
     QGraphicsItem *visualSLAMItem;
     QGraphicsItem *waypointsItem;
     QGraphicsItem *goalItem;
@@ -36,6 +38,7 @@ private:
     QGraphicsItem* masterObsPoint;
     QGraphicsPixmapItem *satImage;
     QGraphicsEllipseItem *sonarPosition;
+    QGraphicsLineItem *sonarPositionOrient;
 
     void createMap();
     void stopSonarLocalization(QPointF point);
@@ -60,6 +63,8 @@ private slots:
     void on_showSatImg_toggled(bool checked);
     void on_showSonarObs_toggled(bool checked);
     void on_showSonarMap_toggled(bool checked);
+
+    void timerElapsed();
 };
 
 #endif // MAPWIDGET_H
