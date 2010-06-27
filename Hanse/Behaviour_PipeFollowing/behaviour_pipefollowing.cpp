@@ -40,7 +40,7 @@ void Behaviour_PipeFollowing::start()
         {
             this->setHealthToOk();
             setEnabled(true);
-            timer.start(200);
+           timer.start(200);
             emit started(this);
         }
         else this->setHealthToSick("fail - open camera or video");

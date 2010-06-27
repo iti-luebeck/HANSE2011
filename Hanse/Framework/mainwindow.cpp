@@ -3,6 +3,7 @@
 #include <Framework/moduledataview.h>
 #include <Framework/modulehealthview.h>
 #include <Framework/qclosabledockwidget.h>
+#include <Framework/robotbehaviour.h>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -154,8 +155,10 @@ void MainWindow::enableAll()
 
     for (int i = 0; i < list.size(); ++i) {
         RobotModule* m = list.at(i);
-
-        m->setEnabled(true);
+        RobotBehaviour* behav = dynamic_cast<RobotBehaviour*>(m);
+        if (!behav) {
+            m->setEnabled(true);
+        }
     }
 }
 

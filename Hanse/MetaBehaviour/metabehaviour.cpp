@@ -10,6 +10,7 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     : RobotModule(id)
 {
     this->tcl = tcl;
+    this->handControl = handControl;
 
     // find all behaviours
     foreach(RobotModule* m, graph->getModules()) {
@@ -44,4 +45,17 @@ QWidget* MetaBehaviour::createView(QWidget* parent)
 void MetaBehaviour::reset()
 {
 
+}
+
+void MetaBehaviour::startHandControl()
+{
+    RobotBehaviour* thisB = this->handControl;
+    if (thisB) {
+        logger->info("Starting module "+thisB->getId());
+        foreach (RobotBehaviour* b, behaviours) {
+            if (b != thisB)
+                b->stop();
+        }
+        thisB->start();
+    }
 }

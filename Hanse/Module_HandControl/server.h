@@ -21,6 +21,7 @@ signals:
     void statusChanged();
     void healthProblem(QString);
     void emergencyStop();
+    void startHandControl();
 
 private slots:
     void openSocket();

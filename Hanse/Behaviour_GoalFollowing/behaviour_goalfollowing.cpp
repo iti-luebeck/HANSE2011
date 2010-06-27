@@ -9,6 +9,7 @@ Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterCont
 {
     this->tcl = tcl;
     this->vsl = vsl;
+
     connect(&robMod,SIGNAL(dataChanged(RobotModule*)),this,SLOT(newData()));
 
     setEnabled(false);

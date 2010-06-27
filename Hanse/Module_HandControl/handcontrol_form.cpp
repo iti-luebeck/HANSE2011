@@ -20,10 +20,8 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
 
     ui->sliderFw->setMaximum(ui->divFw->text().toInt());
     ui->sliderLR->setMaximum(ui->divLR->text().toInt());
-    ui->sliderUD->setMaximum(ui->divUD->text().toInt());
     ui->sliderFw->setMinimum(-ui->divFw->text().toInt());
     ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
-    ui->sliderUD->setMinimum(-ui->divUD->text().toInt());
 
     connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
     connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
@@ -62,10 +60,10 @@ void HandControl_Form::on_save_clicked()
 
     ui->sliderFw->setMaximum(ui->divFw->text().toInt());
     ui->sliderLR->setMaximum(ui->divLR->text().toInt());
-    ui->sliderUD->setMaximum(ui->divUD->text().toInt());
+    ui->sliderUD->setMaximum(127);
     ui->sliderFw->setMinimum(-ui->divFw->text().toInt());
     ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
-    ui->sliderUD->setMinimum(-ui->divUD->text().toInt());
+    ui->sliderUD->setMinimum(-127);
 
     module->reset();
 

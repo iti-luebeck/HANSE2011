@@ -107,14 +107,14 @@ void Module_HandControl::sendNewControls()
         thrusterRight->setSpeed(right);
 
     } else {
-        controlLoop->setEnabled(true);
+        if (!controlLoop->isEnabled())
+            controlLoop->setEnabled(true);
 
         controlLoop->setAngularSpeed(angularSpeed/divLR);
         controlLoop->setForwardSpeed(forwardSpeed/divFw);
+        float currentSollTiefe = controlLoop->getDepth();
         float dVal = speedUpDown/divUD;
-        if (dVal<0)
-            dVal=0;
-        controlLoop->setDepth(dVal);
+        controlLoop->setDepth(currentSollTiefe + dVal);
     }
 
 }
@@ -140,4 +140,9 @@ void Module_HandControl::stop()
 bool Module_HandControl::isActive()
 {
     return isEnabled();
+}
+
+void Module_HandControl::startHandControlReceived()
+{
+    emit startHandControl();
 }

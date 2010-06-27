@@ -62,7 +62,7 @@ void Behaviour_BallFollowing::ctrBallFollowing()
 {
     QRectF rect;
     QDateTime current;
-    vsl->getObjectPosition( 1, rect, current );
+    vsl->getObjectPosition( 2, rect, current ); // 2 == BALLS
     float x = (rect.topLeft().x() + rect.topRight().x()) / 2;
     float robCenterX = this->getSettings().value("robCenterX").toFloat();
     float diff = robCenterX - x;

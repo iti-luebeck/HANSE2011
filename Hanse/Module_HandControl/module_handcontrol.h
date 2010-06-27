@@ -28,6 +28,7 @@ public:
 
 signals:
     void emergencyStop();
+    void startHandControl();
 private:
 
     Module_Thruster* thrusterLeft;
@@ -44,6 +45,7 @@ private slots:
     void newMessage(int forwardSpeed, int angularSpeed, int speedUpDown);
     void serverReportedError(QString error);
     void emergencyStopReceived();
+    void startHandControlReceived();
 
 };
 

@@ -27,10 +27,12 @@ public:
 
 private:
     Module_ThrusterControlLoop* tcl;
+    Module_HandControl* handControl;
     QList<RobotBehaviour*> behaviours;
 
 private slots:
     void emergencyStop();
+    void startHandControl();
 };
 
 

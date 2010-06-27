@@ -216,6 +216,9 @@ void Module_ThrusterControlLoop::setDepth(float depth)
 
     control_loop_enabled=true;
 
+    if (depth<0)
+        depth = 0;
+
     data["depthSoll"] = depth;
 
     setvalueDepth=depth;
@@ -234,4 +237,19 @@ QList<RobotModule*> Module_ThrusterControlLoop::getDependencies()
     ret.append(thrusterLeft);
     ret.append(thrusterRight);
     return ret;
+}
+
+float Module_ThrusterControlLoop::getDepth()
+{
+    return data["depthSoll"].toFloat();
+}
+
+float Module_ThrusterControlLoop::getForwardSpeed()
+{
+    return data["actualForwardSpeed"].toFloat();
+}
+
+float Module_ThrusterControlLoop::getAngularSpeed()
+{
+    return data["actualAngularSpeed"].toFloat();
 }
