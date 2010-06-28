@@ -103,6 +103,9 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
     setDefaultValue("filterTaps",2);
     setDefaultValue("gyroSens","300");
 
+    timer.moveToThread(&thread);
+    thread.start();
+
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
@@ -143,6 +146,9 @@ void Module_IMU::reset()
 
     updateBiasFields();
     printRegisters();
+
+    QMutexLocker l(&moduleMutex);
+
     data["flashCounter"] = readRegister(ADIS_REGISTER_ENDURANCE);
 
 }
@@ -176,6 +182,7 @@ void Module_IMU::refreshData()
 
     unsigned short voltage_raw = readRegister(ADIS_REGISTER_POWER);
     double voltage = (voltage_raw & 0x0FFF) *1.8315; // mV
+    QMutexLocker l(&moduleMutex);
     data["voltage"] = voltage/1000;
 
     if (getHealthStatus().isHealthOk()) {
@@ -230,6 +237,8 @@ void Module_IMU::doHealthCheck()
 
     short status_reg = readRegister(ADIS_REGISTER_STATUS_LO);
     status_reg &= 0xFFFE; // clear out undervoltage warning. we're aware of it.
+
+    QMutexLocker l(&moduleMutex);
 
     data["statusReg"] = status_reg;
     if (status_reg != 0x0000) {
@@ -404,31 +413,37 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 
 float Module_IMU::getGyroX(void)
 {
+    QMutexLocker l(&moduleMutex);
     return data["gyroX"].toFloat();
 }
 
 float Module_IMU::getGyroY(void)
 {
+    QMutexLocker l(&moduleMutex);
     return data["gyroY"].toFloat();
 }
 
 float Module_IMU::getGyroZ(void)
 {
+    QMutexLocker l(&moduleMutex);
     return data["gyroZ"].toFloat();
 }
 
 float Module_IMU::getAccelX(void)
 {
+    QMutexLocker l(&moduleMutex);
     return data["accelX"].toFloat();
 }
 
 float Module_IMU::getAccelY(void)
 {
+    QMutexLocker l(&moduleMutex);
     return data["accelY"].toFloat();
 }
 
 float Module_IMU::getAccelZ(void)
 {
+    QMutexLocker l(&moduleMutex);
     return data["accelZ"].toFloat();
 }
 
@@ -444,6 +459,7 @@ void Module_IMU::doPrecisionCalib()
 
 void Module_IMU::updateBiasFields()
 {
+    QMutexLocker l(&moduleMutex);
     data["biasGyroX"] = readDataRegister(ADIS_REGISTER_XGYRO_OFF_LO, 12);
     data["biasGyroY"] = readDataRegister(ADIS_REGISTER_YGYRO_OFF_LO, 12);
     data["biasGyroZ"] = readDataRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 12);

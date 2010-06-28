@@ -29,6 +29,9 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
 
+    timer.moveToThread(&thread);
+    timer.start();
+
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
@@ -74,10 +77,10 @@ void Module_PressureSensor::refreshData()
     readPressure();
     readTemperature();
 
-//    if (getHealthStatus().isHealthOk()) {
+    if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
         emit newDepthData(getDepth());
-//    }
+    }
 }
 
 void Module_PressureSensor::readPressure()
@@ -91,6 +94,8 @@ void Module_PressureSensor::readPressure()
 
     // this is the pressure in mBar
     uint16_t pressure = (int)readBuffer[0] << 8 | (int)readBuffer[1];
+
+    QMutexLocker l(&this->moduleMutex);
 
     data["pressure"] =  pressure;
 
@@ -114,16 +119,20 @@ void Module_PressureSensor::readTemperature()
     // this is the temperature in 10/degree celsius
     uint16_t temp = (int)readBuffer[0] << 8 | (int)readBuffer[1];
 
+    QMutexLocker l(&this->moduleMutex);
+
     data["temperatureHW"] = ((float)temp)/10;
 }
 
 float Module_PressureSensor::getDepth()
 {
+    QMutexLocker l(&this->moduleMutex);
     return data["depth"].toFloat();
 }
 
 float Module_PressureSensor::getTemperature()
 {
+    QMutexLocker l(&this->moduleMutex);
     return data["temperature"].toFloat()/10.0;
 }
 
@@ -168,8 +177,10 @@ void Module_PressureSensor::doHealthCheck()
         return;
     }
 
+    QMutexLocker l(&this->moduleMutex);
+
     counter = readBuffer[0];
-    data["counter"] = counter;
+//    data["counter"] = counter;
 
     setHealthToOk();
 }

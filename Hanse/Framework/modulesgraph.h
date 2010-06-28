@@ -28,6 +28,8 @@ private:
       */
     QList<RobotModule*> modules;
 
+    QThread sensorThread;
+
     /**
       * Logger
       */

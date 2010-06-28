@@ -2,7 +2,8 @@
 #include "datarecorder.h"
 
 RobotModule::RobotModule(QString newId)
-    : QObject(), id(newId), settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse")
+    : QObject(), id(newId), settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
+    moduleMutex(QMutex::Recursive)
 {
     settings.beginGroup(id);
 
@@ -56,28 +57,38 @@ void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
 
 void RobotModule::setHealthToOk()
 {
+    healthStatusMutex.lock();
     if (!healthStatus.isHealthOk()) {
         logger->info("Health OK");
         healthStatus.healthOk = true;
+        healthStatusMutex.unlock();
         emit healthStatusChanged(this);
+    } else {
+        healthStatusMutex.unlock();
+
     }
 }
 
 void RobotModule::setHealthToSick(QString errorMsg)
 {
+    healthStatusMutex.lock();
     healthStatus.errorCount++;
     if (healthStatus.isHealthOk() || healthStatus.getLastError() != errorMsg) {
         logger->error("Health ERROR: "+errorMsg);
         healthStatus.healthOk = false;
         healthStatus.lastError = errorMsg;
+        healthStatusMutex.unlock();
         // each time this signal is emitted, a line will be written to the logfile.
         // thus don't emit this signal when the errormsg stays the same.
         emit healthStatusChanged(this);
+    } else {
+        healthStatusMutex.unlock();
     }
 }
 
 HealthStatus RobotModule::getHealthStatus()
 {
+    QMutexLocker l(&healthStatusMutex);
     return healthStatus;
 }
 
@@ -97,10 +108,11 @@ void RobotModule::terminate()
 
 void RobotModule::reset()
 {
+    data.clear();
+    QMutexLocker l(&healthStatusMutex);
     healthStatus.errorCount=0;
     healthStatus.lastError="";
     healthStatus.healthOk=true;
-    data.clear();
 }
 
 void RobotModule::msleep(int millies)

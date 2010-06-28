@@ -39,6 +39,9 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     setDefaultValue("sampleRate",5);
     setDefaultValue("debug",1);
 
+    timer.moveToThread(&thread);
+    thread.start();
+
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
@@ -192,6 +195,7 @@ void Module_Compass::updateHeadingData()
     if (!readWriteDelay(send_buffer, 1, recv_buffer, 6, 1)) {
         logger->error("Could not read heading data!");
     } else {
+        QMutexLocker l(&moduleMutex);
         data["heading"] = toShort(recv_buffer[0], recv_buffer[1])/10.0;
         data["pitch"] = (signed short)toShort(recv_buffer[2], recv_buffer[3])/10.0;
         data["roll"] = (signed short)toShort(recv_buffer[4], recv_buffer[5])/10.0;
@@ -208,6 +212,7 @@ void Module_Compass::updateStatusRegister()
     if (!readWriteDelay(send_buffer, 1, recv_buffer, 1, 1)) {
         logger->error("Could not read op mode!");
     } else {
+        QMutexLocker l(&moduleMutex);
         data["reg_om1"] = recv_buffer[0];
     }
     //data["reg_om1_eep"] = eepromRead(0x04);
@@ -223,6 +228,7 @@ void Module_Compass::updateMagData(void)
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 6, 1)) {
             logger->error("Could not read mag data!");
         } else {
+            QMutexLocker l(&moduleMutex);
             data["magX"] = (signed short)toShort(recv_buffer[0], recv_buffer[1]);
             data["magY"] = (signed short)toShort(recv_buffer[2], recv_buffer[3]);
             data["magZ"] = (signed short)toShort(recv_buffer[4], recv_buffer[5]);
@@ -240,6 +246,7 @@ void Module_Compass::updateAccelData(void)
         if (!readWriteDelay(send_buffer, 1, recv_buffer, 6, 1)) {
                 logger->error("Could not read accel data!");
         } else {
+            QMutexLocker l(&moduleMutex);
             data["accelX"] = ((signed short)toShort(recv_buffer[0], recv_buffer[1]))/1000.0;
             data["accelY"] = ((signed short)toShort(recv_buffer[2], recv_buffer[3]))/1000.0;
             data["accelZ"] = ((signed short)toShort(recv_buffer[4], recv_buffer[5]))/1000.0;
@@ -369,15 +376,18 @@ bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
 
 float Module_Compass::getHeading()
 {
+    QMutexLocker l(&moduleMutex);
     return data["heading"].toFloat();
 }
 
 float Module_Compass::getPitch()
 {
+    QMutexLocker l(&moduleMutex);
     return data["pitch"].toFloat();
 }
 
 float Module_Compass::getRoll()
 {
+    QMutexLocker l(&moduleMutex);
     return data["roll"].toFloat();
 }

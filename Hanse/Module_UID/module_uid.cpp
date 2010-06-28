@@ -28,7 +28,6 @@ Module_UID::Module_UID(QString moduleId)
     uid = NULL;
     reset();
 
-
 }
 
 Module_UID::~Module_UID()
@@ -42,6 +41,8 @@ Module_UID::~Module_UID()
 
 void Module_UID::reset()
 {
+    QMutexLocker l(&this->moduleMutex);
+
     RobotModule::reset();
 
     if (!getSettings().value("enabled").toBool())
@@ -75,6 +76,8 @@ void Module_UID::terminate()
 
 QextSerialPort* Module_UID::findUIDPort()
 {
+    QMutexLocker l(&this->moduleMutex);
+
     QString Id = settings.value("uidId").toString();
 
     QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
@@ -107,6 +110,7 @@ QextSerialPort* Module_UID::findUIDPort()
 
 QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 {
+    QMutexLocker l(&this->moduleMutex);
 
 #ifdef OS_UNIX // this platform-independent library puts the port name in different fields depending on the platform
     QextSerialPort* sport = new QextSerialPort( port->physName, *portSettings, QextSerialPort::Polling);
@@ -180,11 +184,13 @@ bool Module_UID::SendCommand(const char* sequence, unsigned char length) {
 
 bool Module_UID::SendCheckCommand(const QByteArray &send, char* recv, int recv_length)
 {
+    QMutexLocker l(&this->moduleMutex);
     return SendCommand2(send,recv, recv_length) && CheckErrorcode();
 }
 
 bool Module_UID::CheckErrorcode()
 {
+    QMutexLocker l(&this->moduleMutex);
     logger->trace("CheckErrorcode");
 
     char r[1];
@@ -201,6 +207,7 @@ bool Module_UID::CheckErrorcode()
 }
 
 bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_length) {
+    QMutexLocker l(&this->moduleMutex);
     logger->trace("SendCommand2");
 
     QTime start(QTime::currentTime());
@@ -270,6 +277,7 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
 
 
 QString Module_UID::UID_Revision() {
+    QMutexLocker l(&this->moduleMutex);
     logger->trace("UID_Revision");
 
     QString identify;
@@ -283,11 +291,13 @@ QString Module_UID::UID_Revision() {
 
 bool Module_UID::UID_Available()
 {
+    QMutexLocker l(&this->moduleMutex);
     return uid != NULL;
 }
 
 void Module_UID::doHealthCheck()
 {
+    QMutexLocker l(&this->moduleMutex);
     logger->trace("doHealthCheck");
     if (!getSettings().value("enabled").toBool())
         return;
@@ -333,6 +343,8 @@ bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) 
 }
 
 QString Module_UID::UID_Identify() {
+    QMutexLocker l(&this->moduleMutex);
+
     logger->trace("UID_Identify");
 
     char result[9];
@@ -378,6 +390,7 @@ bool Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, sho
 
 
 QVector<unsigned char> Module_UID::I2C_Scan() {
+    QMutexLocker l(&this->moduleMutex);
     logger->trace("I2C_Scan");
     char sequence[] = {Module_UID::I2C_SCAN};
     QVector<unsigned char> slaves(0);

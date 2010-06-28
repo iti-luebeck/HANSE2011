@@ -128,6 +128,11 @@ protected:
     QSettings settings;
 
     /**
+      * general purpose module. not used by RobotModule itself. may be freely used by sub classes
+      */
+    QMutex moduleMutex;
+
+    /**
       * Central data store for this module. Everything stored in this Map is
       * automatically displayed in the GUI, and will also be recorded to file.
       */
@@ -192,6 +197,7 @@ private:
       * Timer to perform regular health checks.
       */
     QTimer healthCheckTimer;
+    QMutex healthStatusMutex;
 
     DataRecorder *recorder;
 

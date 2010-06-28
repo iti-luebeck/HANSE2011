@@ -55,6 +55,7 @@ private slots:
 private:
     Module_UID *uid;
     QTimer timer;
+    QThread thread;
     int counter;
 
     void readPressure();

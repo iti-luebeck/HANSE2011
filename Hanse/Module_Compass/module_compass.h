@@ -10,8 +10,6 @@ class Module_UID;
 class Module_Compass : public RobotModule {
     Q_OBJECT
 
-    friend class Compass_Form;
-
 public:
     Module_Compass(QString id, Module_UID *uid);
     ~Module_Compass();
@@ -31,6 +29,8 @@ public:
 
     float getRoll(void);
 
+    void stopCalibration();
+    void startCalibration();
 
 public slots:
     void reset();
@@ -50,6 +50,7 @@ private slots:
 private:
     Module_UID *uid;
     QTimer timer;
+    QThread thread;
 
     unsigned short toShort(uint8_t high, uint8_t low);
 
@@ -57,9 +58,6 @@ private:
     bool eepromWrite(uint8_t addr, uint8_t data);
 
     void setOrientation();
-    void stopCalibration();
-    void startCalibration();
-
     void configure();
 
     void updateHeadingData(void);

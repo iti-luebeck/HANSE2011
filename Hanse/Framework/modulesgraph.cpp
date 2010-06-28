@@ -27,7 +27,7 @@ void ModulesGraph::build()
 
     Module_UID* uid = new Module_UID("uid");
     this->modules.append(uid);
-
+    
     Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar");
     this->modules.append(sonar);
 

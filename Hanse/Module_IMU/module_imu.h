@@ -56,6 +56,7 @@ private slots:
 private:
     Module_UID *uid;
     QTimer timer;
+    QThread thread;
 
     bool readRegister(unsigned char reg, int size, unsigned char *ret_buf);
 
