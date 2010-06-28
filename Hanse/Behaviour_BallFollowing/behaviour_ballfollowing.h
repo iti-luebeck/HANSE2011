@@ -36,13 +36,14 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     Module_VisualSLAM* vsl;
-    QObject robMod;
     QDateTime last;
+    QTimer timerNoBall;
 
     void ctrBallFollowing();
 
 public slots:
-    void newData();
+    void newData(int classNr);
+    void timerSlot();
 };
 
 

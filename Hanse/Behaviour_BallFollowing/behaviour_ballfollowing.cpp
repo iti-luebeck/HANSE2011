@@ -9,7 +9,7 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
 {
     this->tcl = tcl;
     this->vsl = vsl;
-    connect(&robMod,SIGNAL(dataChanged(RobotModule*)),this,SLOT(newData()));
+    connect(vsl,SIGNAL(foundNewObject(int)),this,SLOT(newData(int)));
 
     setEnabled(false);
 
@@ -25,9 +25,9 @@ void Behaviour_BallFollowing::start()
     this->setEnabled(true);
 }
 
-void Behaviour_BallFollowing::newData()
+void Behaviour_BallFollowing::newData(int classNr)
 {
-    if(this->isEnabled()) Behaviour_BallFollowing::ctrBallFollowing();
+    if(this->isEnabled() && classNr == 2) Behaviour_BallFollowing::ctrBallFollowing();
 }
 
 void Behaviour_BallFollowing::stop()
@@ -74,5 +74,12 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     }
     tcl->setAngularSpeed(angleSpeed);
     tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat());
+    timerNoBall.start(2000);
+
+}
+
+void Behaviour_BallFollowing::timerSlot()
+{
+    timerNoBall.stop();
 
 }
