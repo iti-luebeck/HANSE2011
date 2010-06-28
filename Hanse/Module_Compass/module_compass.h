@@ -51,7 +51,7 @@ private slots:
 private:
     Module_UID *uid;
     QTimer timer;
-    EventThread thread;
+    EventThread thread;//
 
     unsigned short toShort(uint8_t high, uint8_t low);
 
