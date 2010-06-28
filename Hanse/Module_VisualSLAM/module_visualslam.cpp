@@ -80,7 +80,7 @@ void Module_VisualSLAM::startGrab()
 {
     updateTimer.stop();
     startClock = clock();
-    cap.grab();
+    cap.grab( settings.value( QString( "capture" ), false ).toBool() );
 }
 
 void Module_VisualSLAM::startUpdate()

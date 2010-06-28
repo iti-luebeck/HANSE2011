@@ -24,7 +24,7 @@ public:
     StereoCapture( int width = 640, int height = 480, int device1 = 0, int device2 = 1 );
     ~StereoCapture();
     void init( int device1 = 0, int device2 = 1 );
-    void grab();
+    void grab( bool saveImages );
     bool isConnected( int device );
     IplImage *getFrame( int cam );
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );

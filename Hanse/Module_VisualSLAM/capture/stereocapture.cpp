@@ -27,6 +27,7 @@ StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
     connected2 = false;
     feature1 = NULL;
     feature2 = NULL;
+    count = 0;
 }
 
 StereoCapture::~StereoCapture()
@@ -124,6 +125,8 @@ void StereoCapture::clear()
         delete( feature2 );
         feature2 = NULL;
     }
+
+    count = 0;
 }
 
 void StereoCapture::init( int device1, int device2 )
@@ -302,12 +305,24 @@ void StereoCapture::initStereoCalibration()
     cvReleaseMat(&P2);
 }
 
-void StereoCapture::grab()
+void StereoCapture::grab( bool saveImages )
 {
     captureMutex.lock();
 
     if (connected1) VI.getPixels(device1, (unsigned char *)frame1->imageData, true, true);
     if (connected2) VI.getPixels(device2, (unsigned char *)frame2->imageData, true, true);
+
+    if ( saveImages )
+    {
+        char leftName[100];
+        sprintf( leftName, "capture/left%04d.jpg", count );
+        cvSaveImage( leftName, frame1 );
+        char rightName[100];
+        sprintf( rightName, "capture/right%04d.jpg", count );
+        cvSaveImage( rightName, frame2 );
+    }
+
+    count++;
 
     keypoints1.clear();
     feature1->findFeatures( frame1, keypoints1 );

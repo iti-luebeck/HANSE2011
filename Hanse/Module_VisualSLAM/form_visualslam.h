@@ -25,6 +25,7 @@ private:
     Module_VisualSLAM *visualSlam;
 
 private slots:
+    void on_checkBox_clicked();
     void on_applyButton_clicked();
     void on_resetButton_clicked();
     void on_stopButton_clicked();
