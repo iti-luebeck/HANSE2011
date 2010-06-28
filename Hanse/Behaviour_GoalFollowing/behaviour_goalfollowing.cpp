@@ -10,7 +10,10 @@ Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterCont
     this->tcl = tcl;
     this->vsl = vsl;
 
-    connect(&robMod,SIGNAL(dataChanged(RobotModule*)),this,SLOT(newData()));
+    connect(vsl, SIGNAL(foundNewObject(int)),this,SLOT(newData(int)) );
+    connect(&timer, SIGNAL(timeout()),this,SLOT(timerSlot()));
+
+    state = STATE_IDLE;
 
     setEnabled(false);
 
@@ -24,11 +27,12 @@ bool Behaviour_GoalFollowing::isActive()
 void Behaviour_GoalFollowing::start()
 {
     this->setEnabled(true);
+    noGoalResponse.start(10000);
 }
 
-void Behaviour_GoalFollowing::newData()
+void Behaviour_GoalFollowing::newData(int classNr)
 {
-    if(this->isEnabled()) Behaviour_GoalFollowing::ctrGoalFollowing();
+    if(this->isEnabled() && classNr == 1) Behaviour_GoalFollowing::ctrGoalFollowing();
 }
 
 void Behaviour_GoalFollowing::stop()
@@ -61,6 +65,7 @@ QWidget* Behaviour_GoalFollowing::createView(QWidget* parent)
 
 void Behaviour_GoalFollowing::ctrGoalFollowing()
 {
+    noGoalResponse.stop();
     QRectF rect;
     QDateTime current;
     vsl->getObjectPosition( 1, rect, current );
@@ -75,5 +80,33 @@ void Behaviour_GoalFollowing::ctrGoalFollowing()
     }
     tcl->setAngularSpeed(angleSpeed);
     tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat());
+
+    state = STATE_SEEN_GOAL;
+
+    noGoalResponse.start(2000);
+    emit started(this);
+}
+
+void Behaviour_GoalFollowing::timerSlot()
+{
+    noGoalResponse.stop();
+    switch(this->state)
+    {
+    case STATE_SEEN_GOAL:
+        state = STATE_FORWARD;
+        tcl->setAngularSpeed( .0 );
+        noGoalResponse.start(2000);
+        break;
+    case STATE_FORWARD:
+        state = STATE_TURNING;
+        tcl->setForwardSpeed( .0 );
+        tcl->setAngularSpeed( .1 );
+        noGoalResponse.start(2000);
+        break;
+    case STATE_TURNING:
+        state = STATE_FAILED;
+        this->setHealthToSick("no goal in sight");
+         emit finished(this,false);
+        break;
 
 }

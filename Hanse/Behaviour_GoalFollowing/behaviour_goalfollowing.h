@@ -7,6 +7,12 @@
 #include <Module_VisualSLAM/module_visualslam.h>
 #include <Framework/robotmodule.h>
 
+#define STATE_IDLE 100
+#define STATE_SEEN_GOAL 101
+#define STATE_TURNING 102
+#define STATE_FORWARD 103
+#define STATE_FAILED  104
+
 class Module_ThrusterControlLoop;
 class GoalFollowingForm;
 
@@ -36,13 +42,18 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     Module_VisualSLAM* vsl;
-    QObject robMod;
     QDateTime last;
+    QTimer noGoalResponse;
+    int state;
 
     void ctrGoalFollowing();
 
 public slots:
-    void newData();
+    void newData(int classNr);
+
+private slots:
+    void timerSlot();
+
 };
 
 
