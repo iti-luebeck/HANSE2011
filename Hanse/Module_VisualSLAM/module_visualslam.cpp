@@ -31,7 +31,7 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
         start();
     }
 
-    updateTimer.start();
+    updateThread.start();
 }
 
 Module_VisualSLAM::~Module_VisualSLAM()
