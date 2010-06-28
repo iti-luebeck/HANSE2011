@@ -1,8 +1,8 @@
 #include "imageprocessor.h"
-#include <cv.h>
-#include <highgui.h>
-#include <blob.h>
-#include <BlobResult.h>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
+#include "Blobs/blob.h"
+#include "Blobs/BlobResult.h"
 #include "helpers.h"
 
 ImageProcessor::ImageProcessor()

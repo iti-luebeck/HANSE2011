@@ -80,9 +80,9 @@ void SURFClassifier::classify(Mat &image, QList<FoundObject> &matches)
     vector<KeyPoint> keyPoints;
     vector<float> descriptors;
 
-    Helpers::convertBGR2Gray(image, imageGray);
+    Helpers::convertRGB2Gray(image, imageGray);
 
-    SURF surf(500);
+    SURF surf(1500);
     surf(imageGray, Mat::ones(imageGray.size(), CV_8UC1), keyPoints, descriptors);
 
     features.create(64, keyPoints.size(), CV_32F);

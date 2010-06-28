@@ -3,6 +3,7 @@
 # -------------------------------------------------
 TARGET = BvTraining
 TEMPLATE = app
+include(../OpenCV.pri)
 SOURCES += main.cpp \
     trainingwindow.cpp \
     imageprocessor.cpp \
@@ -36,12 +37,4 @@ FORMS += trainingwindow.ui \
     ../Hanse/Module_VisualSLAM/form_visualslam.ui \
     ../Hanse/Module_Navigation/waypointdialog.ui
 DESTDIR = ../build
-INCLUDEPATH += "../include/opencv"
-LIBPATH += "../OpenCV/lib"
-LIBPATH += ../build
-LIBS += "..\lib\opencv\libcv210.dll.a" \
-    "..\lib\opencv\libcxcore210.dll.a" \
-    "..\lib\opencv\libcvaux210.dll.a" \
-    "..\lib\opencv\libhighgui210.dll.a" \
-    "..\lib\opencv\libml210.dll.a"
 CONFIG += console

@@ -1,7 +1,7 @@
 #ifndef IMAGEPROCESSOR_H
 #define IMAGEPROCESSOR_H
 
-#include "cxcore.h"
+#include <opencv/cxcore.h>
 #include "SVMClassifier.h"
 
 using namespace cv;

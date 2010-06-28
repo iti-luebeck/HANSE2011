@@ -2,11 +2,10 @@
 #include "ui_trainingwindow.h"
 
 #include <QFileDialog>
-#include <cv.h>
-#include <cxcore.h>
-#include <highgui.h>
+#include <opencv/cv.h>
+#include <opencv/cxcore.h>
+#include <opencv/highgui.h>
 #include "imageprocessor.h"
-//#include "videoStream.h"
 using namespace cv;
 
 TrainingWindow::TrainingWindow(QWidget *parent) :
@@ -44,52 +43,108 @@ void TrainingWindow::on_trainButton_clicked()
     }
     else if (ui->surfRadioButton->isChecked())
     {
-        surfTraining.train(frameList, videoFile);
+        surfTraining.train(frameList, videoFile, ui->dirBox->isChecked());
     }
 }
 
 void TrainingWindow::on_loadButton_clicked()
 {
-    videoFile = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.avi *.mpg *.divx)"));
+    if ( ui->dirBox->isChecked() )
+    {
+        videoFile = QFileDialog::getExistingDirectory( this, QString("Choose directory with images"), "" );
+    }
+    else
+    {
+        videoFile = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.avi *.mpg *.divx)"));
+    }
 }
 
 void TrainingWindow::on_selectButton_clicked()
 {
-    Mat frame;
-    VideoCapture vc(videoFile.toStdString());
-    if (vc.isOpened())
+    if ( ui->dirBox->isChecked() )
     {
+        QDir dir( videoFile );
+        dir.setFilter( QDir::Files );
+        QStringList filters;
+        filters << "*.jpg";
+        dir.setNameFilters( filters );
+        QStringList files = dir.entryList();
+        Mat frame;
         frameList.clear();
 
         namedWindow("Press [s] to select image", 0);
-        bool running = true;
-        while (running)
+        for ( int i = 0; i < files.count(); i++ )
         {
-            vc >> frame;
-            if (!frame.empty())
+            QString filePath = videoFile;
+            filePath.append( "/" );
+            filePath.append( files[i] );
+
+            frame = imread( filePath.toStdString() );
+            bool check = false;
+            if ( !frame.empty() )
             {
                 imshow("Press [s] to select image", frame);
                 int key = waitKey(500);
                 switch (key)
                 {
                 case 'q':
-                    running = false;
+                    check = true;
                     break;
                 case 's':
-                    frameList.append((int) vc.get(CV_CAP_PROP_POS_FRAMES));
+                    frameList.append( i );
                     break;
                 case '+':
-                    vc.set(CV_CAP_PROP_POS_FRAMES, vc.get(CV_CAP_PROP_POS_FRAMES) + 10);
+                    i += 10;
                     break;
                 case '-':
-                    vc.set(CV_CAP_PROP_POS_FRAMES, vc.get(CV_CAP_PROP_POS_FRAMES) - 10);
+                    i -= 10;
                     break;
                 }
             }
+
+            if ( check )
+                break;
         }
+        cvDestroyWindow("Press [s] to select image");
     }
-    vc.release();
-    cvDestroyWindow("Press [s] to select image");
+    else
+    {
+        Mat frame;
+        VideoCapture vc(videoFile.toStdString());
+        if (vc.isOpened())
+        {
+            frameList.clear();
+
+            namedWindow("Press [s] to select image", 0);
+            bool running = true;
+            while (running)
+            {
+                vc >> frame;
+                if (!frame.empty())
+                {
+                    imshow("Press [s] to select image", frame);
+                    int key = waitKey(500);
+                    switch (key)
+                    {
+                    case 'q':
+                        running = false;
+                        break;
+                    case 's':
+                        frameList.append((int) vc.get(CV_CAP_PROP_POS_FRAMES));
+                        break;
+                    case '+':
+                        vc.set(CV_CAP_PROP_POS_FRAMES, vc.get(CV_CAP_PROP_POS_FRAMES) + 10);
+                        break;
+                    case '-':
+                        vc.set(CV_CAP_PROP_POS_FRAMES, vc.get(CV_CAP_PROP_POS_FRAMES) - 10);
+                        break;
+                    }
+                }
+            }
+        }
+        vc.release();
+        cvDestroyWindow("Press [s] to select image");
+    }
 }
 
 void TrainingWindow::on_testButton_clicked()
@@ -111,7 +166,7 @@ void TrainingWindow::on_testButton_clicked()
             qDebug("Threshold ist kein double.");
             surfTraining.setThresh(0.7);
         }
-        surfTraining.test(videoFile);
+        surfTraining.test(videoFile, ui->dirBox->isChecked());
     }
 }
 
@@ -144,5 +199,5 @@ void TrainingWindow::on_saveBlobButton_clicked()
 void TrainingWindow::on_streamButton_clicked()
 {
     int webCamID = ui->webcamID->text().toInt();
-surfTraining.liveTest(webCamID);
+    surfTraining.liveTest(webCamID);
 }

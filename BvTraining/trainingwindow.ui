@@ -189,6 +189,19 @@
      <string>ID</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="dirBox">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>40</y>
+      <width>70</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>From Dir</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -196,7 +209,7 @@
      <x>0</x>
      <y>0</y>
      <width>271</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

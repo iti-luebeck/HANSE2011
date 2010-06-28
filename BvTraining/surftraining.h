@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QList>
-#include <cxcore.h>
+#include <opencv/cxcore.h>
 #include "surfclassifier.h"
 
 using namespace cv;
@@ -18,8 +18,8 @@ private:
 public:
     SurfTraining();
 
-    void train(QList<int> frameList, QString videoFile);
-    void test(QString videoFile);
+    void train(QList<int> frameList, QString videoFile, bool isDir);
+    void test(QString videoFile, bool isDir);
     void save(QString saveFile);
     void load(QString loadFile);
     void liveTest(int webcamID);

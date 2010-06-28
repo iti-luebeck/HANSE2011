@@ -1,8 +1,8 @@
 #ifndef _SVMCLASSIFIER_
 #define _SVMCLASSIFIER_
 
-#include "cv.h"
-#include "ml.h"
+#include <opencv/cv.h>
+#include <opencv/ml.h>
 
 #define ITERATIONS 100000
 

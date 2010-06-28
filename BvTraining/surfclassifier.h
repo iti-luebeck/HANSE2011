@@ -2,9 +2,9 @@
 #define SURFCLASSIFIER_H
 
 #include <QList>
-#include <cxcore.h>
-#include <cvaux.h>
-#include <cv.h>
+#include <opencv/cxcore.h>
+#include <opencv/cvaux.h>
+#include <opencv/cv.h>
 #include <vector>
 
 using namespace cv;

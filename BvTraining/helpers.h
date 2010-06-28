@@ -1,7 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
-#include <cxcore.h>
+#include <opencv/cxcore.h>
 
 using namespace cv;
 
