@@ -389,6 +389,7 @@ void StereoCapture::doCalculations()
         {
             classRects[i] = QRectF( xmin, ymin, xmax - xmin, ymax - ymin );
             classLastSeen[i] = QDateTime::currentDateTime();
+            emit foundNewObject( i );
         }
     }
 

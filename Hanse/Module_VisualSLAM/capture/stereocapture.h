@@ -91,6 +91,7 @@ private:
 
 signals:
     void grabFinished();
+    void foundNewObject( int classNr );
 };
 
 #endif // STEREOCAPTURE_H

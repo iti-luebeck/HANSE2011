@@ -139,6 +139,11 @@ void Module_VisualSLAM::finishUpdate()
     }
 }
 
+void Module_VisualSLAM::updateObject( int classNr )
+{
+    emit foundNewObject( classNr );
+}
+
 void Module_VisualSLAM::save( QTextStream &ts )
 {
     slam.save( ts );

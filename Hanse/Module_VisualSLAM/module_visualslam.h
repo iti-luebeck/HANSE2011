@@ -87,6 +87,7 @@ public slots:
     void finishUpdate();
     void changeSettings( double v_observation, double v_translation, double v_rotation );
     void updateSonarData();
+    void updateObject( int classNr );
 
 signals:
     void healthStatusChanged(HealthStatus data);
@@ -95,6 +96,7 @@ signals:
     void lostLocalization();
     void updateFinished();
     void viewUpdated();
+    void foundNewObject( int classNr );
 
 private:
     Module_SonarLocalization* sonarLocalization;
