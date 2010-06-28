@@ -41,7 +41,7 @@ void Behaviour_PipeFollowing::start()
             this->setHealthToOk();
             setEnabled(true);
            timer.start(200);
-            emit started(this);
+//            emit started(this);
         }
         else this->setHealthToSick("fail - open camera or video");
 
@@ -309,6 +309,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             if(noPipeCnt > this->getSettings().value("badFrames").toInt())
             {
                 this->setHealthToSick("20 frames without pipe");
+                //TODO 180 drehen?
                 emit finished(this,false);
                 this->stop();
             }
@@ -523,3 +524,4 @@ void Behaviour_PipeFollowing::resetFirstRun()
 {
     Behaviour_PipeFollowing::firstRun = 1;
 }
+

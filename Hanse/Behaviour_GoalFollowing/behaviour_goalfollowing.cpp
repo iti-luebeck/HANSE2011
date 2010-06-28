@@ -11,7 +11,7 @@ Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterCont
     this->vsl = vsl;
 
     connect(vsl, SIGNAL(foundNewObject(int)),this,SLOT(newData(int)) );
-    connect(&timer, SIGNAL(timeout()),this,SLOT(timerSlot()));
+    connect(&noGoalResponse, SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     state = STATE_IDLE;
 
@@ -108,5 +108,5 @@ void Behaviour_GoalFollowing::timerSlot()
         this->setHealthToSick("no goal in sight");
          emit finished(this,false);
         break;
-
+    }
 }
