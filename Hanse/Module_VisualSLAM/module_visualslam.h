@@ -3,16 +3,16 @@
 
 #include <Framework/robotmodule.h>
 #include <Framework/position.h>
+#include <Framework/eventthread.h>
 
 #include <QTimer>
-#include <QThread>
 #include <QGraphicsScene>
-
-#include <vector>
 
 #include <Module_VisualSLAM/capture/stereocapture.h>
 #include <Module_VisualSLAM/feature/feature.h>
 #include <Module_VisualSLAM/slam/naiveslam.h>
+
+#include <vector>
 
 #define VSLAM_CAMERA_LEFT   0
 #define VSLAM_CAMERA_RIGHT  1
@@ -101,6 +101,7 @@ signals:
 private:
     Module_SonarLocalization* sonarLocalization;
     QTimer updateTimer;
+    EventThread updateThread;
     QDateTime lastRefreshTime;
     clock_t startClock;
     clock_t stopClock;

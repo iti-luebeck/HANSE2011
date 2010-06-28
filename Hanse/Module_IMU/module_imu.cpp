@@ -103,7 +103,7 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
     setDefaultValue("filterTaps",2);
     setDefaultValue("gyroSens","300");
 
-    //timer.moveToThread(&thread);
+    timer.moveToThread(&thread);
     thread.start();
 
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));

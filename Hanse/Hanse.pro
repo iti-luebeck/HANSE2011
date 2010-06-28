@@ -93,7 +93,8 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_GoalFollowing/behaviour_goalfollowing.h \
     Behaviour_GoalFollowing/goalfollowingform.h \
     Behaviour_BallFollowing/ballfollowingform.h \
-    Behaviour_BallFollowing/behaviour_ballfollowing.h
+    Behaviour_BallFollowing/behaviour_ballfollowing.h \
+    Framework/eventthread.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -171,7 +172,8 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_GoalFollowing/goalfollowingform.cpp \
     Behaviour_GoalFollowing/behaviour_goalfollowing.cpp \
     Behaviour_BallFollowing/ballfollowingform.cpp \
-    Behaviour_BallFollowing/behaviour_ballfollowing.cpp
+    Behaviour_BallFollowing/behaviour_ballfollowing.cpp \
+    Framework/eventthread.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \

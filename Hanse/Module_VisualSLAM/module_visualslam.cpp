@@ -6,7 +6,8 @@
 
 Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sonarLocalization ) :
         RobotModule(id),
-        slam( 50 )
+        slam( 50 ),
+        updateTimer( this )
 {
     this->sonarLocalization = sonarLocalization;
 
@@ -22,10 +23,15 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     double v_rotation = settings.value( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
     changeSettings( v_observation, v_translation, v_rotation );
 
+    //this->moveToThread( &updateThread );
+    updateTimer.moveToThread( &updateThread );
+
     if ( isEnabled() )
     {
         start();
     }
+
+    updateTimer.start();
 }
 
 Module_VisualSLAM::~Module_VisualSLAM()
@@ -67,6 +73,8 @@ void Module_VisualSLAM::start()
     logger->info( "Started" );
     cap.init( settings.value( QString( "left_camera" ), VSLAM_CAMERA_LEFT ).toInt(),
               settings.value( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
+
+    updateThread.start();
     updateTimer.start( 1000 );
 }
 
@@ -74,6 +82,7 @@ void Module_VisualSLAM::stop()
 {
     logger->info( "Stopped" );
     updateTimer.stop();
+    updateThread.terminate();
 }
 
 void Module_VisualSLAM::startGrab()

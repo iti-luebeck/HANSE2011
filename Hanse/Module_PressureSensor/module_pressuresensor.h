@@ -3,6 +3,7 @@
 
 #include <QtCore>
 #include <Framework/robotmodule.h>
+#include <Framework/eventthread.h>
 #include "inttypes.h"
 
 class Module_UID;
@@ -55,7 +56,7 @@ private slots:
 private:
     Module_UID *uid;
     QTimer timer;
-    QThread thread;
+    EventThread thread;
     int counter;
 
     void readPressure();
