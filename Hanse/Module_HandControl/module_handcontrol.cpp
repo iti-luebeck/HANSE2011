@@ -24,6 +24,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     connect(server,SIGNAL(newMessage(int,int,int)), this, SLOT(newMessage(int,int,int)));
     connect(server, SIGNAL(healthProblem(QString)), this, SLOT(serverReportedError(QString)));
     connect(server, SIGNAL(emergencyStop()), this, SLOT(emergencyStopReceived()));
+    connect(server, SIGNAL(startHandControl()), this, SLOT(startHandControlReceived()));
 
     reset();
 }

@@ -19,3 +19,4 @@ HEADERS += gamepad.h \
 INCLUDEPATH += Gamepaddriver
 LIBPATH += Gamepaddriver
 LIBS += -ldinput8
+OTHER_FILES += ../build/ITI/HanseGamepad.ini

@@ -14,7 +14,7 @@ Client::~Client()
 {
 }
 
-void Client::sendMessage(signed short forward, signed short rotation, signed short upDown, bool emergencyButton)
+void Client::sendMessage(signed short forward, signed short rotation, signed short upDown, bool emergencyButton, bool handControl)
 {
     openConnection();
     if (tcpSocket->isOpen()) {
@@ -22,6 +22,8 @@ void Client::sendMessage(signed short forward, signed short rotation, signed sho
         *dataStream << rotation;
         *dataStream << upDown;
         *dataStream << emergencyButton;
+        *dataStream << handControl;
+        tcpSocket->flush();
     } else {
         qDebug() << "NOT CONNECTED with Hanse.";
     }

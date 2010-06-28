@@ -20,6 +20,7 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     }
 
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));
+    connect(handControl, SIGNAL(startHandControl()), this, SLOT(startHandControl()));
 }
 
 void MetaBehaviour::emergencyStop()

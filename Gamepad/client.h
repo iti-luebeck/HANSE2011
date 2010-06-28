@@ -36,7 +36,7 @@ class Client : public QObject
 public:
     Client();
     ~Client();
-    void sendMessage(signed short forward, signed short rotation, signed short upDown, bool emergencyButton);
+    void sendMessage(signed short forward, signed short rotation, signed short upDown, bool emergencyButton, bool handControl);
 
 private:
     QTcpSocket *tcpSocket;

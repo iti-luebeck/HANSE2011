@@ -40,7 +40,8 @@ void Server::receiveMessage() {
 
     signed short forwardSpeed, angularSpeed, upDownSpeed;
     bool emergencyButton, stHandControl;
-    *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton >> stHandControl;
+    while(tcpSocket->bytesAvailable())
+        *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton >> stHandControl;
 
     if (stHandControl)
         emit startHandControl();
