@@ -28,6 +28,7 @@ private:
     videoInput vi;
     Mat frame;
     int camID;
+    float limit;
     void getFrame(Mat &frame);
     void runFrame();
 

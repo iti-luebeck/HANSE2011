@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Tue 29. Jun 11:45:46 2010
+** Created: Tue 29. Jun 15:58:03 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -36,6 +36,7 @@ public:
     QPushButton *settingsButton;
     QPushButton *stopButton;
     QPushButton *saveApplybutton;
+    QLineEdit *limitLineEdit;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -53,6 +54,7 @@ public:
         frameLabel = new QLabel(centralWidget);
         frameLabel->setObjectName(QString::fromUtf8("frameLabel"));
         frameLabel->setGeometry(QRect(50, 10, 451, 291));
+        frameLabel->setScaledContents(true);
         startButton = new QPushButton(centralWidget);
         startButton->setObjectName(QString::fromUtf8("startButton"));
         startButton->setGeometry(QRect(510, 40, 75, 23));
@@ -65,6 +67,9 @@ public:
         saveApplybutton = new QPushButton(centralWidget);
         saveApplybutton->setObjectName(QString::fromUtf8("saveApplybutton"));
         saveApplybutton->setGeometry(QRect(510, 110, 75, 23));
+        limitLineEdit = new QLineEdit(centralWidget);
+        limitLineEdit->setObjectName(QString::fromUtf8("limitLineEdit"));
+        limitLineEdit->setGeometry(QRect(560, 10, 31, 20));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -91,6 +96,7 @@ public:
         settingsButton->setText(QApplication::translate("MainWindow", "SETTINGS", 0, QApplication::UnicodeUTF8));
         stopButton->setText(QApplication::translate("MainWindow", "STOP", 0, QApplication::UnicodeUTF8));
         saveApplybutton->setText(QApplication::translate("MainWindow", "SAVE APPLY", 0, QApplication::UnicodeUTF8));
+        limitLineEdit->setText(QApplication::translate("MainWindow", "-10", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

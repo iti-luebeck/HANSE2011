@@ -39,6 +39,9 @@
     <property name="text">
      <string>videoLabel</string>
     </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QPushButton" name="startButton">
     <property name="geometry">
@@ -90,6 +93,19 @@
     </property>
     <property name="text">
      <string>SAVE APPLY</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="limitLineEdit">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>10</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-10</string>
     </property>
    </widget>
   </widget>
