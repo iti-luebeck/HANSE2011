@@ -12,7 +12,7 @@
 
 using namespace std;
 
-class NaiveSLAM : public QThread
+class NaiveSLAM : public QObject
 {
     Q_OBJECT
 public:

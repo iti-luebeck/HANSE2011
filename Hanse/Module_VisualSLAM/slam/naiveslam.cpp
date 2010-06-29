@@ -35,13 +35,11 @@ void NaiveSLAM::update( vector<CvMat *> *descriptors, vector<CvScalar> *pos3D, v
     this->descriptor = descriptors;
     this->pos3D = pos3D;
     this->classLabels = classLabels;
-    this->start();
+    this->run();
 }
 
 void NaiveSLAM::run()
 {
-    updateMutex.lock();
-
     qDebug( "d = %d, p = %d, c = %d", (int)descriptor->size(), (int)pos3D->size(), (int)classLabels->size() );
     int totalFeatures = (int)descriptor->size();
 
@@ -103,8 +101,6 @@ void NaiveSLAM::run()
 
         delete( found );
     }
-
-    updateMutex.unlock();
 
     emit updateDone();
 }
@@ -250,7 +246,7 @@ void NaiveSLAM::load( QTextStream &ts )
 
 void NaiveSLAM::getLandmarkPositions( QList<Position> &landmarkPositions, int particleNr )
 {
-    updateMutex.lock();
+    //updateMutex.lock();
     if ( particleNr >= 0 && particleNr < (int)particles.size() )
     {
         for ( int i = 0; i < (int)particles.at( particleNr )->landmarks.size(); i++ )
@@ -265,7 +261,7 @@ void NaiveSLAM::getLandmarkPositions( QList<Position> &landmarkPositions, int pa
             landmarkPositions.append( position );
         }
     }
-    updateMutex.unlock();
+    //updateMutex.unlock();
 }
 
 void NaiveSLAM::getParticlePositions( QList<Position> &particlePositions )

@@ -89,6 +89,8 @@ public slots:
     void updateSonarData();
     void updateObject( int classNr );
 
+    void test();
+
 signals:
     void healthStatusChanged(HealthStatus data);
 
@@ -112,6 +114,8 @@ private:
     Feature feature;
     NaiveSLAM slam;
     bool enabled;
+
+    QTimer testTimer;
 };
 
 #endif // MODULE_VISUALSLAM_H

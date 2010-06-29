@@ -91,7 +91,7 @@ void Feature::findFeatures(IplImage *image, vector<CvScalar> &keypoints)
 {
     this->image = image;
     this->keypoints = &keypoints;
-    this->start();
+    this->start( QThread::LowPriority );
 }
 
 void Feature::updateThreshold(int numFeatures)

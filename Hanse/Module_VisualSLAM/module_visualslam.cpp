@@ -8,7 +8,7 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
         RobotModule(id),
         slam( 50 )
 {
-    updateThread.start();
+    updateThread.start(QThread::LowPriority);
 
     this->sonarLocalization = sonarLocalization;
 
@@ -19,7 +19,8 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
                       this, SLOT(updateSonarData()) );
     QObject::connect( this, SIGNAL( enabled(bool) ), this, SLOT( statusChange(bool) ) );
     QObject::connect( this, SIGNAL( timerStart(int) ), &updateThread.timer, SLOT( start(int) ) );
-    QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ) );
+    QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ),
+                      Qt::BlockingQueuedConnection );
 
     double v_observation = settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
     double v_translation = settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
@@ -33,6 +34,9 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     {
         start();
     }
+
+    QObject::connect( &testTimer, SIGNAL(timeout()), this, SLOT(test()) );
+    testTimer.start(100);
 }
 
 Module_VisualSLAM::~Module_VisualSLAM()
@@ -88,23 +92,19 @@ void Module_VisualSLAM::stop()
 
 void Module_VisualSLAM::startGrab()
 {
+    qDebug("blub: %d", QThread::currentThread());
+
     //updateThread.timer.stop();
-    emit timerStop();
+    //emit timerStop();
     startClock = clock();
     cap.grab( settings.value( QString( "capture" ), false ).toBool() );
-}
 
-void Module_VisualSLAM::startUpdate()
-{
     stopClock = clock();
     logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
     startClock = clock();
     slam.update( cap.getDescriptors(), cap.getPos(), cap.getClasses() );
-}
 
-void Module_VisualSLAM::finishUpdate()
-{
     stopClock = clock();
     logger->debug( QString( "UPDATE %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
@@ -146,9 +146,17 @@ void Module_VisualSLAM::finishUpdate()
 
     if ( this->isEnabled() )
     {
-        emit timerStart( 50 );
+        //emit timerStart( 0 );
         //updateThread.timer.start( 0 );
     }
+}
+
+void Module_VisualSLAM::startUpdate()
+{
+}
+
+void Module_VisualSLAM::finishUpdate()
+{
 }
 
 void Module_VisualSLAM::updateObject( int classNr )
@@ -250,4 +258,9 @@ void Module_VisualSLAM::updateSonarData()
 
     // Set position difference as offset.
     slam.setOffset( diffPos );
+}
+
+void Module_VisualSLAM::test()
+{
+    qDebug("bla: %d", QThread::currentThread());
 }
