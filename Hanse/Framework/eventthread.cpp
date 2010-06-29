@@ -2,6 +2,8 @@
 
 EventThread::EventThread()
 {
+    //this->exec();
+    timer.moveToThread( this );
 }
 
 void EventThread::run()
