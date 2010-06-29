@@ -33,10 +33,6 @@ public:
     vector<CvScalar> *getPos();
     vector<int> *getClasses();
 
-public slots:
-    void surfDone1();
-    void surfDone2();
-
 private:
     void clear();
     void initStereoCalibration();

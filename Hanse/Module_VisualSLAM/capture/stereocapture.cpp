@@ -219,8 +219,6 @@ void StereoCapture::init( int device1, int device2 )
 
     feature1 = new Feature();
     feature2 = new Feature();
-    QObject::connect( feature1, SIGNAL( finished() ), SLOT( surfDone1() ), Qt::QueuedConnection );
-    QObject::connect( feature2, SIGNAL( finished() ), SLOT( surfDone2() ), Qt::QueuedConnection );
 
     // Calibrate the stereo cameras.
     initStereoCalibration();
@@ -741,38 +739,6 @@ void StereoCapture::getObjectPosition( int classNr, QRectF &boundingBox, QDateTi
             break;
         }
     }
-}
-
-void StereoCapture::surfDone1()
-{
-    /*
-    if ( done2 )
-    {
-        done1 = false;
-        done2 = false;
-        doCalculations();
-    }
-    else
-    {
-        done1 = true;
-    }
-    */
-}
-
-void StereoCapture::surfDone2()
-{
-    /*
-    if ( done1 )
-    {
-        done1 = false;
-        done2 = false;
-        doCalculations();
-    }
-    else
-    {
-        done2 = true;
-    }
-    */
 }
 
 vector<CvMat *> *StereoCapture::getDescriptors()
