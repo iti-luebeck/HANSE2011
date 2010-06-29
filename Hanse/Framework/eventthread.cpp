@@ -10,3 +10,8 @@ void EventThread::run()
 {
     this->exec();
 }
+
+void EventThread::moveTimer()
+{
+    timer.moveToThread( this );
+}

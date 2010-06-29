@@ -24,15 +24,18 @@
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     : RobotModule(id)
 {
+    thread.start();
+
     this->uid=uid;
 
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
 
-    timer.moveToThread(&thread);//
-    timer.start();
-
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+    connect(&thread.timer,SIGNAL(timeout()), this, SLOT(refreshData()),
+            Qt::DirectConnection);
+    connect( this, SIGNAL(timerStart(int)), &thread.timer, SLOT(start(int)) );
+    connect( this, SIGNAL(timerStop()), &thread.timer, SLOT(stop()),
+             Qt::BlockingQueuedConnection);
 
     reset();
 }
@@ -44,7 +47,8 @@ Module_PressureSensor::~Module_PressureSensor()
 void Module_PressureSensor::terminate()
 {
     RobotModule::terminate();
-    timer.stop();
+    emit timerStop();
+    //timer.stop();
 }
 
 void Module_PressureSensor::reset()
@@ -53,9 +57,11 @@ void Module_PressureSensor::reset()
 
     int freq = 1000/getSettings().value("frequency").toInt();
     if (freq>0)
-        timer.start(freq);
+        emit timerStart(freq);
+        //timer.start(freq);
     else
-        timer.stop();
+        emit timerStop();
+        //timer.stop();
 
     if (!getSettings().value("enabled").toBool())
         return;

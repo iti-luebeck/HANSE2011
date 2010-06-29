@@ -9,10 +9,12 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
         slam( 50 )
 {
     updateThread.start(QThread::LowPriority);
+    updateThread.moveTimer();
 
     this->sonarLocalization = sonarLocalization;
 
-    QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( startGrab() ) );
+    QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( startGrab() ),
+                      Qt::DirectConnection );
     QObject::connect( &cap, SIGNAL( grabFinished() ), SLOT( startUpdate() ) );
     QObject::connect( &slam, SIGNAL( updateDone() ), SLOT( finishUpdate() ) );
     QObject::connect( sonarLocalization, SIGNAL(newLocalizationEstimate()),
@@ -35,8 +37,8 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
         start();
     }
 
-    QObject::connect( &testTimer, SIGNAL(timeout()), this, SLOT(test()) );
-    testTimer.start(100);
+//    QObject::connect( &testTimer, SIGNAL(timeout()), this, SLOT(test()) );
+//    testTimer.start(100);
 }
 
 Module_VisualSLAM::~Module_VisualSLAM()
@@ -92,7 +94,7 @@ void Module_VisualSLAM::stop()
 
 void Module_VisualSLAM::startGrab()
 {
-    qDebug("blub: %d", QThread::currentThread());
+//    qDebug("blub: %d", QThread::currentThread());
 
     //updateThread.timer.stop();
     //emit timerStop();

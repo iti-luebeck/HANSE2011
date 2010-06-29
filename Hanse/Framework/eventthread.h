@@ -10,6 +10,7 @@ class EventThread : public QThread
 public:
     EventThread();
     void run();
+    void moveTimer();
 
 //public slots:
 //    void timerStart( int msec );
