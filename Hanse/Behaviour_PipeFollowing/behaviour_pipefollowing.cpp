@@ -5,6 +5,7 @@
 #include <Behaviour_PipeFollowing/pipefollowingform.h>
 //#include <OpenCV/include/opencv/cv.h>
 #include <opencv/cxcore.h>
+#include <Module_VisualSLAM/capture/clahe.h>
 
 //using namespace cv;
 
@@ -200,6 +201,8 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
         }
         /**** Segmentation */
         Mat thresh;
+        IplImage* img = new IplImage(s);
+        cvCLAdaptEqualize(img,img,16,16,256,12,CV_CLAHE_RANGE_FULL);
         threshold(s,thresh,threshSegmentation,255,THRESH_BINARY);
         Canny(thresh, binaryFrame, 50, 200, 3 );
 
