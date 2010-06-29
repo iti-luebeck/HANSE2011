@@ -10,6 +10,9 @@ Form_VisualSLAM::Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent
     this->visualSlam = visualSlam;
     QObject::connect( this, SIGNAL( settingsChanged(double,double,double) ),
                       visualSlam, SLOT( changeSettings(double,double,double) ) );
+    QObject::connect( visualSlam, SIGNAL(dataChanged(RobotModule*)),
+                      this, SLOT(updateCams(RobotModule*)),
+                      Qt::DirectConnection );
 
     ui->observationEdit->setText( QString("%1").arg( visualSlam->getObservationVariance() ) );
     ui->translationEdit->setText( QString("%1").arg( visualSlam->getTranslationVariance() ) );
@@ -118,4 +121,14 @@ void Form_VisualSLAM::on_checkBox_clicked()
 {
     QSettings& settings = visualSlam->getSettings();
     settings.setValue( QString( "capture" ), ui->checkBox->isChecked() );
+}
+
+void Form_VisualSLAM::updateCams( RobotModule * )
+{
+    IplImage *frame1 = visualSlam->getFrame( 0 );
+    QImage image1((unsigned char*)frame1->imageData, frame1->width, frame1->height, QImage::Format_Indexed8);
+    ui->leftLabel->setPixmap(QPixmap::fromImage(image1));
+    IplImage *frame2 = visualSlam->getFrame( 1 );
+    QImage image2((unsigned char*)frame2->imageData, frame2->width, frame2->height, QImage::Format_Indexed8);
+    ui->rightLabel->setPixmap(QPixmap::fromImage(image2));
 }

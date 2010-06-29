@@ -77,7 +77,9 @@ private:
     vector<CvScalar> keypoints1;
     vector<CvScalar> keypoints2;
     IplImage *frame1;
+    IplImage *frame1_gray;
     IplImage *frame2;
+    IplImage *frame2_gray;
     vector<CvMat *> *descriptors;
     vector<CvScalar> *pos;
     vector<int> *classes;

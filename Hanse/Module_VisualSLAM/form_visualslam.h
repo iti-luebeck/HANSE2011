@@ -31,6 +31,9 @@ private slots:
     void on_stopButton_clicked();
     void on_startButton_clicked();
 
+public slots:
+    void updateCams( RobotModule * );
+
 signals:
     void settingsChanged( double v_observation, double v_translation, double v_rotation );
 };

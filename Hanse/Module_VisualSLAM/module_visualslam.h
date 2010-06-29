@@ -68,6 +68,7 @@ public:
     void load( QTextStream &ts );
 
     void getPlotData( QList<Position> &landmarkPositions, QList<Position> &particlePositions, int &bestParticle );
+    IplImage *getFrame( int camNr );
     double getObservationVariance();
     double getTranslationVariance();
     double getRotationVariance();

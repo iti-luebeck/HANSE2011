@@ -4,6 +4,7 @@
 #include <opencv/highgui.h>
 #include <time.h>
 #include "../helpers.h"
+#include <Module_VisualSLAM/capture/clahe.h>
 
 StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
 {
@@ -22,7 +23,9 @@ StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
     pos = NULL;
     classes = NULL;
     frame1 = NULL;
+    frame1_gray = NULL;
     frame2 = NULL;
+    frame2_gray = NULL;
     connected1 = false;
     connected2 = false;
     feature1 = NULL;
@@ -70,10 +73,20 @@ void StereoCapture::clear()
         cvReleaseImage( &frame1 );
         frame1 = NULL;
     }
+    if ( frame1_gray )
+    {
+        cvReleaseImage( &frame1_gray );
+        frame1_gray = NULL;
+    }
     if ( frame2 )
     {
         cvReleaseImage( &frame2 );
         frame2 = NULL;
+    }
+    if ( frame2_gray )
+    {
+        cvReleaseImage( &frame2_gray );
+        frame1_gray = NULL;
     }
     if ( descriptors )
     {
@@ -169,7 +182,9 @@ void StereoCapture::init( int device1, int device2 )
 
     // Create frame images.
     frame1 = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 3 );
+    frame1_gray = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 1 );
     frame2 = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 3 );
+    frame2_gray = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 1 );
 
     // Load class features.
     CvFileStorage *fileStorage = cvOpenFileStorage( "classifier_features.xml", NULL, CV_STORAGE_READ );
@@ -213,104 +228,204 @@ void StereoCapture::init( int device1, int device2 )
 
 void StereoCapture::initStereoCalibration()
 {
-    // Initialize known extrinsic and intrinsic camara parameters.
-    double cameraMatrix1Arr[] = { 489.2645,        0, 324.8205,
-                                         0, 490.4222, 247.2733,
-                                         0,        0,        1 };
-    CvMat *cameraMatrix1 = cvCreateMat(3, 3, CV_64F);
-    cvInitMatHeader(cameraMatrix1, 3, 3, CV_64F, cameraMatrix1Arr, CV_AUTOSTEP);
+    if ( false )
+    {
+        // Initialize known extrinsic and intrinsic camara parameters.
+        double cameraMatrix1Arr[] = { 651.2921,        0, 309.3498,
+                                             0, 655.0395, 265.8984,
+                                             0,        0,        1 };
+        CvMat *cameraMatrix1 = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(cameraMatrix1, 3, 3, CV_64F, cameraMatrix1Arr, CV_AUTOSTEP);
 
-    double cameraMatrix2Arr[] = { 491.9357,        0, 327.8587,
-                                         0, 493.2895, 240.4857,
-                                         0,        0,        1 };
-    CvMat *cameraMatrix2 = cvCreateMat(3, 3, CV_64F);
-    cvInitMatHeader(cameraMatrix2, 3, 3, CV_64F, cameraMatrix2Arr, CV_AUTOSTEP);
+        double cameraMatrix2Arr[] = { 647.0961,        0, 289.8622,
+                                             0, 651.9731, 255.4255,
+                                             0,        0,        1 };
+        CvMat *cameraMatrix2 = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(cameraMatrix2, 3, 3, CV_64F, cameraMatrix2Arr, CV_AUTOSTEP);
 
-    double distCoeffs1Arr[] = { 0.0705, -0.0718, -0.0009, -0.0015, 0 };
-    CvMat *distCoeffs1 = cvCreateMat(1, 5, CV_64F);
-    cvInitMatHeader(distCoeffs1, 1, 5, CV_64F, distCoeffs1Arr, CV_AUTOSTEP);
+        double distCoeffs1Arr[] = { 0.5290, 0.4212, 0.0048, -0.0197, 0 };
+        CvMat *distCoeffs1 = cvCreateMat(1, 5, CV_64F);
+        cvInitMatHeader(distCoeffs1, 1, 5, CV_64F, distCoeffs1Arr, CV_AUTOSTEP);
 
-    double distCoeffs2Arr[] = { 0.0734, -0.1237, 0.0016, -0.0050, 0 };
-    CvMat *distCoeffs2 = cvCreateMat(1, 5, CV_64F);
-    cvInitMatHeader(distCoeffs2, 1, 5, CV_64F, distCoeffs2Arr, CV_AUTOSTEP);
+        double distCoeffs2Arr[] = { 0.6875, -0.7032, -0.0189, -0.0331, 0 };
+        CvMat *distCoeffs2 = cvCreateMat(1, 5, CV_64F);
+        cvInitMatHeader(distCoeffs2, 1, 5, CV_64F, distCoeffs2Arr, CV_AUTOSTEP);
 
-    double RArr[] = { 0.9983, -0.0034, -0.0590,
-                      0.0021,  0.9997, -0.0225,
-                      0.0591,  0.0224,  0.9980 };
-    CvMat *R = cvCreateMat(3, 3, CV_64F);
-    cvInitMatHeader(R, 3, 3, CV_64F, RArr, CV_AUTOSTEP);
+        double RArr[] = { 0.9896,   -0.1333,    0.0546,
+                          0.1286,    0.9883,    0.0824,
+                         -0.0649,   -0.0745,    0.9951, };
+        CvMat *R = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(R, 3, 3, CV_64F, RArr, CV_AUTOSTEP);
 
-    double TArr[] = { -217.8341, 0.2694, -4.4763 };
-    CvMat *T = cvCreateMat(3, 1, CV_64F);
-    cvInitMatHeader(T, 3, 1, CV_64F, TArr, CV_AUTOSTEP);
+        double TArr[] = { -212.2295, -15.1372, 11.5281 };
+        CvMat *T = cvCreateMat(3, 1, CV_64F);
+        cvInitMatHeader(T, 3, 1, CV_64F, TArr, CV_AUTOSTEP);
 
-    newT = -217.8802;
+        newT = -213.0808;
 
-    // Calculate rectification matrices.
-    CvMat *R1 = cvCreateMat(3, 3, CV_64F);
-    CvMat *R2 = cvCreateMat(3, 3, CV_64F);
-    CvMat *P1 = cvCreateMat(3, 4, CV_64F);
-    CvMat *P2 = cvCreateMat(3, 4, CV_64F);
-    Q = cvCreateMat( 4, 4, CV_64F );
+        // Calculate rectification matrices.
+        CvMat *R1 = cvCreateMat(3, 3, CV_64F);
+        CvMat *R2 = cvCreateMat(3, 3, CV_64F);
+        CvMat *P1 = cvCreateMat(3, 4, CV_64F);
+        CvMat *P2 = cvCreateMat(3, 4, CV_64F);
+        Q = cvCreateMat( 4, 4, CV_64F );
 
-    cvStereoRectify(cameraMatrix1,              // intrinsic parameters of the left camera
-                    cameraMatrix2,              // intrinsic parameters of the right camera
-                    distCoeffs1,                // distortion parameters of the left camera
-                    distCoeffs2,                // distortion parameters of the right camera
-                    cvSize(640, 480),           // image size
-                    R,                          // rotation of right camera with respect to left camera
-                    T,                          // translation of right camera with respect to left camera
-                    R1,                         // rectification rotations
-                    R2,
-                    P1,                         // projection matrices into the new coordinate system
-                    P2,
-                    Q,                          // disparity to depth mapping
-                    CV_CALIB_ZERO_DISPARITY,    // principal points should be the same
-                    0);                         // zoom in so that there is no border
+        cvStereoRectify(cameraMatrix1,              // intrinsic parameters of the left camera
+                        cameraMatrix2,              // intrinsic parameters of the right camera
+                        distCoeffs1,                // distortion parameters of the left camera
+                        distCoeffs2,                // distortion parameters of the right camera
+                        cvSize(640, 480),           // image size
+                        R,                          // rotation of right camera with respect to left camera
+                        T,                          // translation of right camera with respect to left camera
+                        R1,                         // rectification rotations
+                        R2,
+                        P1,                         // projection matrices into the new coordinate system
+                        P2,
+                        Q,                          // disparity to depth mapping
+                        CV_CALIB_ZERO_DISPARITY,    // principal points should be the same
+                        0);                         // zoom in so that there is no border
 
-    // Calculate rectification mappings.
-    f = 500;
-    cm = 320;
-    cn = 240;
+        // Calculate rectification mappings.
+        f = 500;
+        cm = 319.5;
+        cn = 239.5;
 
-    double newcameraMatrix_leftArr[] = { f, 0, cm,
-                                         0, f, cn,
-                                         0, 0,  1 };
-    CvMat *newCameraMatrix_left = cvCreateMat(3, 3, CV_64F);
-    cvInitMatHeader(newCameraMatrix_left, 3, 3, CV_64F, newcameraMatrix_leftArr, CV_AUTOSTEP);
-    double newcameraMatrix_rightArr[] = { f, 0, cm,
-                                         0, f, cn,
-                                         0, 0,  1 };
-    CvMat *newCameraMatrix_right = cvCreateMat(3, 3, CV_64F);
-    cvInitMatHeader(newCameraMatrix_right, 3, 3, CV_64F, newcameraMatrix_rightArr, CV_AUTOSTEP);
+        double newcameraMatrix_leftArr[] = { f, 0, cm,
+                                             0, f, cn,
+                                             0, 0,  1 };
+        CvMat *newCameraMatrix_left = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(newCameraMatrix_left, 3, 3, CV_64F, newcameraMatrix_leftArr, CV_AUTOSTEP);
+        double newcameraMatrix_rightArr[] = { f, 0, cm,
+                                             0, f, cn,
+                                             0, 0,  1 };
+        CvMat *newCameraMatrix_right = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(newCameraMatrix_right, 3, 3, CV_64F, newcameraMatrix_rightArr, CV_AUTOSTEP);
 
-    mapX_left = cvCreateMat(480, 640, CV_32FC1);
-    mapY_left = cvCreateMat(480, 640, CV_32FC1);
-    mapX_right = cvCreateMat(480, 640, CV_32FC1);
-    mapY_right = cvCreateMat(480, 640, CV_32FC1);
-    cvInitUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, newCameraMatrix_left, mapX_right, mapY_right);
-    cvInitUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, newCameraMatrix_right, mapX_left, mapY_left);
+        mapX_left = cvCreateMat(480, 640, CV_32FC1);
+        mapY_left = cvCreateMat(480, 640, CV_32FC1);
+        mapX_right = cvCreateMat(480, 640, CV_32FC1);
+        mapY_right = cvCreateMat(480, 640, CV_32FC1);
+        cvInitUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, newCameraMatrix_left, mapX_right, mapY_right);
+        cvInitUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, newCameraMatrix_right, mapX_left, mapY_left);
 
-    cvReleaseMat(&newCameraMatrix_left);
-    cvReleaseMat(&newCameraMatrix_right);
-    cvReleaseMat(&cameraMatrix1);
-    cvReleaseMat(&cameraMatrix2);
-    cvReleaseMat(&distCoeffs1);
-    cvReleaseMat(&distCoeffs2);
-    cvReleaseMat(&R);
-    cvReleaseMat(&T);
-    cvReleaseMat(&R1);
-    cvReleaseMat(&R2);
-    cvReleaseMat(&P1);
-    cvReleaseMat(&P2);
+        cvReleaseMat(&newCameraMatrix_left);
+        cvReleaseMat(&newCameraMatrix_right);
+        cvReleaseMat(&cameraMatrix1);
+        cvReleaseMat(&cameraMatrix2);
+        cvReleaseMat(&distCoeffs1);
+        cvReleaseMat(&distCoeffs2);
+        cvReleaseMat(&R);
+        cvReleaseMat(&T);
+        cvReleaseMat(&R1);
+        cvReleaseMat(&R2);
+        cvReleaseMat(&P1);
+        cvReleaseMat(&P2);
+    }
+    else
+    {
+        // Initialize known extrinsic and intrinsic camara parameters.
+        double cameraMatrix1Arr[] = { 489.2645,        0, 324.8205,
+                                             0, 490.4222, 247.2733,
+                                             0,        0,        1 };
+        CvMat *cameraMatrix1 = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(cameraMatrix1, 3, 3, CV_64F, cameraMatrix1Arr, CV_AUTOSTEP);
+
+        double cameraMatrix2Arr[] = { 491.9357,        0, 327.8587,
+                                             0, 493.2895, 240.4857,
+                                             0,        0,        1 };
+        CvMat *cameraMatrix2 = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(cameraMatrix2, 3, 3, CV_64F, cameraMatrix2Arr, CV_AUTOSTEP);
+
+        double distCoeffs1Arr[] = { 0.0705, -0.0718, -0.0009, -0.0015, 0 };
+        CvMat *distCoeffs1 = cvCreateMat(1, 5, CV_64F);
+        cvInitMatHeader(distCoeffs1, 1, 5, CV_64F, distCoeffs1Arr, CV_AUTOSTEP);
+
+        double distCoeffs2Arr[] = { 0.0734, -0.1237, 0.0016, -0.0050, 0 };
+        CvMat *distCoeffs2 = cvCreateMat(1, 5, CV_64F);
+        cvInitMatHeader(distCoeffs2, 1, 5, CV_64F, distCoeffs2Arr, CV_AUTOSTEP);
+
+        double RArr[] = { 0.9983, -0.0034, -0.0590,
+                          0.0021,  0.9997, -0.0225,
+                          0.0591,  0.0224,  0.9980 };
+        CvMat *R = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(R, 3, 3, CV_64F, RArr, CV_AUTOSTEP);
+
+        double TArr[] = { -217.8341, 0.2694, -4.4763 };
+        CvMat *T = cvCreateMat(3, 1, CV_64F);
+        cvInitMatHeader(T, 3, 1, CV_64F, TArr, CV_AUTOSTEP);
+
+        newT = -217.8802;
+
+        // Calculate rectification matrices.
+        CvMat *R1 = cvCreateMat(3, 3, CV_64F);
+        CvMat *R2 = cvCreateMat(3, 3, CV_64F);
+        CvMat *P1 = cvCreateMat(3, 4, CV_64F);
+        CvMat *P2 = cvCreateMat(3, 4, CV_64F);
+        Q = cvCreateMat( 4, 4, CV_64F );
+
+        cvStereoRectify(cameraMatrix1,              // intrinsic parameters of the left camera
+                        cameraMatrix2,              // intrinsic parameters of the right camera
+                        distCoeffs1,                // distortion parameters of the left camera
+                        distCoeffs2,                // distortion parameters of the right camera
+                        cvSize(640, 480),           // image size
+                        R,                          // rotation of right camera with respect to left camera
+                        T,                          // translation of right camera with respect to left camera
+                        R1,                         // rectification rotations
+                        R2,
+                        P1,                         // projection matrices into the new coordinate system
+                        P2,
+                        Q,                          // disparity to depth mapping
+                        CV_CALIB_ZERO_DISPARITY,    // principal points should be the same
+                        0);                         // zoom in so that there is no border
+
+        // Calculate rectification mappings.
+        f = 500;
+        cm = 319.5;
+        cn = 239.5;
+
+        double newcameraMatrix_leftArr[] = { f, 0, cm,
+                                             0, f, cn,
+                                             0, 0,  1 };
+        CvMat *newCameraMatrix_left = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(newCameraMatrix_left, 3, 3, CV_64F, newcameraMatrix_leftArr, CV_AUTOSTEP);
+        double newcameraMatrix_rightArr[] = { f, 0, cm,
+                                             0, f, cn,
+                                             0, 0,  1 };
+        CvMat *newCameraMatrix_right = cvCreateMat(3, 3, CV_64F);
+        cvInitMatHeader(newCameraMatrix_right, 3, 3, CV_64F, newcameraMatrix_rightArr, CV_AUTOSTEP);
+
+        mapX_left = cvCreateMat(480, 640, CV_32FC1);
+        mapY_left = cvCreateMat(480, 640, CV_32FC1);
+        mapX_right = cvCreateMat(480, 640, CV_32FC1);
+        mapY_right = cvCreateMat(480, 640, CV_32FC1);
+        cvInitUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, newCameraMatrix_left, mapX_right, mapY_right);
+        cvInitUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, newCameraMatrix_right, mapX_left, mapY_left);
+
+        cvReleaseMat(&newCameraMatrix_left);
+        cvReleaseMat(&newCameraMatrix_right);
+        cvReleaseMat(&cameraMatrix1);
+        cvReleaseMat(&cameraMatrix2);
+        cvReleaseMat(&distCoeffs1);
+        cvReleaseMat(&distCoeffs2);
+        cvReleaseMat(&R);
+        cvReleaseMat(&T);
+        cvReleaseMat(&R1);
+        cvReleaseMat(&R2);
+        cvReleaseMat(&P1);
+        cvReleaseMat(&P2);
+    }
 }
 
 void StereoCapture::grab( bool saveImages )
 {
     captureMutex.lock();
-
     if (connected1) VI.getPixels(device1, (unsigned char *)frame1->imageData, true, true);
+    cvCvtColor( frame1, frame1_gray, CV_RGB2GRAY );
+    cvCLAdaptEqualize( frame1_gray, frame1_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
     if (connected2) VI.getPixels(device2, (unsigned char *)frame2->imageData, true, true);
+    cvCvtColor( frame2, frame2_gray, CV_RGB2GRAY );
+    cvCLAdaptEqualize( frame2_gray, frame2_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
+    captureMutex.unlock();
 
     if ( saveImages )
     {
@@ -325,10 +440,10 @@ void StereoCapture::grab( bool saveImages )
     count++;
 
     keypoints1.clear();
-    feature1->findFeatures( frame1, keypoints1 );
+    feature1->findFeatures( frame1_gray, keypoints1 );
 
     keypoints2.clear();
-    feature2->findFeatures( frame2, keypoints2 );
+    feature2->findFeatures( frame2_gray, keypoints2 );
 
     feature1->wait();
     feature2->wait();
@@ -347,8 +462,8 @@ void StereoCapture::grab( bool saveImages )
     for ( int i = 0; i < (int)keypoints1.size(); i++ )
     {
         CvScalar point = keypoints1[i];
-        cvCircle( frame1, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
-        cvCircle( frame1, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
+        cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
+        cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
     }
 
     // Check for occurences of the class features.
@@ -396,8 +511,8 @@ void StereoCapture::grab( bool saveImages )
     for (int i = 0; i < (int)keypoints2.size(); i++)
     {
         CvScalar point = keypoints2[i];
-        cvCircle( frame2, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
-        cvCircle( frame2, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
+        cvCircle( frame2_gray, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
+        cvCircle( frame2_gray, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
     }
 
     vector<CvPoint> matches;
@@ -499,8 +614,6 @@ void StereoCapture::grab( bool saveImages )
             }
         }
     }
-
-    captureMutex.unlock();
 
     grabFinished();
 }
@@ -609,11 +722,11 @@ IplImage *StereoCapture::getFrame( int cam )
 {
     if ( cam == 0 )
     {
-        return frame1;
+        return frame1_gray;
     }
     else
     {
-        return frame2;
+        return frame2_gray;
     }
 }
 

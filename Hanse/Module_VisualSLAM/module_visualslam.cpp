@@ -221,6 +221,11 @@ void Module_VisualSLAM::getPlotData( QList<Position> &landmarkPositions, QList<P
     slam.getParticlePositions( particlePositions );
 }
 
+IplImage *Module_VisualSLAM::getFrame( int camNr )
+{
+    return cap.getFrame( camNr );
+}
+
 double Module_VisualSLAM::getObservationVariance()
 {
     return settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
