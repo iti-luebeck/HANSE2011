@@ -97,10 +97,12 @@ signals:
     void updateFinished();
     void viewUpdated();
     void foundNewObject( int classNr );
+    void timerStart( int msec );
+    void timerStop();
 
 private:
     Module_SonarLocalization* sonarLocalization;
-    QTimer updateTimer;
+    //QTimer updateTimer;
     EventThread updateThread;
     QDateTime lastRefreshTime;
     clock_t startClock;

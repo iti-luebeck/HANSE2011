@@ -6,17 +6,20 @@
 
 Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sonarLocalization ) :
         RobotModule(id),
-        slam( 50 ),
-        updateTimer( this )
+        slam( 50 )
 {
+    updateThread.start();
+
     this->sonarLocalization = sonarLocalization;
 
-    QObject::connect( &updateTimer, SIGNAL( timeout() ), SLOT( startGrab() ) );
+    QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( startGrab() ) );
     QObject::connect( &cap, SIGNAL( grabFinished() ), SLOT( startUpdate() ) );
     QObject::connect( &slam, SIGNAL( updateDone() ), SLOT( finishUpdate() ) );
     QObject::connect( sonarLocalization, SIGNAL(newLocalizationEstimate()),
                       this, SLOT(updateSonarData()) );
     QObject::connect( this, SIGNAL( enabled(bool) ), this, SLOT( statusChange(bool) ) );
+    QObject::connect( this, SIGNAL( timerStart(int) ), &updateThread.timer, SLOT( start(int) ) );
+    QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ) );
 
     double v_observation = settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
     double v_translation = settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
@@ -24,14 +27,12 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     changeSettings( v_observation, v_translation, v_rotation );
 
     //this->moveToThread( &updateThread );
-    updateTimer.moveToThread( &updateThread );
+    //updateTimer.moveToThread( &updateThread );
 
     if ( isEnabled() )
     {
         start();
     }
-
-    updateThread.start();
 }
 
 Module_VisualSLAM::~Module_VisualSLAM()
@@ -74,20 +75,21 @@ void Module_VisualSLAM::start()
     cap.init( settings.value( QString( "left_camera" ), VSLAM_CAMERA_LEFT ).toInt(),
               settings.value( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
 
-    updateThread.start();
-    updateTimer.start( 1000 );
+    emit timerStart( 1000 );
+    //updateThread.timer.start( 1000 );
 }
 
 void Module_VisualSLAM::stop()
 {
     logger->info( "Stopped" );
-    updateTimer.stop();
-    updateThread.terminate();
+    //updateThread.timer.stop();
+    emit timerStop();
 }
 
 void Module_VisualSLAM::startGrab()
 {
-    updateTimer.stop();
+    //updateThread.timer.stop();
+    emit timerStop();
     startClock = clock();
     cap.grab( settings.value( QString( "capture" ), false ).toBool() );
 }
@@ -144,7 +146,8 @@ void Module_VisualSLAM::finishUpdate()
 
     if ( this->isEnabled() )
     {
-        updateTimer.start( 0 );
+        emit timerStart( 50 );
+        //updateThread.timer.start( 0 );
     }
 }
 
