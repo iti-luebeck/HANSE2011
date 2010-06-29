@@ -39,7 +39,7 @@ void MainWindow::runFrame()
 //    equalizeHist(gray,gray);
 
     IplImage* img = new IplImage(gray);
-    cvCLAdaptEqualize(img,img,8,8,256,this->limit,CV_CLAHE_RANGE_FULL);
+    cvCLAdaptEqualize(img,img,16,16,256,this->limit,CV_CLAHE_RANGE_FULL);
 
     QImage image1((unsigned char*)gray.data, frame.cols, frame.rows, QImage::Format_Indexed8);
     ui->frameLabel->setPixmap(QPixmap::fromImage(image1));
