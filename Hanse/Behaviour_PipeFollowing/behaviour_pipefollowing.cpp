@@ -35,6 +35,7 @@ void Behaviour_PipeFollowing::start()
         if(this->getSettings().value("useCamera").toBool()) this->initCam();
         else vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
 
+        logger->debug(this->getSettings().value("videoFilePath").toString());
         logger->debug("cameraID" +QString::number(this->cameraID));
         if((this->connected && this->getSettings().value("useCamera").toBool())
             || (vc.isOpened() && !this->getSettings().value("useCamera").toBool()))
@@ -51,7 +52,8 @@ void Behaviour_PipeFollowing::start()
 
 void Behaviour_PipeFollowing::stop()
 {
-    if (isEnabled()) {
+    if (this->isActive())
+    {
        timer.stop();
        vc.release();
        vi.stopDevice(this->cameraID);
@@ -65,7 +67,8 @@ void Behaviour_PipeFollowing::stop()
 void Behaviour_PipeFollowing::reset()
 {
     RobotBehaviour::reset();
-    Behaviour_PipeFollowing::stop();
+    this->tcl->setForwardSpeed(0.0);
+    this->tcl->setAngularSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
@@ -313,8 +316,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             {
                 this->setHealthToSick("20 frames without pipe");
                 //TODO 180 drehen?
-                emit finished(this,false);
                 this->stop();
+
             }
         }
         else this->noPipeCnt = 0;
