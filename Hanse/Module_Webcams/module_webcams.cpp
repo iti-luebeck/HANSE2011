@@ -1,6 +1,7 @@
 #include "module_webcams.h"
 #include <Module_Webcams/form_webcams.h>
 #include <assert.h>
+#include <opencv/highgui.h>
 
 Module_Webcams::Module_Webcams( QString id ) :
         RobotModule( id )
@@ -12,11 +13,27 @@ Module_Webcams::Module_Webcams( QString id ) :
     nCams = 0;
 
     settingsChanged();
+
+    if ( settings.value( "capture", false ).toBool() )
+    {
+        startCapture();
+    }
+
+    leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    count = 0;
+
+    QObject::connect( &captureTimer, SIGNAL( timeout() ),
+                      this, SLOT( captureWebcams() ) );
 }
 
 Module_Webcams::~Module_Webcams()
 {
     stopWebcams();
+    cvReleaseImage( &leftFrame );
+    cvReleaseImage( &rightFrame );
+    cvReleaseImage( &bottomFrame );
 }
 
 void Module_Webcams::stopWebcams()
@@ -32,7 +49,7 @@ void Module_Webcams::grabLeft( IplImage *left )
     {
         mutex.lock();
         assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
-        VI.getPixels( leftID, (unsigned char *)left->imageData, true, true );
+        VI.getPixels( leftID, (unsigned char *)left->imageData, false, true );
         mutex.unlock();
     }
 }
@@ -43,7 +60,7 @@ void Module_Webcams::grabRight( IplImage *right )
     {
         mutex.lock();
         assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
-        VI.getPixels( rightID, (unsigned char *)right->imageData, true, true );
+        VI.getPixels( rightID, (unsigned char *)right->imageData, false, true );
         mutex.unlock();
     }
 }
@@ -54,7 +71,7 @@ void Module_Webcams::grabBottom( IplImage *bottom )
     {
         mutex.lock();
         assert( bottom->width == WEBCAM_WIDTH && bottom->height == WEBCAM_HEIGHT );
-        VI.getPixels( bottomID, (unsigned char *)bottom->imageData, true, true );
+        VI.getPixels( bottomID, (unsigned char *)bottom->imageData, false, true );
         mutex.unlock();
     }
 }
@@ -116,6 +133,35 @@ void Module_Webcams::terminate()
 void Module_Webcams::statusChange( bool value )
 {
 
+}
+
+void Module_Webcams::startCapture()
+{
+    captureTimer.start( 500 );
+    count = 0;
+}
+
+void Module_Webcams::stopCapture()
+{
+    captureTimer.stop();
+}
+
+void Module_Webcams::captureWebcams()
+{
+    grabLeft( leftFrame );
+    grabRight( rightFrame );
+    grabBottom( bottomFrame );
+
+    char leftName[100];
+    sprintf( leftName, "capture_raw/left%04d.jpg", count );
+    cvSaveImage( leftName, leftFrame );
+    char rightName[100];
+    sprintf( rightName, "capture_raw/right%04d.jpg", count );
+    cvSaveImage( rightName, rightFrame );
+    char bottomName[100];
+    sprintf( bottomName, "capture_raw/bottom%04d.jpg", count );
+    cvSaveImage( bottomName, bottomFrame );
+    count++;
 }
 
 void Module_Webcams::settingsChanged()

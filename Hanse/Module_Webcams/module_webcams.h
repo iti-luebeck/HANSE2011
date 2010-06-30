@@ -32,6 +32,9 @@ public slots:
     void settingsChanged();
     void reset();
     void terminate();
+    void startCapture();
+    void stopCapture();
+    void captureWebcams();
 
 private:
     videoInput VI;
@@ -43,6 +46,12 @@ private:
     int bottomID;
     bool bottomConnected;
     QMutex mutex;
+    QTimer captureTimer;
+
+    IplImage *leftFrame;
+    IplImage *rightFrame;
+    IplImage *bottomFrame;
+    int count;
 };
 
 #endif // MODULE_WEBCAMS_H

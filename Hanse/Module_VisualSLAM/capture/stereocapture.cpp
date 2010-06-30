@@ -556,12 +556,16 @@ void StereoCapture::grab( bool saveImages )
         for ( int i = (int)pos->size() - 1; i >= 0; i-- )
         {
 //            qDebug( "%f, %f, %f", pos3D[i].val[0], pos3D[i].val[1], pos3D[i].val[2] );
-            if ( pos->at( i ).val[2] > 15 || pos->at( i ).val[2] < 1.0 )
+            if ( pos->at( i ).val[2] > 30 || pos->at( i ).val[2] < 0.2 )
             {
                 pos->erase( pos->begin() + i );
                 cvReleaseMat( &descriptors->at( i ) );
                 descriptors->erase( descriptors->begin() + i );
                 classes->erase( classes->begin() + i );
+            }
+            else
+            {
+//                qDebug( "%f,%f,%f", pos->at( i ).val[0], pos->at( i ).val[1], pos->at( i ).val[2] );
             }
         }
     }

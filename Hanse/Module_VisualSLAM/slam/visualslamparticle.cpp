@@ -155,7 +155,7 @@ bool VisualSLAMParticle::updatePosition( vector<CvScalar> *newPositions, vector<
     bool *tempConsensusSet = new bool[numPositions];
     int maxConsensus = 0;
     int tempMaxConsensus = 0;
-    for ( int i = 0; i < 40; i++ )
+    for ( int i = 0; i < 100; i++ )
     {
         // Calculate position with three random samples.
         memset( tempConsensusSet, false, numPositions*sizeof(bool) );
@@ -172,7 +172,7 @@ bool VisualSLAMParticle::updatePosition( vector<CvScalar> *newPositions, vector<
             maxConsensus = tempMaxConsensus;
             memcpy( maxConsensusSet, tempConsensusSet, numPositions*sizeof(bool) );
 
-            if ( maxConsensus > (int)(0.8 * ((double)numPositions)) )
+            if ( maxConsensus > (int)(0.5 * ((double)numPositions)) )
             {
                 break;
             }
@@ -450,6 +450,7 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> *newPositions, bool *foun
         }
     }
 
+    /*
     // Choose random position according to given covariance.
     cholesky( Sigma, L );
     CvRNG rng = cvRNG( cvGetTickCount() );
@@ -464,6 +465,7 @@ double VisualSLAMParticle::updateMap( vector<CvScalar> *newPositions, bool *foun
     currentRotation.y = cvmGet( sfilt, 5, 0 );
     currentRotation.z = cvmGet( sfilt, 6, 0 );
     currentRotation.normalize();
+    */
 
     cvReleaseMat( &Sigma );
     cvReleaseMat( &Sigmainv );

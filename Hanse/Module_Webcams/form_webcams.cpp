@@ -17,6 +17,10 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
 
     QObject::connect( this, SIGNAL( changedSettings() ),
                       cams, SLOT( settingsChanged() ) );
+    QObject::connect( this, SIGNAL( captureTurnedOn() ),
+                      cams, SLOT( startCapture() ) );
+    QObject::connect( this, SIGNAL( captureTurnedOff() ),
+                      cams, SLOT( stopCapture() ) );
 }
 
 Form_Webcams::~Form_Webcams()
@@ -79,18 +83,34 @@ void Form_Webcams::on_refreshButton_clicked()
 
     QImage imageLeft( (unsigned char*)leftFrame->imageData, leftFrame->width, leftFrame->height,
                       QImage::Format_RGB888 );
+    imageLeft = imageLeft.rgbSwapped();
     ui->leftLabel->setPixmap( QPixmap::fromImage( imageLeft ) );
 
     QImage imageRight( (unsigned char*)rightFrame->imageData, rightFrame->width, rightFrame->height,
                       QImage::Format_RGB888 );
+    imageRight = imageRight.rgbSwapped();
     ui->rightLabel->setPixmap( QPixmap::fromImage( imageRight ) );
 
     QImage imageBottom( (unsigned char*)bottomFrame->imageData, bottomFrame->width, bottomFrame->height,
                       QImage::Format_RGB888 );
+    imageBottom = imageBottom.rgbSwapped();
     ui->bottomLabel->setPixmap( QPixmap::fromImage( imageBottom ) );
 }
 
 void Form_Webcams::on_updateListButton_clicked()
 {
     refreshLists();
+}
+
+void Form_Webcams::on_checkBox_clicked()
+{
+    cams->getSettings().setValue( "capture", ui->checkBox->isChecked() );
+    if ( ui->checkBox->isChecked() )
+    {
+        emit captureTurnedOn();
+    }
+    else
+    {
+        emit captureTurnedOff();
+    }
 }

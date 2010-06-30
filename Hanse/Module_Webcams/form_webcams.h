@@ -30,12 +30,15 @@ private:
     IplImage *bottomFrame;
 
 private slots:
+    void on_checkBox_clicked();
     void on_updateListButton_clicked();
     void on_refreshButton_clicked();
     void on_applyButtn_clicked();
 
 signals:
     void changedSettings();
+    void captureTurnedOn();
+    void captureTurnedOff();
 };
 
 #endif // FORM_WEBCAMS_H

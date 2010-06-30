@@ -12,8 +12,8 @@ using namespace std;
 #define DEFAULT_OBSERVATION_VARIANCE    0.09
 #define DEFAULT_TRANSLATION_VARIANCE    0.01
 #define DEFAULT_ROTATION_VARIANCE       0.0025
-#define RANSAC_THRESHOLD                0.3
-#define P0                              0.001
+#define RANSAC_THRESHOLD                0.2
+#define P0                              0.01
 
 class Position;
 class Landmark;
