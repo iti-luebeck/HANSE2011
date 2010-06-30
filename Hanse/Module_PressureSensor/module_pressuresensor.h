@@ -57,7 +57,6 @@ private:
     Module_UID *uid;
     QTimer timer;
     QThread thread;
-    QTimer timer;
     int counter;
 
     void readPressure();

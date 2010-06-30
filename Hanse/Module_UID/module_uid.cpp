@@ -283,7 +283,7 @@ QString Module_UID::UID_Revision() {
     QString identify;
     char sequence[] = {Module_UID::UID_REVISION};
     char result[8];
-    if ( !(SendCommand(sequence, 1)) ) return QString("error1");
+    if ( !(SendCommand(sequence, 1)) ) return QString("");
     qint64 ret = uid->read(result,sizeof(result));
     if (ret<=0) return QString("error2");
     return QString::fromAscii(result, ret-1);
@@ -343,7 +343,8 @@ bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) 
 }
 
 QString Module_UID::UID_Identify() {
-    QMutexLocker l(&this->moduleMutex);
+    // deadlock if commented in
+    //QMutexLocker l(&this->moduleMutex);
 
     logger->trace("UID_Identify");
 
