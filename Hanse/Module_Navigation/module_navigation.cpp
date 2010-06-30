@@ -160,18 +160,18 @@ void Module_Navigation::headingUpdate( RobotModule * )
             if ( headingSensor == 0 )
             {
                 // Adjust the heading with a P controller.
-                if ( fabs( headingToGoal - currentHeading ) >
+                if ( fabs( headingToGoal - compassHeading ) >
                      settings.value( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
                 {
                     // positiv: drehhung nach rechts.
                     tcl->setAngularSpeed( settings.value( "p_heading", NAV_P_HEADING ).toDouble()
-                                          * ( headingToGoal - currentHeading ) );
+                                          * ( headingToGoal - compassHeading ) );
                 }
                 else
                 {
                     tcl->setAngularSpeed( .0 );
-                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED );
-                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ) )
+                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
+                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
                     {
                         speed -= settings.value( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
@@ -236,8 +236,8 @@ void Module_Navigation::vslamPositionUpdate( RobotModule * )
                 else
                 {
                     tcl->setAngularSpeed( .0 );
-                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED );
-                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ) )
+                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
+                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
                     {
                         speed -= settings.value( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
@@ -304,8 +304,8 @@ void Module_Navigation::sonarPositionUpdate()
                 else
                 {
                     tcl->setAngularSpeed( .0 );
-                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED );
-                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ) )
+                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
+                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
                     {
                         speed -= settings.value( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );

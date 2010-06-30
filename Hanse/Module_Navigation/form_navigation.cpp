@@ -19,9 +19,13 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     ui->goalHysteresisEdit->setText( settings.value( QString( "hysteresis_goal" ),
                                                     NAV_HYSTERESIS_GOAL ).toString() );
     ui->depthHysteresisEdit->setText( settings.value( QString( "hysteresis_depth" ),
-                                                      NAV_HYSTERESIS_DEPTH ).toString() );
-    ui->forwardSpeedEdit->setText( settings.value( QString( "forward_speed" ),
-                                                   NAV_FORWARD_SPEED ).toString() );
+                                                      NAV_HYSTERESIS_DEPTH ).toString() );    
+    ui->forwardSpeedEdit->setText( settings.value( "p_forward",
+                                                   NAV_P_FORWARD).toString() );
+    ui->forwardMaxDistEdit->setText( settings.value( "forward_max_dist",
+                                                     NAV_FORWARD_MAX_DIST).toString() );
+    ui->forwardMaxSpeedEdit->setText( settings.value( "forward_max_speed",
+                                                      NAV_FORWARD_MAX_SPEED).toString() );
     ui->forwardTimeEdit->setText( settings.value( QString( "forward_time" ),
                                                   NAV_FORWARD_TIME).toString() );
 }
