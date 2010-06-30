@@ -29,6 +29,8 @@ Module_Navigation::Module_Navigation( QString id,
                       this, SLOT( headingUpdate(RobotModule*) ) );
     QObject::connect( visSLAM, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( vslamPositionUpdate(RobotModule*) ) );
+    QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
+                      this, SLOT( sonarPositionUpdate() ) );
 
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
@@ -82,6 +84,7 @@ void Module_Navigation::gotoWayPoint( QString name, Position delta )
     double dx = currentGoalPosition.getX() - currentPosition.getX();
     double dy = currentGoalPosition.getY() - currentPosition.getY();
     headingToGoal = atan2( -dx, dy ) * 180 / CV_PI;
+    distanceToGoal = sqrt( dx*dx + dy*dy );
 
     tcl->setDepth( currentGoalPosition.getZ() );
     tcl->setForwardSpeed( .0 );
@@ -143,6 +146,7 @@ void Module_Navigation::depthUpdate( RobotModule * )
 void Module_Navigation::headingUpdate( RobotModule * )
 {
     double compassHeading = compass->getHeading();
+    int headingSensor = settings.value( "heading_sensor", 0 ).toInt();
     switch ( state )
     {
     case NAV_STATE_IDLE:
@@ -153,8 +157,36 @@ void Module_Navigation::headingUpdate( RobotModule * )
         case NAV_SUBSTATE_ADJUST_DEPTH:
             break;
         case NAV_SUBSTATE_ADJUST_HEADING:
+            if ( headingSensor == 0 )
+            {
+                // Adjust the heading with a P controller.
+                if ( fabs( headingToGoal - currentHeading ) >
+                     settings.value( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
+                {
+                    // positiv: drehhung nach rechts.
+                    tcl->setAngularSpeed( settings.value( "p_heading", NAV_P_HEADING ).toDouble()
+                                          * ( headingToGoal - currentHeading ) );
+                }
+                else
+                {
+                    tcl->setAngularSpeed( .0 );
+                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED );
+                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ) )
+                    {
+                        speed -= settings.value( "p_forward", NAV_P_FORWARD ).toDouble() *
+                                 ( 1 - ( distanceToGoal / settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
+                    }
+                    tcl->setForwardSpeed( speed );
+                    substate = NAV_SUBSTATE_MOVE_FORWARD;
+                    initialCompassHeading = compass->getHeading();
+
+                    // Go forward for "forward_time" seconds.
+                    QTimer::singleShot( 1000 * settings.value( "forward_time", NAV_FORWARD_TIME ).toDouble(),
+                                        this, SLOT( forwardDone() ) );
+                }
+            }
             break;
-        case NAV_SUBSTATE_MOVE_FORWARD:
+        case NAV_SUBSTATE_MOVE_FORWARD:            
             if ( fabs( initialCompassHeading - compassHeading ) >
                  settings.value( QString( "hysteresis_heading" ), NAV_HYSTERESIS_HEADING ).toDouble() )
             {
@@ -180,6 +212,7 @@ void Module_Navigation::headingUpdate( RobotModule * )
 void Module_Navigation::vslamPositionUpdate( RobotModule * )
 {
     double currentHeading = visSLAM->getLocalization().getYaw();
+    int headingSensor = settings.value( "heading_sensor", 0 ).toInt();
     switch ( state )
     {
     case NAV_STATE_IDLE:
@@ -190,30 +223,106 @@ void Module_Navigation::vslamPositionUpdate( RobotModule * )
         case NAV_SUBSTATE_ADJUST_DEPTH:
             break;
         case NAV_SUBSTATE_ADJUST_HEADING:
-            // Adjust the heading with a P controller.
-            if ( fabs( headingToGoal - currentHeading ) >
-                 settings.value( QString( "hysteresis_heading"), NAV_HYSTERESIS_HEADING ).toDouble() )
+            if ( headingSensor == 1 )
             {
-                // positiv: drehhung nach rechts.
-                tcl->setAngularSpeed( settings.value( QString( "p_heading" ), NAV_P_HEADING ).toDouble()
-                                      * ( headingToGoal - currentHeading ) );
-            }
-            else
-            {
-                tcl->setAngularSpeed( .0 );
-                tcl->setForwardSpeed( settings.value( QString( "forward_speed" ),
-                                                      NAV_FORWARD_SPEED ).toFloat() );
-                substate = NAV_SUBSTATE_MOVE_FORWARD;
-                initialCompassHeading = compass->getHeading();
+                // Adjust the heading with a P controller.
+                if ( fabs( headingToGoal - currentHeading ) >
+                     settings.value( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
+                {
+                    // positiv: drehhung nach rechts.
+                    tcl->setAngularSpeed( settings.value( "p_heading", NAV_P_HEADING ).toDouble()
+                                          * ( headingToGoal - currentHeading ) );
+                }
+                else
+                {
+                    tcl->setAngularSpeed( .0 );
+                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED );
+                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ) )
+                    {
+                        speed -= settings.value( "p_forward", NAV_P_FORWARD ).toDouble() *
+                                 ( 1 - ( distanceToGoal / settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
+                    }
+                    tcl->setForwardSpeed( speed );
+                    substate = NAV_SUBSTATE_MOVE_FORWARD;
+                    initialCompassHeading = compass->getHeading();
 
-                // Go forward for "forward_time" seconds.
-                QTimer::singleShot( 1000 * settings.value( QString( "forward_time" ), NAV_FORWARD_TIME ).toDouble(),
-                                    this, SLOT( forwardDone() ) );
+                    // Go forward for "forward_time" seconds.
+                    QTimer::singleShot( 1000 * settings.value( "forward_time", NAV_FORWARD_TIME ).toDouble(),
+                                        this, SLOT( forwardDone() ) );
+                }
             }
             break;
         case NAV_SUBSTATE_MOVE_FORWARD:
             // Check if the goal has already been reached.
             Position currentPosition = visSLAM->getLocalization();
+            if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
+                       ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
+                < settings.value( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
+            {
+                state = NAV_STATE_REACHED_GOAL;
+                tcl->setForwardSpeed( .0 );
+                tcl->setAngularSpeed( .0 );
+                reachedWaypoint( currentGoalName );
+            }
+            break;
+        }
+        break;
+    case NAV_STATE_FAILED_TO_GO_TO_GOAL:
+    case NAV_STATE_REACHED_GOAL:
+        break;
+    }
+
+    data["state"] = state;
+    data["substate"] = substate;
+    dataChanged( this );
+}
+
+void Module_Navigation::sonarPositionUpdate()
+{
+    double currentHeading = sonarLoc->getLocalization().getYaw();
+    int headingSensor = settings.value( "heading_sensor", 0 ).toInt();
+    switch ( state )
+    {
+    case NAV_STATE_IDLE:
+        break;
+    case NAV_STATE_GO_TO_GOAL:
+        switch ( substate )
+        {
+        case NAV_SUBSTATE_ADJUST_DEPTH:
+            break;
+        case NAV_SUBSTATE_ADJUST_HEADING:
+            if ( headingSensor == 2 )
+            {
+                // Adjust the heading with a P controller.
+                if ( fabs( headingToGoal - currentHeading ) >
+                     settings.value( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
+                {
+                    // positiv: drehhung nach rechts.
+                    tcl->setAngularSpeed( settings.value( "p_heading", NAV_P_HEADING ).toDouble()
+                                          * ( headingToGoal - currentHeading ) );
+                }
+                else
+                {
+                    tcl->setAngularSpeed( .0 );
+                    float speed = settings.value( "forward_max_speed", NAV_FORWARD_MAX_SPEED );
+                    if ( distanceToGoal < settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ) )
+                    {
+                        speed -= settings.value( "p_forward", NAV_P_FORWARD ).toDouble() *
+                                 ( 1 - ( distanceToGoal / settings.value( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
+                    }
+                    tcl->setForwardSpeed( speed );
+                    substate = NAV_SUBSTATE_MOVE_FORWARD;
+                    initialCompassHeading = compass->getHeading();
+
+                    // Go forward for "forward_time" seconds.
+                    QTimer::singleShot( 1000 * settings.value( "forward_time", NAV_FORWARD_TIME ).toDouble(),
+                                        this, SLOT( forwardDone() ) );
+                }
+            }
+            break;
+        case NAV_SUBSTATE_MOVE_FORWARD:
+            // Check if the goal has already been reached.
+            Position currentPosition = sonarLoc->getLocalization();
             if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
                        ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
                 < settings.value( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )

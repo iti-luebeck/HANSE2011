@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="waypointTab">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -135,7 +135,7 @@
          <x>150</x>
          <y>10</y>
          <width>251</width>
-         <height>241</height>
+         <height>301</height>
         </rect>
        </property>
        <property name="title">
@@ -145,7 +145,7 @@
         <property name="geometry">
          <rect>
           <x>160</x>
-          <y>210</y>
+          <y>260</y>
           <width>75</width>
           <height>23</height>
          </rect>
@@ -158,7 +158,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>170</y>
+          <y>230</y>
           <width>113</width>
           <height>20</height>
          </rect>
@@ -168,7 +168,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>80</y>
+          <y>140</y>
           <width>113</width>
           <height>20</height>
          </rect>
@@ -178,7 +178,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>50</y>
+          <y>110</y>
           <width>101</width>
           <height>16</height>
          </rect>
@@ -191,7 +191,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>110</y>
+          <y>170</y>
           <width>113</width>
           <height>20</height>
          </rect>
@@ -201,7 +201,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>80</y>
+          <y>140</y>
           <width>101</width>
           <height>16</height>
          </rect>
@@ -214,7 +214,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>50</y>
+          <y>110</y>
           <width>113</width>
           <height>20</height>
          </rect>
@@ -224,7 +224,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>140</y>
+          <y>200</y>
           <width>101</width>
           <height>16</height>
          </rect>
@@ -237,7 +237,7 @@
         <property name="geometry">
          <rect>
           <x>120</x>
-          <y>140</y>
+          <y>200</y>
           <width>113</width>
           <height>20</height>
          </rect>
@@ -247,7 +247,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>170</y>
+          <y>230</y>
           <width>101</width>
           <height>16</height>
          </rect>
@@ -266,7 +266,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>Forward Speed:</string>
+         <string>Forward P Value:</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="forwardSpeedEdit">
@@ -283,7 +283,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>110</y>
+          <y>170</y>
           <width>101</width>
           <height>16</height>
          </rect>
@@ -292,6 +292,93 @@
          <string>Heading Hysteresis:</string>
         </property>
        </widget>
+       <widget class="QLabel" name="label_8">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Forward Max Dist:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="forwardMaxDistEdit">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>80</y>
+          <width>113</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_9">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>50</y>
+          <width>101</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Forward Max Speed:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="forwardMaxSpeedEdit">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>50</y>
+          <width>113</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QComboBox" name="headingBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>121</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Compass</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Visual SLAM</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Sonar</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="label_7">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>121</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Heading Sensor</string>
+       </property>
       </widget>
      </widget>
     </widget>

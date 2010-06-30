@@ -142,11 +142,11 @@ void Form_Navigation::on_applyButton_clicked()
         return;
     }
 
-    double forward_speed = ui->forwardSpeedEdit->text().toDouble( &ok );
+    double p_forward = ui->forwardSpeedEdit->text().toDouble( &ok );
     if ( !ok )
     {
         QMessageBox msgBox;
-        msgBox.setText( "Incorrect forward speed." );
+        msgBox.setText( "Incorrect forward P value." );
         msgBox.exec();
         return;
     }
@@ -160,13 +160,34 @@ void Form_Navigation::on_applyButton_clicked()
         return;
     }
 
+    double forward_max_speed = ui->forwardMaxSpeedEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect forward max speed." );
+        msgBox.exec();
+        return;
+    }
+
+    double forward_max_dist = ui->forwardMaxDistEdit->text().toDouble( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect forward max dist." );
+        msgBox.exec();
+        return;
+    }
+
     QSettings& settings = nav->getSettings();
-    settings.setValue( QString( "p_heading" ), p_heading );
-    settings.setValue( QString( "hysteresis_heading" ), hysteresis_heading );
-    settings.setValue( QString( "hysteresis_goal" ), hysteresis_goal );
-    settings.setValue( QString( "hysteresis_depth" ), hysteresis_depth );
-    settings.setValue( QString( "forward_speed" ), forward_speed );
-    settings.setValue( QString( "forward_time" ), forward_time );
+    settings.setValue( "p_heading", p_heading );
+    settings.setValue( "hysteresis_heading", hysteresis_heading );
+    settings.setValue( "hysteresis_goal", hysteresis_goal );
+    settings.setValue( "hysteresis_depth", hysteresis_depth );
+    settings.setValue( "p_forward", p_forward );
+    settings.setValue( "forward_time", forward_time );
+    settings.setValue( "forward_max_speed", forward_max_speed );
+    settings.setValue( "forward_max_dist", forward_max_dist );
+    settings.setValue( "heading_sensor", ui->headingBox->currentIndex() );
 }
 
 void Form_Navigation::on_gotoButton_clicked()

@@ -19,7 +19,9 @@
 #define NAV_HYSTERESIS_HEADING  10
 #define NAV_HYSTERESIS_GOAL     0.5
 #define NAV_HYSTERESIS_DEPTH    0.1
-#define NAV_FORWARD_SPEED       0.1
+#define NAV_P_FORWARD           0.02
+#define NAV_FORWARD_MAX_SPEED   0.2
+#define NAV_FORWARD_MAX_DIST    4
 #define NAV_FORWARD_TIME        5
 
 class Module_Localization;
@@ -118,6 +120,7 @@ public slots:
     void depthUpdate( RobotModule * );
     void headingUpdate( RobotModule * );
     void vslamPositionUpdate( RobotModule * );
+    void sonarPositionUpdate();
     void forwardDone();
 
 signals:
@@ -145,6 +148,7 @@ private:
     QString currentGoalName;
     Position currentGoalPosition;
     double headingToGoal;
+    double distanceToGoal;
     float initialCompassHeading;
 
     int state;
