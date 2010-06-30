@@ -376,8 +376,6 @@ void StereoCapture::grab( bool saveImages )
     cvCvtColor( frame2, frame2_gray, CV_RGB2GRAY );
     cvCLAdaptEqualize( frame2_gray, frame2_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
 
-    captureMutex.unlock();
-
     if ( saveImages )
     {
         char leftName[100];
@@ -569,6 +567,7 @@ void StereoCapture::grab( bool saveImages )
             }
         }
     }
+    captureMutex.unlock();
 
     grabFinished();
 }

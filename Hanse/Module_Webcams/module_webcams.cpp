@@ -164,6 +164,11 @@ void Module_Webcams::captureWebcams()
     count++;
 }
 
+void Module_Webcams::showSettings( int camNr )
+{
+    VI.showSettingsWindow( camNr );
+}
+
 void Module_Webcams::settingsChanged()
 {
     nCams = VI.listDevices( true );

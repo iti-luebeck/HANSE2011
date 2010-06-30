@@ -35,6 +35,7 @@ public slots:
     void startCapture();
     void stopCapture();
     void captureWebcams();
+    void showSettings( int camNr );
 
 private:
     videoInput VI;

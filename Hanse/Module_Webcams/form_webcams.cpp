@@ -21,6 +21,8 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
                       cams, SLOT( startCapture() ) );
     QObject::connect( this, SIGNAL( captureTurnedOff() ),
                       cams, SLOT( stopCapture() ) );
+    QObject::connect( this, SIGNAL( showSettings(int) ),
+                      cams, SLOT( showSettings(int) ) );
 }
 
 Form_Webcams::~Form_Webcams()
@@ -113,4 +115,19 @@ void Form_Webcams::on_checkBox_clicked()
     {
         emit captureTurnedOff();
     }
+}
+
+void Form_Webcams::on_leftSettingsButton_clicked()
+{
+    emit showSettings( cams->getSettings().value( "leftID", 0 ).toInt() );
+}
+
+void Form_Webcams::on_rightSettingsButton_clicked()
+{
+    emit showSettings( cams->getSettings().value( "rightID", 1 ).toInt() );
+}
+
+void Form_Webcams::on_bottomSettingsButton_clicked()
+{
+    emit showSettings( cams->getSettings().value( "bottomID", 2 ).toInt() );
 }
