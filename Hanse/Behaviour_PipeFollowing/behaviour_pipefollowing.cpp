@@ -177,20 +177,21 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
             for (int j = 0; j < WEBCAM_WIDTH; j++)
             {
                 Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-                displayFrame.at<unsigned char>(i, j) = 255 - hsvV[channel];
+                displayFrame.at<unsigned char>(i, j) = hsvV[channel];
             }
         }
         /**** Segmentation */
 //        Mat thresh;
 //        threshold( displayFrame, displayFrame, threshSegmentation, 255, THRESH_BINARY);
 //        thresh.copyTo( displayFrame );
-        Canny( displayFrame, binaryFrame, 20, 100, 3 );
+        medianBlur( displayFrame, displayFrame, 5 );
+        Canny( displayFrame, binaryFrame, 100, 200, 3, true );
 //        binaryFrame.copyTo( displayFrame );
 
         /*debug */
         if(debug)
         {
-             namedWindow("Canny",1);
+            namedWindow("Canny",1);
             imshow("Canny",frameHSV);
             u = waitKey();
             imshow("Canny",binaryFrame);
@@ -204,11 +205,20 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 {
         /* hough transformation */
         vector<Vec2f> lines;
-        HoughLines(binaryFrame, lines, 1, CV_PI/180, 100 );
+        HoughLines(binaryFrame, lines, 1, CV_PI/180, 75 );
 
         /* DEBUG durchschnitt fuer alle erkannten linien */
         float avRho = 0.0;
         float avTheta = 0.0;
+
+        for( size_t i = 0; i < lines.size(); i++ )
+        {
+            if ( abs(lines[i][1]) < CV_PI / 12 )
+            {
+                lines[i][0] = -lines[i][0];
+                lines[i][1] = CV_PI + lines[i][1];
+            }
+        }
 
         for( size_t i = 0; i < lines.size(); i++ )
         {
@@ -220,9 +230,12 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             }
             avRho += lines[i][0];
             avTheta += lines[i][1];
+//            qDebug( "%f, %f", lines[i][0], lines[i][1] );
         }
         avRho /= lines.size();
         avTheta /= lines.size();
+        Behaviour_PipeFollowing::drawLineHough( displayFrame, avRho, avTheta,
+                                                Scalar(150,0,0) );
 
         if(debug)
         {
@@ -257,10 +270,32 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             }
 
         }
-        avRhoClass1 /= counterClass1;
-        avThetaClass1 /= counterClass1;
-        avRhoClass2 /= counterClass2;
-        avThetaClass2 /= counterClass2;
+        if ( counterClass1 > 0 )
+        {
+            avRhoClass1 /= counterClass1;
+            avThetaClass1 /= counterClass1;
+        }
+        else
+        {
+            if ( counterClass2 > 0 )
+            {
+                avRhoClass1 = avRhoClass2 / counterClass2;
+                avThetaClass1 = avThetaClass2 / counterClass2;
+            }
+        }
+        if ( counterClass2 > 0 )
+        {
+            avRhoClass2 /= counterClass2;
+            avThetaClass2 /= counterClass2;
+        }
+        else
+        {
+            if ( counterClass1 > 0 )
+            {
+                avRhoClass2 = avRhoClass1 / counterClass1;
+                avThetaClass2 = avThetaClass1 / counterClass1;
+            }
+        }
 
         /***** DEBUG linkes und recht berechnen und Zeichnen */
         if(debug)
