@@ -84,14 +84,14 @@
        <item row="5" column="1">
         <widget class="QLineEdit" name="maxDepthError"/>
        </item>
-       <item row="6" column="0">
+       <item row="7" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>horizontal speed mode:</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QCheckBox" name="horizSpM_exp">
          <property name="text">
           <string>experimental</string>
@@ -101,7 +101,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="9" column="1">
         <widget class="QPushButton" name="save">
          <property name="text">
           <string>Apply &amp;&amp; Save</string>
@@ -111,12 +111,22 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="8" column="1">
         <widget class="QCheckBox" name="ignoreHealth">
          <property name="text">
           <string>ignore health of pressure sensor</string>
          </property>
         </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Force unpause max error:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="forceUnpauseError"/>
        </item>
       </layout>
      </widget>

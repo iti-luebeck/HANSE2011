@@ -29,9 +29,6 @@ void ModulesGraph::build()
     Module_UID* uid = new Module_UID("uid");
     this->modules.append(uid);
     
-    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar");
-    this->modules.append(sonar);
-
     Module_Thruster* thrusterRight = new Module_Thruster("thrusterRight",uid);
     this->modules.append(thrusterRight);
     Module_Thruster* thrusterLeft = new Module_Thruster("thrusterLeft",uid);
@@ -52,6 +49,9 @@ void ModulesGraph::build()
 
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);
+
+    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
+    this->modules.append(sonar);
 
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);
     this->modules.append(handControl);

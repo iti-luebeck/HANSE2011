@@ -129,6 +129,7 @@ void Module_HandControl::start()
 {
     setEnabled(true);
     emit started(this);
+    reset();
 }
 
 void Module_HandControl::stop()

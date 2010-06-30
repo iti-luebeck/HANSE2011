@@ -125,11 +125,18 @@ private:
     QMap<QDateTime,float> historySoll;
     QMap<QDateTime,float> historyThrustCmd;
 
+    volatile bool paused;
+
 private slots:
 
     void newDepthData(float depth);
     void healthStatusChanged(HealthStatus pressureSensorHealth);
 
+
+public slots:
+
+    void pauseModule();
+    void unpauseModule();
 };
 
 #endif // MODULE_THRUSTERCONTROLLOOP_H

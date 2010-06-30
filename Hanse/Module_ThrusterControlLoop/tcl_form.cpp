@@ -16,6 +16,7 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     ui->maxSpD->setText(module->getSettings().value(    "maxSpD").toString());
     ui->neutrSpD->setText(module->getSettings().value(  "neutrSpD").toString());
     ui->maxDepthError->setText(module->getSettings().value(  "maxDepthError").toString());
+    ui->forceUnpauseError->setText(module->getSettings().value("forceUnpauseError").toString());
 
     ui->horizSpM_exp->setChecked( module->getSettings().value("horizSpM_exp").toBool() );
 
@@ -76,6 +77,7 @@ void TCL_Form::on_save_clicked()
     module->getSettings().setValue("maxSpD",    ui->maxSpD->text().toFloat());
     module->getSettings().setValue("neutrSpD",  ui->neutrSpD->text().toFloat());
     module->getSettings().setValue("maxDepthError",  ui->maxDepthError->text().toFloat());
+    module->getSettings().setValue("forceUnpauseError", ui->forceUnpauseError->text());
 
     module->getSettings().setValue("horizSpM_exp", ui->horizSpM_exp->isChecked() );
     module->getSettings().setValue("ignoreHealth", ui->ignoreHealth->isChecked() );

@@ -47,6 +47,7 @@ void Module_ThrusterControlLoop::reset()
     actualForwardSpeed=0.0;
     actualAngularSpeed=0.0;
     setvalueDepth=0.0;
+    paused = false;
 
     control_loop_enabled = false;
 
@@ -119,6 +120,12 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (speed>maxSpU) { speed=maxSpU; }
         if (speed<maxSpD) { speed=maxSpD; }
 
+        if (error<settings.value("forceUnpauseError").toFloat())
+            paused = false;
+
+        if (paused)
+            return;
+
         thrusterDown->setSpeed(speed);
         thrusterDownFront->setSpeed(speed);
         historyThrustCmd[now] = speed;
@@ -183,7 +190,7 @@ void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
 
 void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettings().value("enabled").toBool() || paused)
         return;
 
     if (angularSpeed> 1.0) { angularSpeed= 1.0; }
@@ -197,7 +204,7 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 
 void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettings().value("enabled").toBool() || paused)
         return;
 
     if (speed> 1.0) { speed= 1.0; }
@@ -211,7 +218,7 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 
 void Module_ThrusterControlLoop::setDepth(float depth)
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettings().value("enabled").toBool() || paused)
         return;
 
     control_loop_enabled=true;
@@ -252,4 +259,22 @@ float Module_ThrusterControlLoop::getForwardSpeed()
 float Module_ThrusterControlLoop::getAngularSpeed()
 {
     return data["actualAngularSpeed"].toFloat();
+}
+
+void Module_ThrusterControlLoop::pauseModule()
+{
+    logger->debug("pausing tcl");
+    this->paused = true;
+    thrusterLeft->setSpeed( 0 );
+    thrusterRight->setSpeed(0 );
+    thrusterDown->setSpeed( 0 );
+    thrusterDownFront->setSpeed( 0 );
+}
+
+void Module_ThrusterControlLoop::unpauseModule()
+{
+    logger->debug("unpausing tcl");
+    this->paused = false;
+    //updateHorizontalThrustersNow();
+    //updown thrusters should restart as soon as a new pressure
 }

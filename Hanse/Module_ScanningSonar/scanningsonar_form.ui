@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="test">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -303,14 +303,14 @@
           <item row="3" column="1">
            <widget class="QLineEdit" name="fileName"/>
           </item>
-          <item row="4" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="label_16">
             <property name="text">
              <string>Seek to position: </string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1" colspan="2">
+          <item row="6" column="1" colspan="2">
            <widget class="QDateTimeEdit" name="startTime"/>
           </item>
           <item row="3" column="2">
@@ -333,6 +333,30 @@
              <string>Live</string>
             </property>
            </widget>
+          </item>
+          <item row="4" column="1" colspan="2">
+           <widget class="QLineEdit" name="scanPeriod">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Scan Period</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>scan perdiod max scans</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1" colspan="2">
+           <widget class="QLineEdit" name="scanPeriodMaxScans"/>
           </item>
          </layout>
         </widget>

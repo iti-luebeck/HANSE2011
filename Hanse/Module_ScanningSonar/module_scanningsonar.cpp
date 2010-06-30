@@ -7,8 +7,9 @@
 #include "sonardatasourcefile.h"
 #include "sonardatacsvrecorder.h"
 #include "sonardata852recorder.h"
+#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
-Module_ScanningSonar::Module_ScanningSonar(QString id)
+Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop* tcl)
     : reader(this), RobotModule(id)
 {
     setDefaultValue("serialPort", "COM1");
@@ -27,6 +28,9 @@ Module_ScanningSonar::Module_ScanningSonar(QString id)
     setDefaultValue("fileReaderDelay", 100);
 
     qRegisterMetaType<SonarReturnData>("SonarReturnData");
+
+    this->tcl = tcl;
+    connect(&scanPeriodTimer, SIGNAL(timeout()), this, SLOT(nextScanPeriod()));
 
     recorder = NULL;
     source = NULL;
@@ -74,7 +78,7 @@ void Module_ScanningSonar::ThreadedReader::run(void)
     running = true;
     while(running)
     {
-        if (!m->getSettings().value("enabled").toBool() || !m->doNextScan())
+        if (!m->getSettings().value("enabled").toBool() || !m->doScanning || !m->doNextScan())
             msleep(500);
     }
 }
@@ -82,6 +86,16 @@ void Module_ScanningSonar::ThreadedReader::run(void)
 bool Module_ScanningSonar::doNextScan()
 {
     const SonarReturnData d = source->getNextPacket();
+
+    scanPeriodCntr++;
+    logger->debug("diff: "+QString::number(scanPeriodCntr-settings.value("scanPeriodMaxScans").toInt()));
+    if (scanPeriodCntr>settings.value("scanPeriodMaxScans").toInt()) {
+        logger->debug("scheduling next sonar scan");
+        //QTimer::singleShot(settings.value("scanPeriod").toInt(), this, SLOT(nextScanPeriod()));
+        doScanning = false;
+        //QTimer::singleShot(0, tcl, SLOT(unpauseModule()));
+        tcl->unpauseModule();
+    }
 
     if (!source || !source->isOpen())
         return false;
@@ -124,6 +138,11 @@ void Module_ScanningSonar::reset()
     if (!isEnabled())
         return;
 
+    doScanning = false;
+    scanPeriodCntr=0;
+    scanPeriodTimer.start(settings.value("scanPeriod").toInt());
+    //scanPeriodTimer.singleShot(settings.value("scanPeriod").toInt(), this, SLOT(nextScanPeriod()));
+
     if (settings.value("enableRecording").toBool()) {
         if (settings.value("formatCSV").toBool())
             recorder = new SonarDataCSVRecorder(*this);
@@ -153,3 +172,10 @@ QWidget* Module_ScanningSonar::createView(QWidget* parent)
     return new ScanningSonarForm(this, parent);
 }
 
+void Module_ScanningSonar::nextScanPeriod()
+{
+    logger->debug("doing next sonar scan.");
+    scanPeriodCntr=0;
+    QTimer::singleShot(0, tcl, SLOT(pauseModule()));
+    this->doScanning = true;
+}

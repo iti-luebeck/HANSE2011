@@ -48,6 +48,8 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *paren
     ui->formatCSV->setChecked(sonar->getSettings().value("formatCSV").toBool());
     ui->format852->setChecked(!sonar->getSettings().value("formatCSV").toBool());
     ui->startTime->setDateTime(sonar->getSettings().value("startTime").toDateTime());
+    ui->scanPeriod->setText(sonar->getSettings().value("scanPeriod").toString());
+    ui->scanPeriodMaxScans->setText(sonar->getSettings().value("scanPeriodMaxScans").toString());
 
     ui->recorderFilename->setText(DataLogHelper::getLogDir()+"sonarlog.XXX");
 }
@@ -154,6 +156,9 @@ void ScanningSonarForm::on_fileCfgApply_clicked()
     sonar->getSettings().setValue("enableRecording", ui->enableRecording->isChecked());
     sonar->getSettings().setValue("formatCSV", ui->formatCSV->isChecked());
     sonar->getSettings().setValue("startTime", ui->startTime->dateTime());
+    sonar->getSettings().setValue("scanPeriodMaxScans", ui->scanPeriodMaxScans->text());
+    sonar->getSettings().setValue("scanPeriod", ui->scanPeriod->text());
+
 
     sonar->reset();
 }
