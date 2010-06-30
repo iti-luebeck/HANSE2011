@@ -41,11 +41,10 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     setDefaultValue("sampleRate",5);
     setDefaultValue("debug",1);
 
-    connect(&thread.timer,SIGNAL(timeout()), this, SLOT(refreshData()),
+    timer.moveToThread(&thread);
+    thread.start();
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
             Qt::DirectConnection);
-    connect( this, SIGNAL(timerStart(int)), &thread.timer, SLOT(start(int)) );
-    connect( this, SIGNAL(timerStop()), &thread.timer, SLOT(stop()),
-             Qt::BlockingQueuedConnection );
 
     reset();
 }
@@ -57,7 +56,7 @@ Module_Compass::~Module_Compass()
 void Module_Compass::terminate()
 {
     RobotModule::terminate();
-    emit timerStop(); // timer.stop();
+    QTimer::singleShot(0, &timer, SLOT(stop()));
 }
 
 void Module_Compass::reset()
@@ -68,11 +67,12 @@ void Module_Compass::reset()
         return;
 
     int freq = 1000/getSettings().value("frequency").toInt();
-    if (freq>0)
-        emit timerStart(freq); // timer.start(freq);
-    else
-        emit timerStop(); // timer.stop();
-
+    if (freq>0) {
+        timer.setInterval(freq);
+        QTimer::singleShot(0, &timer, SLOT(start()));
+    } else {
+        QTimer::singleShot(0, &timer, SLOT(stop()));
+    }
     configure();
     resetDevice();
     printEEPROM();

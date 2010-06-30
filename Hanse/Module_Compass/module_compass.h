@@ -41,10 +41,6 @@ public slots:
 signals:
     void healthStatusChanged(HealthStatus data);
 
-    void timerStart( int msec );
-    void timerStop();
-
-
 protected:
     virtual void doHealthCheck();
 
@@ -53,7 +49,8 @@ private slots:
 
 private:
     Module_UID *uid;
-    EventThread thread;
+    QThread thread;
+    QTimer timer;
 
     unsigned short toShort(uint8_t high, uint8_t low);
 

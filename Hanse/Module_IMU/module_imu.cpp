@@ -104,11 +104,11 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
     setDefaultValue("filterTaps",2);
     setDefaultValue("gyroSens","300");
 
-    connect(&thread.timer,SIGNAL(timeout()), this, SLOT(refreshData()),
+    thread.start();
+    timer.moveToThread(&thread);
+
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
             Qt::DirectConnection);
-    connect( this, SIGNAL(timerStart(int)), &thread.timer, SLOT(start(int)) );
-    connect( this, SIGNAL(timerStop()), &thread.timer, SLOT(stop()),
-             Qt::BlockingQueuedConnection );
 
     reset();
 }
@@ -120,7 +120,7 @@ Module_IMU::~Module_IMU()
 void Module_IMU::terminate()
 {
     RobotModule::terminate();
-    emit timerStop(); //timer.stop();
+    QTimer::singleShot(0, &timer, SLOT(stop()));
 }
 
 void Module_IMU::reset()
@@ -131,11 +131,12 @@ void Module_IMU::reset()
         return;
 
     int freq = 1000/getSettings().value("frequency").toInt();
-    if (freq>0)
-        emit timerStart(freq); //timer.start(freq);
-    else
-        emit timerStop(); //timer.stop();
-
+    if (freq>0) {
+        timer.setInterval(freq);
+        QTimer::singleShot(0, &timer, SLOT(start()));
+    } else {
+        QTimer::singleShot(0, &timer, SLOT(stop()));
+    }
     setHealthToOk();
 
     // soft reset
