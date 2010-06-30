@@ -86,7 +86,6 @@ private:
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cam;
     QTimer timer;
-    bool connected;
 
     VideoCapture vc;
     /* konstante parameter */

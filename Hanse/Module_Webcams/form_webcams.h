@@ -20,6 +20,9 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
+    void refreshLists();
+
+private:
     Ui::Form_Webcams *ui;
     Module_Webcams *cams;
     IplImage *leftFrame;
@@ -27,6 +30,7 @@ private:
     IplImage *bottomFrame;
 
 private slots:
+    void on_updateListButton_clicked();
     void on_refreshButton_clicked();
     void on_applyButtn_clicked();
 

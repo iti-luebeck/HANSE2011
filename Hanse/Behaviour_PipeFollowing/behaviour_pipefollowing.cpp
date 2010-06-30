@@ -16,8 +16,8 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->cam = cam;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
-    frame.create( settings.value("camHeight").toInt(), settings.value("camWidth").toInt(), CV_8UC3 );
-    displayFrame.create( settings.value("camHeight").toInt(), settings.value("camWidth").toInt(), CV_8UC1 );
+    frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+    displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
 
     setEnabled(false);
     Behaviour_PipeFollowing::noPipeCnt = 0;
@@ -40,7 +40,7 @@ void Behaviour_PipeFollowing::start()
 
         logger->debug(this->getSettings().value("videoFilePath").toString());
         logger->debug("cameraID" +QString::number(this->cameraID));
-        if((this->connected && this->getSettings().value("useCamera").toBool())
+        if(this->getSettings().value("useCamera").toBool()
             || (vc.isOpened() && !this->getSettings().value("useCamera").toBool()))
         {
             this->setHealthToOk();
@@ -90,14 +90,7 @@ void Behaviour_PipeFollowing::timerSlot()
     Mat binaryFrame;
     if(this->getSettings().value("useCamera").toBool())
     {
-        if(!this->connected)
-        {
-            logger->error("cannot retrieve frame from camera");
-        }
-        else
-        {
-            this->grab(frame);
-        }
+        this->grab(frame);
     }
     else
     {
@@ -120,7 +113,7 @@ void Behaviour_PipeFollowing::timerSlot()
 
 void Behaviour_PipeFollowing::grab(Mat &frame)
 {
-    this->cam->grabBottom(new IplImage(frame));
+    this->cam->grabBottom( frame );
 }
 
 
@@ -175,47 +168,30 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
     if (!frame.empty())
     {
         int u;
-        Mat frameHSV, h, s, v;
-        cvtColor(frame,frameHSV,CV_RGB2HSV);
+        Mat frameHSV;
+        cvtColor( frame, frameHSV, CV_RGB2HSV );
+        int channel = settings.value( "channel", 0 ).toInt();
 
-        /*****convert HSV Image to 3 Binary */
-        int rows = frameHSV.rows;
-        int cols = frameHSV.cols;
-        h.create(rows,cols,CV_8UC1);
-        s.create(rows,cols,CV_8UC1);
-        v.create(rows,cols,CV_8UC1);
-        for (int i = 0; i < rows; i++)
+        for (int i = 0; i < WEBCAM_HEIGHT; i++)
         {
-            for (int j = 0; j < cols; j++)
+            for (int j = 0; j < WEBCAM_WIDTH; j++)
             {
                 Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-                h.at<unsigned char>(i, j) = hsvV[0];
-                s.at<unsigned char>(i, j) = hsvV[1];
-                v.at<unsigned char>(i, j) = hsvV[2];
+                displayFrame.at<unsigned char>(i, j) = 255 - hsvV[channel];
             }
         }
         /**** Segmentation */
-        Mat thresh;
-        s.copyTo( displayFrame );
-        IplImage *dispImg = new IplImage( displayFrame );
-//        cvCLAdaptEqualize( dispImg, dispImg, 8, 8, 256, 0, CV_CLAHE_RANGE_FULL );
-        threshold( displayFrame, thresh, threshSegmentation, 255, THRESH_BINARY);
+//        Mat thresh;
+//        threshold( displayFrame, displayFrame, threshSegmentation, 255, THRESH_BINARY);
 //        thresh.copyTo( displayFrame );
-        Canny( thresh, binaryFrame, 50, 200, 3 );
+        Canny( displayFrame, binaryFrame, 20, 100, 3 );
+//        binaryFrame.copyTo( displayFrame );
 
         /*debug */
         if(debug)
         {
              namedWindow("Canny",1);
             imshow("Canny",frameHSV);
-            u = waitKey();
-            imshow("Canny",h);
-            u = waitKey();
-            imshow("Canny",s);
-            u = waitKey();
-            imshow("Canny",v);
-            u = waitKey();
-            imshow("Canny",thresh);
             u = waitKey();
             imshow("Canny",binaryFrame);
             u = waitKey();

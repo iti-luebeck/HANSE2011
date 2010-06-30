@@ -59,6 +59,17 @@ void Module_Webcams::grabBottom( IplImage *bottom )
     }
 }
 
+void Module_Webcams::grabBottom( cv::Mat &bottom )
+{
+    if ( bottomConnected )
+    {
+        mutex.lock();
+        assert( bottom.cols == WEBCAM_WIDTH && bottom.rows == WEBCAM_HEIGHT );
+        VI.getPixels( bottomID, (unsigned char *)bottom.data, true, true );
+        mutex.unlock();
+    }
+}
+
 void Module_Webcams::reset()
 {
     mutex.lock();

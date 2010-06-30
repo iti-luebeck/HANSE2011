@@ -22,6 +22,7 @@ public:
     void grabLeft( IplImage *left );
     void grabRight( IplImage *right );
     void grabBottom( IplImage *bottom );
+    void grabBottom( cv::Mat &bottom );
 
 private:
     void stopWebcams();

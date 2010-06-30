@@ -12,22 +12,8 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    
-    videoInput VI;
-    int numCameras = VI.listDevices( true );
-    for ( int i = 0; i < numCameras; i++ )
-    {
-        QString boxName = QString( "(%1) " ).arg( i );
-        boxName.append( VI.getDeviceName( i ) );
-        ui->leftBox->addItem( boxName );
-        ui->rightBox->addItem( boxName );
-        ui->bottomBox->addItem( boxName );
-    }
 
-    QSettings& settings = cams->getSettings();
-    ui->leftBox->setCurrentIndex( settings.value( "leftID", 0 ).toInt() );
-    ui->rightBox->setCurrentIndex( settings.value( "rightID", 1 ).toInt() );
-    ui->bottomBox->setCurrentIndex( settings.value( "bottomID", 2 ).toInt() );
+    refreshLists();
 
     QObject::connect( this, SIGNAL( changedSettings() ),
                       cams, SLOT( settingsChanged() ) );
@@ -51,6 +37,29 @@ void Form_Webcams::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void Form_Webcams::refreshLists()
+{
+    ui->leftBox->clear();
+    ui->rightBox->clear();
+    ui->bottomBox->clear();
+
+    videoInput VI;
+    int numCameras = VI.listDevices( true );
+    for ( int i = 0; i < numCameras; i++ )
+    {
+        QString boxName = QString( "(%1) " ).arg( i );
+        boxName.append( VI.getDeviceName( i ) );
+        ui->leftBox->addItem( boxName );
+        ui->rightBox->addItem( boxName );
+        ui->bottomBox->addItem( boxName );
+    }
+
+    QSettings& settings = cams->getSettings();
+    ui->leftBox->setCurrentIndex( settings.value( "leftID", 0 ).toInt() );
+    ui->rightBox->setCurrentIndex( settings.value( "rightID", 1 ).toInt() );
+    ui->bottomBox->setCurrentIndex( settings.value( "bottomID", 2 ).toInt() );
 }
 
 void Form_Webcams::on_applyButtn_clicked()
@@ -79,4 +88,9 @@ void Form_Webcams::on_refreshButton_clicked()
     QImage imageBottom( (unsigned char*)bottomFrame->imageData, bottomFrame->width, bottomFrame->height,
                       QImage::Format_RGB888 );
     ui->bottomLabel->setPixmap( QPixmap::fromImage( imageBottom ) );
+}
+
+void Form_Webcams::on_updateListButton_clicked()
+{
+    refreshLists();
 }

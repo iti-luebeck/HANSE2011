@@ -98,6 +98,7 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
     pipefollow->getSettings().setValue("camHeight",ui->camHeightLineEdit->text().toInt());
     pipefollow->getSettings().setValue("camWidth",ui->camWidthLineEdit->text().toInt());
     pipefollow->getSettings().setValue("badFrames",ui->badFramesLineEdit->text().toInt());
+    pipefollow->getSettings().setValue("channel", ui->channelEdit->text().toInt());
     pipefollow->resetFirstRun();
     pipefollow->updateFromSettings();
 
