@@ -122,6 +122,8 @@ void Module_ScanningSonar::reset()
     reader.pleaseStop();
     reader.wait();
 
+    scanPeriodTimer.stop();
+
     logger->debug("Destroying and sonar data source.");
     if (this->source != NULL) {
         this->source->stop();
