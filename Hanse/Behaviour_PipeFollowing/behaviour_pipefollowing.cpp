@@ -9,10 +9,11 @@
 
 //using namespace cv;
 
-Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl) :
+Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam) :
         RobotBehaviour(id)
 {
     this->tcl = tcl;
+    this->cam = cam;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     frame.create( settings.value("camHeight").toInt(), settings.value("camWidth").toInt(), CV_8UC3 );
@@ -35,8 +36,7 @@ void Behaviour_PipeFollowing::start()
     {
         Behaviour_PipeFollowing::updateFromSettings();
 
-        if(this->getSettings().value("useCamera").toBool()) this->initCam();
-        else vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
+        if(!this->getSettings().value("useCamera").toBool())  vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
 
         logger->debug(this->getSettings().value("videoFilePath").toString());
         logger->debug("cameraID" +QString::number(this->cameraID));
@@ -59,7 +59,6 @@ void Behaviour_PipeFollowing::stop()
     {
        timer.stop();
        vc.release();
-       vi.stopDevice(this->cameraID);
        this->tcl->setForwardSpeed(0.0);
        this->tcl->setAngularSpeed(0.0);
        setEnabled(false);
@@ -119,25 +118,9 @@ void Behaviour_PipeFollowing::timerSlot()
     else this->setHealthToSick("empty frame");
 }
 
-void Behaviour_PipeFollowing::initCam()
-{
-    vi.setUseCallback(true);
-    int numDevices = vi.listDevices(false);
-    vi.setIdealFramerate(this->cameraID,30);
-    this->connected = vi.setupDevice(this->cameraID,this->getSettings().value("camWidth").toInt(),this->getSettings().value("camHeight").toInt());
-
-}
-
 void Behaviour_PipeFollowing::grab(Mat &frame)
 {
-    if (this->connected)
-    {
-//        frame2 = cvCreateImage(cvSize(this->getSettings().value("camWidth").toInt(),this->getSettings().value("camHeight").toInt()), IPL_DEPTH_8U, 3);
-        vi.getPixels(this->cameraID, frame.ptr<unsigned char>(0), true, true);
-//        frame = Mat(frame2,false);
-        this->setHealthToOk();
-    }
-    else this->setHealthToSick("camera not connected");
+    this->cam->grabBottom(new IplImage(frame));
 }
 
 

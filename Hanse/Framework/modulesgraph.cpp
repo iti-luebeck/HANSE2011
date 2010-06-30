@@ -68,7 +68,7 @@ void ModulesGraph::build()
     Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, visualLoc, controlLoop, pressure, compass );
     this->modules.append(navi);
 
-    Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop);
+    Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams);
     this->modules.append(behavPipe);
 
     Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);

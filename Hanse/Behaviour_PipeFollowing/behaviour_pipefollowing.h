@@ -6,6 +6,7 @@
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <videoInput.h>
+#include <Module_Webcams/module_webcams.h>
 
 #include <Behaviour_PipeFollowing/pipefollowingform.h>
 
@@ -18,8 +19,7 @@ class Behaviour_PipeFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop* tcl);
-
+    Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cam );
     QList<RobotModule*> getDependencies();
 
     QWidget* createView(QWidget *parent);
@@ -82,14 +82,12 @@ private:
     void medianFilter(float &rho, float &theta);
     /** grabs frame from camera device */
     void grab(Mat &frame);
-    /** */
-    void initCam();
 
     Module_ThrusterControlLoop* tcl;
+    Module_Webcams* cam;
     QTimer timer;
     bool connected;
 
-    videoInput vi;
     VideoCapture vc;
     /* konstante parameter */
     int cameraID;
