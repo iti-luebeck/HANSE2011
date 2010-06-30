@@ -43,7 +43,8 @@ void Behaviour_BallFollowing::stop()
 void Behaviour_BallFollowing::reset()
 {
     RobotBehaviour::reset();
-    Behaviour_BallFollowing::stop();
+    this->tcl->setForwardSpeed(0.0);
+    this->tcl->setAngularSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_BallFollowing::getDependencies()

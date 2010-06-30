@@ -48,7 +48,8 @@ void Behaviour_GoalFollowing::stop()
 void Behaviour_GoalFollowing::reset()
 {
     RobotBehaviour::reset();
-    Behaviour_GoalFollowing::stop();
+    this->tcl->setAngularSpeed(0.0);
+    this->tcl->setForwardSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_GoalFollowing::getDependencies()
