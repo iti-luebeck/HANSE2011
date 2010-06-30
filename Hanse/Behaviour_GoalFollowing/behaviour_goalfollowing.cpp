@@ -11,7 +11,7 @@ Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterCont
     this->vsl = vsl;
 
     connect(vsl, SIGNAL(foundNewObject(int)),this,SLOT(newData(int)) );
-    connect(&noGoalResponse, SIGNAL(timeout()),this,SLOT(timerSlot()));
+    connect(&timerNoGoal, SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     state = STATE_IDLE;
 
@@ -27,7 +27,7 @@ bool Behaviour_GoalFollowing::isActive()
 void Behaviour_GoalFollowing::start()
 {
     this->setEnabled(true);
-    noGoalResponse.start(10000);
+    timerNoGoal.start(10000);
 }
 
 void Behaviour_GoalFollowing::newData(int classNr)
@@ -66,7 +66,7 @@ QWidget* Behaviour_GoalFollowing::createView(QWidget* parent)
 
 void Behaviour_GoalFollowing::ctrGoalFollowing()
 {
-    noGoalResponse.stop();
+    timerNoGoal.stop();
     QRectF rect;
     QDateTime current;
     vsl->getObjectPosition( 1, rect, current );
@@ -84,25 +84,25 @@ void Behaviour_GoalFollowing::ctrGoalFollowing()
 
     state = STATE_SEEN_GOAL;
 
-    noGoalResponse.start(2000);
+    timerNoGoal.start(2000);
     emit started(this);
 }
 
 void Behaviour_GoalFollowing::timerSlot()
 {
-    noGoalResponse.stop();
+    timerNoGoal.stop();
     switch(this->state)
     {
     case STATE_SEEN_GOAL:
         state = STATE_FORWARD;
         tcl->setAngularSpeed( .0 );
-        noGoalResponse.start(2000);
+        timerNoGoal.start(2000);
         break;
     case STATE_FORWARD:
         state = STATE_TURNING;
         tcl->setForwardSpeed( .0 );
         tcl->setAngularSpeed( .1 );
-        noGoalResponse.start(2000);
+        timerNoGoal.start(2000);
         break;
     case STATE_TURNING:
         state = STATE_FAILED;

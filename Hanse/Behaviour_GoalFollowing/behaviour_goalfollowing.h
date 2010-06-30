@@ -43,7 +43,7 @@ private:
     Module_ThrusterControlLoop* tcl;
     Module_VisualSLAM* vsl;
     QDateTime last;
-    QTimer noGoalResponse;
+    QTimer timerNoGoal;
     int state;
 
     void ctrGoalFollowing();

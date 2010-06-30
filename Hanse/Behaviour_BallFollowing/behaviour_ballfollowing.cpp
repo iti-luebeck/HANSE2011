@@ -10,8 +10,10 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     this->tcl = tcl;
     this->vsl = vsl;
     connect(vsl,SIGNAL(foundNewObject(int)),this,SLOT(newData(int)));
+    connect(&timerNoBall,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     setEnabled(false);
+    state = STATE_IDLE;
 
 }
 
@@ -61,6 +63,8 @@ QWidget* Behaviour_BallFollowing::createView(QWidget* parent)
 
 void Behaviour_BallFollowing::ctrBallFollowing()
 {
+    timerNoBall.stop();
+    state = STATE_SEEN_BALL;
     QRectF rect;
     QDateTime current;
     vsl->getObjectPosition( 2, rect, current ); // 2 == BALLS
@@ -82,5 +86,24 @@ void Behaviour_BallFollowing::ctrBallFollowing()
 void Behaviour_BallFollowing::timerSlot()
 {
     timerNoBall.stop();
+    switch(this->state)
+    {
+    case STATE_SEEN_BALL:
+        state = STATE_FORWARD;
+        tcl->setAngularSpeed( .0 );
+        timerNoBall.start(2000);
+        break;
+    case STATE_FORWARD:
+        state = STATE_TURNING;
+        tcl->setForwardSpeed( .0 );
+        tcl->setAngularSpeed( .1 );
+        timerNoBall.start(2000);
+        break;
+    case STATE_TURNING:
+        state = STATE_FAILED;
+        this->setHealthToSick("no ball in sight");
+         emit finished(this,false);
+        break;
+    }
 
 }

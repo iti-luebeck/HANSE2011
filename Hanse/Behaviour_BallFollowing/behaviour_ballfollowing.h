@@ -7,6 +7,14 @@
 #include <Module_VisualSLAM/module_visualslam.h>
 #include <Framework/robotmodule.h>
 
+
+#define STATE_IDLE 100
+#define STATE_SEEN_BALL 101
+#define STATE_TURNING 102
+#define STATE_FORWARD 103
+#define STATE_FAILED  104
+
+
 class Module_ThrusterControlLoop;
 class GoalFollowingForm;
 
@@ -38,6 +46,7 @@ private:
     Module_VisualSLAM* vsl;
     QDateTime last;
     QTimer timerNoBall;
+    int state;
 
     void ctrBallFollowing();
 
