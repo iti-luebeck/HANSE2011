@@ -13,6 +13,7 @@ Feature::Feature()
     surfThreshold = 0.002;
     descriptor = NULL;
     fastThreshold = 100;
+    keypoints = NULL;
 }
 
 Feature::~Feature()
@@ -22,53 +23,56 @@ Feature::~Feature()
 
 void Feature::run()
 {
-    IplImage *copy = cvCreateImage( cvSize( image->width / FEATURE_IMAGE_SCALE, image->height / FEATURE_IMAGE_SCALE ),
-                                    image->depth, image->nChannels );
-    cvResize( image, copy, CV_INTER_LINEAR );
-    IpVec ipts;
-    surfDetDes( copy, ipts, false, 4, 4, 2, surfThreshold );
-
-//    // Convert images to grayscale.
-//    IplImage *copy_gray = cvCreateImage( cvGetSize( copy ), IPL_DEPTH_8U, 1 );
-//    cvCvtColor( copy, copy_gray, CV_RGB2GRAY );
-//
-//    // Extract interest points.
-//    CvPoint* corners;
-//    int numCorners;
-//    cvCornerFast( copy_gray, (int)fastThreshold, 9, 1, &numCorners, &corners );
-//
-//    // Calculate SURF descriptors for the left image.
-//    IpVec ipts;
-//    for ( int i = 0; i < numCorners; i++ )
-//    {
-//        CvPoint p = corners[i];
-//        Ipoint ip;
-//        ip.x = p.x;
-//        ip.y = p.y;
-//        ip.scale = 3.5;
-//        ipts.push_back( ip );
-//    }
-//    surfDes( image, ipts, true );
-
-    numFeatures = ipts.size();
-    if ( numFeatures >= 1 )
+    if ( keypoints != NULL )
     {
-        if ( descriptor ) cvReleaseMat( &descriptor );
-        descriptor = cvCreateMat( numFeatures, 64, CV_32F );
-        for ( int i = 0; i < numFeatures; i++ )
+        IplImage *copy = cvCreateImage( cvSize( image->width / FEATURE_IMAGE_SCALE, image->height / FEATURE_IMAGE_SCALE ),
+                                        image->depth, image->nChannels );
+        cvResize( image, copy, CV_INTER_LINEAR );
+        IpVec ipts;
+        surfDetDes( copy, ipts, false, 4, 4, 2, surfThreshold );
+
+    //    // Convert images to grayscale.
+    //    IplImage *copy_gray = cvCreateImage( cvGetSize( copy ), IPL_DEPTH_8U, 1 );
+    //    cvCvtColor( copy, copy_gray, CV_RGB2GRAY );
+    //
+    //    // Extract interest points.
+    //    CvPoint* corners;
+    //    int numCorners;
+    //    cvCornerFast( copy_gray, (int)fastThreshold, 9, 1, &numCorners, &corners );
+    //
+    //    // Calculate SURF descriptors for the left image.
+    //    IpVec ipts;
+    //    for ( int i = 0; i < numCorners; i++ )
+    //    {
+    //        CvPoint p = corners[i];
+    //        Ipoint ip;
+    //        ip.x = p.x;
+    //        ip.y = p.y;
+    //        ip.scale = 3.5;
+    //        ipts.push_back( ip );
+    //    }
+    //    surfDes( image, ipts, true );
+
+        numFeatures = ipts.size();
+        if ( numFeatures >= 1 )
         {
-            Ipoint point = ipts[i];
-            for ( int j = 0; j < 64; j++ )
+            if ( descriptor ) cvReleaseMat( &descriptor );
+            descriptor = cvCreateMat( numFeatures, 64, CV_32F );
+            for ( int i = 0; i < numFeatures; i++ )
             {
-                cvmSet( descriptor, i, j, point.descriptor[j] );
+                Ipoint point = ipts[i];
+                for ( int j = 0; j < 64; j++ )
+                {
+                    cvmSet( descriptor, i, j, point.descriptor[j] );
+                }
+                keypoints->push_back( cvScalar( FEATURE_IMAGE_SCALE * point.x, FEATURE_IMAGE_SCALE * point.y ) );
             }
-            keypoints->push_back( cvScalar( FEATURE_IMAGE_SCALE * point.x, FEATURE_IMAGE_SCALE * point.y ) );
+            cvReleaseImage( &copy );
         }
-        cvReleaseImage( &copy );
-    }
-    else
-    {
-        cvReleaseImage( &copy );
+        else
+        {
+            cvReleaseImage( &copy );
+        }
     }
 }
 
