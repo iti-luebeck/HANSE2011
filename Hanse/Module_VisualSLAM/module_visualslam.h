@@ -20,12 +20,13 @@
 using namespace std;
 
 class Module_SonarLocalization;
+class Module_Webcams;
 
 class Module_VisualSLAM : public RobotModule {
     Q_OBJECT
 
 public:
-    Module_VisualSLAM(QString id, Module_SonarLocalization* sonarLocalization);
+    Module_VisualSLAM( QString id, Module_SonarLocalization* sonarLocalization, Module_Webcams *cams );
     ~Module_VisualSLAM();
 
     QWidget* createView(QWidget* parent);
@@ -105,7 +106,7 @@ signals:
 
 private:
     Module_SonarLocalization* sonarLocalization;
-    //QTimer updateTimer;
+    Module_Webcams *cams;
     EventThread updateThread;
     QDateTime lastRefreshTime;
     clock_t startClock;

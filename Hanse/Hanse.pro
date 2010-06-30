@@ -95,7 +95,9 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_BallFollowing/ballfollowingform.h \
     Behaviour_BallFollowing/behaviour_ballfollowing.h \
     Framework/eventthread.h \
-    Module_VisualSLAM/capture/clahe.h
+    Module_VisualSLAM/capture/clahe.h \
+    Module_Webcams/module_webcams.h \
+    Module_Webcams/form_webcams.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -175,7 +177,9 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_BallFollowing/ballfollowingform.cpp \
     Behaviour_BallFollowing/behaviour_ballfollowing.cpp \
     Framework/eventthread.cpp \
-    Module_VisualSLAM/capture/clahe.cpp
+    Module_VisualSLAM/capture/clahe.cpp \
+    Module_Webcams/module_webcams.cpp \
+    Module_Webcams/form_webcams.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -196,5 +200,6 @@ FORMS += Framework/mainwindow.ui \
     Module_Navigation/mapwidget.ui \
     MetaBehaviour/metabehaviourform.ui \
     Behaviour_GoalFollowing/goalfollowingform.ui \
-    Behaviour_BallFollowing/ballfollowingform.ui
+    Behaviour_BallFollowing/ballfollowingform.ui \
+    Module_Webcams/form_webcams.ui
 OTHER_FILES += bin/log4qt.properties

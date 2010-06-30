@@ -13,6 +13,7 @@
 #define BALL_LABEL  2
 
 class Module_VisualSLAM;
+class Module_Webcams;
 
 using namespace std;
 
@@ -21,11 +22,10 @@ class StereoCapture : public QObject
     Q_OBJECT
 
 public:
-    StereoCapture( int width = 640, int height = 480, int device1 = 0, int device2 = 1 );
+    StereoCapture( Module_Webcams *cams );
     ~StereoCapture();
-    void init( int device1 = 0, int device2 = 1 );
+    void init();
     void grab( bool saveImages );
-    bool isConnected( int device );
     IplImage *getFrame( int cam );
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
 
@@ -43,16 +43,8 @@ private:
 private:
     clock_t start, stop;
 
-    int width;
-    int height;
+    Module_Webcams *cams;
     int count;
-
-    videoInput VI;
-    int device1;
-    int device2;
-
-    bool connected1;
-    bool connected2;
 
     CvMat *Q;
     CvMat *mapX_left;

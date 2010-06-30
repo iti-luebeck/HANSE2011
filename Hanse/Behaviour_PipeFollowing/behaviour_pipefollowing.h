@@ -102,8 +102,8 @@ private:
     float kpDist;
     float kpAngle;
     float maxDistance;
-    IplImage *frame2;
     cv::Mat frame;
+    cv::Mat displayFrame;
 
 
     /* dynamische parameter */

@@ -5,14 +5,11 @@
 #include <time.h>
 #include "../helpers.h"
 #include <Module_VisualSLAM/capture/clahe.h>
+#include <Module_Webcams/module_webcams.h>
 
-StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
+StereoCapture::StereoCapture( Module_Webcams *cams )
 {
-    // Initialize class variables.
-    this->width = width;
-    this->height = height;
-    this->device1 = device1;
-    this->device2 = device2;
+    this->cams = cams;
 
     Q = NULL;
     mapX_left = NULL;
@@ -26,8 +23,6 @@ StereoCapture::StereoCapture( int width, int height, int device1, int device2 )
     frame1_gray = NULL;
     frame2 = NULL;
     frame2_gray = NULL;
-    connected1 = false;
-    connected2 = false;
     feature1 = NULL;
     feature2 = NULL;
     count = 0;
@@ -117,17 +112,6 @@ void StereoCapture::clear()
     classRects.clear();
     classLastSeen.clear();
 
-    if ( connected1 )
-    {
-        VI.stopDevice( device1 );
-        connected1 = false;
-    }
-    if ( connected2 )
-    {
-        VI.stopDevice( device2 );
-        connected2 = false;
-    }
-
     if ( feature1 )
     {
         delete( feature1 );
@@ -142,49 +126,15 @@ void StereoCapture::clear()
     count = 0;
 }
 
-void StereoCapture::init( int device1, int device2 )
+void StereoCapture::init()
 {
     clear();
 
-    this->device1 = device1;
-    this->device2 = device2;
-
-    int numDevices = VI.listDevices( true );
-
-    // Enable callback. This should improve synchronicity.
-    VI.setUseCallback(true);
-
-    if ( device1 < numDevices )
-    {
-        // Set the framerate as high as we can (also for synchronicity reasons).
-        VI.setIdealFramerate(device1, 60);
-
-        // Set up the devices with the specified frame sizes.
-        connected1 = VI.setupDevice(device1, width, height);
-    }
-    else
-    {
-        connected1 = false;
-    }
-
-    if ( device2 < numDevices )
-    {
-        // Set the framerate as high as we can (also for synchronicity reasons).
-        VI.setIdealFramerate(device2, 60);
-
-        // Set up the devices with the specified frame sizes.
-        connected2 = VI.setupDevice(device2, width, height);
-    }
-    else
-    {
-        connected2 = false;
-    }
-
     // Create frame images.
-    frame1 = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 3 );
-    frame1_gray = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 1 );
-    frame2 = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 3 );
-    frame2_gray = cvCreateImage( cvSize(width, height), IPL_DEPTH_8U, 1 );
+    frame1 = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    frame1_gray = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
+    frame2 = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    frame2_gray = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
 
     // Load class features.
     CvFileStorage *fileStorage = cvOpenFileStorage( "classifier_features.xml", NULL, CV_STORAGE_READ );
@@ -417,12 +367,15 @@ void StereoCapture::initStereoCalibration()
 void StereoCapture::grab( bool saveImages )
 {
     captureMutex.lock();
-    if (connected1) VI.getPixels(device1, (unsigned char *)frame1->imageData, true, true);
+
+    cams->grabLeft( frame1 );
     cvCvtColor( frame1, frame1_gray, CV_RGB2GRAY );
     cvCLAdaptEqualize( frame1_gray, frame1_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
-    if (connected2) VI.getPixels(device2, (unsigned char *)frame2->imageData, true, true);
+
+    cams->grabRight( frame2 );
     cvCvtColor( frame2, frame2_gray, CV_RGB2GRAY );
     cvCLAdaptEqualize( frame2_gray, frame2_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
+
     captureMutex.unlock();
 
     if ( saveImages )
@@ -641,8 +594,6 @@ void StereoCapture::stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> *
     double DD = 0.0, NN1 = 0.0, NN2 = 0.0;
     double Z1 = 0.0, Z2 = 0.0;
     double X11 = 0.0, X12 = 0.0, X13 = 0.0, X21 = 0.0, X22 = 0.0, X23 = 0.0;
-    int nGreaterZero = 0;
-    int nSmallerZero = 0;
 
 
     for ( int i = 0; i < xl->cols; i++ )
@@ -650,7 +601,6 @@ void StereoCapture::stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> *
         if ( fabs( cvmGet( xl, 1, i ) - cvmGet( xr, 1, i ) ) > 5 )
         {
             X->push_back( cvScalar( 0, 0, 0 ) );
-            nSmallerZero++;
         }
         else
         {
@@ -678,41 +628,10 @@ void StereoCapture::stereoTriangulation(CvMat *xl, CvMat *xr, vector<CvScalar> *
             X22 = cvmGet(xr, 1, i) * Z2; //cvmGet(xrn, 1, i) * (Z2 - cvmGet(T, 1, 0));
             X23 = Z2; //cvmGet(xrn, 2, i) * (Z2 - cvmGet(T, 2, 0));
 
-            if ( X13 + X23 > 0 )
-            {
-                nGreaterZero++;
-            }
-            else
-            {
-                nSmallerZero++;
-            }
-
             X->push_back( cvScalar( 0.5 * (X11 + X21) / 1000,
                                     0.5 * (X12 + X22) / 1000,
                                     0.5 * (X13 + X23) / 1000 ) );
         }
-    }
-
-    // Check if left and right were switched.
-    if ( (nGreaterZero + nSmallerZero) > 20 && nSmallerZero > nGreaterZero )
-    {
-        int temp = device1;
-        device1 = device2;
-        device2 = temp;
-        X->clear();
-    }
-}
-
-bool StereoCapture::isConnected(int device)
-{
-    switch (device)
-    {
-    case 0:
-        return connected1;
-    case 1:
-        return connected2;
-    default:
-        return false;
     }
 }
 

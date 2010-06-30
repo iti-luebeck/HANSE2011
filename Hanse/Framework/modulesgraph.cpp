@@ -14,6 +14,7 @@
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
+#include <Module_Webcams/module_webcams.h>
 #include <MetaBehaviour/metabehaviour.h>
 
 ModulesGraph::ModulesGraph()
@@ -58,7 +59,10 @@ void ModulesGraph::build()
     Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, pressure);
     this->modules.append(sonarLoc);
 
-    Module_VisualSLAM* visualLoc = new Module_VisualSLAM("visualSLAM", sonarLoc);
+    Module_Webcams *cams = new Module_Webcams( "cams" );
+    this->modules.append( cams );
+
+    Module_VisualSLAM* visualLoc = new Module_VisualSLAM( "visualSLAM", sonarLoc, cams );
     this->modules.append(visualLoc);
 
     Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, visualLoc, controlLoop, pressure, compass );

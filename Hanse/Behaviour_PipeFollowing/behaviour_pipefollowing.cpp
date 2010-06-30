@@ -9,11 +9,14 @@
 
 //using namespace cv;
 
-Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl)
-    : RobotBehaviour(id)
+Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl) :
+        RobotBehaviour(id)
 {
     this->tcl = tcl;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
+
+    frame.create( settings.value("camHeight").toInt(), settings.value("camWidth").toInt(), CV_8UC3 );
+    displayFrame.create( settings.value("camHeight").toInt(), settings.value("camWidth").toInt(), CV_8UC1 );
 
     setEnabled(false);
     Behaviour_PipeFollowing::noPipeCnt = 0;
@@ -42,7 +45,7 @@ void Behaviour_PipeFollowing::start()
         {
             this->setHealthToOk();
             setEnabled(true);
-           timer.start(200);
+            timer.start(200);
 //            emit started(this);
         }
         else this->setHealthToSick("fail - open camera or video");
@@ -88,8 +91,14 @@ void Behaviour_PipeFollowing::timerSlot()
     Mat binaryFrame;
     if(this->getSettings().value("useCamera").toBool())
     {
-        if(!this->connected) logger->error("cannot retrieve frame from camera");
-        else this->grab(frame);
+        if(!this->connected)
+        {
+            logger->error("cannot retrieve frame from camera");
+        }
+        else
+        {
+            this->grab(frame);
+        }
     }
     else
     {
@@ -113,7 +122,7 @@ void Behaviour_PipeFollowing::timerSlot()
 void Behaviour_PipeFollowing::initCam()
 {
     vi.setUseCallback(true);
-    vi.listDevices(false);
+    int numDevices = vi.listDevices(false);
     vi.setIdealFramerate(this->cameraID,30);
     this->connected = vi.setupDevice(this->cameraID,this->getSettings().value("camWidth").toInt(),this->getSettings().value("camHeight").toInt());
 
@@ -123,9 +132,9 @@ void Behaviour_PipeFollowing::grab(Mat &frame)
 {
     if (this->connected)
     {
-        frame2 = cvCreateImage(cvSize(this->getSettings().value("camWidth").toInt(),this->getSettings().value("camHeight").toInt()), IPL_DEPTH_8U, 3);
-        vi.getPixels(this->cameraID, (unsigned char *)frame2->imageData, true, true);
-        frame = Mat(frame2,false);
+//        frame2 = cvCreateImage(cvSize(this->getSettings().value("camWidth").toInt(),this->getSettings().value("camHeight").toInt()), IPL_DEPTH_8U, 3);
+        vi.getPixels(this->cameraID, frame.ptr<unsigned char>(0), true, true);
+//        frame = Mat(frame2,false);
         this->setHealthToOk();
     }
     else this->setHealthToSick("camera not connected");
@@ -184,7 +193,7 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
     {
         int u;
         Mat frameHSV, h, s, v;
-        cvtColor(frame,frameHSV,CV_BGR2HSV);
+        cvtColor(frame,frameHSV,CV_RGB2HSV);
 
         /*****convert HSV Image to 3 Binary */
         int rows = frameHSV.rows;
@@ -204,10 +213,12 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
         }
         /**** Segmentation */
         Mat thresh;
-//        IplImage* img = new IplImage(s);
-//        cvCLAdaptEqualize(img,img,16,16,256,12,CV_CLAHE_RANGE_FULL);
-        threshold(s,thresh,threshSegmentation,255,THRESH_BINARY);
-        Canny(thresh, binaryFrame, 50, 200, 3 );
+        s.copyTo( displayFrame );
+        IplImage *dispImg = new IplImage( displayFrame );
+//        cvCLAdaptEqualize( dispImg, dispImg, 8, 8, 256, 0, CV_CLAHE_RANGE_FULL );
+        threshold( displayFrame, thresh, threshSegmentation, 255, THRESH_BINARY);
+//        thresh.copyTo( displayFrame );
+        Canny( thresh, binaryFrame, 50, 200, 3 );
 
         /*debug */
         if(debug)
@@ -331,7 +342,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             curAngle -= 180;
 
         /* Rohrlinie berechnen und Zeichnen */
-        Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass1,avThetaClass1,Scalar(255,255,255));
+        Behaviour_PipeFollowing::drawLineHough( displayFrame, avRhoClass1, avThetaClass1,
+                                                Scalar(255,0,0) );
 
         /* Schnittpunkt des erkannten Rohrs mit der Ideallinie */
         Behaviour_PipeFollowing::compIntersect(avRhoClass1,avThetaClass1);
@@ -348,10 +360,10 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 
 
         /* Ideallinie zeichnen */
-        line( frame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(0,255,0), 3, 8 );
+        line( displayFrame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(255,0,0), 3, 8 );
 
         /* ins Qt Widget malen */
-        emit printFrameOnUi(frame);
+        emit printFrameOnUi( displayFrame );
 
         if(debug)
         {

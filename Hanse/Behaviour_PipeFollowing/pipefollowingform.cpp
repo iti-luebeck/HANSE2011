@@ -28,7 +28,8 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     ui->camHeightLineEdit->setText(pipefollow->getSettings().value("camHeight").toString());
     ui->camWidthLineEdit->setText(pipefollow->getSettings().value("camWidth").toString());
     ui->badFramesLineEdit->setText(pipefollow->getSettings().value("badFrames").toString());
- QObject::connect( pipefollow, SIGNAL( printFrameOnUi(cv::Mat&)) , SLOT( printFrame(cv::Mat&))  );
+
+    QObject::connect( pipefollow, SIGNAL( printFrameOnUi(cv::Mat&)) , SLOT( printFrame(cv::Mat&))  );
 
  }
 
@@ -105,7 +106,7 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
 void PipeFollowingForm::printFrame(cv::Mat &frame)
 {
 
-    QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
+    QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_Indexed8);
 //    QImage image1;
     ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
 //    ui->curVideofileLabel->setText("Blub");
