@@ -380,10 +380,10 @@ void StereoCapture::grab( bool saveImages )
     {
         char leftName[100];
         sprintf( leftName, "capture/left%04d.jpg", count );
-        cvSaveImage( leftName, frame1 );
+        cvSaveImage( leftName, frame1_gray );
         char rightName[100];
         sprintf( rightName, "capture/right%04d.jpg", count );
-        cvSaveImage( rightName, frame2 );
+        cvSaveImage( rightName, frame2_gray );
     }
 
     count++;

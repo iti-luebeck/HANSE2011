@@ -14,18 +14,9 @@ Module_Webcams::Module_Webcams( QString id ) :
 
     settingsChanged();
 
-    if ( settings.value( "capture", false ).toBool() )
-    {
-        startCapture();
-    }
-
     leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    count = 0;
-
-    QObject::connect( &captureTimer, SIGNAL( timeout() ),
-                      this, SLOT( captureWebcams() ) );
 }
 
 Module_Webcams::~Module_Webcams()
@@ -133,35 +124,6 @@ void Module_Webcams::terminate()
 void Module_Webcams::statusChange( bool value )
 {
 
-}
-
-void Module_Webcams::startCapture()
-{
-    captureTimer.start( 500 );
-    count = 0;
-}
-
-void Module_Webcams::stopCapture()
-{
-    captureTimer.stop();
-}
-
-void Module_Webcams::captureWebcams()
-{
-    grabLeft( leftFrame );
-    grabRight( rightFrame );
-    grabBottom( bottomFrame );
-
-    char leftName[100];
-    sprintf( leftName, "capture_raw/left%04d.jpg", count );
-    cvSaveImage( leftName, leftFrame );
-    char rightName[100];
-    sprintf( rightName, "capture_raw/right%04d.jpg", count );
-    cvSaveImage( rightName, rightFrame );
-    char bottomName[100];
-    sprintf( bottomName, "capture_raw/bottom%04d.jpg", count );
-    cvSaveImage( bottomName, bottomFrame );
-    count++;
 }
 
 void Module_Webcams::showSettings( int camNr )

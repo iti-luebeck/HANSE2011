@@ -1,6 +1,7 @@
 #include "form_webcams.h"
 #include "ui_form_webcams.h"
 #include <Module_Webcams/module_webcams.h>
+#include <opencv/highgui.h>
 
 Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     QWidget(parent),
@@ -17,12 +18,26 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
 
     QObject::connect( this, SIGNAL( changedSettings() ),
                       cams, SLOT( settingsChanged() ) );
-    QObject::connect( this, SIGNAL( captureTurnedOn() ),
-                      cams, SLOT( startCapture() ) );
-    QObject::connect( this, SIGNAL( captureTurnedOff() ),
-                      cams, SLOT( stopCapture() ) );
+//    QObject::connect( this, SIGNAL( captureTurnedOn() ),
+//                      cams, SLOT( startCapture() ) );
+//    QObject::connect( this, SIGNAL( captureTurnedOff() ),
+//                      cams, SLOT( stopCapture() ) );
     QObject::connect( this, SIGNAL( showSettings(int) ),
                       cams, SLOT( showSettings(int) ) );
+
+    count = 0;
+    QObject::connect( &captureTimer, SIGNAL( timeout() ),
+                      this, SLOT( captureWebcams() ) );
+
+    if ( cams->getSettings().value( "capture", false ).toBool() )
+    {
+        ui->checkBox->setChecked( true );
+        captureTimer.start( 500 );
+    }
+    else
+    {
+        ui->checkBox->setChecked( false );
+    }
 }
 
 Form_Webcams::~Form_Webcams()
@@ -31,6 +46,22 @@ Form_Webcams::~Form_Webcams()
     cvReleaseImage( &leftFrame );
     cvReleaseImage( &rightFrame );
     cvReleaseImage( &bottomFrame );
+}
+
+void Form_Webcams::captureWebcams()
+{
+    refreshFrames();
+
+    char leftName[100];
+    sprintf( leftName, "capture_raw/left%04d.jpg", count );
+    cvSaveImage( leftName, leftFrame );
+    char rightName[100];
+    sprintf( rightName, "capture_raw/right%04d.jpg", count );
+    cvSaveImage( rightName, rightFrame );
+    char bottomName[100];
+    sprintf( bottomName, "capture_raw/bottom%04d.jpg", count );
+    cvSaveImage( bottomName, bottomFrame );
+    count++;
 }
 
 void Form_Webcams::changeEvent(QEvent *e)
@@ -79,6 +110,11 @@ void Form_Webcams::on_applyButtn_clicked()
 
 void Form_Webcams::on_refreshButton_clicked()
 {
+    refreshFrames();
+}
+
+void Form_Webcams::refreshFrames()
+{
     cams->grabLeft( leftFrame );
     cams->grabRight( rightFrame );
     cams->grabBottom( bottomFrame);
@@ -109,11 +145,11 @@ void Form_Webcams::on_checkBox_clicked()
     cams->getSettings().setValue( "capture", ui->checkBox->isChecked() );
     if ( ui->checkBox->isChecked() )
     {
-        emit captureTurnedOn();
+        captureTimer.start( 500 );
     }
     else
     {
-        emit captureTurnedOff();
+        captureTimer.stop();
     }
 }
 

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <opencv/cxcore.h>
+#include <QTimer>
 
 class Module_Webcams;
 
@@ -15,19 +16,26 @@ class Form_Webcams : public QWidget {
 public:
     Form_Webcams( Module_Webcams *cams, QWidget *parent = 0 );
     ~Form_Webcams();
+    void showOnLeftLabel( IplImage *left );
+    void showOnRightLabel( IplImage *right );
+    void showOnBottomLabel( IplImage *bottom );
 
 protected:
     void changeEvent(QEvent *e);
 
 private:
     void refreshLists();
+    void refreshFrames();
 
 private:
     Ui::Form_Webcams *ui;
     Module_Webcams *cams;
+    QTimer captureTimer;
+
     IplImage *leftFrame;
     IplImage *rightFrame;
     IplImage *bottomFrame;
+    int count;
 
 private slots:
     void on_bottomSettingsButton_clicked();
@@ -37,6 +45,9 @@ private slots:
     void on_updateListButton_clicked();
     void on_refreshButton_clicked();
     void on_applyButtn_clicked();
+
+public slots:
+    void captureWebcams();
 
 signals:
     void changedSettings();

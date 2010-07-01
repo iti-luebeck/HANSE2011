@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>300</height>
+    <width>640</width>
+    <height>482</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,7 @@
   <widget class="QComboBox" name="rightBox">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>210</x>
      <y>50</y>
      <width>131</width>
      <height>22</height>
@@ -36,7 +36,7 @@
   <widget class="QComboBox" name="bottomBox">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>400</x>
      <y>50</y>
      <width>131</width>
      <height>22</height>
@@ -59,7 +59,7 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>180</x>
+     <x>220</x>
      <y>30</y>
      <width>46</width>
      <height>13</height>
@@ -72,7 +72,7 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>410</x>
      <y>30</y>
      <width>46</width>
      <height>13</height>
@@ -85,8 +85,8 @@
   <widget class="QPushButton" name="applyButtn">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>220</y>
+     <x>310</x>
+     <y>240</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -100,8 +100,8 @@
     <rect>
      <x>20</x>
      <y>110</y>
-     <width>131</width>
-     <height>91</height>
+     <width>160</width>
+     <height>120</height>
     </rect>
    </property>
    <property name="text">
@@ -114,10 +114,10 @@
   <widget class="QLabel" name="rightLabel">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>200</x>
      <y>110</y>
-     <width>131</width>
-     <height>91</height>
+     <width>160</width>
+     <height>120</height>
     </rect>
    </property>
    <property name="text">
@@ -130,10 +130,10 @@
   <widget class="QLabel" name="bottomLabel">
    <property name="geometry">
     <rect>
-     <x>320</x>
+     <x>400</x>
      <y>110</y>
-     <width>131</width>
-     <height>91</height>
+     <width>160</width>
+     <height>120</height>
     </rect>
    </property>
    <property name="text">
@@ -146,8 +146,8 @@
   <widget class="QPushButton" name="refreshButton">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>220</y>
+     <x>230</x>
+     <y>240</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -159,8 +159,8 @@
   <widget class="QPushButton" name="updateListButton">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>220</y>
+     <x>150</x>
+     <y>240</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -172,8 +172,8 @@
   <widget class="QCheckBox" name="checkBox">
    <property name="geometry">
     <rect>
-     <x>89</x>
-     <y>220</y>
+     <x>19</x>
+     <y>240</y>
      <width>121</width>
      <height>20</height>
     </rect>
@@ -198,7 +198,7 @@
   <widget class="QPushButton" name="bottomSettingsButton">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>460</x>
      <y>80</y>
      <width>75</width>
      <height>23</height>
@@ -211,7 +211,7 @@
   <widget class="QPushButton" name="rightSettingsButton">
    <property name="geometry">
     <rect>
-     <x>230</x>
+     <x>270</x>
      <y>80</y>
      <width>75</width>
      <height>23</height>

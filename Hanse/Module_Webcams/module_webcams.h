@@ -32,9 +32,6 @@ public slots:
     void settingsChanged();
     void reset();
     void terminate();
-    void startCapture();
-    void stopCapture();
-    void captureWebcams();
     void showSettings( int camNr );
 
 private:
@@ -47,7 +44,6 @@ private:
     int bottomID;
     bool bottomConnected;
     QMutex mutex;
-    QTimer captureTimer;
 
     IplImage *leftFrame;
     IplImage *rightFrame;
