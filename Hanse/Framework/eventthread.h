@@ -6,7 +6,6 @@
 
 class EventThread : public QThread
 {
-    Q_OBJECT
 public:
     EventThread();
     void run();
