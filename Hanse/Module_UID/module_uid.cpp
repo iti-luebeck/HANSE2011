@@ -345,6 +345,7 @@ bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) 
 QString Module_UID::UID_Identify() {
     // deadlock if commented in
     //QMutexLocker l(&this->moduleMutex);
+    moduleMutex.lock();
 
     logger->trace("UID_Identify");
 
@@ -355,9 +356,11 @@ QString Module_UID::UID_Identify() {
     bool ret = SendCheckCommand(send,result,9);
     if (!ret) {
         setHealthToSick(getLastError());
+        moduleMutex.unlock();
         return "";
     }
 
+    moduleMutex.unlock();
     return QString::fromAscii(result);
 
 }
