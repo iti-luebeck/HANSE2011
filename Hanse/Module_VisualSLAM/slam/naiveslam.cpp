@@ -309,7 +309,15 @@ void NaiveSLAM::setTranslationVariance( double v )
 
 void NaiveSLAM::setOffset( Position diffPos )
 {
-    offset = diffPos;
+    offset = offset + diffPos;
+    if ( offset.getYaw() > CV_PI )
+    {
+        offset.setYaw( offset.getYaw() - 2*CV_PI );
+    }
+    else if ( offset.getYaw() < -CV_PI )
+    {
+        offset.setYaw( offset.getYaw() + 2*CV_PI );
+    }
 }
 
 /*
