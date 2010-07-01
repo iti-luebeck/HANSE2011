@@ -120,7 +120,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (speed>maxSpU) { speed=maxSpU; }
         if (speed<maxSpD) { speed=maxSpD; }
 
-        if (error<settings.value("forceUnpauseError").toFloat())
+        if (abs(error)>settings.value("forceUnpauseError").toFloat())
             paused = false;
 
         if (paused)

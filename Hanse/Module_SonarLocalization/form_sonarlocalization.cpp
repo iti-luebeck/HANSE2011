@@ -106,6 +106,9 @@ void Form_SonarLocalization::setFields()
     ui->distanceCutoff->setText((m->getSettings().value("distanceCutoff").toString()));
     ui->particleCount->setText((m->getSettings().value("particleCount").toString()));
     ui->boltzmann->setText((m->getSettings().value("boltzmann").toString()));
+
+    ui->a1->setText(m->getSettings().value("a1").toString());
+    ui->a2->setText(m->getSettings().value("a2").toString());
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -200,6 +203,9 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->getSettings().setValue("distanceCutoff", ui->distanceCutoff->text());
     m->getSettings().setValue("particleCount", ui->particleCount->text());
     m->getSettings().setValue("boltzmann", ui->boltzmann->text());
+
+    m->getSettings().setValue("a1",  ui->a1->text());
+    m->getSettings().setValue("a2",  ui->a2->text());
 
     m->reset();
 }

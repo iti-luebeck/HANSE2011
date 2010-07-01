@@ -155,8 +155,10 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
         float cutOff=0;
         if (data.switchCommand.startGain==15)
             cutOff = (7.0/20)*(i-50)/127;
-//        else
-//            logger->error("Unknown gain: "+QString::number(data.startGain));
+        else {
+            cutOff = s.value("a1").toFloat()*(i-s.value("a2").toFloat())/127;
+            logger->debug("Using parameters as gain.");
+        }
 
         if (cutOff<0)
             cutOff = 0;
