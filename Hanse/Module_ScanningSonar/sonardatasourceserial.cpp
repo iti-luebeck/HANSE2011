@@ -36,7 +36,8 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
     QByteArray retData;
 
     int expectedLength;
-    if (parent.getSettings().value("dataPoints", 50).toInt())
+    logger->debug("dataPoints:"+QString::number(parent.getSettings().value("dataPoints").toInt()));
+    if (parent.getSettings().value("dataPoints").toInt()==50)
         expectedLength = 513;
     else
         expectedLength = 265;
@@ -48,9 +49,12 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
         parent.msleep(5); timeout -= 5;
     }
     if (expectedLength - retData.length()>0) {
-        logger->error("Received less than expected: "+QString::number(expectedLength - retData.length())+" bytes missing.");
+        logger->error("Received less than expected: "+QString::number(expectedLength - retData.length())+" bytes missing; expected="+QString::number(expectedLength));
+    } else {
+        logger->debug("received full packet");
     }
-    //logger->trace("Received in total: " + QString(retData.toHex()));
+
+    logger->trace("Received in total: " + QString(retData.toHex()));
 
     SonarReturnData d(cmd,retData);
 

@@ -3,7 +3,6 @@
 
 #include <QtCore>
 #include <Framework/robotmodule.h>
-#include <Framework/eventthread.h>
 #include "inttypes.h"
 
 class Module_UID;

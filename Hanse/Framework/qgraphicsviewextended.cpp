@@ -44,6 +44,15 @@ void QGraphicsViewExtended::keyPressEvent( QKeyEvent *event )
     case Qt::Key_Right:
         this->translate( -10, 0 );
         break;
+    case Qt::Key_Plus:
+        if ( this->transform().m22()<2000 )
+            this->scale(1.1,1.1);
+        break;
+    case Qt::Key_Minus:
+        if ( this->transform().m22()>0.1 )
+            this->scale(1/1.1,1/1.1);
+        break;
+
     }
 }
 

@@ -126,12 +126,14 @@ void SonarParticleFilter::addToList(QVector<QVector2D>& list, const QVector2D p)
 
 QVector2D SonarParticleFilter::map2img(const QVector2D& mapPoint)
 {
-    return mapPoint/0.2;
+    //return mapPoint/0.2;
+    return mapPoint*4.5;
 }
 
 QVector2D SonarParticleFilter::img2map(const QVector2D& imgPoint)
 {
-    return imgPoint*0.2;
+    //return imgPoint*0.2;
+    return imgPoint/4.5;
 }
 
 QVector3D SonarParticleFilter::getBestEstimate()
