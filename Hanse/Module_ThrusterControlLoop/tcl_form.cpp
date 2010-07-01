@@ -26,7 +26,7 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     l->addWidget(plot);
     ui->frame->setLayout(l);
 
-    plot->setAxisScale(QwtPlot::yLeft,-1,2);
+    plot->setAxisScale(QwtPlot::yLeft,-1,6);
     plot->setAxisScale(QwtPlot::xBottom,0,300);
 
     QwtLegend *legend = new QwtLegend();
