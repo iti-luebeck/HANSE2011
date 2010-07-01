@@ -85,6 +85,15 @@ void Module_Webcams::reset()
 
     if ( this->isEnabled() )
     {
+        if ( 0 <= bottomID && bottomID < nCams )
+        {
+            VI.setIdealFramerate( bottomID, 30 );
+            bottomConnected = VI.setupDevice( bottomID, WEBCAM_WIDTH, WEBCAM_HEIGHT );
+        }
+        else
+        {
+            bottomConnected = false;
+        }
         if ( 0 <= leftID && leftID < nCams )
         {
             VI.setIdealFramerate( leftID, 30 );
@@ -102,15 +111,6 @@ void Module_Webcams::reset()
         else
         {
             rightConnected = false;
-        }
-        if ( 0 <= bottomID && bottomID < nCams )
-        {
-            VI.setIdealFramerate( bottomID, 30 );
-            bottomConnected = VI.setupDevice( bottomID, WEBCAM_WIDTH, WEBCAM_HEIGHT );
-        }
-        else
-        {
-            bottomConnected = false;
         }
     }
     mutex.unlock();
