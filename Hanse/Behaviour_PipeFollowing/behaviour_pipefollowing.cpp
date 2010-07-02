@@ -134,12 +134,12 @@ void Behaviour_PipeFollowing::controlPipeFollow()
    float tmp;
    if(curAbsAngle > Behaviour_PipeFollowing::deltaAngPipe)
    {
-       ctrAngleSpeed = (-1) * Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
+       ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
    }
 
-   if(Behaviour_PipeFollowing::potentialVec > Behaviour_PipeFollowing::deltaDistPipe)
+   if(Behaviour_PipeFollowing::distanceY > Behaviour_PipeFollowing::deltaDistPipe)
    {
-       ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::potentialVec / Behaviour_PipeFollowing::maxDistance;
+       ctrAngleSpeed += -Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
    }
 
 //   tcl->setAngularSpeed(ctrAngleSpeed);
@@ -478,6 +478,12 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
     intersect = gmp;
 
     potentialVec = robCenter.y - intersect.y;
+
+
+    r = ((robCenter.y)/1.0 - pt1.y)/rv[1];
+    potentialY = robCenter.x - (pt1.x + (((r) * rv[0])));
+    data["potentialY"] = potentialY;
+
 
 //    /* Entfernung auf der Bildhalbierenden Y-Achse */
 //    r = ((robCenter.y)/1.0 - pt1.x)/rv[1];
