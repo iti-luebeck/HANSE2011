@@ -151,6 +151,7 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
     QStringList files = dir.entryList();
     Mat frame, binaryFrame;
 
+    namedWindow("Dummy");
     for ( int i = 0; i < files.count(); i++ )
     {
         QString filePath = videoFile;
@@ -191,23 +192,28 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
     {
         int u;
         Mat frameHSV;
-        cvtColor( frame, frameHSV, CV_RGB2HSV );
-        int channel = settings.value( "channel", 0 ).toInt();
-
-        for (int i = 0; i < WEBCAM_HEIGHT; i++)
-        {
-            for (int j = 0; j < WEBCAM_WIDTH; j++)
-            {
-                Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-                displayFrame.at<unsigned char>(i, j) = hsvV[channel];
-            }
-        }
+        cvtColor( frame, displayFrame, CV_RGB2GRAY );
+//        cvtColor( frame, frameHSV, CV_RGB2HSV );
+//        int channel = settings.value( "channel", 0 ).toInt();
+//
+//        for (int i = 0; i < WEBCAM_HEIGHT; i++)
+//        {
+//            for (int j = 0; j < WEBCAM_WIDTH; j++)
+//            {
+//                Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
+//                displayFrame.at<unsigned char>(i, j) = hsvV[channel];
+//            }
+//        }
         /**** Segmentation */
-//        Mat thresh;
-//        threshold( displayFrame, displayFrame, threshSegmentation, 255, THRESH_BINARY);
-//        thresh.copyTo( displayFrame );
-        medianBlur( displayFrame, displayFrame, 5 );
-        Canny( displayFrame, binaryFrame, 100, 200, 3, true );
+        Mat threshImg;
+//        IplImage *iplDisp = new IplImage( displayFrame );
+//        cvCLAdaptEqualize( iplDisp, iplDisp, 8, 8, 255, 12, CV_CLAHE_RANGE_FULL );
+        int thresh = settings.value( "threshold", 100 ).toInt();
+        threshold( displayFrame, threshImg, thresh, 255, THRESH_BINARY);
+//        medianBlur( displayFrame, displayFrame, 5 );
+        double width = settings.value( "camWidth", 100 ).toDouble();
+        double height = settings.value( "camHeight", 100 ).toDouble();
+        Canny( threshImg, binaryFrame, width, height, 3, true );
 //        binaryFrame.copyTo( displayFrame );
 
         /*debug */
@@ -227,7 +233,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 {
         /* hough transformation */
         vector<Vec2f> lines;
-        HoughLines(binaryFrame, lines, 1, CV_PI/180, 75 );
+        HoughLines(binaryFrame, lines, 1, CV_PI/180, 60 );
 
         /* DEBUG durchschnitt fuer alle erkannten linien */
         float avRho = 0.0;
@@ -349,8 +355,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         }
         else this->noPipeCnt = 0;
 
-        data["rohrRho"] =  avRhoClass1;
-        data["rohrTheta"] = avThetaClass1;
+        data["rohrRho"] =  avRho; //avRhoClass1;
+        data["rohrTheta"] = avTheta; //avThetaClass1;
 
         /* Istwinkel */
         curAngle = ((avThetaClass1 * 180.0) / CV_PI);
@@ -359,7 +365,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 
         /* Rohrlinie berechnen und Zeichnen */
         Behaviour_PipeFollowing::drawLineHough( displayFrame, avRhoClass1, avThetaClass1,
-                                                Scalar(255,0,0) );
+                                                Scalar(200,0,0) );
 
         /* Schnittpunkt des erkannten Rohrs mit der Ideallinie */
         Behaviour_PipeFollowing::compIntersect(avRhoClass1,avThetaClass1);

@@ -164,7 +164,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Threshold</string>
+      <string>CLAHE</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="cameraID_LineEdit">
@@ -424,7 +424,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>cam width</string>
+      <string>Canny low</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="camWidthLineEdit">
@@ -450,7 +450,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>cam height</string>
+      <string>Canny high</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="camHeightLineEdit">
