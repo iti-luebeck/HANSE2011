@@ -75,9 +75,9 @@ void PipeFollowingForm::on_startFromVideoFileButton_clicked()
 
 void PipeFollowingForm::on_openVideofileButton_clicked()
 {
-    QString file = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.avi *.mpg *.divx *.png)"));
-    pipefollow->getSettings().setValue("videoFilePath",file);
-    ui->curVideofileLabel->setText(file);
+//    QString file = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.jpg, *.avi *.mpg *.divx *.png)"));
+//    pipefollow->getSettings().setValue("videoFilePath",file);
+//    ui->curVideofileLabel->setText(file);
 
     videoFile = QFileDialog::getExistingDirectory( this, "Open dir", "" );
     pipefollow->getSettings().setValue( "videoFilePath", videoFile );
@@ -112,7 +112,7 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
 void PipeFollowingForm::printFrame(cv::Mat &frame)
 {
 
-    QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_Indexed8);
+    QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
 //    QImage image1;
     ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
 //    ui->curVideofileLabel->setText("Blub");

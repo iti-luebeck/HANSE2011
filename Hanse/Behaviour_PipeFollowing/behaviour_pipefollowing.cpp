@@ -23,6 +23,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     Behaviour_PipeFollowing::noPipeCnt = 0;
 
     Behaviour_PipeFollowing::firstRun = 1;
+    this->updateFromSettings();
  }
 
 bool Behaviour_PipeFollowing::isActive()
@@ -40,15 +41,9 @@ void Behaviour_PipeFollowing::start()
 
         logger->debug(this->getSettings().value("videoFilePath").toString());
         logger->debug("cameraID" +QString::number(this->cameraID));
-        if(this->getSettings().value("useCamera").toBool()
-            || (vc.isOpened() && !this->getSettings().value("useCamera").toBool()))
-        {
-            this->setHealthToOk();
-            setEnabled(true);
-            timer.start(200);
-//            emit started(this);
-        }
-        else this->setHealthToSick("fail - open camera or video");
+        this->setHealthToOk();
+        setEnabled(true);
+        timer.start(200);
 
     }
 }
@@ -88,22 +83,13 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 void Behaviour_PipeFollowing::timerSlot()
 {
     Mat binaryFrame;
-    if(this->getSettings().value("useCamera").toBool())
-    {
-        this->grab(frame);
-    }
-    else
-    {
-        if(!vc.isOpened())
-            logger->error("cannot retrive frame from video file");
-        else
-            vc >> frame;
-    }
+    this->grab(frame);
     if(!frame.empty())
     {
         this->setHealthToOk();
-        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
-        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
+//        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
+//        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
+        Behaviour_PipeFollowing::moments(frame);
         binaryFrame.release();
         Behaviour_PipeFollowing::updateData();
         Behaviour_PipeFollowing::controlPipeFollow();
@@ -113,8 +99,29 @@ void Behaviour_PipeFollowing::timerSlot()
 
 void Behaviour_PipeFollowing::grab(Mat &frame)
 {
-    this->cam->grabBottom( frame );
+    if(this->getSettings().value("useCamera").toBool())
+        this->cam->grabBottom( frame );
+    else
+    {
+     QString filePath = this->getSettings().value("videoFilePath").toString();
+    filePath.append( "/" );
+    filePath.append( files[fileIndex] );
+    frame = imread( filePath.toStdString() );
+    fileIndex++;
 }
+}
+
+void Behaviour_PipeFollowing::initPictureFolder()
+{
+    QDir dir( this->getSettings().value("videoFilePath").toString());
+    dir.setFilter( QDir::Files );
+    QStringList filters;
+    filters << "*.jpg";
+    dir.setNameFilters( filters );
+    files = dir.entryList();
+    Mat frame, binaryFrame;
+}
+
 
 
 void Behaviour_PipeFollowing::controlPipeFollow()
@@ -130,9 +137,9 @@ void Behaviour_PipeFollowing::controlPipeFollow()
        ctrAngleSpeed = (-1) * Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
    }
 
-   if(Behaviour_PipeFollowing::distance > Behaviour_PipeFollowing::deltaDistPipe)
+   if(Behaviour_PipeFollowing::potentialVec > Behaviour_PipeFollowing::deltaDistPipe)
    {
-       ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
+       ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::potentialVec / Behaviour_PipeFollowing::maxDistance;
    }
 
 //   tcl->setAngularSpeed(ctrAngleSpeed);
@@ -148,7 +155,7 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
     QStringList filters;
     filters << "*.jpg";
     dir.setNameFilters( filters );
-    QStringList files = dir.entryList();
+    files = dir.entryList();
     Mat frame, binaryFrame;
 
     namedWindow("Dummy");
@@ -159,8 +166,10 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
         filePath.append( files[i] );
         frame = imread( filePath.toStdString() );
 
-        Behaviour_PipeFollowing::findPipe( frame, binaryFrame );
-        Behaviour_PipeFollowing::computeLineBinary( frame, binaryFrame );
+        Behaviour_PipeFollowing::moments(frame);
+        Behaviour_PipeFollowing::updateData();
+//        Behaviour_PipeFollowing::findPipe( frame, binaryFrame );
+//        Behaviour_PipeFollowing::computeLineBinary( frame, binaryFrame );
         waitKey( 100 );
     }
 
@@ -377,8 +386,6 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 
         }
 
-        /* Potentialvektor berechnen */
-        potentialVec = robCenter.y - intersect.y;
 
 
         /* Ideallinie zeichnen */
@@ -430,21 +437,23 @@ void Behaviour_PipeFollowing::compIntersect(double rho, double theta)
               pt1.y + (((r) * rv[1])));
     intersect = gmp;
 
+     potentialVec = robCenter.y - intersect.y;
+
     /* Entfernung auf der Bildhalbierenden Y-Achse */
     r = ((robCenter.y)/1.0 - pt1.x)/rv[1];
    distanceY = robCenter.x - (pt1.x + (((r) * rv[0])));
 
     /*Abstand zwischen ermittelter Gerade und robCenter */
     /*Richtungsvekter double[] rv und Stuetzvektor Point pt1 */
-    double zaehler[2] = {((robCenter.x - pt1.x) *rv[0]),((robCenter.y - pt1.y) *rv[1])};
-    double nenner[2] = {(rv[0] * rv[0]),(rv[1]*rv[1])};
-    double c[2] = {0.0,0.0};
-    c[0] = (rv[0] * (zaehler[0] / nenner[0])) + pt1.x;
-    c[1] = (rv[1] * (zaehler[1] / nenner[1])) + pt1.y;
-    double d[2] ={0, 0};
-    d[0] = robCenter.x - c[0];
-    d[1] = robCenter.y - c[1];
-    distance = sqrt((d[0] * d[0]) + (d[1] * d[1]));
+//    double zaehler[2] = {((robCenter.x - pt1.x) *rv[0]),((robCenter.y - pt1.y) *rv[1])};
+//    double nenner[2] = {(rv[0] * rv[0]),(rv[1]*rv[1])};
+//    double c[2] = {0.0,0.0};
+//    c[0] = (rv[0] * (zaehler[0] / nenner[0])) + pt1.x;
+//    c[1] = (rv[1] * (zaehler[1] / nenner[1])) + pt1.y;
+//    double d[2] ={0, 0};
+//    d[0] = robCenter.x - c[0];
+//    d[1] = robCenter.y - c[1];
+//  distance = sqrt((d[0] * d[0]) + (d[1] * d[1]));
 
     /* abstand zwischen gmp2 und ideallinie */
     /* ideal zwischen robCenter.x, robCenter.y und robCenter.x und robCenter.y *2 */
@@ -457,6 +466,35 @@ void Behaviour_PipeFollowing::compIntersect(double rho, double theta)
     //    cosphi = sin(cosphi);
     //   deltaRohr = normAP * cosphi;
     //    qDebug() << "Abstand " << deltaRohr;
+}
+
+void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
+{
+    //    Point richtungsv((pt2.x - pt1.x) , (pt2.y - pt1.y));
+    double rv[2] = {(pt2.x - pt1.x) , (pt2.y - pt1.y)};
+    float r = ((robCenter.x)/1.0 - pt1.x)/rv[0];
+    Point gmp(pt1.x + (((r) * rv[0])) ,
+              pt1.y + (((r) * rv[1])));
+    intersect = gmp;
+
+    potentialVec = robCenter.y - intersect.y;
+
+//    /* Entfernung auf der Bildhalbierenden Y-Achse */
+//    r = ((robCenter.y)/1.0 - pt1.x)/rv[1];
+//   distanceY = robCenter.x - (pt1.x + (((r) * rv[0])));
+
+    /* ABSTAnd punkt gerade. der richtige */
+    double n[2] = {-(pt1.y-pt2.y) , pt1.x - pt2.x};
+    double nzero[2] = {(n[0] / sqrt(n[0] * n[0])) , (n[1] / sqrt(n[1] * n[1]))};
+
+    double d = pt1.x * nzero[0] + pt1.y * nzero[1];
+
+//    nzero * p - d
+    distanceY = (nzero[0] * robCenter.x) + (nzero[1] * robCenter.y) - d;
+
+
+    data["nullabstand"] = d;
+//    distanceY = (pt1.x - robCenter.x) * (pt1.y - pt2.y) + (robCenter.y - pt1.y) * (pt1.x - pt2.x);
 }
 
 void Behaviour_PipeFollowing::setCameraID(int camID)
@@ -480,17 +518,12 @@ void Behaviour_PipeFollowing::setKpAngle(float kp)
     Behaviour_PipeFollowing::kpAngle = kp;
 }
 
-void Behaviour_PipeFollowing::setRobCenter(double robCenterX, double robCenterY)
-{
-    Behaviour_PipeFollowing::robCenter = Point(robCenterX, robCenterY);
-}
-
 void Behaviour_PipeFollowing::updateData()
 {
  data["current Angle"] = this->curAngle;
  data["intersect.x"] = this->intersect.x;
  data["intersect.y"] = this->intersect.y;
- data["distance to robCenter"] = this->distance;
+ data["distanceY"] = this->distanceY;
  data["deltaDistPipe"] = this->deltaDistPipe;
  data["deltaAnglePipe"] = this->deltaAngPipe;
  data["kpAngle"] = this->kpAngle;
@@ -510,7 +543,7 @@ void Behaviour_PipeFollowing::updateFromSettings()
     this->kpAngle = this->getSettings().value("kpDist").toFloat();
     this->kpDist = this->getSettings().value("kpAngle").toFloat();
     this->constFWSpeed = this->getSettings().value("fwSpeed").toFloat();
-    Behaviour_PipeFollowing::setRobCenter(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
+    this->robCenter = Point(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
 }
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
@@ -564,4 +597,95 @@ void Behaviour_PipeFollowing::resetFirstRun()
 {
     Behaviour_PipeFollowing::firstRun = 1;
 }
+
+void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
+{
+
+    sum = 0;
+    for(int i = 0; i < frame.rows; i++)
+    {
+        for(int j = 0; j < frame.cols; j++)
+        {
+            if(frame.at<unsigned char>(i,j) > 0)
+                sum++;
+        }
+    }
+//    logger->debug("summe" + QString::number(sum));
+
+}
+
+void Behaviour_PipeFollowing::moments( Mat &frame)
+{
+    Mat binary, gray;
+    cvtColor(frame,gray,CV_RGB2GRAY);
+    //    equalizeHist(gray,gray);
+    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
+    int sum;
+    this->countPixel(gray,sum);
+
+    if(sum > 12000)
+    {
+        data["pixelSum"] = sum;
+        imshow("Dummy",gray);
+        IplImage *ipl = new IplImage(gray);
+        CvMoments M;
+        cvMoments( ipl, &M, 1 );
+
+        double m00 = cvGetSpatialMoment( &M, 0, 0 );
+        double m10 = cvGetSpatialMoment( &M, 1, 0 ) / m00;
+        double m01 = cvGetSpatialMoment( &M, 0, 1 ) / m00;
+        double mu11 = cvGetCentralMoment( &M, 1, 1 ) / m00;
+        double mu20 = cvGetCentralMoment( &M, 2, 0 ) / m00;
+        double mu02 = cvGetCentralMoment( &M, 0, 2 ) / m00;
+        // moments( binary, m10, m01, mu11, mu02, mu20 );
+        double theta = 0.5 * atan2( 2 * mu11 , ( mu20 - mu02 ) );
+        data["rohrTheta"] = theta;
+        if(theta < CV_PI/2)
+            theta += CV_PI;
+        else if(theta > CV_PI/2)
+            theta -= CV_PI;
+
+        if(theta > CV_PI/2)
+            theta -= CV_PI;
+        else if(theta < -CV_PI/2)
+            theta += CV_PI;
+
+
+
+        Point pt1 = Point(m10,m01);
+        Point pt2 = Point(m10 + cos(theta)*200, m01 + sin(theta)*200);
+        /* Ideallinie zeichnen */
+        line( frame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(255,0,0), 3, 8 );
+        line(frame,Point(m10,m01),Point(m10 + cos(theta)*200, m01 + sin(theta)*200),Scalar(255,0,0),4,CV_FILLED);
+        circle(frame,robCenter,3,Scalar(255,0,255),3,8);
+
+        curAngle = ((theta * 180.0) / CV_PI);
+        if(curAngle > 90)
+            curAngle -= 180;
+
+        if(curAngle > 0)
+        {
+            curAngle -= 90;
+        }
+        else if(curAngle < 0)
+        {
+            curAngle +=90;
+        }
+
+        theta = (curAngle * CV_PI) / 180.0;
+        data["rohrThetaMod"] = theta;
+
+
+
+        //    imshow("image",frame);
+
+        Behaviour_PipeFollowing::compIntersect(pt1,pt2);
+        imshow("image",frame);
+
+        Behaviour_PipeFollowing::updateData();
+        waitKey();
+        emit printFrameOnUi(frame);
+    }
+}
+
 

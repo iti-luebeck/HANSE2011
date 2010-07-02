@@ -62,6 +62,7 @@ public:
         und der gefundenen Gerade.
       */
     void compIntersect(double rho, double theta);
+    void compIntersect(Point pt1, Point pt2);
     /** the p-controller. controls the angle speed of the robot */
     void controlPipeFollow();
     /** reset first run for median filter */
@@ -83,9 +84,24 @@ private:
     /** grabs frame from camera device */
     void grab(Mat &frame);
 
+    void moments(Mat &frame);
+
+    void countPixel(Mat &frame, int &sum);
+
+    void initPictureFolder();
+
+
+//    double m10;
+//    double m01;
+//    double mu11;
+//    double mu02;
+//    double mu20;
+
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cam;
     QTimer timer;
+    QStringList files;
+    int fileIndex;
 
     VideoCapture vc;
     /* konstante parameter */
@@ -104,8 +120,8 @@ private:
 
 
     /* dynamische parameter */
-    double distance;
     float potentialVec;
+    float potentialY;
     float distanceY;
     float curAngle;
     Point intersect;
