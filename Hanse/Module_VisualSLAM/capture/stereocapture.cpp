@@ -416,8 +416,8 @@ void StereoCapture::grab( bool saveImages )
     }
 
     // Check for occurences of the class features.
-    int *classArray = new int[(int)keypoints1.size()];
-    memset( classArray, 0, (int)keypoints1.size()*sizeof(int) );
+    int *classArray = new int[(int)keypoints2.size()];
+    memset( classArray, 0, (int)keypoints2.size()*sizeof(int) );
     for ( int i = 0; i < (int)classFeatures.size(); i++ )
     {
         vector<CvPoint> classMatches;
@@ -425,7 +425,7 @@ void StereoCapture::grab( bool saveImages )
         double xmax = -1;
         double ymin = 1000;
         double ymax = -1;
-        feature1->matchFeatures(descriptors1, classFeatures[i], classMatches);
+        feature1->matchFeatures(descriptors2, classFeatures[i], classMatches);
         for ( int j = 0; j < (int)classMatches.size(); j++ )
         {
             int idx = classMatches[j].x;

@@ -78,6 +78,11 @@ void PipeFollowingForm::on_openVideofileButton_clicked()
     QString file = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.avi *.mpg *.divx *.png)"));
     pipefollow->getSettings().setValue("videoFilePath",file);
     ui->curVideofileLabel->setText(file);
+
+    videoFile = QFileDialog::getExistingDirectory( this, "Open dir", "" );
+    pipefollow->getSettings().setValue( "videoFilePath", videoFile );
+    ui->curVideofileLabel->setText( videoFile );
+
 }
 
 void PipeFollowingForm::on_saveApplyButton_clicked()

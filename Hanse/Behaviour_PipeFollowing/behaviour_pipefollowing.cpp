@@ -143,6 +143,27 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 
 void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
 {
+    QDir dir( videoFile );
+    dir.setFilter( QDir::Files );
+    QStringList filters;
+    filters << "*.jpg";
+    dir.setNameFilters( filters );
+    QStringList files = dir.entryList();
+    Mat frame, binaryFrame;
+
+    for ( int i = 0; i < files.count(); i++ )
+    {
+        QString filePath = videoFile;
+        filePath.append( "/" );
+        filePath.append( files[i] );
+        frame = imread( filePath.toStdString() );
+
+        Behaviour_PipeFollowing::findPipe( frame, binaryFrame );
+        Behaviour_PipeFollowing::computeLineBinary( frame, binaryFrame );
+        waitKey( 100 );
+    }
+
+    /*
     vc = VideoCapture(videoFile.toStdString());
     if (!vc.isOpened())
     {
@@ -161,6 +182,7 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
         waitKey(100);
     }
     vc.release();
+    */
 }
 
 void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
