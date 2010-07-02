@@ -32,6 +32,9 @@ MetaBehaviourForm::MetaBehaviourForm(MetaBehaviour* meta, QWidget *parent) :
     connect(&signalMapperClicked, SIGNAL(mapped(QObject*)),
             this, SLOT(activateModule(QObject*)));
 
+    ui->targetDepth->setText(meta->settings.value("targetDepth").toString());
+    ui->depthErrorVariance->setText(meta->settings.value("depthErrorVariance").toString());
+    ui->timeout->setText(meta->settings.value("timeout").toString());
 
 }
 
@@ -90,4 +93,17 @@ void MetaBehaviourForm::moduleHealthFail(RobotModule *module)
         ((RobotBehaviour*)module)->stop();
         moduleFinished((RobotBehaviour*)module, false);
     }
+}
+
+void MetaBehaviourForm::on_pipeFollowMeta_clicked()
+{
+    meta->settings.setValue("targetDepth", ui->targetDepth->text());
+    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->settings.setValue("timeout", ui->timeout->text());
+
+    on_stopBehaviours_clicked();
+
+    meta->data["state"]="dive";
+    meta->tcl->setDepth(meta->settings.value("targetDepth").toFloat());
+    meta->timeoutTimer.start(meta->settings.value("timeout").toInt()*1000);
 }

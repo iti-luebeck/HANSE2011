@@ -26,12 +26,14 @@ private:
     QMap<RobotBehaviour*, QLabel*> mapLabels;
 
 private slots:
+    void on_pipeFollowMeta_clicked();
     void on_stopBehaviours_clicked();
     void activateModule(QObject *o);
     void moduleStarted(RobotBehaviour* module);
     void moduleFinished(RobotBehaviour* module, bool success);
 
     void moduleHealthFail(RobotModule* module);
+
 };
 
 #endif // METABEHAVIOURFORM_H

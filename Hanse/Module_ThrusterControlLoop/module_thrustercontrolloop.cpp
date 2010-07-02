@@ -115,7 +115,6 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         // If not stop the thrusterDown!
         if (!pressureSensor_isHealthOK) { speed = 0; }
 
-
         // limit the speed:
         if (speed>maxSpU) { speed=maxSpU; }
         if (speed<maxSpD) { speed=maxSpD; }
@@ -277,4 +276,9 @@ void Module_ThrusterControlLoop::unpauseModule()
     this->paused = false;
     //updateHorizontalThrustersNow();
     //updown thrusters should restart as soon as a new pressure
+}
+
+float Module_ThrusterControlLoop::getDepthError()
+{
+    return data["depth_error"].toFloat();
 }

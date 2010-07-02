@@ -87,6 +87,8 @@ public slots:
       */
     float getDepth();
 
+    float getDepthError();
+
 private:
 
     void updateHorizontalThrustersNow();

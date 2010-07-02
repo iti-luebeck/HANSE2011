@@ -78,7 +78,7 @@ void ModulesGraph::build()
     this->modules.append(behavBall);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
-    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl);
+    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe);
     this->modules.append(metaBehaviour);
 
     logger->info("Loading all Modules... Done");
