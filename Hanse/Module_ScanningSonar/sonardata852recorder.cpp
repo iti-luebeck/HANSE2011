@@ -17,7 +17,7 @@ void SonarData852Recorder::start()
         stop();
 
     file = new QFile(DataLogHelper::getLogDir()+"sonarlog.852");
-    if (file->open(QFile::WriteOnly | QFile::Truncate)) {
+    if (file->open(QFile::WriteOnly | QFile::Truncate | QFile::Append)) {
         stream = new QDataStream(file);
         stream->setVersion(QDataStream::Qt_4_6);
     } else {

@@ -127,4 +127,6 @@ void Module_Thruster::gotEnabled(bool value)
 {
     if (value)
         initController();
+    else
+        setSpeed(0);
 }

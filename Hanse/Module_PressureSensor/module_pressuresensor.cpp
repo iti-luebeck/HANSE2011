@@ -184,8 +184,8 @@ void Module_PressureSensor::doHealthCheck()
 
     QMutexLocker l(&this->moduleMutex);
 
-    counter = readBuffer[0];
-//    data["counter"] = counter;
+    counter = (unsigned char)readBuffer[0];
+    data["counter"] = counter;
 
     setHealthToOk();
 }

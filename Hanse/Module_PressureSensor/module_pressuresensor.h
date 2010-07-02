@@ -56,7 +56,7 @@ private:
     Module_UID *uid;
     QTimer timer;
     QThread thread;
-    int counter;
+    unsigned int counter;
 
     void readPressure();
     void readTemperature();
