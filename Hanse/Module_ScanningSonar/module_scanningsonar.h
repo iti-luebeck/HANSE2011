@@ -50,6 +50,7 @@ public slots:
 
 private slots:
     void nextScanPeriod();
+    void gotEnabledChanged(bool);
 
 signals:
     void newSonarData(const SonarReturnData data);

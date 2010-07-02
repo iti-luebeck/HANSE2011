@@ -41,7 +41,7 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     setDefaultValue("sampleRate",5);
     setDefaultValue("debug",1);
 
-    timer.moveToThread(&thread);
+    //timer.moveToThread(&thread);
     thread.start();
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
             Qt::DirectConnection);

@@ -31,6 +31,7 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoo
 
     this->tcl = tcl;
     connect(&scanPeriodTimer, SIGNAL(timeout()), this, SLOT(nextScanPeriod()));
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
 
     recorder = NULL;
     source = NULL;
@@ -91,9 +92,7 @@ bool Module_ScanningSonar::doNextScan()
     logger->debug("diff: "+QString::number(scanPeriodCntr-settings.value("scanPeriodMaxScans").toInt()));
     if (scanPeriodCntr>settings.value("scanPeriodMaxScans").toInt()) {
         logger->debug("scheduling next sonar scan");
-        //QTimer::singleShot(settings.value("scanPeriod").toInt(), this, SLOT(nextScanPeriod()));
         doScanning = false;
-        //QTimer::singleShot(0, tcl, SLOT(unpauseModule()));
         tcl->unpauseModule();
     }
 
@@ -123,6 +122,9 @@ void Module_ScanningSonar::reset()
     reader.wait();
 
     scanPeriodTimer.stop();
+    QTimer::singleShot(0, tcl, SLOT(unpauseModule()));
+    doScanning = false;
+    scanPeriodCntr=0;
 
     logger->debug("Destroying and sonar data source.");
     if (this->source != NULL) {
@@ -140,10 +142,7 @@ void Module_ScanningSonar::reset()
     if (!isEnabled())
         return;
 
-    doScanning = false;
-    scanPeriodCntr=0;
     scanPeriodTimer.start(settings.value("scanPeriod").toInt());
-    //scanPeriodTimer.singleShot(settings.value("scanPeriod").toInt(), this, SLOT(nextScanPeriod()));
 
     if (settings.value("enableRecording").toBool()) {
         if (settings.value("formatCSV").toBool())
@@ -180,4 +179,10 @@ void Module_ScanningSonar::nextScanPeriod()
     scanPeriodCntr=0;
     QTimer::singleShot(0, tcl, SLOT(pauseModule()));
     this->doScanning = true;
+}
+
+void Module_ScanningSonar::gotEnabledChanged(bool state)
+{
+    if (!state)
+        reset();
 }

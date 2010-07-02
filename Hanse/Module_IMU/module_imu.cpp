@@ -105,7 +105,7 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
     setDefaultValue("gyroSens","300");
 
     thread.start();
-    timer.moveToThread(&thread);
+   // timer.moveToThread(&thread);
 
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
             Qt::DirectConnection);

@@ -32,7 +32,7 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     setDefaultValue("frequency", 1);
 
     thread.start();
-    timer.moveToThread(&thread);
+    //timer.moveToThread(&thread);
 
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
             Qt::DirectConnection);
