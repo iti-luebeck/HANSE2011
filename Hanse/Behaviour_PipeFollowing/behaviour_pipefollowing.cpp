@@ -33,6 +33,9 @@ bool Behaviour_PipeFollowing::isActive()
 
 void Behaviour_PipeFollowing::start()
 {
+    this->curAngle = 0.0;
+    this->distanceY = 0.0;
+
     this->noPipeCnt = 0;
     if(!isEnabled())
     {
@@ -51,6 +54,8 @@ void Behaviour_PipeFollowing::start()
 
 void Behaviour_PipeFollowing::stop()
 {
+    this->tcl->setForwardSpeed(0.0);
+    this->tcl->setAngularSpeed(0.0);
     if (this->isActive())
     {
        timer.stop();
@@ -64,6 +69,9 @@ void Behaviour_PipeFollowing::stop()
 
 void Behaviour_PipeFollowing::reset()
 {
+    this->curAngle = 0.0;
+    this->distanceY = 0.0;
+
     RobotBehaviour::reset();
     this->tcl->setForwardSpeed(0.0);
     this->tcl->setAngularSpeed(0.0);
@@ -93,6 +101,7 @@ void Behaviour_PipeFollowing::timerSlot()
         Behaviour_PipeFollowing::moments(frame);
         binaryFrame.release();
         Behaviour_PipeFollowing::updateData();
+        if(isEnabled() || this->getHealthStatus().isHealthOk())
         Behaviour_PipeFollowing::controlPipeFollow();
     }
     else this->setHealthToSick("empty frame");
@@ -127,8 +136,8 @@ void Behaviour_PipeFollowing::controlPipeFollow()
        ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
    }
 
-//   tcl->setAngularSpeed(ctrAngleSpeed);
-//   tcl->setForwardSpeed(this->constFWSpeed);
+   tcl->setAngularSpeed(ctrAngleSpeed);
+   tcl->setForwardSpeed(this->constFWSpeed);
    data["ctrAngleSpeed"] = ctrAngleSpeed;
    data["ctrForwardSpeed"] = this->constFWSpeed;
    emit dataChanged( this );
@@ -642,7 +651,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     /*ENDE TEST */
 
     //    equalizeHist(gray,gray);
-    imshow("blub",gray);
+//    imshow("blub",gray);
     threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
 
     int sum;
@@ -716,9 +725,9 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
         tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat()/2);
         if(noPipeCnt > this->getSettings().value("badFrames").toInt())
         {
-            this->setHealthToSick("no pipe");
             this->stop();
-        }
+            this->setHealthToSick("no pipe");
+                    }
         emit printFrameOnUi(frame);
     }
 }
