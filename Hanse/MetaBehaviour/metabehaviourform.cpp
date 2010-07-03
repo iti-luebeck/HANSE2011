@@ -36,6 +36,8 @@ MetaBehaviourForm::MetaBehaviourForm(MetaBehaviour* meta, QWidget *parent) :
     ui->targetDepth->setText(meta->settings.value("targetDepth").toString());
     ui->depthErrorVariance->setText(meta->settings.value("depthErrorVariance").toString());
     ui->timeout->setText(meta->settings.value("timeout").toString());
+    ui->forwardSpeed->setText(meta->settings.value("forwardSpeed").toString());
+
 
 }
 
@@ -63,6 +65,8 @@ void MetaBehaviourForm::on_stopBehaviours_clicked()
         b->stop();
     }
     meta->tcl->reset();
+    meta->data["state"]="off";
+    meta->timeoutTimer.stop();
 }
 
 void MetaBehaviourForm::activateModule(QObject *o) {
@@ -102,6 +106,7 @@ void MetaBehaviourForm::on_pipeFollowMeta_clicked()
     meta->settings.setValue("targetDepth", ui->targetDepth->text());
     meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
     meta->settings.setValue("timeout", ui->timeout->text());
+    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
 
     on_stopBehaviours_clicked();
 
@@ -113,4 +118,18 @@ void MetaBehaviourForm::on_pipeFollowMeta_clicked()
 void MetaBehaviourForm::on_pipeFollowNoDepthButton_clicked()
 {
     emit testPipe();
+}
+
+void MetaBehaviourForm::on_simpleForward_clicked()
+{
+    meta->settings.setValue("targetDepth", ui->targetDepth->text());
+    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->settings.setValue("timeout", ui->timeout->text());
+    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
+
+    on_stopBehaviours_clicked();
+
+    meta->data["state"]="diveSimple";
+    meta->tcl->setDepth(meta->settings.value("targetDepth").toFloat());
+    meta->timeoutTimer.start(meta->settings.value("timeout").toInt()*1000);
 }

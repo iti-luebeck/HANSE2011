@@ -86,6 +86,12 @@ void MetaBehaviour::depthChanged(float depth)
         timeoutTimer.stop();
         timeoutTimer.start(settings.value("timeout").toInt()*1000);
     }
+    if (data["state"]=="diveSimple" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
+        data["state"] = "forward";
+        tcl->setForwardSpeed(settings.value("forwardSpeed").toFloat());
+        timeoutTimer.stop();
+        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    }
     if (data["state"]=="surface" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
         data["state"] = "off";
         emit dataChanged(this);
@@ -122,6 +128,8 @@ void MetaBehaviour::stateTimeout()
     data["state"]="timeoutFail";
     emit dataChanged(this);
     tcl->setDepth(0);
+    tcl->setForwardSpeed(0);
+    tcl->setAngularSpeed(0);
 }
 
 void MetaBehaviour::badHealth(RobotModule *m)

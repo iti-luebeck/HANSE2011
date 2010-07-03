@@ -26,6 +26,7 @@ private:
     QMap<RobotBehaviour*, QLabel*> mapLabels;
 
 private slots:
+    void on_simpleForward_clicked();
     void on_pipeFollowNoDepthButton_clicked();
     void on_pipeFollowMeta_clicked();
     void on_stopBehaviours_clicked();
