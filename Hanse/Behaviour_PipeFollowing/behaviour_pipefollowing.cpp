@@ -166,7 +166,7 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
         controlPipeFollow();
 //        Behaviour_PipeFollowing::findPipe( frame, binaryFrame );
 //        Behaviour_PipeFollowing::computeLineBinary( frame, binaryFrame );
-        if ( 'q' == waitKey( 500 ) )
+        if ( 'q' == waitKey( 100 ) )
             break;
     }
 
@@ -651,7 +651,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     /*ENDE TEST */
 
     //    equalizeHist(gray,gray);
-//    imshow("blub",gray);
+    imshow("blub",gray);
     threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
 
     int sum;
