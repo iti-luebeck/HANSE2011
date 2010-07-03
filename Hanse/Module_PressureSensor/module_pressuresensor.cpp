@@ -177,15 +177,16 @@ void Module_PressureSensor::doHealthCheck()
         return;
     }
 
+    QMutexLocker l(&this->moduleMutex);
+
+    data["counter"] = (unsigned char)readBuffer[0];
+
     if (readBuffer[0] == counter) {
         setHealthToSick("read the same counter value twice!");
         return;
     }
 
-    QMutexLocker l(&this->moduleMutex);
-
     counter = (unsigned char)readBuffer[0];
-    data["counter"] = counter;
 
     setHealthToOk();
 }
