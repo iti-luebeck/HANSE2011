@@ -26,6 +26,8 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     // states: dive; pipe; surface
     data["state"]="off";
 
+    emit dataChanged(this);
+
     timeoutTimer.setSingleShot(true);
     connect(&timeoutTimer, SIGNAL(timeout()), this, SLOT(stateTimeout()));
 
@@ -79,16 +81,19 @@ void MetaBehaviour::depthChanged(float depth)
 {
     if (data["state"]=="dive" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
         data["state"] = "pipe";
+        emit dataChanged(this);
         QTimer::singleShot(0, pipe, SLOT(start()));
         timeoutTimer.stop();
         timeoutTimer.start(settings.value("timeout").toInt()*1000);
     }
     if (data["state"]=="surface" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
         data["state"] = "off";
+        emit dataChanged(this);
         timeoutTimer.stop();
     }
     if (depth>4) {
         data["state"]="surface";
+        emit dataChanged(this);
         timeoutTimer.stop();
         tcl->setDepth(0);
     }
@@ -97,6 +102,7 @@ void MetaBehaviour::depthChanged(float depth)
 void MetaBehaviour::testPipe()
 {
     data["state"] = "pipe";
+    emit dataChanged(this);
     QTimer::singleShot(0, pipe, SLOT(start()));
     timeoutTimer.stop();
     timeoutTimer.start(settings.value("timeout").toInt()*1000);
@@ -105,6 +111,7 @@ void MetaBehaviour::testPipe()
 void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
     if (data["state"]=="pipe") {
         data["state"]="surface";
+        emit dataChanged(this);
         tcl->setDepth(0);
         timeoutTimer.stop();
     }
@@ -113,6 +120,7 @@ void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
 void MetaBehaviour::stateTimeout()
 {
     data["state"]="timeoutFail";
+    emit dataChanged(this);
     tcl->setDepth(0);
 }
 
@@ -120,6 +128,7 @@ void MetaBehaviour::badHealth(RobotModule *m)
 {
     if (m==pressure) {
         data["state"]="fail";
+        emit dataChanged(this);
         tcl->setDepth(0);
         timeoutTimer.stop();
     }
