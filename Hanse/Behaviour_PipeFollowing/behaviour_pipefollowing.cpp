@@ -631,6 +631,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
 
     if(sum > 12000)
     {
+        noPipeCnt = 0;
         data["pixelSum"] = sum;
         imshow("Dummy",gray);
         IplImage *ipl = new IplImage(gray);
@@ -691,6 +692,16 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
         Behaviour_PipeFollowing::updateData();
         waitKey();
         emit printFrameOnUi(frame);
+    }
+    else
+    {
+        noPipeCnt++;
+        tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat()/2);
+        if(noPipeCnt > this->getSettings().value("badFrames").toInt())
+        {
+            this->stop();
+        }
+
     }
 }
 
