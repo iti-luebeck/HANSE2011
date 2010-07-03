@@ -91,7 +91,7 @@ void MetaBehaviour::depthChanged(float depth)
         emit dataChanged(this);
         timeoutTimer.stop();
     }
-    if (depth>4) {
+    if (depth>3) {
         data["state"]="surface";
         emit dataChanged(this);
         timeoutTimer.stop();
