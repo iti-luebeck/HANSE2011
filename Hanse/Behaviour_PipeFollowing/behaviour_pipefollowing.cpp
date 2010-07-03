@@ -33,6 +33,7 @@ bool Behaviour_PipeFollowing::isActive()
 
 void Behaviour_PipeFollowing::start()
 {
+    this->noPipeCnt = 0;
     if(!isEnabled())
     {
         Behaviour_PipeFollowing::updateFromSettings();
@@ -114,18 +115,16 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 {
    float ctrAngleSpeed = 0.0;
 //   float ctrFwSpeed = 0.0
-   float curAbsAngle = (Behaviour_PipeFollowing::curAngle < 0) ?
-                       ((-1) * Behaviour_PipeFollowing::curAngle)
-                           : Behaviour_PipeFollowing::curAngle;
    float tmp;
-   if(curAbsAngle > Behaviour_PipeFollowing::deltaAngPipe)
+   if(fabs(Behaviour_PipeFollowing::curAngle) > Behaviour_PipeFollowing::deltaAngPipe)
    {
        ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
    }
+   float absDistY = Behaviour_PipeFollowing::distanceY;
 
-   if(Behaviour_PipeFollowing::distanceY > Behaviour_PipeFollowing::deltaDistPipe)
+   if(fabs(Behaviour_PipeFollowing::distanceY) > Behaviour_PipeFollowing::deltaDistPipe)
    {
-       ctrAngleSpeed += -Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
+       ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
    }
 
 //   tcl->setAngularSpeed(ctrAngleSpeed);
@@ -527,15 +526,16 @@ void Behaviour_PipeFollowing::updateData()
 
 void Behaviour_PipeFollowing::updateFromSettings()
 {
-    this->cameraID = this->getSettings().value("cameraID").toInt();
-    this->threshSegmentation = this->getSettings().value("threshold").toInt();
-    this->debug = this->getSettings().value("debug").toInt();
-    this->deltaAngPipe = this->getSettings().value("deltaAngle").toFloat();
-    this->deltaDistPipe = this->getSettings().value("deltaDist").toFloat();
-    this->kpAngle = this->getSettings().value("kpDist").toFloat();
-    this->kpDist = this->getSettings().value("kpAngle").toFloat();
-    this->constFWSpeed = this->getSettings().value("fwSpeed").toFloat();
-    this->robCenter = Point(this->getSettings().value("robCenterX").toDouble(),this->getSettings().value("robCenterY").toDouble());
+    this->cameraID = this->getSettings().value("cameraID",0).toInt();
+    this->threshSegmentation = this->getSettings().value("threshold",188).toInt();
+    this->debug = this->getSettings().value("debug",0).toInt();
+    this->deltaAngPipe = this->getSettings().value("deltaAngle",11).toFloat();
+    this->deltaDistPipe = this->getSettings().value("deltaDist",100).toFloat();
+    this->kpAngle = this->getSettings().value("kpDist",1).toFloat();
+    this->kpDist = this->getSettings().value("kpAngle",1).toFloat();
+    this->constFWSpeed = this->getSettings().value("fwSpeed",0.8).toFloat();
+    this->robCenter = Point(this->getSettings().value("robCenterX",320).toDouble(),this->getSettings().value("robCenterY",240).toDouble());
+    this->maxDistance = this->getSettings().value("maxDistance",320).toFloat();
 }
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
@@ -608,10 +608,35 @@ void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
 
 void Behaviour_PipeFollowing::moments( Mat &frame)
 {
-    Mat binary, gray;
+    Mat binary, gray, frameHSV;
     cvtColor(frame,gray,CV_RGB2GRAY);
+    cvtColor(frame,frameHSV,CV_RGB2HSV);
+    /*TEST BITTE WIEDER LOESCHEN */
+    Mat h, s, v;
+    h.create(frame.rows,frame.cols,CV_8UC1);
+    s.create(frame.rows,frame.cols,CV_8UC1);
+    v.create(frame.rows,frame.cols,CV_8UC1);
+
+    for (int i = 0; i < frame.rows; i++)
+    {
+        for (int j = 0; j < frame.cols; j++)
+        {
+            Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
+            h.at<unsigned char>(i, j) = hsvV[0];
+            s.at<unsigned char>(i, j) = hsvV[1];
+            v.at<unsigned char>(i, j) = hsvV[2];
+
+        }
+    }
+    /*ENDE TEST */
+
+
     //    equalizeHist(gray,gray);
-    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
+    threshold(s,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
+
+    imshow("blub",h);
+
+
     int sum;
     this->countPixel(gray,sum);
 
@@ -683,6 +708,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
         tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat()/2);
         if(noPipeCnt > this->getSettings().value("badFrames").toInt())
         {
+            this->setHealthToSick("no pipe");
             this->stop();
         }
 
