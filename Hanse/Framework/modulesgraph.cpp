@@ -16,6 +16,7 @@
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 #include <Module_Webcams/module_webcams.h>
 #include <MetaBehaviour/metabehaviour.h>
+#include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -86,6 +87,10 @@ void ModulesGraph::build()
     logger->debug("Creating Behaviour_BallFollowing");
     Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams);
     this->modules.append(behavBall);
+
+    logger->debug("Creating Behaviour_TurnOneEighty");
+    Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
+    this->modules.append(behavTurn);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
     logger->debug("Creating Behaviour_PipeFollowing");

@@ -1,0 +1,86 @@
+#include "behaviour_turnoneeighty.h"
+#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
+#include <Module_Compass/module_compass.h>
+#include <Behaviour_TurnOneEighty/form_turnoneeighty.h>
+
+Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass ) :
+        RobotBehaviour( id )
+{
+    this->tcl = tcl;
+    this->compass = compass;
+    QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
+                      this, SLOT( compassUpdate(RobotModule*) ) );
+}
+
+QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()
+{
+    QList<RobotModule*> ret;
+    ret.append( tcl );
+    ret.append( compass );
+    return ret;
+}
+
+QWidget* Behaviour_TurnOneEighty::createView(QWidget *parent)
+{
+    Form_TurnOneEighty *form = new Form_TurnOneEighty( this, parent );
+    return form;
+}
+
+void Behaviour_TurnOneEighty::start()
+{
+    if( !isEnabled() )
+    {
+        logger->debug( "Behaviour started" );
+        this->setHealthToOk();
+        setEnabled( true );
+    }
+}
+
+void Behaviour_TurnOneEighty::stop()
+{
+    if ( isActive() )
+    {
+       tcl->setAngularSpeed(0.0);
+       setEnabled( false );
+       emit finished( this, true );
+   }
+}
+
+bool Behaviour_TurnOneEighty::isActive()
+{
+    return isEnabled();
+}
+
+void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
+{
+    if ( isActive() )
+    {
+        double currentHeading = compass->getHeading();
+        double diffHeading = initialHeading - currentHeading;
+
+        if ( diffHeading > 180 )
+        {
+            diffHeading -= 360;
+        }
+        if ( diffHeading < -180 )
+        {
+            diffHeading += 360;
+        }
+
+        if ( fabs( diffHeading ) < settings.value( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
+        {
+            stop();
+        }
+        else
+        {
+            diffHeading /= 180;
+            double angularSpeed = settings.value( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
+            tcl->setAngularSpeed( angularSpeed );
+        }
+    }
+}
+
+void Behaviour_TurnOneEighty::initialHeadingUpdate()
+{
+    initialHeading = compass->getHeading();
+}

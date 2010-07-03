@@ -104,7 +104,9 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_BallFollowing/blobs/BlobOperators.h \
     Behaviour_BallFollowing/blobs/BlobLibraryConfiguration.h \
     Behaviour_BallFollowing/blobs/BlobContour.h \
-    Behaviour_BallFollowing/blobs/blob.h
+    Behaviour_BallFollowing/blobs/blob.h \
+    Behaviour_TurnOneEighty/behaviour_turnoneeighty.h \
+    Behaviour_TurnOneEighty/form_turnoneeighty.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -191,7 +193,9 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_BallFollowing/blobs/BlobResult.cpp \
     Behaviour_BallFollowing/blobs/BlobOperators.cpp \
     Behaviour_BallFollowing/blobs/BlobContour.cpp \
-    Behaviour_BallFollowing/blobs/blob.cpp
+    Behaviour_BallFollowing/blobs/blob.cpp \
+    Behaviour_TurnOneEighty/behaviour_turnoneeighty.cpp \
+    Behaviour_TurnOneEighty/form_turnoneeighty.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -213,5 +217,6 @@ FORMS += Framework/mainwindow.ui \
     MetaBehaviour/metabehaviourform.ui \
     Behaviour_GoalFollowing/goalfollowingform.ui \
     Behaviour_BallFollowing/ballfollowingform.ui \
-    Module_Webcams/form_webcams.ui
+    Module_Webcams/form_webcams.ui \
+    Behaviour_TurnOneEighty/form_turnoneeighty.ui
 OTHER_FILES += bin/log4qt.properties

@@ -81,6 +81,7 @@ QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append(tcl);
+    ret.append(cam);
     return ret;
 }
 
@@ -722,12 +723,13 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     else
     {
         noPipeCnt++;
-        tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat()/2);
+        tcl->setForwardSpeed( this->getSettings().value("fwSpeed").toFloat() / 2 );
+        tcl->setAngularSpeed( .0 ); // wegen anschließendem drehen / Ballverfolgen !!!
         if(noPipeCnt > this->getSettings().value("badFrames").toInt())
         {
             this->stop();
             this->setHealthToSick("no pipe");
-                    }
+        }
         emit printFrameOnUi(frame);
     }
 }

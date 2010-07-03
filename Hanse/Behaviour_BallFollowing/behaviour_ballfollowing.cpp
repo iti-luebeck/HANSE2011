@@ -27,8 +27,9 @@ bool Behaviour_BallFollowing::isActive()
 
 void Behaviour_BallFollowing::start()
 {
-    this->setEnabled(true);
-    updateTimer.start( 200 );
+    this->setEnabled( true );
+    state = STATE_FORWARD;
+    updateTimer.start( 100 );
 }
 
 void Behaviour_BallFollowing::newData()
@@ -68,7 +69,6 @@ QWidget* Behaviour_BallFollowing::createView(QWidget* parent)
 
 void Behaviour_BallFollowing::testBehaviour( QString path )
 {
-
     QDir dir( path );
     dir.setFilter( QDir::Files );
     QStringList filters;
@@ -183,7 +183,7 @@ void Behaviour_BallFollowing::ctrBallFollowing()
         }
         tcl->setAngularSpeed(angleSpeed);
         tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat());
-        timerNoBall.start(2000);
+        timerNoBall.start( 2000 );
     }
 
     cvReleaseImage( &left );
@@ -198,19 +198,20 @@ void Behaviour_BallFollowing::timerSlot()
     {
     case STATE_SEEN_BALL:
         state = STATE_FORWARD;
-        tcl->setAngularSpeed( .0 );
+        tcl->setForwardSpeed( 0.4 );
+        tcl->setAngularSpeed( -0.3 );
         timerNoBall.start(2000);
         break;
     case STATE_FORWARD:
         state = STATE_TURNING;
         tcl->setForwardSpeed( .0 );
-        tcl->setAngularSpeed( .1 );
+        tcl->setAngularSpeed( .3 );
         timerNoBall.start(2000);
         break;
     case STATE_TURNING:
         state = STATE_FAILED;
         this->setHealthToSick("no ball in sight");
-         emit finished(this,false);
+        emit finished(this,false);
         break;
     }
 
