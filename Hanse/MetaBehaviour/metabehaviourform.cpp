@@ -61,12 +61,7 @@ void MetaBehaviourForm::changeEvent(QEvent *e)
 // TODO: put some shortcut on this?
 void MetaBehaviourForm::on_stopBehaviours_clicked()
 {
-    foreach (RobotBehaviour* b, meta->behaviours) {
-        b->stop();
-    }
-    meta->tcl->reset();
-    meta->data["state"]="off";
-    meta->timeoutTimer.stop();
+    QTimer::singleShot(0,meta, SLOT(emergencyStop()));
 }
 
 void MetaBehaviourForm::activateModule(QObject *o) {
@@ -100,7 +95,6 @@ void MetaBehaviourForm::moduleHealthFail(RobotModule *module)
     }
 }
 
-
 void MetaBehaviourForm::on_pipeFollowMeta_clicked()
 {
     meta->settings.setValue("targetDepth", ui->targetDepth->text());
@@ -108,11 +102,7 @@ void MetaBehaviourForm::on_pipeFollowMeta_clicked()
     meta->settings.setValue("timeout", ui->timeout->text());
     meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
 
-    on_stopBehaviours_clicked();
-
-    meta->data["state"]="dive";
-    meta->tcl->setDepth(meta->settings.value("targetDepth").toFloat());
-    meta->timeoutTimer.start(meta->settings.value("timeout").toInt()*1000);
+    QTimer::singleShot(0,meta, SLOT(pipeFollowForward()));
 }
 
 void MetaBehaviourForm::on_pipeFollowNoDepthButton_clicked()
@@ -127,9 +117,5 @@ void MetaBehaviourForm::on_simpleForward_clicked()
     meta->settings.setValue("timeout", ui->timeout->text());
     meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
 
-    on_stopBehaviours_clicked();
-
-    meta->data["state"]="diveSimple";
-    meta->tcl->setDepth(meta->settings.value("targetDepth").toFloat());
-    meta->timeoutTimer.start(meta->settings.value("timeout").toInt()*1000);
+    QTimer::singleShot(0, meta, SLOT(simpleForward()));
 }

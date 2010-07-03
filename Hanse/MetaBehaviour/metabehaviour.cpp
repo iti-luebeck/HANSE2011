@@ -46,6 +46,9 @@ void MetaBehaviour::emergencyStop()
     }
     tcl->reset();
 
+    data["state"]="off";
+    timeoutTimer.stop();
+
 }
 
 QList<RobotModule*> MetaBehaviour::getDependencies()
@@ -89,6 +92,7 @@ void MetaBehaviour::depthChanged(float depth)
     if (data["state"]=="diveSimple" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
         data["state"] = "forward";
         tcl->setForwardSpeed(settings.value("forwardSpeed").toFloat());
+        tcl->setAngularSpeed(-0.05);
         timeoutTimer.stop();
         timeoutTimer.start(settings.value("timeout").toInt()*1000);
     }
@@ -140,4 +144,25 @@ void MetaBehaviour::badHealth(RobotModule *m)
         tcl->setDepth(0);
         timeoutTimer.stop();
     }
+}
+
+
+void MetaBehaviour::pipeFollowForward()
+{
+    emergencyStop();
+
+    data["state"]="dive";
+    emit dataChanged(this);
+    tcl->setDepth(settings.value("targetDepth").toFloat());
+    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+}
+
+void MetaBehaviour::simpleForward()
+{
+    emergencyStop();
+
+    data["state"]="diveSimple";
+    emit dataChanged(this);
+    tcl->setDepth(settings.value("targetDepth").toFloat());
+    timeoutTimer.start(settings.value("timeout").toInt()*1000);
 }

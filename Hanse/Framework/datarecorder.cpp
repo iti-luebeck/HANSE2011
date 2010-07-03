@@ -106,7 +106,12 @@ void DataRecorder::newDataReceived(RobotModule *module)
         value = module->getSettings().value(key);
         if (value.convert(QVariant::Bool)) {
             *stream << "," << value.toBool();
+            continue;
         }
+//        value = module->getSettings().value(key);
+//        if (value.convert(QVariant::String)) {
+//            *stream << ",\"" << value.toString() << "\"";
+//        }
     }
 
     foreach (QString key, dataKeys) {
@@ -116,8 +121,14 @@ void DataRecorder::newDataReceived(RobotModule *module)
             continue;
         }
         value = module->getData().value(key);
+        if (value.convert(QVariant::String) && value.toString() != "false" && value.toString() != "true") {
+            *stream << ",\"" << value.toString() << "\"";
+            continue;
+        }
+        value = module->getData().value(key);
         if (value.convert(QVariant::Bool)) {
             *stream << "," << value.toBool();
+            continue;
         }
     }
 

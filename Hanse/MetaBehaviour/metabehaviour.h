@@ -36,8 +36,6 @@ private:
     QTimer timeoutTimer;
 
 private slots:
-    void emergencyStop();
-    void startHandControl();
     void finishedPipe(RobotBehaviour*,bool);
     void depthChanged(float);
     void stateTimeout();
@@ -45,7 +43,11 @@ private slots:
     void badHealth(RobotModule* m);
 
 public slots:
+    void emergencyStop();
+    void startHandControl();
     void testPipe();
+    void pipeFollowForward();
+    void simpleForward();
 };
 
 
