@@ -119,3 +119,13 @@ void MetaBehaviourForm::on_simpleForward_clicked()
 
     QTimer::singleShot(0, meta, SLOT(simpleForward()));
 }
+
+void MetaBehaviourForm::on_turnteste_clicked()
+{
+    QTimer::singleShot(0,meta, SLOT(simple180deg()));
+}
+
+void MetaBehaviourForm::on_fulProgram_clicked()
+{
+    QTimer::singleShot(0, meta, SLOT(fullProgram()));
+}

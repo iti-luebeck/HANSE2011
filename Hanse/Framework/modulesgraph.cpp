@@ -51,7 +51,6 @@ void ModulesGraph::build()
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);
 
-
     logger->debug("Creating Module_ScanningSonar");
     Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
     this->modules.append(sonar);
@@ -94,7 +93,7 @@ void ModulesGraph::build()
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
     logger->debug("Creating Behaviour_PipeFollowing");
-    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe);
+    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn);
     this->modules.append(metaBehaviour);
 
     logger->info("Loading all Modules... Done");
