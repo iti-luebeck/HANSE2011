@@ -43,6 +43,9 @@ private slots:
     void stateTimeout();
 
     void badHealth(RobotModule* m);
+
+public slots:
+    void testPipe();
 };
 
 

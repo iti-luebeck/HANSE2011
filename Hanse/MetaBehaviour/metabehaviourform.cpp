@@ -31,6 +31,7 @@ MetaBehaviourForm::MetaBehaviourForm(MetaBehaviour* meta, QWidget *parent) :
 
     connect(&signalMapperClicked, SIGNAL(mapped(QObject*)),
             this, SLOT(activateModule(QObject*)));
+    connect( this, SIGNAL(testPipe()), meta, SLOT(testPipe()) );
 
     ui->targetDepth->setText(meta->settings.value("targetDepth").toString());
     ui->depthErrorVariance->setText(meta->settings.value("depthErrorVariance").toString());
@@ -106,4 +107,9 @@ void MetaBehaviourForm::on_pipeFollowMeta_clicked()
     meta->data["state"]="dive";
     meta->tcl->setDepth(meta->settings.value("targetDepth").toFloat());
     meta->timeoutTimer.start(meta->settings.value("timeout").toInt()*1000);
+}
+
+void MetaBehaviourForm::on_pipeFollowNoDepthButton_clicked()
+{
+    emit testPipe();
 }

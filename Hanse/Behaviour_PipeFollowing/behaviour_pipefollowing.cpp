@@ -37,7 +37,7 @@ void Behaviour_PipeFollowing::start()
     {
         Behaviour_PipeFollowing::updateFromSettings();
 
-        if(!this->getSettings().value("useCamera").toBool())  vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
+//        if(!this->getSettings().value("useCamera").toBool())  vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
 
         logger->debug(this->getSettings().value("videoFilePath").toString());
         logger->debug("cameraID" +QString::number(this->cameraID));
@@ -83,7 +83,7 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 void Behaviour_PipeFollowing::timerSlot()
 {
     Mat binaryFrame;
-    this->grab(frame);
+    cam->grabBottom( frame );
     if(!frame.empty())
     {
         this->setHealthToOk();
@@ -95,20 +95,6 @@ void Behaviour_PipeFollowing::timerSlot()
         Behaviour_PipeFollowing::controlPipeFollow();
     }
     else this->setHealthToSick("empty frame");
-}
-
-void Behaviour_PipeFollowing::grab(Mat &frame)
-{
-    if(this->getSettings().value("useCamera").toBool())
-        this->cam->grabBottom( frame );
-    else
-    {
-     QString filePath = this->getSettings().value("videoFilePath").toString();
-    filePath.append( "/" );
-    filePath.append( files[fileIndex] );
-    frame = imread( filePath.toStdString() );
-    fileIndex++;
-}
 }
 
 void Behaviour_PipeFollowing::initPictureFolder()
@@ -158,7 +144,7 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
     files = dir.entryList();
     Mat frame, binaryFrame;
 
-    namedWindow("Dummy");
+//    namedWindow("Dummy");
     for ( int i = 0; i < files.count(); i++ )
     {
         QString filePath = videoFile;
@@ -633,7 +619,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     {
         noPipeCnt = 0;
         data["pixelSum"] = sum;
-        imshow("Dummy",gray);
+//        imshow("Dummy",gray);
         IplImage *ipl = new IplImage(gray);
         CvMoments M;
         cvMoments( ipl, &M, 1 );
@@ -687,10 +673,8 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
         //    imshow("image",frame);
 
         Behaviour_PipeFollowing::compIntersect(pt1,pt2);
-        imshow("image",frame);
 
         Behaviour_PipeFollowing::updateData();
-        waitKey();
         emit printFrameOnUi(frame);
     }
     else

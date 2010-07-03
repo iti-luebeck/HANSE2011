@@ -94,6 +94,14 @@ void MetaBehaviour::depthChanged(float depth)
     }
 }
 
+void MetaBehaviour::testPipe()
+{
+    data["state"] = "pipe";
+    QTimer::singleShot(0, pipe, SLOT(start()));
+    timeoutTimer.stop();
+    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+}
+
 void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
     if (data["state"]=="pipe") {
         data["state"]="surface";

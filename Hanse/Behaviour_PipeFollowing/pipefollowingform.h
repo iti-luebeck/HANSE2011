@@ -28,7 +28,6 @@ private:
 private slots:
     void on_stopButton_clicked();
     void on_saveApplyButton_clicked();
-    void on_openVideofileButton_clicked();
     void on_startFromVideoFileButton_clicked();
     void on_startPipeFollowingButton_clicked();
 

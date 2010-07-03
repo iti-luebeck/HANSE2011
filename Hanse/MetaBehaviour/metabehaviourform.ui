@@ -82,6 +82,13 @@
         </property>
        </widget>
       </item>
+      <item row="4" column="0">
+       <widget class="QPushButton" name="pipeFollowNoDepthButton">
+        <property name="text">
+         <string>Pipe Follow, no depth</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

@@ -64,6 +64,7 @@ void SonarParticleFilter::reset()
 
 void SonarParticleFilter::loadMap()
 {
+    logger->debug("Loading sonar map");
     Mat combinedMap = cv::imread(sonar->getSettings().value("mapFile").toString().toStdString(), 1);
     if (combinedMap.data == NULL) {
         logger->error("Could not read map!");

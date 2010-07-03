@@ -52,7 +52,7 @@ void PipeFollowingForm::changeEvent(QEvent *e)
 
 void PipeFollowingForm::on_startPipeFollowingButton_clicked()
 {
-    pipefollow->getSettings().setValue("useCamera",ui->useCameraRadioButton->isChecked());
+    pipefollow->getSettings().setValue("useCamera", true /*ui->useCameraRadioButton->isChecked()*/);
     pipefollow->start();
 //    if(ui->useCameraRadioButton->isChecked())
 //    {
@@ -68,21 +68,13 @@ void PipeFollowingForm::on_startPipeFollowingButton_clicked()
 
 void PipeFollowingForm::on_startFromVideoFileButton_clicked()
 {
-    pipefollow->setDebug(ui->debugCheckBox->isChecked());
-    pipefollow->setThresh(ui->thresholdLineEdit->text().toInt());
-    pipefollow->analyzeVideo(videoFile);
-}
-
-void PipeFollowingForm::on_openVideofileButton_clicked()
-{
-//    QString file = QFileDialog::getOpenFileName(this, tr("Open Video"), "", tr("Video Files (*.jpg, *.avi *.mpg *.divx *.png)"));
-//    pipefollow->getSettings().setValue("videoFilePath",file);
-//    ui->curVideofileLabel->setText(file);
-
     videoFile = QFileDialog::getExistingDirectory( this, "Open dir", "" );
     pipefollow->getSettings().setValue( "videoFilePath", videoFile );
     ui->curVideofileLabel->setText( videoFile );
 
+    pipefollow->setDebug(ui->debugCheckBox->isChecked());
+    pipefollow->setThresh(ui->thresholdLineEdit->text().toInt());
+    pipefollow->analyzeVideo(videoFile);
 }
 
 void PipeFollowingForm::on_saveApplyButton_clicked()

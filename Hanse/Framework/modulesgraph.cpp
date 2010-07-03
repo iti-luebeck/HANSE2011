@@ -50,34 +50,45 @@ void ModulesGraph::build()
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);
 
+
+    logger->debug("Creating Module_ScanningSonar");
     Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
     this->modules.append(sonar);
 
+    logger->debug("Creating Module_HandControl");
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);
     this->modules.append(handControl);
 
+    logger->debug("Creating Module_SonarLocalization");
     Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, pressure);
     this->modules.append(sonarLoc);
 
+    logger->debug("Creating Module_Webcams");
     Module_Webcams *cams = new Module_Webcams( "cams" );
     this->modules.append( cams );
 
+    logger->debug("Creating Module_VisualSLAM");
     Module_VisualSLAM* visualLoc = new Module_VisualSLAM( "visualSLAM", sonarLoc, cams );
     this->modules.append(visualLoc);
 
+    logger->debug("Creating Module_Navigation");
     Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, visualLoc, controlLoop, pressure, compass );
     this->modules.append(navi);
 
+    logger->debug("Creating Behaviour_PipeFollowing");
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams);
     this->modules.append(behavPipe);
 
+    logger->debug("Creating Behaviour_GoalFollowing");
     Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
     this->modules.append(behavGoal);
 
+    logger->debug("Creating Behaviour_BallFollowing");
     Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, visualLoc);
     this->modules.append(behavBall);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
+    logger->debug("Creating Behaviour_PipeFollowing");
     MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe);
     this->modules.append(metaBehaviour);
 
