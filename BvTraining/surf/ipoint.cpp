@@ -1,9 +1,15 @@
-#if defined(__APPLE__) && defined(USE_OPENCV_FRAMEWORK)
-  #include <OpenCV/cv.h>
-#else
-  #include <cv.h>
-#endif
+/*********************************************************** 
+*  --- OpenSURF ---                                       *
+*  This library is distributed under the GNU GPL. Please   *
+*  use the contact form at http://www.chrisevansdev.com    *
+*  for more information.                                   *
+*                                                          *
+*  C. Evans, Research Into Robust Visual Features,         *
+*  MSc University of Bristol, 2008.                        *
+*                                                          *
+************************************************************/
 
+#include <opencv/cv.h>
 #include <vector>
 
 #include "ipoint.h"

@@ -1,7 +1,8 @@
 /*********************************************************** 
-*  --- OpenSURF ---                                        *
+*  --- OpenSURF ---                                       *
 *  This library is distributed under the GNU GPL. Please   *
-*  contact chris.evans@irisys.co.uk for more information.  *
+*  use the contact form at http://www.chrisevansdev.com    *
+*  for more information.                                   *
 *                                                          *
 *  C. Evans, Research Into Robust Visual Features,         *
 *  MSc University of Bristol, 2008.                        *
@@ -11,19 +12,18 @@
 #ifndef SURFLIB_H
 #define SURFLIB_H
 
-#if defined(__APPLE__) && defined(USE_OPENCV_FRAMEWORK)
-  #include <OpenCV/cv.h>
-  #include <OpenCV/highgui.h>
-#else
-  #include <cv.h>
-  #include <highgui.h>
-#endif
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 #include "integral.h"
 #include "fasthessian.h"
 #include "surf.h"
 #include "ipoint.h"
 #include "utils.h"
+
+#include <time.h>
+#include <QDebug>
+//#include "../fast/cvfast.h"
 
 
 //! Library function builds vector of described interest points
@@ -35,23 +35,23 @@ inline void surfDetDes(IplImage *img,  /* image to find Ipoints in */
                        int init_sample = INIT_SAMPLE, /* initial sampling step */
                        float thres = THRES /* blob response threshold */)
 {
-  // Create integral-image representation of the image
-  IplImage *int_img = Integral(img);
-  
-  // Create Fast Hessian Object
-  FastHessian fh(int_img, ipts, octaves, intervals, init_sample, thres);
- 
-  // Extract interest points and store in vector ipts
-  fh.getIpoints();
-  
-  // Create Surf Descriptor Object
-  Surf des(int_img, ipts);
+    // Create integral-image representation of the image
+    IplImage *int_img = Integral(img);
 
-  // Extract the descriptors for the ipts
-  des.getDescriptors(upright);
+    // Create Fast Hessian Object
+    FastHessian fh(int_img, ipts, octaves, intervals, init_sample, thres);
 
-  // Deallocate the integral image
-  cvReleaseImage(&int_img);
+    // Extract interest points and store in vector ipts
+    fh.getIpoints();
+
+    // Create Surf Descriptor Object
+    Surf des(int_img, ipts);
+
+    // Extract the descriptors for the ipts
+    des.getDescriptors(upright);
+
+    // Deallocate the integral image
+    cvReleaseImage(&int_img);
 }
 
 

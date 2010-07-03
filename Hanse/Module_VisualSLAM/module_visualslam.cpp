@@ -94,53 +94,106 @@ void Module_VisualSLAM::startGrab()
 {
 //    qDebug("blub: %d", QThread::currentThread());
 
-    startClock = clock();
-    cap.grab( settings.value( QString( "capture" ), false ).toBool() );
+    bool noSLAM = settings.value( "no_slam", true ).toBool();
+    if ( noSLAM )
+    {
+        startClock = clock();
+        cap.grab( settings.value( QString( "capture" ), false ).toBool(), noSLAM );
 
-    stopClock = clock();
-    logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
+        stopClock = clock();
+        logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
-    startClock = clock();
-    slam.update( cap.getDescriptors(), cap.getPos(), cap.getClasses() );
+        lastRefreshTime = QDateTime::currentDateTime();
 
-    stopClock = clock();
-    logger->debug( QString( "UPDATE %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
+        Position pos = slam.getPosition();
+        logger->debug( QString( "POSITION (%1,%2,%3), (%4,%5,%6) with confidence %7" )
+                       .arg( pos.getX(), 0, 'f', 3 )
+                       .arg( pos.getY(), 0, 'f', 3 )
+                       .arg( pos.getZ(), 0, 'f', 3 )
+                       .arg( pos.getRoll(), 0, 'f', 3 )
+                       .arg( pos.getPitch(), 0, 'f', 3 )
+                       .arg( pos.getYaw(), 0, 'f', 3 )
+                       .arg( slam.getConfidence(), 0, 'E', 3 ) );
 
-    lastRefreshTime = QDateTime::currentDateTime();
+        // Update current position.
+        data["Translation - X"] = pos.getX();
+        data["Translation - Y"] = pos.getY();
+        data["Translation - Z"] = pos.getZ();
+        data["Orientation - Yaw"] = pos.getYaw();
+        data["Orientation - Pitch"] = pos.getPitch();
+        data["Orientation - Roll"] = pos.getRoll();
+        data["Confidence"] = slam.getConfidence();
 
-    Position pos = slam.getPosition();
-    logger->debug( QString( "POSITION (%1,%2,%3), (%4,%5,%6) with confidence %7" )
-                   .arg( pos.getX(), 0, 'f', 3 )
-                   .arg( pos.getY(), 0, 'f', 3 )
-                   .arg( pos.getZ(), 0, 'f', 3 )
-                   .arg( pos.getRoll(), 0, 'f', 3 )
-                   .arg( pos.getPitch(), 0, 'f', 3 )
-                   .arg( pos.getYaw(), 0, 'f', 3 )
-                   .arg( slam.getConfidence(), 0, 'E', 3 ) );
+        // Update objects.
+        QRectF boundingBox;
+        QDateTime lastSeen;
+        cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
+        data["Goal - bounding box x"] = boundingBox.left();
+        data["Goal - bounding box y"] = boundingBox.top();
+        data["Goal - bounding box w"] = boundingBox.width();
+        data["Goal - bounding box h"] = boundingBox.height();
+        data["Goal - lastSeen"] = lastSeen.toString();
+        cap.getObjectPosition( BALL_LABEL, boundingBox, lastSeen );
+        data["Ball - bounding box x"] = boundingBox.left();
+        data["Ball - bounding box y"] = boundingBox.top();
+        data["Ball - bounding box w"] = boundingBox.width();
+        data["Ball - bounding box h"] = boundingBox.height();
+        data["Ball - lastSeen"] = lastSeen.toString();
 
-    // Update current position.
-    data["Translation - X"] = pos.getX();
-    data["Translation - Y"] = pos.getY();
-    data["Translation - Z"] = pos.getZ();
-    data["Orientation - Yaw"] = pos.getYaw();
-    data["Orientation - Pitch"] = pos.getPitch();
-    data["Orientation - Roll"] = pos.getRoll();
-    data["Confidence"] = slam.getConfidence();
+        emit dataChanged( this );
+        emit updateFinished();
+        emit viewUpdated();
+    }
+    else
+    {
+        startClock = clock();
+        cap.grab( settings.value( QString( "capture" ), false ).toBool(), noSLAM );
 
-    // Update objects.
-    QRectF boundingBox;
-    QDateTime lastSeen;
-    cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
-    data["Goal - bounding box x"] = boundingBox.left();
-    data["Goal - bounding box y"] = boundingBox.top();
-    data["Goal - bounding box w"] = boundingBox.width();
-    data["Goal - bounding box h"] = boundingBox.height();
-    data["Goal - lastSeen"] = lastSeen.toString();
+        stopClock = clock();
+        logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
 
-    emit dataChanged( this );
-    emit updateFinished();
-    emit viewUpdated();
-    emit newLocalizationEstimate();
+        startClock = clock();
+        slam.update( cap.getDescriptors(), cap.getPos(), cap.getClasses() );
+
+        stopClock = clock();
+        logger->debug( QString( "UPDATE %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
+
+        lastRefreshTime = QDateTime::currentDateTime();
+
+        Position pos = slam.getPosition();
+        logger->debug( QString( "POSITION (%1,%2,%3), (%4,%5,%6) with confidence %7" )
+                       .arg( pos.getX(), 0, 'f', 3 )
+                       .arg( pos.getY(), 0, 'f', 3 )
+                       .arg( pos.getZ(), 0, 'f', 3 )
+                       .arg( pos.getRoll(), 0, 'f', 3 )
+                       .arg( pos.getPitch(), 0, 'f', 3 )
+                       .arg( pos.getYaw(), 0, 'f', 3 )
+                       .arg( slam.getConfidence(), 0, 'E', 3 ) );
+
+        // Update current position.
+        data["Translation - X"] = pos.getX();
+        data["Translation - Y"] = pos.getY();
+        data["Translation - Z"] = pos.getZ();
+        data["Orientation - Yaw"] = pos.getYaw();
+        data["Orientation - Pitch"] = pos.getPitch();
+        data["Orientation - Roll"] = pos.getRoll();
+        data["Confidence"] = slam.getConfidence();
+
+        // Update objects.
+        QRectF boundingBox;
+        QDateTime lastSeen;
+        cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
+        data["Goal - bounding box x"] = boundingBox.left();
+        data["Goal - bounding box y"] = boundingBox.top();
+        data["Goal - bounding box w"] = boundingBox.width();
+        data["Goal - bounding box h"] = boundingBox.height();
+        data["Goal - lastSeen"] = lastSeen.toString();
+
+        emit dataChanged( this );
+        emit updateFinished();
+        emit viewUpdated();
+        emit newLocalizationEstimate();
+    }
 }
 
 void Module_VisualSLAM::startUpdate()

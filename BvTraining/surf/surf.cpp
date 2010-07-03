@@ -1,7 +1,8 @@
 /*********************************************************** 
-*  --- OpenSURF ---                                        *
+*  --- OpenSURF ---                                       *
 *  This library is distributed under the GNU GPL. Please   *
-*  contact chris.evans@irisys.co.uk for more information.  *
+*  use the contact form at http://www.chrisevansdev.com    *
+*  for more information.                                   *
 *                                                          *
 *  C. Evans, Research Into Robust Visual Features,         *
 *  MSc University of Bristol, 2008.                        *
@@ -300,7 +301,7 @@ inline float Surf::haarY(int row, int column, int s)
 //! Get the angle from the +ve x-axis of the vector given by (X Y)
 float Surf::getAngle(float X, float Y)
 {
-  if(X >= 0 && Y >= 0)
+  if(X > 0 && Y >= 0)
     return atan(Y/X);
 
   if(X < 0 && Y >= 0)
@@ -309,7 +310,7 @@ float Surf::getAngle(float X, float Y)
   if(X < 0 && Y < 0)
     return pi + atan(Y/X);
 
-  if(X >= 0 && Y < 0)
+  if(X > 0 && Y < 0)
     return 2*pi - atan(-Y/X);
 
   return 0;

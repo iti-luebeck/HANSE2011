@@ -4,7 +4,7 @@
 #include <Framework/robotbehaviour.h>
 
 #include <Behaviour_BallFollowing/ballfollowingform.h>
-#include <Module_VisualSLAM/module_visualslam.h>
+#include <Module_Webcams/module_webcams.h>
 #include <Framework/robotmodule.h>
 
 
@@ -22,7 +22,7 @@ class Behaviour_BallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_VisualSLAM* vsl);
+    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cams);
 
     QList<RobotModule*> getDependencies();
 
@@ -43,16 +43,21 @@ public:
 private:
 
     Module_ThrusterControlLoop* tcl;
-    Module_VisualSLAM* vsl;
+    Module_Webcams* cams;
     QDateTime last;
     QTimer timerNoBall;
+    QTimer updateTimer;
     int state;
 
     void ctrBallFollowing();
 
 public slots:
-    void newData(int classNr);
+    void newData();
     void timerSlot();
+    void testBehaviour( QString path );
+
+signals:
+    void printFrame(IplImage *frame);
 };
 
 

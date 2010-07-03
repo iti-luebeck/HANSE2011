@@ -25,7 +25,7 @@ public:
     StereoCapture( Module_Webcams *cams );
     ~StereoCapture();
     void init();
-    void grab( bool saveImages );
+    void grab( bool saveImages, bool noSLAM );
     IplImage *getFrame( int cam );
     void getObjectPosition( int classNr, QRectF &boundingBox, QDateTime &lastSeen );
 

@@ -1,19 +1,15 @@
 /*********************************************************** 
-*  --- OpenSURF ---                                        *
+*  --- OpenSURF ---                                       *
 *  This library is distributed under the GNU GPL. Please   *
-*  contact chris.evans@irisys.co.uk for more information.  *
+*  use the contact form at http://www.chrisevansdev.com    *
+*  for more information.                                   *
 *                                                          *
 *  C. Evans, Research Into Robust Visual Features,         *
 *  MSc University of Bristol, 2008.                        *
 *                                                          *
 ************************************************************/
 
-#if defined(__APPLE__) && defined(USE_OPENCV_FRAMEWORK)
-  #include <OpenCV/highgui.h>
-#else
-  #include <highgui.h>
-#endif
-
+#include <opencv/highgui.h>
 #include <iostream>
 #include <fstream>
 #include <time.h>

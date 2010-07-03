@@ -34,6 +34,7 @@ Form_VisualSLAM::Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent
     ui->rightCameraBox->setCurrentIndex(
             settings.value( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
     ui->checkBox->setChecked( settings.value( QString( "capture" ), false ).toBool() );
+    ui->noSLAMBox->setChecked( settings.value( "no_slam", true ).toBool() );
 }
 
 Form_VisualSLAM::~Form_VisualSLAM()
@@ -115,6 +116,7 @@ void Form_VisualSLAM::on_applyButton_clicked()
     QSettings& settings = visualSlam->getSettings();
     settings.setValue( QString( "left_camera"), device1 );
     settings.setValue( QString( "right_camera"), device2 );
+    settings.setValue( "no_slam", ui->noSLAMBox->isChecked() );
 }
 
 void Form_VisualSLAM::on_checkBox_clicked()

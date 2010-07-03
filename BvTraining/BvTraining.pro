@@ -16,7 +16,13 @@ SOURCES += main.cpp \
     blobtraining.cpp \
     surftraining.cpp \
     helpers.cpp \
-    surfclassifier.cpp
+    surfclassifier.cpp \
+    feature.cpp \
+    surf/utils.cpp \
+    surf/surf.cpp \
+    surf/ipoint.cpp \
+    surf/integral.cpp \
+    surf/fasthessian.cpp
 HEADERS += trainingwindow.h \
     imageprocessor.h \
     SVMClassifier.h \
@@ -32,7 +38,16 @@ HEADERS += trainingwindow.h \
     helpers.h \
     surftraining.h \
     helpers.h \
-    surfclassifier.h
+    surfclassifier.h \
+    feature.h \
+    surf/utils.h \
+    surf/surflib.h \
+    surf/surf.h \
+    surf/responselayer.h \
+    surf/kmeans.h \
+    surf/ipoint.h \
+    surf/integral.h \
+    surf/fasthessian.h
 FORMS += trainingwindow.ui \
     ../Hanse/Module_VisualSLAM/form_visualslam.ui \
     ../Hanse/Module_Navigation/waypointdialog.ui

@@ -15,6 +15,13 @@ BallFollowingForm::BallFollowingForm(QWidget *parent, Behaviour_BallFollowing *b
     ui->robCenterYLineEdit->setText(ballfollow->getSettings().value("robCenterY").toString());
     ui->fwSpeedLineEdit->setText(ballfollow->getSettings().value("fwSpeed").toString());
     ui->maxDistanceLineEdit->setText(ballfollow->getSettings().value("maxDistance").toString());
+    ui->thresholdEdit->setText( ballfollow->getSettings().value( "threshold", 100 ).toString() );
+
+    QObject::connect( ballfollowing, SIGNAL(printFrame(IplImage*)),
+                      this, SLOT(printFrame(IplImage*)),
+                      Qt::DirectConnection );
+    QObject::connect( this, SIGNAL(doTest(QString)),
+                      ballfollowing, SLOT(testBehaviour(QString)) );
  }
 
 BallFollowingForm::~BallFollowingForm()
@@ -55,4 +62,21 @@ void BallFollowingForm::on_saveAndApplyButton_clicked()
     ballfollow->getSettings().setValue("robCenterY",ui->robCenterYLineEdit->text().toFloat());
     ballfollow->getSettings().setValue("fwSpeed",ui->fwSpeedLineEdit->text().toFloat());
     ballfollow->getSettings().setValue("maxDistance",ui->maxDistanceLineEdit->text().toFloat());
+    ballfollow->getSettings().setValue("threshold",ui->thresholdEdit->text().toInt());
+}
+
+void BallFollowingForm::printFrame(IplImage *frame)
+{
+    QImage image1((unsigned char*)frame->imageData, frame->width, frame->height, QImage::Format_RGB888);
+    image1 = image1.rgbSwapped();
+    ui->outputLabel->setPixmap(QPixmap::fromImage(image1));
+}
+
+void BallFollowingForm::on_testVideoButton_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory( this, "Choose image directory", "" );
+    if ( !path.isEmpty() )
+    {
+        emit doTest( path );
+    }
 }

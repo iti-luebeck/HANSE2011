@@ -1,7 +1,8 @@
 /*********************************************************** 
-*  --- OpenSURF ---                                        *
+*  --- OpenSURF ---                                       *
 *  This library is distributed under the GNU GPL. Please   *
-*  contact chris.evans@irisys.co.uk for more information.  *
+*  use the contact form at http://www.chrisevansdev.com    *
+*  for more information.                                   *
 *                                                          *
 *  C. Evans, Research Into Robust Visual Features,         *
 *  MSc University of Bristol, 2008.                        *
@@ -22,11 +23,7 @@
   #undef max
 #endif
 
-#if defined(__APPLE__) && defined(USE_OPENCV_FRAMEWORK)
-  #include <OpenCV/cv.h>
-#else
-  #include <cv.h>
-#endif
+#include <opencv/cv.h>
 
 //! Computes the integral image of image img.  Assumes source image to be a 
 //! 32-bit floating point.  Returns IplImage in 32-bit float form.

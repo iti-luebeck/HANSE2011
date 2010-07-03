@@ -97,7 +97,14 @@ HEADERS += Framework/healthstatus.h \
     Framework/eventthread.h \
     Module_VisualSLAM/capture/clahe.h \
     Module_Webcams/module_webcams.h \
-    Module_Webcams/form_webcams.h
+    Module_Webcams/form_webcams.h \
+    Behaviour_BallFollowing/blobs/ComponentLabeling.h \
+    Behaviour_BallFollowing/blobs/BlobResult.h \
+    Behaviour_BallFollowing/blobs/BlobProperties.h \
+    Behaviour_BallFollowing/blobs/BlobOperators.h \
+    Behaviour_BallFollowing/blobs/BlobLibraryConfiguration.h \
+    Behaviour_BallFollowing/blobs/BlobContour.h \
+    Behaviour_BallFollowing/blobs/blob.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -179,7 +186,12 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/eventthread.cpp \
     Module_VisualSLAM/capture/clahe.cpp \
     Module_Webcams/module_webcams.cpp \
-    Module_Webcams/form_webcams.cpp
+    Module_Webcams/form_webcams.cpp \
+    Behaviour_BallFollowing/blobs/ComponentLabeling.cpp \
+    Behaviour_BallFollowing/blobs/BlobResult.cpp \
+    Behaviour_BallFollowing/blobs/BlobOperators.cpp \
+    Behaviour_BallFollowing/blobs/BlobContour.cpp \
+    Behaviour_BallFollowing/blobs/blob.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \

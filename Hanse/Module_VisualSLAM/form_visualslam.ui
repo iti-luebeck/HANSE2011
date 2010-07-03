@@ -225,6 +225,19 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="QCheckBox" name="noSLAMBox">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>210</y>
+     <width>70</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>No SLAM</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

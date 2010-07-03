@@ -2,6 +2,7 @@
 #define BallFollowingFORM_H
 
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
+#include <opencv/cxcore.h>
 
 #include <QWidget>
 
@@ -25,13 +26,16 @@ private:
     Behaviour_BallFollowing *ballfollow;
 
 private slots:
-
-
-
-private slots:
+    void on_testVideoButton_clicked();
     void on_saveAndApplyButton_clicked();
     void on_stopBallFollowingButton_clicked();
     void on_startBallFollwoingButton_clicked();
+
+public slots:
+    void printFrame(IplImage *frame);
+
+signals:
+    void doTest( QString path );
 };
 
 #endif // BallFollowingFORM_H

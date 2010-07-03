@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <QDir>
+#include <feature.h>
 
 using namespace cv;
 using namespace std;
@@ -18,7 +19,8 @@ SurfTraining::SurfTraining()
 void SurfTraining::train(QList<int> frameList, QString videoFile, bool isDir)
 {
     QList<Mat> featureList;
-    SURF surf(1500.0);
+    SURF surf(500.0);
+    Feature f;
 
     if ( isDir )
     {
@@ -28,32 +30,42 @@ void SurfTraining::train(QList<int> frameList, QString videoFile, bool isDir)
         filters << "*.jpg";
         dir.setNameFilters( filters );
         QStringList files = dir.entryList();
-        Mat frame;
-        Mat frameGray;
 
         namedWindow("Image", 0);
         for ( int k = 0; k < frameList.count(); k++ )
         {
             QString filePath = videoFile;
             filePath.append( "/" );
-            filePath.append( files[k] );
+            filePath.append( files[frameList[k]] );
 
+            Mat frame;
+            Mat frameGray;
             frame = imread( filePath.toStdString() );
 
             if ( !frame.empty() )
             {
-                vector<KeyPoint> keyPoints;
+                vector<CvScalar> keyPoints;
                 vector<float> descriptors;
 
-                Helpers::convertRGB2Gray(frame, frameGray);
+//                imshow("Image", frame);
+//                waitKey();
 
-                surf(frameGray, Mat::ones(frameGray.size(), CV_8UC1), keyPoints, descriptors);
+//                Helpers::convertRGB2Gray(frame, frameGray);
+                cvtColor( frame, frameGray, CV_RGB2GRAY );
+//                imshow("Image", frameGray);
+//                waitKey();
+                f.findFeatures( new IplImage( frameGray ), keyPoints );
+
+                f.wait();
+
+                CvMat *d = f.getDescriptor();
 
                 for (int i = 0; i < keyPoints.size(); i++)
                 {
                     Mat temp = frame.clone();
-                    circle(temp, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  keyPoints[i].size, Scalar(0,0,255), 1, CV_FILLED);
-                    circle(temp, Point(keyPoints[i].pt.x, keyPoints[i].pt.y),  2, Scalar(0,0,255), 2, CV_FILLED);
+                    CvScalar point = keyPoints[i];
+                    circle( temp, Point(point.val[0], point.val[1]), 20, Scalar(255, 0, 0), 2, CV_FILLED);
+                    circle( temp, Point(point.val[0], point.val[1]), 4, Scalar(255, 0, 0), 4, CV_FILLED);
 
                     imshow("Image", temp);
 
@@ -61,9 +73,9 @@ void SurfTraining::train(QList<int> frameList, QString videoFile, bool isDir)
                     if (key == 's')
                     {
                         Mat feature(64, 1, CV_32F);
-                        for (int k = i*64; k < (i+1)*64; k++)
+                        for (int k = 0; k < 64; k++)
                         {
-                            feature.at<float>(k % 64, 0) = descriptors[k];
+                            feature.at<float>( k, 0 ) = cvmGet( d, i, k );
                         }
 
                         featureList.append(feature);

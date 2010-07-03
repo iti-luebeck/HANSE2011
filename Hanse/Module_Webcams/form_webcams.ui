@@ -181,6 +181,9 @@
    <property name="text">
     <string>Capture Webcams</string>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QPushButton" name="leftSettingsButton">
    <property name="geometry">

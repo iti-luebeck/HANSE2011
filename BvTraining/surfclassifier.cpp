@@ -1,5 +1,6 @@
 #include "surfclassifier.h"
 #include "helpers.h"
+#include "feature.h"
 
 SURFClassifier::SURFClassifier(double thresh, QList<Mat> objects)
 {
@@ -23,7 +24,7 @@ void SURFClassifier::classifyOne(int type, vector<KeyPoint> points, Mat features
 
     Mat objectFeatures = objects.at(type);
 
-    for (int i = 0; i < features.cols; i++)
+    for (int i = 0; i < (int)points.size(); i++)
     {
         int bestk = -1;
         double best = 1e20;
@@ -76,30 +77,37 @@ void SURFClassifier::classifyOne(int type, vector<KeyPoint> points, Mat features
 void SURFClassifier::classify(Mat &image, QList<FoundObject> &matches)
 {
     Mat imageGray;
+    vector<CvScalar> keyPoints;
+    vector<KeyPoint> keyPointsCV;
+    Feature f;
+
+//  imshow("Image", frame);
+//  waitKey();
+
+//  Helpers::convertRGB2Gray(frame, frameGray);
+    cvtColor( image, imageGray, CV_RGB2GRAY );
+//  imshow("Image", frameGray);
+//  waitKey();
+    f.findFeatures( new IplImage( imageGray ), keyPoints );
+    f.wait();
+    CvMat *d = f.getDescriptor();
+
     Mat features;
-    vector<KeyPoint> keyPoints;
-    vector<float> descriptors;
-
-    Helpers::convertRGB2Gray(image, imageGray);
-
-    SURF surf(1500);
-    surf(imageGray, Mat::ones(imageGray.size(), CV_8UC1), keyPoints, descriptors);
-
-    features.create(64, keyPoints.size(), CV_32F);
-    features.setTo(Scalar(0));
-    for (int i = 0; i < keyPoints.size(); i++)
+    if ( d != NULL )
     {
-        for (int k = i*64; k < (i+1)*64; k++)
+        for (int i = 0; i < keyPoints.size(); i++)
         {
-            features.at<float>(k % 64, i) = descriptors[k];
+            keyPointsCV.push_back( KeyPoint( keyPoints[i].val[0], keyPoints[i].val[1], 10, 1, 1, 1, 1 ) );
         }
+        features = Mat( d );
+        features = features.t();
     }
 
     matches.clear();
     for (int i = 0; i < objects.size(); i++)
     {
         FoundObject fo;
-        classifyOne(i, keyPoints, features, fo);
+        classifyOne(i, keyPointsCV, features, fo);
         matches.append(fo);
     }
 }

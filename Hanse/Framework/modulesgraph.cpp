@@ -84,7 +84,7 @@ void ModulesGraph::build()
     this->modules.append(behavGoal);
 
     logger->debug("Creating Behaviour_BallFollowing");
-    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, visualLoc);
+    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams);
     this->modules.append(behavBall);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules

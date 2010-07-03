@@ -364,210 +364,295 @@ void StereoCapture::initStereoCalibration()
     }
 }
 
-void StereoCapture::grab( bool saveImages )
+void StereoCapture::grab( bool saveImages, bool noSLAM )
 {
-    captureMutex.lock();
-
-    cams->grabLeft( frame1 );
-    cvCvtColor( frame1, frame1_gray, CV_RGB2GRAY );
-    cvCLAdaptEqualize( frame1_gray, frame1_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
-
-    cams->grabRight( frame2 );
-    cvCvtColor( frame2, frame2_gray, CV_RGB2GRAY );
-    cvCLAdaptEqualize( frame2_gray, frame2_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
-
-    if ( saveImages )
+    if ( noSLAM )
     {
-        char leftName[100];
-        sprintf( leftName, "capture/left%04d.jpg", count );
-        cvSaveImage( leftName, frame1_gray );
-        char rightName[100];
-        sprintf( rightName, "capture/right%04d.jpg", count );
-        cvSaveImage( rightName, frame2_gray );
-    }
+        captureMutex.lock();
 
-    count++;
+        cams->grabLeft( frame1 );
+        cvCvtColor( frame1, frame1_gray, CV_RGB2GRAY );
+//        cvCLAdaptEqualize( frame1_gray, frame1_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
 
-    keypoints1.clear();
-    feature1->findFeatures( frame1_gray, keypoints1 );
-
-    keypoints2.clear();
-    feature2->findFeatures( frame2_gray, keypoints2 );
-
-    feature1->wait();
-    feature2->wait();
-
-    CvMat *descriptors1 = feature1->getDescriptor();
-    CvMat *descriptors2 = feature2->getDescriptor();
-
-    for ( int i = 0; i < (int)descriptors->size(); i++ )
-    {
-        cvReleaseMat( &descriptors->at(i) );
-    }
-    descriptors->clear();
-    pos->clear();
-    classes->clear();
-
-    for ( int i = 0; i < (int)keypoints1.size(); i++ )
-    {
-        CvScalar point = keypoints1[i];
-        cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
-        cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
-    }
-
-    // Check for occurences of the class features.
-    int *classArray = new int[(int)keypoints2.size()];
-    memset( classArray, 0, (int)keypoints2.size()*sizeof(int) );
-    for ( int i = 0; i < (int)classFeatures.size(); i++ )
-    {
-        vector<CvPoint> classMatches;
-        double xmin = 1000;
-        double xmax = -1;
-        double ymin = 1000;
-        double ymax = -1;
-        feature1->matchFeatures(descriptors2, classFeatures[i], classMatches);
-        for ( int j = 0; j < (int)classMatches.size(); j++ )
+        if ( saveImages )
         {
-            int idx = classMatches[j].x;
-            classArray[idx] = classLabels[i];
+            char leftName[100];
+            sprintf( leftName, "capture/left%04d.jpg", count );
+            cvSaveImage( leftName, frame1_gray );
+        }
 
-            if ( keypoints1[idx].val[0] < xmin )
+        count++;
+
+        keypoints1.clear();
+        feature1->findFeatures( frame1_gray, keypoints1 );
+
+        feature1->wait();
+
+        CvMat *descriptors1 = feature1->getDescriptor();
+
+        for ( int i = 0; i < (int)descriptors->size(); i++ )
+        {
+            cvReleaseMat( &descriptors->at(i) );
+        }
+        descriptors->clear();
+        pos->clear();
+        classes->clear();
+
+        for ( int i = 0; i < (int)keypoints1.size(); i++ )
+        {
+            CvScalar point = keypoints1[i];
+            cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
+            cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
+        }
+
+        // Check for occurences of the class features.
+        int *classArray = new int[(int)keypoints1.size()];
+        memset( classArray, 0, (int)keypoints1.size()*sizeof(int) );
+        for ( int i = 0; i < (int)classFeatures.size(); i++ )
+        {
+            vector<CvPoint> classMatches;
+            double xmin = 1000;
+            double xmax = -1;
+            double ymin = 1000;
+            double ymax = -1;
+            feature1->matchFeatures(descriptors1, classFeatures[i], classMatches);
+            for ( int j = 0; j < (int)classMatches.size(); j++ )
             {
-                xmin = keypoints1[idx].val[0];
+                int idx = classMatches[j].x;
+                classArray[idx] = classLabels[i];
+
+                if ( keypoints1[idx].val[0] < xmin )
+                {
+                    xmin = keypoints1[idx].val[0];
+                }
+                if ( keypoints1[idx].val[0] > xmax )
+                {
+                    xmax = keypoints1[idx].val[0];
+                }
+                if ( keypoints1[idx].val[1] < ymin )
+                {
+                    ymin = keypoints1[idx].val[1];
+                }
+                if ( keypoints1[idx].val[1] < ymax )
+                {
+                    ymax = keypoints1[idx].val[1];
+                }
             }
-            if ( keypoints1[idx].val[0] > xmax )
+
+            if ( (int)classMatches.size() > 3 )
             {
-                xmax = keypoints1[idx].val[0];
+                classRects[i] = QRectF( xmin, ymin, xmax - xmin, ymax - ymin );
+                classLastSeen[i] = QDateTime::currentDateTime();
+                emit foundNewObject( classLabels[i] );
             }
-            if ( keypoints1[idx].val[1] < ymin )
+        }
+        captureMutex.unlock();
+    }
+    else
+    {
+        captureMutex.lock();
+
+        cams->grabLeft( frame1 );
+        cvCvtColor( frame1, frame1_gray, CV_RGB2GRAY );
+        cvCLAdaptEqualize( frame1_gray, frame1_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
+
+        cams->grabRight( frame2 );
+        cvCvtColor( frame2, frame2_gray, CV_RGB2GRAY );
+        cvCLAdaptEqualize( frame2_gray, frame2_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
+
+        if ( saveImages )
+        {
+            char leftName[100];
+            sprintf( leftName, "capture/left%04d.jpg", count );
+            cvSaveImage( leftName, frame1_gray );
+            char rightName[100];
+            sprintf( rightName, "capture/right%04d.jpg", count );
+            cvSaveImage( rightName, frame2_gray );
+        }
+
+        count++;
+
+        keypoints1.clear();
+        feature1->findFeatures( frame1_gray, keypoints1 );
+
+        keypoints2.clear();
+        feature2->findFeatures( frame2_gray, keypoints2 );
+
+        feature1->wait();
+        feature2->wait();
+
+        CvMat *descriptors1 = feature1->getDescriptor();
+        CvMat *descriptors2 = feature2->getDescriptor();
+
+        for ( int i = 0; i < (int)descriptors->size(); i++ )
+        {
+            cvReleaseMat( &descriptors->at(i) );
+        }
+        descriptors->clear();
+        pos->clear();
+        classes->clear();
+
+        for ( int i = 0; i < (int)keypoints1.size(); i++ )
+        {
+            CvScalar point = keypoints1[i];
+            cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
+            cvCircle( frame1_gray, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
+        }
+
+        // Check for occurences of the class features.
+        int *classArray = new int[(int)keypoints2.size()];
+        memset( classArray, 0, (int)keypoints2.size()*sizeof(int) );
+        for ( int i = 0; i < (int)classFeatures.size(); i++ )
+        {
+            vector<CvPoint> classMatches;
+            double xmin = 1000;
+            double xmax = -1;
+            double ymin = 1000;
+            double ymax = -1;
+            feature1->matchFeatures(descriptors2, classFeatures[i], classMatches);
+            for ( int j = 0; j < (int)classMatches.size(); j++ )
             {
-                ymin = keypoints1[idx].val[1];
+                int idx = classMatches[j].x;
+                classArray[idx] = classLabels[i];
+
+                if ( keypoints1[idx].val[0] < xmin )
+                {
+                    xmin = keypoints1[idx].val[0];
+                }
+                if ( keypoints1[idx].val[0] > xmax )
+                {
+                    xmax = keypoints1[idx].val[0];
+                }
+                if ( keypoints1[idx].val[1] < ymin )
+                {
+                    ymin = keypoints1[idx].val[1];
+                }
+                if ( keypoints1[idx].val[1] < ymax )
+                {
+                    ymax = keypoints1[idx].val[1];
+                }
             }
-            if ( keypoints1[idx].val[1] < ymax )
+
+            if ( (int)classMatches.size() > 3 )
             {
-                ymax = keypoints1[idx].val[1];
+                classRects[i] = QRectF( xmin, ymin, xmax - xmin, ymax - ymin );
+                classLastSeen[i] = QDateTime::currentDateTime();
+                emit foundNewObject( classLabels[i] );
             }
         }
 
-        if ( (int)classMatches.size() > 3 )
+        for (int i = 0; i < (int)keypoints2.size(); i++)
         {
-            classRects[i] = QRectF( xmin, ymin, xmax - xmin, ymax - ymin );
-            classLastSeen[i] = QDateTime::currentDateTime();
-            emit foundNewObject( classLabels[i] );
+            CvScalar point = keypoints2[i];
+            cvCircle( frame2_gray, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
+            cvCircle( frame2_gray, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
         }
+
+        vector<CvPoint> matches;
+        feature1->matchFeatures(descriptors1, descriptors2, matches);
+        feature1->updateThreshold( matches.size() );
+        feature2->updateThreshold( matches.size() );
+
+        if ((int)matches.size() > 0)
+        {
+            CvMat *xl = cvCreateMat( 2, matches.size(), CV_64F );
+            CvMat *xr = cvCreateMat( 2, matches.size(), CV_64F );
+            for ( int i = 0; i < (int)matches.size(); i++ )
+            {
+                int matchix = matches[i].x;
+                int matchiy = matches[i].y;
+
+                CvScalar point = keypoints1[matchix];
+                cvCircle( frame1, cvPoint(point.val[0], point.val[1]), 20, cvScalar(0, 255, 0), 4, CV_FILLED);
+                cvCircle( frame1, cvPoint(point.val[0], point.val[1]), 4, cvScalar(0, 255, 0), 6, CV_FILLED);
+
+                point = keypoints2[matchiy];
+                cvCircle( frame2, cvPoint(point.val[0], point.val[1]), 20, cvScalar(0, 255, 0), 4, CV_FILLED);
+                cvCircle( frame2, cvPoint(point.val[0], point.val[1]), 4, cvScalar(0, 255, 0), 6, CV_FILLED);
+
+                CvMat *feature = cvCreateMat( 64, 1, CV_32F );
+                for ( int j = 0; j < 64; j++ )
+                {
+                    cvmSet( feature, j, 0, cvmGet( descriptors1, matchix, j ) );
+                }
+                descriptors->push_back( feature );
+
+                classes->push_back( classArray[matchix] );
+
+                // Map is transposed !!!
+                point = keypoints1[matchix];
+                float i0 = (float)point.val[0];
+                float i1 = (float)point.val[1];
+                float i0f = floor( i0 );
+                float i0c = ceil( i0 );
+                float i1f = floor( i1 );
+                float i1c = ceil( i1 );
+
+                float f1 = (i1-i1f) * (i0-i0f);
+                float f2 = (i1-i1f) * (i0c-i0);
+                float f3 = (i1c-i1) * (i0-i0f);
+                float f4 = (i1c-i1) * (i0c-i0);
+                cvmSet( xl, 0, i, ( f1 * cvmGet(mapX_left, i1f, i0f) +
+                                    f2 * cvmGet(mapX_left, i1f, i0c) +
+                                    f3 * cvmGet(mapX_left, i1c, i0f) +
+                                    f4 * cvmGet(mapX_left, i1c, i0c) ) );
+                cvmSet( xl, 1, i, ( f1 * cvmGet(mapY_left, i1f, i0f) +
+                                    f2 * cvmGet(mapY_left, i1f, i0c) +
+                                    f3 * cvmGet(mapY_left, i1c, i0f) +
+                                    f4 * cvmGet(mapY_left, i1c, i0c) ) );
+
+                point = keypoints2[matchiy];
+                i0 = (float)point.val[0];
+                i1 = (float)point.val[1];
+                i0f = floor( (float)point.val[0] );
+                i0c = ceil( (float)point.val[0] );
+                i1f = floor( (float)point.val[1] );
+                i1c = ceil( (float)point.val[1] );
+
+                f1 = (i1-i1f) * (i0-i0f);
+                f2 = (i1-i1f) * (i0c-i0);
+                f3 = (i1c-i1) * (i0-i0f);
+                f4 = (i1c-i1) * (i0c-i0);
+                cvmSet( xr, 0, i, ( f1 * cvmGet(mapX_right, i1f, i0f) +
+                                    f2 * cvmGet(mapX_right, i1f, i0c) +
+                                    f3 * cvmGet(mapX_right, i1c, i0f) +
+                                    f4 * cvmGet(mapX_right, i1c, i0c) ) );
+                cvmSet( xr, 1, i, ( f1 * cvmGet(mapY_right, i1f, i0f) +
+                                    f2 * cvmGet(mapY_right, i1f, i0c) +
+                                    f3 * cvmGet(mapY_right, i1c, i0f) +
+                                    f4 * cvmGet(mapY_right, i1c, i0c) ) );
+            }
+
+            stereoTriangulation( xl, xr, pos, this->newT );
+
+            if ( (int)pos->size() == 0 )
+            {
+                for ( int i = 0; i < (int)descriptors->size(); i++ )
+                {
+                    cvReleaseMat( &descriptors->at( i ) );
+                }
+                descriptors->clear();
+                classes->clear();
+            }
+
+            for ( int i = (int)pos->size() - 1; i >= 0; i-- )
+            {
+    //            qDebug( "%f, %f, %f", pos3D[i].val[0], pos3D[i].val[1], pos3D[i].val[2] );
+                if ( pos->at( i ).val[2] > 30 || pos->at( i ).val[2] < 0.2 )
+                {
+                    pos->erase( pos->begin() + i );
+                    cvReleaseMat( &descriptors->at( i ) );
+                    descriptors->erase( descriptors->begin() + i );
+                    classes->erase( classes->begin() + i );
+                }
+                else
+                {
+    //                qDebug( "%f,%f,%f", pos->at( i ).val[0], pos->at( i ).val[1], pos->at( i ).val[2] );
+                }
+            }
+        }
+        captureMutex.unlock();
     }
-
-    for (int i = 0; i < (int)keypoints2.size(); i++)
-    {
-        CvScalar point = keypoints2[i];
-        cvCircle( frame2_gray, cvPoint(point.val[0], point.val[1]), 20, cvScalar(255, 0, 0), 2, CV_FILLED);
-        cvCircle( frame2_gray, cvPoint(point.val[0], point.val[1]), 4, cvScalar(255, 0, 0), 4, CV_FILLED);
-    }
-
-    vector<CvPoint> matches;
-    feature1->matchFeatures(descriptors1, descriptors2, matches);
-    feature1->updateThreshold( matches.size() );
-    feature2->updateThreshold( matches.size() );
-
-    if ((int)matches.size() > 0)
-    {
-        CvMat *xl = cvCreateMat( 2, matches.size(), CV_64F );
-        CvMat *xr = cvCreateMat( 2, matches.size(), CV_64F );
-        for ( int i = 0; i < (int)matches.size(); i++ )
-        {
-            int matchix = matches[i].x;
-            int matchiy = matches[i].y;
-
-            CvScalar point = keypoints1[matchix];
-            cvCircle( frame1, cvPoint(point.val[0], point.val[1]), 20, cvScalar(0, 255, 0), 4, CV_FILLED);
-            cvCircle( frame1, cvPoint(point.val[0], point.val[1]), 4, cvScalar(0, 255, 0), 6, CV_FILLED);
-
-            point = keypoints2[matchiy];
-            cvCircle( frame2, cvPoint(point.val[0], point.val[1]), 20, cvScalar(0, 255, 0), 4, CV_FILLED);
-            cvCircle( frame2, cvPoint(point.val[0], point.val[1]), 4, cvScalar(0, 255, 0), 6, CV_FILLED);
-
-            CvMat *feature = cvCreateMat( 64, 1, CV_32F );
-            for ( int j = 0; j < 64; j++ )
-            {
-                cvmSet( feature, j, 0, cvmGet( descriptors1, matchix, j ) );
-            }
-            descriptors->push_back( feature );
-
-            classes->push_back( classArray[matchix] );
-
-            // Map is transposed !!!
-            point = keypoints1[matchix];
-            float i0 = (float)point.val[0];
-            float i1 = (float)point.val[1];
-            float i0f = floor( i0 );
-            float i0c = ceil( i0 );
-            float i1f = floor( i1 );
-            float i1c = ceil( i1 );
-
-            float f1 = (i1-i1f) * (i0-i0f);
-            float f2 = (i1-i1f) * (i0c-i0);
-            float f3 = (i1c-i1) * (i0-i0f);
-            float f4 = (i1c-i1) * (i0c-i0);
-            cvmSet( xl, 0, i, ( f1 * cvmGet(mapX_left, i1f, i0f) +
-                                f2 * cvmGet(mapX_left, i1f, i0c) +
-                                f3 * cvmGet(mapX_left, i1c, i0f) +
-                                f4 * cvmGet(mapX_left, i1c, i0c) ) );
-            cvmSet( xl, 1, i, ( f1 * cvmGet(mapY_left, i1f, i0f) +
-                                f2 * cvmGet(mapY_left, i1f, i0c) +
-                                f3 * cvmGet(mapY_left, i1c, i0f) +
-                                f4 * cvmGet(mapY_left, i1c, i0c) ) );
-
-            point = keypoints2[matchiy];
-            i0 = (float)point.val[0];
-            i1 = (float)point.val[1];
-            i0f = floor( (float)point.val[0] );
-            i0c = ceil( (float)point.val[0] );
-            i1f = floor( (float)point.val[1] );
-            i1c = ceil( (float)point.val[1] );
-
-            f1 = (i1-i1f) * (i0-i0f);
-            f2 = (i1-i1f) * (i0c-i0);
-            f3 = (i1c-i1) * (i0-i0f);
-            f4 = (i1c-i1) * (i0c-i0);
-            cvmSet( xr, 0, i, ( f1 * cvmGet(mapX_right, i1f, i0f) +
-                                f2 * cvmGet(mapX_right, i1f, i0c) +
-                                f3 * cvmGet(mapX_right, i1c, i0f) +
-                                f4 * cvmGet(mapX_right, i1c, i0c) ) );
-            cvmSet( xr, 1, i, ( f1 * cvmGet(mapY_right, i1f, i0f) +
-                                f2 * cvmGet(mapY_right, i1f, i0c) +
-                                f3 * cvmGet(mapY_right, i1c, i0f) +
-                                f4 * cvmGet(mapY_right, i1c, i0c) ) );
-        }
-
-        stereoTriangulation( xl, xr, pos, this->newT );
-
-        if ( (int)pos->size() == 0 )
-        {
-            for ( int i = 0; i < (int)descriptors->size(); i++ )
-            {
-                cvReleaseMat( &descriptors->at( i ) );
-            }
-            descriptors->clear();
-            classes->clear();
-        }
-
-        for ( int i = (int)pos->size() - 1; i >= 0; i-- )
-        {
-//            qDebug( "%f, %f, %f", pos3D[i].val[0], pos3D[i].val[1], pos3D[i].val[2] );
-            if ( pos->at( i ).val[2] > 30 || pos->at( i ).val[2] < 0.2 )
-            {
-                pos->erase( pos->begin() + i );
-                cvReleaseMat( &descriptors->at( i ) );
-                descriptors->erase( descriptors->begin() + i );
-                classes->erase( classes->begin() + i );
-            }
-            else
-            {
-//                qDebug( "%f,%f,%f", pos->at( i ).val[0], pos->at( i ).val[1], pos->at( i ).val[2] );
-            }
-        }
-    }
-    captureMutex.unlock();
 
     grabFinished();
 }

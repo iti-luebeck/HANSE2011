@@ -2,6 +2,7 @@
 #include "ui_form_webcams.h"
 #include <Module_Webcams/module_webcams.h>
 #include <opencv/highgui.h>
+#include <Framework/dataloghelper.h>
 
 Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     QWidget(parent),
@@ -29,15 +30,17 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     QObject::connect( &captureTimer, SIGNAL( timeout() ),
                       this, SLOT( captureWebcams() ) );
 
-    if ( cams->getSettings().value( "capture", false ).toBool() )
-    {
-        ui->checkBox->setChecked( true );
-        captureTimer.start( 500 );
-    }
-    else
-    {
-        ui->checkBox->setChecked( false );
-    }
+    ui->checkBox->setChecked( true );
+    captureTimer.start( 500 );
+//    if ( cams->getSettings().value( "capture", true ).toBool() )
+//    {
+//        ui->checkBox->setChecked( true );
+//        captureTimer.start( 500 );
+//    }
+//    else
+//    {
+//        ui->checkBox->setChecked( false );
+//    }
 }
 
 Form_Webcams::~Form_Webcams()
@@ -50,16 +53,24 @@ Form_Webcams::~Form_Webcams()
 
 void Form_Webcams::captureWebcams()
 {
+    QString dir = DataLogHelper::getLogDir();
+    QDir d( dir );
+    if ( !d.cd( "cam" ) )
+    {
+        d.mkdir( "cam" );
+        d.cd( "cam" );
+    }
+
     refreshFrames();
 
     char leftName[100];
-    sprintf( leftName, "capture_raw/left%04d.jpg", count );
+    sprintf( leftName, d.absolutePath().append( "/left%04d.jpg" ).toStdString().c_str(), count );
     cvSaveImage( leftName, leftFrame );
     char rightName[100];
-    sprintf( rightName, "capture_raw/right%04d.jpg", count );
+    sprintf( rightName, d.absolutePath().append( "/right%04d.jpg" ).toStdString().c_str(), count );
     cvSaveImage( rightName, rightFrame );
     char bottomName[100];
-    sprintf( bottomName, "capture_raw/bottom%04d.jpg", count );
+    sprintf( bottomName, d.absolutePath().append( "/bottom%04d.jpg" ).toStdString().c_str(), count );
     cvSaveImage( bottomName, bottomFrame );
     count++;
 }
