@@ -131,6 +131,7 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 //   tcl->setForwardSpeed(this->constFWSpeed);
    data["ctrAngleSpeed"] = ctrAngleSpeed;
    data["ctrForwardSpeed"] = this->constFWSpeed;
+   emit dataChanged( this );
 }
 
 void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
@@ -153,9 +154,11 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
 
         Behaviour_PipeFollowing::moments(frame);
         Behaviour_PipeFollowing::updateData();
+        controlPipeFollow();
 //        Behaviour_PipeFollowing::findPipe( frame, binaryFrame );
 //        Behaviour_PipeFollowing::computeLineBinary( frame, binaryFrame );
-        waitKey( 100 );
+        if ( 'q' == waitKey( 500 ) )
+            break;
     }
 
     /*
@@ -482,6 +485,14 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
 
 //    nzero * p - d
     distanceY = (nzero[0] * robCenter.x) + (nzero[1] * robCenter.y) - d;
+    if ( potentialY > 0 )
+    {
+        distanceY = - fabs( distanceY );
+    }
+    else
+    {
+        distanceY = fabs( distanceY );
+    }
 
 
     data["nullabstand"] = d;
@@ -630,12 +641,9 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     }
     /*ENDE TEST */
 
-
     //    equalizeHist(gray,gray);
-    threshold(s,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
-
-    imshow("blub",h);
-
+    imshow("blub",gray);
+    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
 
     int sum;
     this->countPixel(gray,sum);
@@ -711,7 +719,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
             this->setHealthToSick("no pipe");
             this->stop();
         }
-
+        emit printFrameOnUi(frame);
     }
 }
 
