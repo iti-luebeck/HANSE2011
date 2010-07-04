@@ -198,7 +198,7 @@ void MetaBehaviour::simple180deg()
 void MetaBehaviour::fullProgram()
 {
     emergencyStop();
-    data["reachedEOP"] = false;
+    data["reachedVG"] = false;
 
     QTimer::singleShot(0, o80, SLOT(initialHeadingUpdate()));
 
@@ -207,7 +207,6 @@ void MetaBehaviour::fullProgram()
     tcl->setDepth(settings.value("targetDepth").toFloat());
     timeoutTimer.start(settings.value("timeout").toInt()*1000);
 }
-
 
 void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
     if (data["state"]=="pipe") {
@@ -227,6 +226,6 @@ void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
         data["state"]="ball";
         emit dataChanged(this);
         QTimer::singleShot(0, ball, SLOT(start()));
-        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+        timeoutTimer.start(5*60*1000);
     }
 }
