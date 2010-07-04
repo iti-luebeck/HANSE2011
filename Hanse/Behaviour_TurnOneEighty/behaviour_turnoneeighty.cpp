@@ -40,6 +40,7 @@ void Behaviour_TurnOneEighty::stop()
 {
     if ( isActive() )
     {
+        logger->debug( "Behaviour stopped" );
        tcl->setAngularSpeed(0.0);
        setEnabled( false );
        emit finished( this, true );
@@ -67,6 +68,11 @@ void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
             diffHeading += 360;
         }
 
+        logger->debug( "current heading %f", currentHeading );
+        data["current_heading"] = currentHeading;
+        logger->debug( "heading difference %f°", diffHeading );
+        data["difference_heading"] = diffHeading;
+
         if ( fabs( diffHeading ) < settings.value( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
         {
             stop();
@@ -77,10 +83,15 @@ void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
             double angularSpeed = settings.value( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
             tcl->setAngularSpeed( angularSpeed );
         }
+
+        dataChanged( this );
     }
 }
 
 void Behaviour_TurnOneEighty::initialHeadingUpdate()
 {
     initialHeading = compass->getHeading();
+    logger->debug( "initial heading set to %f°", initialHeading );
+    data["initial_heading"] = initialHeading;
+    dataChanged( this );
 }

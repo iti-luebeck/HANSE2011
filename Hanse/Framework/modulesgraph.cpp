@@ -84,7 +84,7 @@ void ModulesGraph::build()
     this->modules.append(behavGoal);
 
     logger->debug("Creating Behaviour_BallFollowing");
-    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams);
+    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, compass);
     this->modules.append(behavBall);
 
     logger->debug("Creating Behaviour_TurnOneEighty");

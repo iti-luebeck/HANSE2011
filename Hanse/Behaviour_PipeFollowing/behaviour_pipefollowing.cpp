@@ -37,14 +37,11 @@ void Behaviour_PipeFollowing::start()
     this->distanceY = 0.0;
 
     this->noPipeCnt = 0;
-    if(!isEnabled())
+    if( !isEnabled() )
     {
+        logger->debug( "Behaviour started" );
         Behaviour_PipeFollowing::updateFromSettings();
-
 //        if(!this->getSettings().value("useCamera").toBool())  vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
-
-        logger->debug(this->getSettings().value("videoFilePath").toString());
-        logger->debug("cameraID" +QString::number(this->cameraID));
         this->setHealthToOk();
         setEnabled(true);
         timer.start(200);
@@ -58,12 +55,13 @@ void Behaviour_PipeFollowing::stop()
     this->tcl->setAngularSpeed(0.0);
     if (this->isActive())
     {
-       timer.stop();
-       vc.release();
-       this->tcl->setForwardSpeed(0.0);
-       this->tcl->setAngularSpeed(0.0);
-       setEnabled(false);
-       emit finished(this,false);
+        logger->debug( "Behaviour stopped" );
+        timer.stop();
+        vc.release();
+        this->tcl->setForwardSpeed(0.0);
+        this->tcl->setAngularSpeed(0.0);
+        setEnabled(false);
+        emit finished(this,false);
    }
 }
 
@@ -101,7 +99,7 @@ void Behaviour_PipeFollowing::timerSlot()
 //        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
         Behaviour_PipeFollowing::moments(frame);
         binaryFrame.release();
-        Behaviour_PipeFollowing::updateData();
+//        Behaviour_PipeFollowing::updateData();
         if(isEnabled() || this->getHealthStatus().isHealthOk())
         Behaviour_PipeFollowing::controlPipeFollow();
     }
@@ -124,13 +122,16 @@ void Behaviour_PipeFollowing::initPictureFolder()
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
    float ctrAngleSpeed = 0.0;
-//   float ctrFwSpeed = 0.0
-   float tmp;
+
+   logger->debug( "pipe angle %f°", curAngle );
+   data["pipe_angle"] = curAngle;
+   logger->debug( "pipe distance %f", distanceY );
+   data["pipe_distance"]= distanceY;
+
    if(fabs(Behaviour_PipeFollowing::curAngle) > Behaviour_PipeFollowing::deltaAngPipe)
    {
        ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
    }
-   float absDistY = Behaviour_PipeFollowing::distanceY;
 
    if(fabs(Behaviour_PipeFollowing::distanceY) > Behaviour_PipeFollowing::deltaDistPipe)
    {
@@ -139,8 +140,11 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 
    tcl->setAngularSpeed(ctrAngleSpeed);
    tcl->setForwardSpeed(this->constFWSpeed);
-   data["ctrAngleSpeed"] = ctrAngleSpeed;
-   data["ctrForwardSpeed"] = this->constFWSpeed;
+   data["angular_speed"] = ctrAngleSpeed;
+   data["forward_speed"] = this->constFWSpeed;
+
+   data["intersect_y"] = potentialY;
+
    emit dataChanged( this );
 }
 
@@ -260,8 +264,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
             if(debug)
             {
                 Behaviour_PipeFollowing::drawLineHough(frame,lines[i][0],lines[i][1],Scalar(0,0,255));
-                logger->debug("rho " + QString::number(lines[i][0]));
-                logger->debug("theta " + QString::number(lines[i][1]));
+//                logger->debug("rho " + QString::number(lines[i][0]));
+//                logger->debug("theta " + QString::number(lines[i][1]));
             }
             avRho += lines[i][0];
             avTheta += lines[i][1];
@@ -275,8 +279,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         if(debug)
         {
 
-            logger->debug("****************");
-            logger->debug("= " +QString::number(avRho) + " " + QString::number(avTheta));
+//            logger->debug("****************");
+//            logger->debug("= " +QString::number(avRho) + " " + QString::number(avTheta));
             Behaviour_PipeFollowing::drawLineHough(frame,avRho,avTheta,Scalar(255,0,255));
         }
 
@@ -335,8 +339,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         /***** DEBUG linkes und recht berechnen und Zeichnen */
         if(debug)
         {
-            logger->debug("Class 1 " + QString::number(avRhoClass1) + " " + QString::number(avThetaClass1));
-            logger->debug("Class 2 " + QString::number(avRhoClass2) + " " + QString::number(avThetaClass2));
+//            logger->debug("Class 1 " + QString::number(avRhoClass1) + " " + QString::number(avThetaClass1));
+//            logger->debug("Class 2 " + QString::number(avRhoClass2) + " " + QString::number(avThetaClass2));
             Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass1,avThetaClass1,Scalar(255,255,255));
             Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass2,avThetaClass2,Scalar(255,255,255));
 
@@ -362,8 +366,8 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         }
         else this->noPipeCnt = 0;
 
-        data["rohrRho"] =  avRho; //avRhoClass1;
-        data["rohrTheta"] = avTheta; //avThetaClass1;
+//        data["rohrRho"] =  avRho; //avRhoClass1;
+//        data["rohrTheta"] = avTheta; //avThetaClass1;
 
         /* Istwinkel */
         curAngle = ((avThetaClass1 * 180.0) / CV_PI);
@@ -378,7 +382,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         Behaviour_PipeFollowing::compIntersect(avRhoClass1,avThetaClass1);
         if(debug)
         {
-            logger->debug("Schnittpunkt " + QString::number(intersect.x) + " " + QString::number(intersect.y));
+//            logger->debug("Schnittpunkt " + QString::number(intersect.x) + " " + QString::number(intersect.y));
             circle(frame,intersect,3,Scalar(255,0,255),3,8);
             circle(frame,robCenter,3,Scalar(255,0,255),3,8);
 
@@ -480,7 +484,6 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
 
     r = ((robCenter.y)/1.0 - pt1.y)/rv[1];
     potentialY = robCenter.x - (pt1.x + (((r) * rv[0])));
-    data["potentialY"] = potentialY;
 
 
 //    /* Entfernung auf der Bildhalbierenden Y-Achse */
@@ -505,7 +508,7 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
     }
 
 
-    data["nullabstand"] = d;
+//    data["nullabstand"] = d;
 //    distanceY = (pt1.x - robCenter.x) * (pt1.y - pt2.y) + (robCenter.y - pt1.y) * (pt1.x - pt2.x);
 }
 
@@ -532,17 +535,17 @@ void Behaviour_PipeFollowing::setKpAngle(float kp)
 
 void Behaviour_PipeFollowing::updateData()
 {
- data["current Angle"] = this->curAngle;
- data["intersect.x"] = this->intersect.x;
- data["intersect.y"] = this->intersect.y;
- data["distanceY"] = this->distanceY;
- data["deltaDistPipe"] = this->deltaDistPipe;
- data["deltaAnglePipe"] = this->deltaAngPipe;
- data["kpAngle"] = this->kpAngle;
- data["kpDist"] = this->kpDist;
- data["robCenter.x"] = this->robCenter.x;
- data["robCenter.y"] = this->robCenter.y;
- data["potential Vector"] = this->potentialVec;
+    data["current Angle"] = this->curAngle;
+    data["intersect.x"] = this->intersect.x;
+    data["intersect.y"] = this->intersect.y;
+    data["distanceY"] = this->distanceY;
+    data["deltaDistPipe"] = this->deltaDistPipe;
+    data["deltaAnglePipe"] = this->deltaAngPipe;
+    data["kpAngle"] = this->kpAngle;
+    data["kpDist"] = this->kpDist;
+    data["robCenter.x"] = this->robCenter.x;
+    data["robCenter.y"] = this->robCenter.y;
+    data["potential Vector"] = this->potentialVec;
 }
 
 void Behaviour_PipeFollowing::updateFromSettings()
@@ -561,8 +564,8 @@ void Behaviour_PipeFollowing::updateFromSettings()
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
 {
-    logger->debug("in median: rho " +QString::number(rho));
-    logger->debug("in median: theta " +QString::number(theta));
+//    logger->debug("in median: rho " +QString::number(rho));
+//    logger->debug("in median: theta " +QString::number(theta));
 
     if(std::isnan(rho))
         logger->error("rho is NAN");
@@ -661,7 +664,8 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     if(sum > 12000)
     {
         noPipeCnt = 0;
-        data["pixelSum"] = sum;
+        data["pipe_area"] = sum;
+        emit dataChanged( this );
 //        imshow("Dummy",gray);
         IplImage *ipl = new IplImage(gray);
         CvMoments M;
@@ -675,7 +679,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
         double mu02 = cvGetCentralMoment( &M, 0, 2 ) / m00;
         // moments( binary, m10, m01, mu11, mu02, mu20 );
         double theta = 0.5 * atan2( 2 * mu11 , ( mu20 - mu02 ) );
-        data["rohrTheta"] = theta;
+//        data["rohrTheta"] = theta;
         if(theta < CV_PI/2)
             theta += CV_PI;
         else if(theta > CV_PI/2)
@@ -709,7 +713,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
         }
 
         theta = (curAngle * CV_PI) / 180.0;
-        data["rohrThetaMod"] = theta;
+//        data["rohrThetaMod"] = theta;
 
 
 

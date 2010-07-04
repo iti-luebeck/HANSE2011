@@ -7,22 +7,19 @@
 #include <Module_Webcams/module_webcams.h>
 #include <Framework/robotmodule.h>
 
-
-#define STATE_IDLE 100
-#define STATE_SEEN_BALL 101
-#define STATE_TURNING 102
-#define STATE_FORWARD 103
-#define STATE_FAILED  104
-
+#define STATE_TURN_45       100
+#define STATE_TRACK_BALL    101
+#define STATE_IDLE          102
 
 class Module_ThrusterControlLoop;
 class GoalFollowingForm;
+class Module_Compass;
 
 class Behaviour_BallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cams);
+    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cams, Module_Compass *compass);
 
     QList<RobotModule*> getDependencies();
 
@@ -44,10 +41,12 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cams;
+    Module_Compass *compass;
     QDateTime last;
     QTimer timerNoBall;
     QTimer updateTimer;
     int state;
+    double targetHeading;
 
     void ctrBallFollowing();
 
@@ -55,6 +54,7 @@ public slots:
     void newData();
     void timerSlot();
     void testBehaviour( QString path );
+    void compassUpdate( RobotModule * );
 
 signals:
     void printFrame(IplImage *frame);
