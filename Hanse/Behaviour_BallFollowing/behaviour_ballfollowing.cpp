@@ -46,7 +46,7 @@ void Behaviour_BallFollowing::start()
     {
         targetHeading += 360;
     }
-    tcl->setAngularSpeed( .4 );
+    tcl->setAngularSpeed( -0.4 );
 
     updateTimer.start( 100 );
 }
@@ -78,6 +78,7 @@ void Behaviour_BallFollowing::stop()
 {
     logger->debug( "Behaviour stopped" );
     if (isEnabled()) {
+        state = STATE_IDLE;
         updateTimer.stop();
         this->tcl->setForwardSpeed(0.0);
         this->tcl->setAngularSpeed(0.0);
