@@ -236,7 +236,7 @@ void Behaviour_BallFollowing::ctrBallFollowing()
         data["angular_speed"] = angleSpeed;
         data["forward_speed"] = this->getSettings().value("fwSpeed").toFloat();
         dataChanged( this );
-        timerNoBall.start( 10000 );
+        timerNoBall.start( 60000 );
     }
     else
     {
