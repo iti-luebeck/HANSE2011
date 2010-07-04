@@ -122,10 +122,18 @@ void MetaBehaviourForm::on_simpleForward_clicked()
 
 void MetaBehaviourForm::on_turnteste_clicked()
 {
+    meta->settings.setValue("targetDepth", ui->targetDepth->text());
+    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->settings.setValue("timeout", ui->timeout->text());
+    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
     QTimer::singleShot(0,meta, SLOT(simple180deg()));
 }
 
 void MetaBehaviourForm::on_fulProgram_clicked()
 {
+    meta->settings.setValue("targetDepth", ui->targetDepth->text());
+    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->settings.setValue("timeout", ui->timeout->text());
+    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
     QTimer::singleShot(0, meta, SLOT(fullProgram()));
 }

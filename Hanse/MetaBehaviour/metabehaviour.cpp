@@ -130,10 +130,12 @@ void MetaBehaviour::testPipe()
 }
 
 void MetaBehaviour::finishedTurn(RobotBehaviour *, bool success) {
-    data["state"]="pipeSecondPart";
-    emit dataChanged(this);
-    QTimer::singleShot(0, pipe, SLOT(start()));
-    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    if (data["state"]=="turn") {
+        data["state"]="pipeSecondPart";
+        emit dataChanged(this);
+        QTimer::singleShot(0, pipe, SLOT(start()));
+        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    }
 }
 
 void MetaBehaviour::stateTimeout()
@@ -225,6 +227,7 @@ void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
     if (data["state"]=="pipeSecondPart") {
         data["state"]="ball";
         emit dataChanged(this);
+        tcl->setDepth(1.5);
         QTimer::singleShot(0, ball, SLOT(start()));
         timeoutTimer.start(5*60*1000);
     }

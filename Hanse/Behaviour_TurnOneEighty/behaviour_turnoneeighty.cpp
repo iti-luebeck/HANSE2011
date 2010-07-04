@@ -57,7 +57,12 @@ void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
     if ( isActive() )
     {
         double currentHeading = compass->getHeading();
-        double diffHeading = initialHeading - currentHeading;
+        double targetHeading = initialHeading + 180;
+        if ( targetHeading > 360 )
+        {
+            targetHeading -= 360;
+        }
+        double diffHeading = targetHeading - currentHeading;
 
         if ( diffHeading > 180 )
         {
