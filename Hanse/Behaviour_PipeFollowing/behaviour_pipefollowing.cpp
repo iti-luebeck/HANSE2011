@@ -661,7 +661,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     int sum;
     this->countPixel(gray,sum);
 
-    if(sum > 12000)
+    if( sum > 10000 )
     {
         noPipeCnt = 0;
         data["pipe_area"] = sum;
