@@ -2,8 +2,9 @@
 #include "datarecorder.h"
 
 RobotModule::RobotModule(QString newId)
-    : QObject(), id(newId), settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
-    moduleMutex(QMutex::Recursive)
+    : settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
+      moduleMutex(QMutex::Recursive),
+      id(newId)
 {
     settings.beginGroup(id);
 

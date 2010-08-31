@@ -8,8 +8,8 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse")
 {
 
     logger = Log4Qt::Logger::logger("MainWindow");

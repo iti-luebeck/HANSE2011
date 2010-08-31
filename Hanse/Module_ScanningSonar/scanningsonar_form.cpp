@@ -4,8 +4,9 @@
 #include <Framework/dataloghelper.h>
 
 ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *parent) :
-        QWidget(parent), scene(),
-    ui(new Ui::ScanningSonarForm)
+        QWidget(parent),
+        ui(new Ui::ScanningSonarForm),
+        scene()
 {
     ui->setupUi(this);
     this->sonar = sonar;

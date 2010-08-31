@@ -10,7 +10,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
 Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop* tcl)
-    : reader(this), RobotModule(id)
+    : RobotModule(id), reader(this)
 {
     setDefaultValue("serialPort", "COM1");
 

@@ -181,7 +181,7 @@ void Module_PressureSensor::doHealthCheck()
 
     data["counter"] = (unsigned char)readBuffer[0];
 
-    if (readBuffer[0] == counter) {
+    if (readBuffer[0] == (unsigned char)counter) {
         setHealthToSick("read the same counter value twice!");
         return;
     }

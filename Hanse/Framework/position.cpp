@@ -50,6 +50,7 @@ Position& Position::operator=( const Position& pos )
     setRoll( pos.roll );
     setPitch( pos.pitch );
     setYaw( pos.yaw );
+    return *this;
 }
 
 Position Position::operator+( Position pos )

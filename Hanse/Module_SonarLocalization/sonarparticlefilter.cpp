@@ -8,8 +8,10 @@ using namespace cv;
 using namespace std;
 
 SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization* sonar, SonarEchoFilter *filter)
-    : controlVariance(0,0,0), initialVariance(0,0,0),
-      s(sonar->getSettings()), particlesMutex(QMutex::Recursive)
+    : s(sonar->getSettings()),
+      particlesMutex(QMutex::Recursive),
+      controlVariance(0,0,0),
+      initialVariance(0,0,0)
 {
     logger = Log4Qt::Logger::logger("SonarFilter");
     this->sonar = sonar;

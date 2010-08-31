@@ -8,8 +8,8 @@
 Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sonarLocalization,
                                       Module_Webcams *cams ) :
         RobotModule(id),
-        slam( 50 ),
-        cap( cams )
+        cap( cams ),
+        slam( 50 )
 {
     updateThread.start(QThread::LowPriority);
     updateThread.moveTimer();
