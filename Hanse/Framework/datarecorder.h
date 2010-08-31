@@ -27,7 +27,6 @@ private:
     QStringList settingsKeys;
     QStringList dataKeys;
     int fileCount;
-    QString path;
 
     void open();
     bool isChanged(QStringList a, QStringList b);

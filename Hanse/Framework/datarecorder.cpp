@@ -40,7 +40,7 @@ void DataRecorder::open()
     if (file->isOpen() && listsChanged) {
         file->close();
         fileCount++;
-        file = new QFile(path+"/"+module.getId()+"_"+QString::number(fileCount)+".csv");
+        file = new QFile(DataLogHelper::getLogDir()+module.getId()+"_"+QString::number(fileCount)+".csv");
         stream = NULL;
     }
 
