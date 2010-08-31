@@ -45,7 +45,12 @@ void DataRecorder::open()
     }
 
     if (!file->isOpen()) {
-        if (file->open(QFile::WriteOnly | QFile::Truncate)) {
+        if (file->exists())
+            logger->error("File "+ file->fileName()+ " already exists, although it shouldn't!");
+
+        // this file should always be a new one. but be sure that no data
+        // is lost, just append everything.
+        if (file->open(QFile::WriteOnly | QIODevice::Append)) {
             stream = new QTextStream(file);
         } else {
             logger->error("Could not open file "+file->fileName());
