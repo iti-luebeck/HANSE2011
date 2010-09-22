@@ -501,6 +501,74 @@
       <string>0</string>
      </property>
     </widget>
+    <widget class="QRadioButton" name="grayRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>80</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>gray</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="hsvRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>100</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>hsv</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="hRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>120</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>h</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="sRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>140</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>s</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="vRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>160</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>v</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="Output">
     <attribute name="title">

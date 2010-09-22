@@ -546,6 +546,7 @@ void Behaviour_PipeFollowing::updateData()
     data["robCenter.x"] = this->robCenter.x;
     data["robCenter.y"] = this->robCenter.y;
     data["potential Vector"] = this->potentialVec;
+       emit dataChanged( this );
 }
 
 void Behaviour_PipeFollowing::updateFromSettings()
@@ -630,33 +631,62 @@ void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
 
 }
 
-void Behaviour_PipeFollowing::moments( Mat &frame)
+void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 {
-    Mat binary, gray, frameHSV;
-    cvtColor(frame,gray,CV_RGB2GRAY);
+    if(this->getSettings().value("convColor").toInt() == 4)
+        cvtColor(frame,convFrame,CV_RGB2GRAY);
+    else if(this->getSettings().value("convColor").toInt() == 0)
+     cvtColor(frame,convFrame,CV_RGB2HSV);
+    else
+    {
+    Mat frameHSV;
     cvtColor(frame,frameHSV,CV_RGB2HSV);
-    /*TEST BITTE WIEDER LOESCHEN */
-    Mat h, s, v;
-    h.create(frame.rows,frame.cols,CV_8UC1);
-    s.create(frame.rows,frame.cols,CV_8UC1);
-    v.create(frame.rows,frame.cols,CV_8UC1);
-
+    convFrame.create(frame.rows,frame.cols,CV_8UC1);
     for (int i = 0; i < frame.rows; i++)
     {
         for (int j = 0; j < frame.cols; j++)
         {
             Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-            h.at<unsigned char>(i, j) = hsvV[0];
-            s.at<unsigned char>(i, j) = hsvV[1];
-            v.at<unsigned char>(i, j) = hsvV[2];
-
+            if(this->getSettings().value("convColor").toInt() == 1)
+                convFrame.at<unsigned char>(i, j) = hsvV[0];
+            else if(this->getSettings().value("convColor").toInt() == 2)
+                convFrame.at<unsigned char>(i, j) = hsvV[1];
+            else if(this->getSettings().value("convColor").toInt() == 3)
+                convFrame.at<unsigned char>(i, j) = hsvV[2];
         }
     }
-    /*ENDE TEST */
+}
 
+}
+
+void Behaviour_PipeFollowing::moments( Mat &frame)
+{
+//    Mat binary, gray, frameHSV;
+//    cvtColor(frame,gray,CV_RGB2GRAY);
+//    cvtColor(frame,frameHSV,CV_RGB2HSV);
+//    /*TEST BITTE WIEDER LOESCHEN */
+//    Mat h, s, v;
+//    h.create(frame.rows,frame.cols,CV_8UC1);
+//    s.create(frame.rows,frame.cols,CV_8UC1);
+//    v.create(frame.rows,frame.cols,CV_8UC1);
+//
+//    for (int i = 0; i < frame.rows; i++)
+//    {
+//        for (int j = 0; j < frame.cols; j++)
+//        {
+//            Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
+//            h.at<unsigned char>(i, j) = hsvV[0];
+//            s.at<unsigned char>(i, j) = hsvV[1];
+//            v.at<unsigned char>(i, j) = hsvV[2];
+//
+//        }
+//    }
+//    /*ENDE TEST */
+Mat gray;
+convertColor(frame,gray);
     //    equalizeHist(gray,gray);
 
-    threshold(s,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
+    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
 imshow("blub",gray);
     int sum;
     this->countPixel(gray,sum);

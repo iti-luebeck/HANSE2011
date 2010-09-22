@@ -91,6 +91,18 @@ private:
     void initPictureFolder();
 
 
+    /**
+     * converts frame to selected color space
+      0 for hsv
+      1 for h
+      2 for s
+      3 for v
+      4 for gray
+      as selected in settings pane
+    */
+    void convertColor(Mat &frame, Mat &convFrame);
+
+
 //    double m10;
 //    double m01;
 //    double mu11;

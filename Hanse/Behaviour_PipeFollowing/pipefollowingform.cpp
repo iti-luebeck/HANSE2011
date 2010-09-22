@@ -28,6 +28,11 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     ui->camHeightLineEdit->setText(pipefollow->getSettings().value("camHeight").toString());
     ui->camWidthLineEdit->setText(pipefollow->getSettings().value("camWidth").toString());
     ui->badFramesLineEdit->setText(pipefollow->getSettings().value("badFrames").toString());
+    ui->hRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 1);
+    ui->sRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 2);
+    ui->vRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 3);
+    ui->grayRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 4);
+    ui->hsvRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 0);
 
     QObject::connect( pipefollow, SIGNAL( printFrameOnUi(cv::Mat&)) , SLOT( printFrame(cv::Mat&))  );
 
@@ -96,6 +101,16 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
     pipefollow->getSettings().setValue("camWidth",ui->camWidthLineEdit->text().toInt());
     pipefollow->getSettings().setValue("badFrames",ui->badFramesLineEdit->text().toInt());
     pipefollow->getSettings().setValue("channel", ui->channelEdit->text().toInt());
+    if(ui->hRadioButton->isChecked())
+        pipefollow->getSettings().setValue("convColor",1);
+    else if(ui->sRadioButton->isChecked())
+        pipefollow->getSettings().setValue("convColor",2);
+    else if(ui->vRadioButton->isChecked())
+        pipefollow->getSettings().setValue("convColor",3);
+    else if(ui->grayRadioButton->isChecked())
+        pipefollow->getSettings().setValue("convColor",4);
+    else if(ui->hsvRadioButton->isChecked())
+        pipefollow->getSettings().setValue("convColor",0);
     pipefollow->resetFirstRun();
     pipefollow->updateFromSettings();
 
