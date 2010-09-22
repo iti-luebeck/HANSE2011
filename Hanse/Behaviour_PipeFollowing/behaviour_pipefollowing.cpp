@@ -44,7 +44,7 @@ void Behaviour_PipeFollowing::start()
 //        if(!this->getSettings().value("useCamera").toBool())  vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
         this->setHealthToOk();
         setEnabled(true);
-        timer.start(200);
+        timer.start(250);
 
     }
 }
@@ -92,6 +92,7 @@ void Behaviour_PipeFollowing::timerSlot()
 {
     Mat binaryFrame;
     cam->grabBottom( frame );
+
     if(!frame.empty())
     {
         this->setHealthToOk();
@@ -226,7 +227,6 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
         double height = settings.value( "camHeight", 100 ).toDouble();
         Canny( threshImg, binaryFrame, width, height, 3, true );
 //        binaryFrame.copyTo( displayFrame );
-
         /*debug */
         if(debug)
         {
@@ -655,9 +655,9 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     /*ENDE TEST */
 
     //    equalizeHist(gray,gray);
-    imshow("blub",gray);
-    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
 
+    threshold(s,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
+imshow("blub",gray);
     int sum;
     this->countPixel(gray,sum);
 
