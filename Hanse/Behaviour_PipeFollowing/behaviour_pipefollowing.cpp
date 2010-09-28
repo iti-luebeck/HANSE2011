@@ -682,6 +682,9 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
 //        }
 //    }
 //    /*ENDE TEST */
+    QTime runningTime;
+//    runningTime.start();
+    runningTime.restart();
 Mat gray;
 convertColor(frame,gray);
     //    equalizeHist(gray,gray);
@@ -751,6 +754,8 @@ imshow("blub",gray);
 
         Behaviour_PipeFollowing::compIntersect(pt1,pt2);
 
+        int nMilliseconds = runningTime.elapsed();
+        data["runningTime"] = nMilliseconds;
         Behaviour_PipeFollowing::updateData();
         emit printFrameOnUi(frame);
     }
@@ -766,6 +771,8 @@ imshow("blub",gray);
         }
         emit printFrameOnUi(frame);
     }
+
+
 }
 
 
