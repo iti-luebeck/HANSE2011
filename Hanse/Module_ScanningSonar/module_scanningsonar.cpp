@@ -30,7 +30,7 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoo
     qRegisterMetaType<SonarReturnData>("SonarReturnData");
 
     this->tcl = tcl;
-    connect(&scanPeriodTimer, SIGNAL(timeout()), this, SLOT(nextScanPeriod()));
+//    connect(&scanPeriodTimer, SIGNAL(timeout()), this, SLOT(nextScanPeriod()));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
 
     recorder = NULL;
@@ -79,7 +79,7 @@ void Module_ScanningSonar::ThreadedReader::run(void)
     running = true;
     while(running)
     {
-        if (!m->getSettings().value("enabled").toBool() || !m->doScanning || !m->doNextScan())
+        if (!m->getSettings().value("enabled").toBool())
             msleep(500);
     }
 }
@@ -87,14 +87,6 @@ void Module_ScanningSonar::ThreadedReader::run(void)
 bool Module_ScanningSonar::doNextScan()
 {
     const SonarReturnData d = source->getNextPacket();
-
-    scanPeriodCntr++;
-    logger->debug("diff: "+QString::number(scanPeriodCntr-settings.value("scanPeriodMaxScans").toInt()));
-    if (scanPeriodCntr>settings.value("scanPeriodMaxScans").toInt()) {
-        logger->debug("scheduling next sonar scan");
-        doScanning = false;
-        tcl->unpauseModule();
-    }
 
     if (!source || !source->isOpen())
         return false;
@@ -121,11 +113,6 @@ void Module_ScanningSonar::reset()
     reader.pleaseStop();
     reader.wait();
 
-    scanPeriodTimer.stop();
-    QTimer::singleShot(0, tcl, SLOT(unpauseModule()));
-    doScanning = false;
-    scanPeriodCntr=0;
-
     logger->debug("Destroying and sonar data source.");
     if (this->source != NULL) {
         this->source->stop();
@@ -141,8 +128,6 @@ void Module_ScanningSonar::reset()
 
     if (!isEnabled())
         return;
-
-    scanPeriodTimer.start(settings.value("scanPeriod").toInt());
 
     if (settings.value("enableRecording").toBool()) {
         if (settings.value("formatCSV").toBool())
@@ -171,14 +156,6 @@ QList<RobotModule*> Module_ScanningSonar::getDependencies()
 QWidget* Module_ScanningSonar::createView(QWidget* parent)
 {
     return new ScanningSonarForm(this, parent);
-}
-
-void Module_ScanningSonar::nextScanPeriod()
-{
-    logger->debug("doing next sonar scan.");
-    scanPeriodCntr=0;
-    QTimer::singleShot(0, tcl, SLOT(pauseModule()));
-    this->doScanning = true;
 }
 
 void Module_ScanningSonar::gotEnabledChanged(bool state)

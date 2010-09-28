@@ -49,7 +49,6 @@ public slots:
     void terminate();
 
 private slots:
-    void nextScanPeriod();
     void gotEnabledChanged(bool);
 
 signals:
@@ -59,11 +58,8 @@ private:
     Module_ThrusterControlLoop* tcl;
     ThreadedReader reader;
     QTimer timer;
-    QTimer scanPeriodTimer;
     SonarDataSource* source;
     SonarDataRecorder* recorder;
-    bool doScanning;
-    int scanPeriodCntr;
 };
 
 #endif // MODULE_SCANNINGSONAR_H
