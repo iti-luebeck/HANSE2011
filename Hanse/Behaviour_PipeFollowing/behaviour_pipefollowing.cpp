@@ -633,30 +633,59 @@ void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
 
 void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 {
+    QTime runningTimeBV;
+    runningTimeBV.restart();
+    data["farbraum"] = this->getSettings().value("convColor");
     if(this->getSettings().value("convColor").toInt() == 4)
         cvtColor(frame,convFrame,CV_RGB2GRAY);
     else if(this->getSettings().value("convColor").toInt() == 0)
-     cvtColor(frame,convFrame,CV_RGB2HSV);
+     cvtColor(frame,convFrame,CV_RGB2GRAY);
     else
     {
-    Mat frameHSV;
-    cvtColor(frame,frameHSV,CV_RGB2HSV);
-    convFrame.create(frame.rows,frame.cols,CV_8UC1);
-    for (int i = 0; i < frame.rows; i++)
-    {
-        for (int j = 0; j < frame.cols; j++)
-        {
-            Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-            if(this->getSettings().value("convColor").toInt() == 1)
-                convFrame.at<unsigned char>(i, j) = hsvV[0];
-            else if(this->getSettings().value("convColor").toInt() == 2)
-                convFrame.at<unsigned char>(i, j) = hsvV[1];
-            else if(this->getSettings().value("convColor").toInt() == 3)
-                convFrame.at<unsigned char>(i, j) = hsvV[2];
-        }
-    }
-}
+ /*
+        Mat rgba( 100, 100, CV_8UC4, Scalar(1,2,3,4) );
+        Mat bgr( rgba.rows, rgba.cols, CV_8UC3 );
+        Mat alpha( rgba.rows, rgba.cols, CV_8UC1 );
 
+        // forming array of matrices is quite efficient operations,
+        // because the matrix data is not copied, only the headers
+        Mat out[] = { bgr, alpha };
+        // rgba[0] -> bgr[2], rgba[1] -> bgr[1],
+        // rgba[2] -> bgr[0], rgba[3] -> alpha[0]
+        int from_to[] = { 0,2,  1,1,  2,0,  3,3 };
+        mixChannels( &rgba, 1, out, 2, from_to, 4 );
+*/
+        int from_to[] = {2,0};
+
+        Mat frameHSV,h,s,v;
+    convFrame.create(frame.rows,frame.cols,CV_8UC1);
+        cvtColor(frame,frameHSV,CV_RGB2HSV);
+        h.create(frame.rows,frame.cols,CV_8UC1);
+        s.create(frame.rows,frame.cols,CV_8UC1);
+        v.create(frame.rows,frame.cols,CV_8UC1);
+        
+        Mat out[] = {h,convFrame,v};
+        split(frameHSV,out);
+        
+
+
+//    split(frameHSV,None,convFrame,None);
+//     mixChannels(frameHSV,1,convFrame,2,from_to,1);
+//    for (int i = 0; i < frame.rows; i++)
+//    {
+//        for (int j = 0; j < frame.cols; j++)
+//        {
+//            Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
+//            if(this->getSettings().value("convColor").toInt() == 1)
+//                convFrame.at<unsigned char>(i, j) = hsvV[0];
+//            else if(this->getSettings().value("convColor").toInt() == 2)
+//                convFrame.at<unsigned char>(i, j) = hsvV[1];
+//            else if(this->getSettings().value("convColor").toInt() == 3)
+//                convFrame.at<unsigned char>(i, j) = hsvV[2];
+//        }
+//    }
+}
+data["runningTimeBV"] = runningTimeBV.elapsed();
 }
 
 void Behaviour_PipeFollowing::moments( Mat &frame)
