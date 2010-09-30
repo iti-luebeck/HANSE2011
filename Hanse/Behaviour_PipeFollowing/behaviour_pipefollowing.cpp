@@ -651,13 +651,23 @@ void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
         v.create(frame.rows,frame.cols,CV_8UC1);
 
         if(this->getSettings().value("convColor").toInt() == 1)
-            Mat out[] = {convFrame,s,v};
-        else if(this->getSettings().value("convColor").toInt() == 2)
-            Mat out[] = {h,convFrame,v};
-        else
-            Mat out[] = {h,s,convFrame};
+        {
 
-        split(frameHSV,out);
+            Mat out[] = {convFrame,s,v};
+            split(frameHSV,out);
+        }
+        else if(this->getSettings().value("convColor").toInt() == 2)
+        {
+            Mat out[] = {h,convFrame,v};
+            split(frameHSV,out);
+        }
+        else
+        {
+            Mat out[] = {h,s,convFrame};
+            split(frameHSV,out);
+        }
+
+
 
         //    for (int i = 0; i < frame.rows; i++)
 //    {
