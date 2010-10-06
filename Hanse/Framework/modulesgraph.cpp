@@ -92,7 +92,7 @@ void ModulesGraph::build()
     this->modules.append(behavTurn);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
-    logger->debug("Creating Behaviour_PipeFollowing");
+    logger->debug("Creating MetaBehaviour");
     MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn);
     this->modules.append(metaBehaviour);
 
