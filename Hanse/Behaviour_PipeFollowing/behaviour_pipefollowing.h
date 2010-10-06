@@ -7,7 +7,7 @@
 #include <opencv/highgui.h>
 #include <videoInput.h>
 #include <Module_Webcams/module_webcams.h>
-
+#include <Framework/eventthread.h>
 #include <Behaviour_PipeFollowing/pipefollowingform.h>
 
 using namespace cv;
@@ -30,6 +30,7 @@ public:
     void stop();
 
     void reset();
+    void terminate();
     /** returns true if Behaviour is active
         return false if the Behaviour is not active
     */
@@ -83,9 +84,9 @@ private:
     void medianFilter(float &rho, float &theta);
     /** grabs frame from camera device */
     void grab(Mat &frame);
-
+    /** use cv moments to compute pipe */
     void moments(Mat &frame);
-
+    /** counts white pixels in frame */
     void countPixel(Mat &frame, int &sum);
 
     void initPictureFolder();
@@ -112,10 +113,11 @@ private:
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cam;
     QTimer timer;
+    EventThread updateThread;
     QStringList files;
     int fileIndex;
 
-    VideoCapture vc;
+//    VideoCapture vc;
     /* konstante parameter */
     int cameraID;
     int threshSegmentation;
@@ -149,6 +151,8 @@ private slots:
 
 signals:
     void printFrameOnUi(cv::Mat &frame);
+    void timerStart( int msec );
+    void timerStop();
 
 };
 

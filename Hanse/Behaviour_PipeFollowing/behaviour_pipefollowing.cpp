@@ -16,6 +16,16 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->cam = cam;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
+    updateThread.start(QThread::LowPriority);
+    updateThread.moveTimer();
+
+    QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( timerSlot() ),
+                      Qt::DirectConnection );
+    QObject::connect( this, SIGNAL( timerStart(int) ), &updateThread.timer, SLOT( start(int) ) );
+    QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ),
+                      Qt::BlockingQueuedConnection );
+
+
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
     displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
 
@@ -41,10 +51,10 @@ void Behaviour_PipeFollowing::start()
     {
         logger->debug( "Behaviour started" );
         Behaviour_PipeFollowing::updateFromSettings();
-//        if(!this->getSettings().value("useCamera").toBool())  vc = VideoCapture(this->getSettings().value("videoFilePath").toString().toStdString());
         this->setHealthToOk();
         setEnabled(true);
-        timer.start(250);
+//        timer.start(250);
+        emit timerStart(250);
 
     }
 }
@@ -55,14 +65,20 @@ void Behaviour_PipeFollowing::stop()
     this->tcl->setAngularSpeed(0.0);
     if (this->isActive())
     {
+//        timer.stop();
+        emit timerStop();
         logger->debug( "Behaviour stopped" );
-        timer.stop();
-        vc.release();
         this->tcl->setForwardSpeed(0.0);
         this->tcl->setAngularSpeed(0.0);
         setEnabled(false);
         emit finished(this,false);
    }
+}
+
+void Behaviour_PipeFollowing::terminate()
+{
+    timer.stop();
+    RobotBehaviour::terminate();
 }
 
 void Behaviour_PipeFollowing::reset()
@@ -90,7 +106,9 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::timerSlot()
 {
-    Mat binaryFrame;
+    QTime run;
+    run.restart();
+//    Mat binaryFrame;
     cam->grabBottom( frame );
 
     if(!frame.empty())
@@ -99,12 +117,14 @@ void Behaviour_PipeFollowing::timerSlot()
 //        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
 //        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
         Behaviour_PipeFollowing::moments(frame);
-        binaryFrame.release();
+//        binaryFrame.release();
 //        Behaviour_PipeFollowing::updateData();
-        if(isEnabled() || this->getHealthStatus().isHealthOk())
+        if(isEnabled() && this->getHealthStatus().isHealthOk())
         Behaviour_PipeFollowing::controlPipeFollow();
     }
     else this->setHealthToSick("empty frame");
+
+    data["run"] = run.elapsed();
 }
 
 void Behaviour_PipeFollowing::initPictureFolder()
@@ -633,9 +653,7 @@ void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
 
 void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 {
-    QTime runningTimeBV;
-    runningTimeBV.restart();
-    data["farbraum"] = this->getSettings().value("convColor");
+        data["farbraum"] = this->getSettings().value("convColor");
     if(this->getSettings().value("convColor").toInt() == 4)
         cvtColor(frame,convFrame,CV_RGB2GRAY);
     else if(this->getSettings().value("convColor").toInt() == 0)
@@ -682,33 +700,11 @@ void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 //                convFrame.at<unsigned char>(i, j) = hsvV[2];
 //        }
 //    }
-}
-data["runningTimeBV"] = runningTimeBV.elapsed();
+    }
 }
 
 void Behaviour_PipeFollowing::moments( Mat &frame)
 {
-//    Mat binary, gray, frameHSV;
-//    cvtColor(frame,gray,CV_RGB2GRAY);
-//    cvtColor(frame,frameHSV,CV_RGB2HSV);
-//    /*TEST BITTE WIEDER LOESCHEN */
-//    Mat h, s, v;
-//    h.create(frame.rows,frame.cols,CV_8UC1);
-//    s.create(frame.rows,frame.cols,CV_8UC1);
-//    v.create(frame.rows,frame.cols,CV_8UC1);
-//
-//    for (int i = 0; i < frame.rows; i++)
-//    {
-//        for (int j = 0; j < frame.cols; j++)
-//        {
-//            Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-//            h.at<unsigned char>(i, j) = hsvV[0];
-//            s.at<unsigned char>(i, j) = hsvV[1];
-//            v.at<unsigned char>(i, j) = hsvV[2];
-//
-//        }
-//    }
-//    /*ENDE TEST */
     QTime runningTime;
 //    runningTime.start();
     runningTime.restart();
