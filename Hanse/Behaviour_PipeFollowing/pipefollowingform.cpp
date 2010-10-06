@@ -14,7 +14,7 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
 
     ui->curVideofileLabel->setText(pipefollow->getSettings().value("videFilePath").toString());
     ui->thresholdLineEdit->setText(pipefollow->getSettings().value("threshold").toString());
-    ui->cameraID_LineEdit->setText(pipefollow->getSettings().value("cameraID").toString());
+    ui->timer_LineEdit->setText(pipefollow->getSettings().value("timer").toString());
     ui->deltaDistPipeLineEdit->setText(pipefollow->getSettings().value("deltaDist").toString());
     ui->deltaAnglePipeLineEdit->setText(pipefollow->getSettings().value("deltaAngle").toString());
     ui->kpDistLineEdit->setText(pipefollow->getSettings().value("kpDist").toString());
@@ -86,7 +86,7 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
 {
     pipefollow->getSettings().setValue("useCamera",ui->useCameraRadioButton->isChecked());
     pipefollow->getSettings().setValue("threshold",ui->thresholdLineEdit->text().toInt());
-    pipefollow->getSettings().setValue("cameraID",ui->cameraID_LineEdit->text().toInt());
+    pipefollow->getSettings().setValue("timer",ui->timer_LineEdit->text().toInt());
     pipefollow->getSettings().setValue("deltaDist",ui->deltaDistPipeLineEdit->text().toFloat());
     pipefollow->getSettings().setValue("deltaAngle",ui->deltaAnglePipeLineEdit->text().toFloat());
     pipefollow->getSettings().setValue("kpDist",ui->kpDistLineEdit->text().toFloat());

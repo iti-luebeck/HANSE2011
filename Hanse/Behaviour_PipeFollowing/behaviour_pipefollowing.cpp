@@ -15,15 +15,16 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->tcl = tcl;
     this->cam = cam;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
+    connect (this,SIGNAL(timerStart(int)),&timer,SLOT(start(int)));
+    connect(this, SIGNAL(timerStop()),&timer,SLOT(stop()));
+//    updateThread.start(QThread::LowPriority);
+//    updateThread.moveTimer();
 
-    updateThread.start(QThread::LowPriority);
-    updateThread.moveTimer();
-
-    QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( timerSlot() ),
-                      Qt::DirectConnection );
-    QObject::connect( this, SIGNAL( timerStart(int) ), &updateThread.timer, SLOT( start(int) ) );
-    QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ),
-                      Qt::BlockingQueuedConnection );
+//    QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( timerSlot() ),
+//                      Qt::DirectConnection );
+//    QObject::connect( this, SIGNAL( timerStart(int) ), &updateThread.timer, SLOT( start(int) ) );
+//    QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ),
+//                      Qt::BlockingQueuedConnection );
 
 
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
@@ -54,7 +55,7 @@ void Behaviour_PipeFollowing::start()
         this->setHealthToOk();
         setEnabled(true);
 //        timer.start(250);
-        emit timerStart(250);
+        emit timerStart(this->getSettings().value("timer").toInt());
 
     }
 }
@@ -77,7 +78,8 @@ void Behaviour_PipeFollowing::stop()
 
 void Behaviour_PipeFollowing::terminate()
 {
-    timer.stop();
+//    timer.stop();
+    emit timerStop();
     RobotBehaviour::terminate();
 }
 
@@ -125,6 +127,8 @@ void Behaviour_PipeFollowing::timerSlot()
     else this->setHealthToSick("empty frame");
 
     data["run"] = run.elapsed();
+    if(data["run"].toInt() > this->getSettings().value("timer").toInt())
+        this->setHealthToSick("to slow " + QString::number(data["run"].toInt()));
 }
 
 void Behaviour_PipeFollowing::initPictureFolder()
@@ -532,10 +536,6 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
 //    distanceY = (pt1.x - robCenter.x) * (pt1.y - pt2.y) + (robCenter.y - pt1.y) * (pt1.x - pt2.x);
 }
 
-void Behaviour_PipeFollowing::setCameraID(int camID)
-{
-    Behaviour_PipeFollowing::cameraID = camID;
-}
 
 void Behaviour_PipeFollowing::setDeltaPipe(float deltaDistPipe, float deltaAngPipe)
 {
@@ -571,7 +571,7 @@ void Behaviour_PipeFollowing::updateData()
 
 void Behaviour_PipeFollowing::updateFromSettings()
 {
-    this->cameraID = this->getSettings().value("cameraID",0).toInt();
+//    this->timerTime = this->getSettings().value("timer",0).toInt();
     this->threshSegmentation = this->getSettings().value("threshold",188).toInt();
     this->debug = this->getSettings().value("debug",0).toInt();
     this->deltaAngPipe = this->getSettings().value("deltaAngle",11).toFloat();

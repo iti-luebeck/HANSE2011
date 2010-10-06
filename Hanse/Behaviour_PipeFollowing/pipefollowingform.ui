@@ -160,10 +160,10 @@
       </rect>
      </property>
      <property name="text">
-      <string>CLAHE</string>
+      <string>threshold</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="cameraID_LineEdit">
+    <widget class="QLineEdit" name="timer_LineEdit">
      <property name="geometry">
       <rect>
        <x>120</x>
@@ -176,7 +176,7 @@
       <string>0</string>
      </property>
     </widget>
-    <widget class="QLabel" name="cameraIDLabel">
+    <widget class="QLabel" name="timerLabel">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -186,7 +186,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Camera ID</string>
+      <string>timer</string>
      </property>
     </widget>
     <widget class="QLabel" name="deltaDistPipeLabel">

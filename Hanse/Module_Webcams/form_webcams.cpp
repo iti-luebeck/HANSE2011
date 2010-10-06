@@ -30,17 +30,19 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     QObject::connect( &captureTimer, SIGNAL( timeout() ),
                       this, SLOT( captureWebcams() ) );
 
-    ui->checkBox->setChecked( true );
-    captureTimer.start( 500 );
-//    if ( cams->getSettings().value( "capture", true ).toBool() )
-//    {
-//        ui->checkBox->setChecked( true );
-//        captureTimer.start( 500 );
-//    }
-//    else
-//    {
-//        ui->checkBox->setChecked( false );
-//    }
+//    ui->checkBox->setChecked( true );
+//    captureTimer.start( 500 );
+    if ( cams->getSettings().value( "capture", true ).toBool() )
+    {
+        ui->checkBox->setChecked( true );
+        captureTimer.start( 500 );
+    }
+    else
+    {
+        ui->checkBox->setChecked( false );
+        captureTimer.stop();
+        this->refreshFrames();
+    }
 }
 
 Form_Webcams::~Form_Webcams()

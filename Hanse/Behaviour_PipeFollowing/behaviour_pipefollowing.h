@@ -50,8 +50,6 @@ public:
     void setThresh(int thresh);
     /** turns debuggin on and off */
     void setDebug(int debug);
-    /** sets the ID of the camera to use */
-    void setCameraID(int camID);
     /** sets parameter for the p-controller */
     void setDeltaPipe(float deltaDistPipe, float deltaAngPipe);
     /** sets gain for p-controller */
@@ -119,7 +117,6 @@ private:
 
 //    VideoCapture vc;
     /* konstante parameter */
-    int cameraID;
     int threshSegmentation;
     int debug;
     Point robCenter;
