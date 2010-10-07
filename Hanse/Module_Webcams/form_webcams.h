@@ -38,6 +38,12 @@ private:
     int count;
 
 private slots:
+    void on_bottomFrameRateSlider_sliderMoved(int position);
+    void on_rightFrameRateSlider_sliderMoved(int position);
+    void on_leftFrameRateSlider_sliderMoved(int position);
+    void on_bottomConnectCheckBox_clicked();
+    void on_rightConnectCheckBox_clicked();
+    void on_leftConnectCheckBox_clicked();
     void on_bottomSettingsButton_clicked();
     void on_rightSettingsButton_clicked();
     void on_leftSettingsButton_clicked();

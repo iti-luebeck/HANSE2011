@@ -6,10 +6,13 @@
 Module_Webcams::Module_Webcams( QString id ) :
         RobotModule( id )
 {
-    VI.setUseCallback( true );
+    VI.setUseCallback( false );
     leftConnected = false;
     rightConnected = false;
     bottomConnected = false;
+    leftFramerate = 5;
+    rightFramerate = 5;
+    bottomFramerate = 5;
     nCams = 0;
 
     settingsChanged();
@@ -36,7 +39,7 @@ void Module_Webcams::stopWebcams()
 
 void Module_Webcams::grabLeft( IplImage *left )
 {
-    if ( leftConnected )
+    if ( leftConnected )//&& VI.isFrameNew(leftID) )
     {
         mutex.lock();
         assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
@@ -47,7 +50,7 @@ void Module_Webcams::grabLeft( IplImage *left )
 
 void Module_Webcams::grabRight( IplImage *right )
 {
-    if ( rightConnected )
+    if ( rightConnected )//&& VI.isFrameNew(rightID))
     {
         mutex.lock();
         assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
@@ -58,7 +61,7 @@ void Module_Webcams::grabRight( IplImage *right )
 
 void Module_Webcams::grabBottom( IplImage *bottom )
 {
-    if ( bottomConnected )
+    if ( bottomConnected )//&& VI.isFrameNew(bottomID))
     {
         mutex.lock();
         assert( bottom->width == WEBCAM_WIDTH && bottom->height == WEBCAM_HEIGHT );
@@ -69,7 +72,7 @@ void Module_Webcams::grabBottom( IplImage *bottom )
 
 void Module_Webcams::grabBottom( cv::Mat &bottom )
 {
-    if ( bottomConnected )
+    if ( bottomConnected )//&& VI.isFrameNew(bottomID))
     {
         mutex.lock();
         assert( bottom.cols == WEBCAM_WIDTH && bottom.rows == WEBCAM_HEIGHT );
@@ -85,27 +88,27 @@ void Module_Webcams::reset()
 
     if ( this->isEnabled() )
     {
-        if ( 0 <= bottomID && bottomID < nCams )
+        if ( 0 <= bottomID && bottomID < nCams && bottomEnabled )
         {
-            VI.setIdealFramerate( bottomID, 30 );
+            VI.setIdealFramerate( bottomID, bottomFramerate );
             bottomConnected = VI.setupDevice( bottomID, WEBCAM_WIDTH, WEBCAM_HEIGHT );
         }
         else
         {
             bottomConnected = false;
         }
-        if ( 0 <= leftID && leftID < nCams )
+        if ( 0 <= leftID && leftID < nCams && leftEnabled )
         {
-            VI.setIdealFramerate( leftID, 30 );
+            VI.setIdealFramerate( leftID, leftFramerate );
             leftConnected = VI.setupDevice( leftID, WEBCAM_WIDTH, WEBCAM_HEIGHT );
         }
         else
         {
             leftConnected = false;
         }
-        if ( 0 <= rightID && rightID < nCams )
+        if ( 0 <= rightID && rightID < nCams && rightEnabled )
         {
-            VI.setIdealFramerate( rightID, 30 );
+            VI.setIdealFramerate( rightID, rightFramerate );
             rightConnected = VI.setupDevice( rightID, WEBCAM_WIDTH, WEBCAM_HEIGHT );
         }
         else
@@ -140,7 +143,12 @@ void Module_Webcams::settingsChanged()
     leftID = settings.value( "leftID", 0 ).toInt();
     rightID = settings.value( "rightID", 1 ).toInt();
     bottomID = settings.value( "bottomID", 2 ).toInt();
-
+    leftEnabled = settings.value("leftEnabled",true).toBool();
+    rightEnabled = settings.value("rightEnabled",true).toBool();
+    bottomEnabled = settings.value("bottomEnabled",true).toBool();
+    leftFramerate = settings.value("leftFramerate",5).toInt();
+    rightFramerate = settings.value("rightFramerate",5).toInt();
+    bottomFramerate = settings.value("bottomFramerate",5).toInt();
     if ( isEnabled() )
     {
         reset();

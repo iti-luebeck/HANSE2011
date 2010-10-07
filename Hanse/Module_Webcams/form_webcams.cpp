@@ -11,6 +11,23 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     ui->setupUi(this);
     this->cams = cams;
 
+    ui->leftConnectCheckBox->setChecked(cams->getSettings().value("leftEnabled",true).toBool());
+    ui->rightConnectCheckBox->setChecked(cams->getSettings().value("rightEnabled",true).toBool());
+    ui->bottomConnectCheckBox->setChecked(cams->getSettings().value("bottomEnabled",true).toBool());
+
+    int pos = cams->getSettings().value("leftFramerate",5).toInt();
+    ui->leftFrameRateSlider->setValue(pos);
+    ui->leftFramerateLabel->setText("Framerate: " +QString::number(pos)
+                                    +" ("+QString::number(pos)+")");
+    pos = cams->getSettings().value("rightFramerate",5).toInt();
+    ui->rightFrameRateSlider->setValue(pos);
+    ui->rightFramerateLabel->setText("Framerate: " +QString::number(pos)
+                                     +" ("+QString::number(pos)+")");
+    pos = cams->getSettings().value("bottomFramerate",5).toInt();
+    ui->bottomFrameRateSlider->setValue(pos);
+    ui->bottomFramerateLabel->setText("Framerate: " +QString::number(pos)
+                                      +" ("+QString::number(pos)+")");
+
     leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
@@ -118,6 +135,27 @@ void Form_Webcams::on_applyButtn_clicked()
     settings.setValue( "leftID", ui->leftBox->currentIndex() );
     settings.setValue( "rightID", ui->rightBox->currentIndex() );
     settings.setValue( "bottomID", ui->bottomBox->currentIndex() );
+
+    settings.setValue("leftEnabled",ui->leftConnectCheckBox->isChecked());
+    settings.setValue("rightEnabled",ui->rightConnectCheckBox->isChecked());
+    settings.setValue("bottomEnabled",ui->bottomConnectCheckBox->isChecked());
+
+    int pos = ui->leftFrameRateSlider->value();
+    settings.setValue("leftFramerate",pos);
+    ui->leftFramerateLabel->setText("Framerate: " +QString::number(pos)
+                                    +" ("+QString::number(pos)+")");
+
+    pos = ui->rightFrameRateSlider->value();
+    settings.setValue("rightFramerate",pos);
+    ui->rightFramerateLabel->setText("Framerate: " +QString::number(pos)
+                                     +" ("+QString::number(pos)+")");
+
+    pos = ui->bottomFrameRateSlider->value();
+    settings.setValue("bottomFramerate",pos);
+    ui->bottomFramerateLabel->setText("Framerate: " +QString::number(pos)
+                                      +" ("+QString::number(pos)+")");
+
+
     emit changedSettings();
 }
 
@@ -179,4 +217,48 @@ void Form_Webcams::on_rightSettingsButton_clicked()
 void Form_Webcams::on_bottomSettingsButton_clicked()
 {
     emit showSettings( cams->getSettings().value( "bottomID", 2 ).toInt() );
+}
+
+void Form_Webcams::on_leftConnectCheckBox_clicked()
+{
+    cams->getSettings().setValue("leftEnabled",ui->leftConnectCheckBox->isChecked());
+    cams->getSettings().setValue("leftFramerate",ui->leftFrameRateSlider->value());
+    emit changedSettings();
+}
+
+void Form_Webcams::on_rightConnectCheckBox_clicked()
+{
+    cams->getSettings().setValue("rightEnabled",ui->rightConnectCheckBox->isChecked());
+    cams->getSettings().setValue("rightFramerate",ui->rightFrameRateSlider->value());
+    emit changedSettings();
+}
+
+void Form_Webcams::on_bottomConnectCheckBox_clicked()
+{
+    cams->getSettings().setValue("bottomEnabled",ui->bottomConnectCheckBox->isChecked());
+    cams->getSettings().setValue("bottomFramerate",ui->bottomFrameRateSlider->value());
+    emit changedSettings();
+}
+
+void Form_Webcams::on_leftFrameRateSlider_sliderMoved(int position)
+{
+    ui->leftFramerateLabel->setText("Framerate: " +QString::number(position)
+                                    +"("+QString::number(cams->getSettings().value("leftFramerate").toInt())
+                                                         +")");
+}
+
+
+void Form_Webcams::on_rightFrameRateSlider_sliderMoved(int position)
+{
+    ui->rightFramerateLabel->setText("Framerate: " +QString::number(position)
+                                    +"("+QString::number(cams->getSettings().value("rightFramerate").toInt())
+                                                         +")");
+
+}
+
+void Form_Webcams::on_bottomFrameRateSlider_sliderMoved(int position)
+{
+    ui->bottomFramerateLabel->setText("Framerate: " +QString::number(position)
+                                    +"("+QString::number(cams->getSettings().value("bottomFramerate").toInt())
+                                                         +")");
 }

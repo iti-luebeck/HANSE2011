@@ -39,10 +39,16 @@ private:
     int nCams;
     int leftID;
     bool leftConnected;
+    bool leftEnabled;
+    int leftFramerate;
     int rightID;
     bool rightConnected;
+    bool rightEnabled;
+    int rightFramerate;
     int bottomID;
     bool bottomConnected;
+    bool bottomEnabled;
+    int bottomFramerate;
     QMutex mutex;
 
     IplImage *leftFrame;
