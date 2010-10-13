@@ -59,6 +59,12 @@ void MetaBehaviour::emergencyStop()
 QList<RobotModule*> MetaBehaviour::getDependencies()
 {
     QList<RobotModule*> ret;
+    ret.append(tcl);
+    ret.append(handControl);
+    ret.append(pressure);
+    RobotModule* m;
+    foreach(m,behaviours)
+        ret.append(m);
     return ret;
 }
 

@@ -106,7 +106,10 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_BallFollowing/blobs/BlobContour.h \
     Behaviour_BallFollowing/blobs/blob.h \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.h \
-    Behaviour_TurnOneEighty/form_turnoneeighty.h
+    Behaviour_TurnOneEighty/form_turnoneeighty.h \
+    Module_PressureSensor_MT/pressure_mt_form.h \
+    Module_PressureSensor_MT/module_pressuresensor_mt.h \
+    Framework/robotmodule_mt.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -195,7 +198,10 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_BallFollowing/blobs/BlobContour.cpp \
     Behaviour_BallFollowing/blobs/blob.cpp \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.cpp \
-    Behaviour_TurnOneEighty/form_turnoneeighty.cpp
+    Behaviour_TurnOneEighty/form_turnoneeighty.cpp \
+    Module_PressureSensor_MT/pressure_mt_form.cpp \
+    Module_PressureSensor_MT/module_pressuresensor_mt.cpp \
+    Framework/robotmodule_mt.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -218,5 +224,6 @@ FORMS += Framework/mainwindow.ui \
     Behaviour_GoalFollowing/goalfollowingform.ui \
     Behaviour_BallFollowing/ballfollowingform.ui \
     Module_Webcams/form_webcams.ui \
-    Behaviour_TurnOneEighty/form_turnoneeighty.ui
+    Behaviour_TurnOneEighty/form_turnoneeighty.ui \
+    Module_PressureSensor_MT/pressure_mt_form.ui
 OTHER_FILES += bin/log4qt.properties
