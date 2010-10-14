@@ -107,7 +107,9 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_BallFollowing/blobs/blob.h \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.h \
     Behaviour_TurnOneEighty/form_turnoneeighty.h \
-    Framework/robotmodule_mt.h
+    Framework/robotmodule_mt.h \
+    Module_Simulation/simulation_form.h \
+    Module_Simulation/module_simulation.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -197,7 +199,9 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_BallFollowing/blobs/blob.cpp \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.cpp \
     Behaviour_TurnOneEighty/form_turnoneeighty.cpp \
-    Framework/robotmodule_mt.cpp
+    Framework/robotmodule_mt.cpp \
+    Module_Simulation/simulation_form.cpp \
+    Module_Simulation/module_simulation.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -220,5 +224,6 @@ FORMS += Framework/mainwindow.ui \
     Behaviour_GoalFollowing/goalfollowingform.ui \
     Behaviour_BallFollowing/ballfollowingform.ui \
     Module_Webcams/form_webcams.ui \
-    Behaviour_TurnOneEighty/form_turnoneeighty.ui
+    Behaviour_TurnOneEighty/form_turnoneeighty.ui \
+    Module_Simulation/simulation_form.ui
 OTHER_FILES += bin/log4qt.properties
