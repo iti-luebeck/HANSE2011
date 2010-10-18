@@ -7,9 +7,8 @@ Simulation_Form::Simulation_Form(Module_Simulation *module, QWidget *parent) :
 {
     ui->setupUi(this);
     this->module = module;
-    ui->i2cAddress->setText(module->getSettings().value("i2cAddress").toString());
-    ui->frequency->setText(module->getSettings().value("frequency").toString());
-    ui->airPressure->setText(module->getSettings().value("airPressure").toString());
+    ui->server_ip_adress->setText(module->getSettings().value("server_ip_adress").toString());
+    ui->server_port->setText(module->getSettings().value("server_port").toString());
 }
 
 Simulation_Form::~Simulation_Form()
@@ -31,7 +30,6 @@ void Simulation_Form::changeEvent(QEvent *e)
 
 void Simulation_Form::on_save_clicked()
 {
-    module->getSettings().setValue("i2cAddress", ui->i2cAddress->text().toInt());
-    module->getSettings().setValue("airPressure", ui->airPressure->text().toInt());
-    module->getSettings().setValue("frequency", ui->frequency->text().toInt());
+    module->getSettings().setValue("server_ip_adress", ui->server_ip_adress->text());
+    module->getSettings().setValue("server_port", ui->server_port->text().toInt());
 }

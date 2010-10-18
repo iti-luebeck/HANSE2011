@@ -14,43 +14,36 @@
    <string>Form</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>i2c address</string>
+      <string>Server IP:</string>
      </property>
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="i2cAddress"/>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="frequency"/>
+    <widget class="QLineEdit" name="server_ip_adress"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>frequency (Hz)</string>
+      <string>Server Port:</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="server_port"/>
+   </item>
+   <item row="2" column="1">
     <widget class="QPushButton" name="save">
      <property name="text">
       <string>Save &amp;&amp; Apply</string>
      </property>
      <property name="shortcut">
       <string>Return</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="airPressure"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>air pressure (mBar)</string>
      </property>
     </widget>
    </item>

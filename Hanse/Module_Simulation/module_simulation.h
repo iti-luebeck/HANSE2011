@@ -4,6 +4,9 @@
 #include <QtCore>
 #include <Framework/robotmodule.h>
 #include "inttypes.h"
+#include <QtNetwork>
+#include <iostream>
+#include <QTimer>
 
 class Module_UID;
 
@@ -29,11 +32,20 @@ protected:
     virtual void doHealthCheck();
 
 private slots:
+    void readFortune();
+    void requestNewFortune();
+    void displayError(QAbstractSocket::SocketError socketError);
 
 private:
     QTimer timer;
     QThread thread;
     unsigned int counter;
+    quint16 blockSize;
+    char    buf[512];
+    int     read_ret;
+    QString currentFortune;
+    QTcpSocket *tcpSocket;
+    void start();
 };
 
 #endif // MODULE_SIMULATION_H
