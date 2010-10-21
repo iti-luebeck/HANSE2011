@@ -2,11 +2,14 @@
 #include "ui_testmtform.h"
 #include <QFileDialog>
 
-TestMTForm::TestMTForm(QWidget *parent, Behaviour_TestMT *TestMT) :
+TestMTForm::TestMTForm(QWidget *parent, Behaviour_TestMT *testmt) :
     QWidget(parent),
     ui(new Ui::TestMTForm)
 {
     ui->setupUi(this);
+    QObject::connect(this,SIGNAL(startBehaviour()),testmt,SLOT(start()));
+    QObject::connect(this,SIGNAL(stopBehaviour()),testmt,SLOT(stop()));
+
  }
 
 TestMTForm::~TestMTForm()
@@ -24,4 +27,14 @@ void TestMTForm::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void TestMTForm::on_startButton_clicked()
+{
+    emit startBehaviour();
+}
+
+void TestMTForm::on_stopButton_clicked()
+{
+    emit stopBehaviour();
 }

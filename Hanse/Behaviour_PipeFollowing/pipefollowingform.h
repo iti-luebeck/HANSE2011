@@ -40,6 +40,7 @@ signals:
    void newDataPipeFollow(QString key, const QVariant data);
    void newSettingsPipeFollow(QString key, const QVariant value);
    void settingsChanged();
+   void getSettingsValue(const QString key, QVariant &value);
 
 };
 

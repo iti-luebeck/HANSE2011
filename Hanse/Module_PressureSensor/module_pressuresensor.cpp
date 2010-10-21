@@ -22,7 +22,7 @@
 #define PRESSURE_MAX 3000
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
-    : RobotModule(id)
+    : RobotModule_MT(id)
 {
     thread.start();
 
@@ -54,7 +54,7 @@ void Module_PressureSensor::reset()
 {
     RobotModule::reset();
 
-    int freq = 1000/getSettings().value("frequency").toInt();
+    int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
         timer.setInterval(freq);
         QTimer::singleShot(0, &timer, SLOT(start()));
@@ -62,10 +62,10 @@ void Module_PressureSensor::reset()
         QTimer::singleShot(0, &timer, SLOT(stop()));
     }
 
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
-    unsigned char address = getSettings().value("i2cAddress").toInt();
+    unsigned char address = getSettingsValue("i2cAddress").toInt();
     char reg = REQUEST_NEW_CALIB_VALUES;
     if (!uid->I2C_Write(address, &reg, 1)) {
         setHealthToSick(uid->getLastError());
@@ -76,7 +76,7 @@ void Module_PressureSensor::reset()
 
 void Module_PressureSensor::refreshData()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     readPressure();
@@ -102,10 +102,12 @@ void Module_PressureSensor::readPressure()
 
     QMutexLocker l(&this->moduleMutex);
 
-    data["pressure"] =  pressure;
+    addData("pressure",pressure);
+//    data["pressure"] =  pressure;
 
     // 100 mBar == ca. 1m wassersäule - druck an der luft
-    data["depth"] =  ((float)pressure-getSettings().value("airPressure").toFloat())/100;
+    addData("depth",((float)pressure-getSettings().value("airPressure").toFloat())/100);
+//    data["depth"] =  ((float)pressure-getSettings().value("airPressure").toFloat())/100;
 
     if (pressure < PRESSURE_MIN || pressure > PRESSURE_MAX) {
         setHealthToSick("Pressure of "+QString::number(pressure) + " doesn't make sense.");
@@ -126,19 +128,20 @@ void Module_PressureSensor::readTemperature()
 
     QMutexLocker l(&this->moduleMutex);
 
-    data["temperatureHW"] = ((float)temp)/10;
+    addData("temperatureHW",((float)temp)/10);
+//    data["temperatureHW"] = ((float)temp)/10;
 }
 
 float Module_PressureSensor::getDepth()
 {
     QMutexLocker l(&this->moduleMutex);
-    return data["depth"].toFloat();
+    return getDataValue("depth").toFloat();
 }
 
 float Module_PressureSensor::getTemperature()
 {
     QMutexLocker l(&this->moduleMutex);
-    return data["temperature"].toFloat()/10.0;
+    return getDataValue("temperature").toFloat()/10.0;
 }
 
 QList<RobotModule*> Module_PressureSensor::getDependencies()
@@ -179,7 +182,8 @@ void Module_PressureSensor::doHealthCheck()
 
     QMutexLocker l(&this->moduleMutex);
 
-    data["counter"] = (unsigned char)readBuffer[0];
+    addData("counter",(unsigned char)readBuffer[0]);
+//    data["counter"] = (unsigned char)readBuffer[0];
 
     if (readBuffer[0] == (unsigned char)counter) {
         setHealthToSick("read the same counter value twice!");
@@ -193,7 +197,7 @@ void Module_PressureSensor::doHealthCheck()
 
 bool Module_PressureSensor::readRegister(unsigned char reg, int size, char *ret_buf)
 {
-    unsigned char address = getSettings().value("i2cAddress").toInt();
+    unsigned char address = getSettingsValue("i2cAddress").toInt();
 
     if (!uid->I2C_ReadRegisters(address, reg, size, ret_buf)) {
         setHealthToSick(uid->getLastError());

@@ -7,9 +7,9 @@ Pressure_Form::Pressure_Form(Module_PressureSensor *module, QWidget *parent) :
 {
     ui->setupUi(this);
     this->module = module;
-    ui->i2cAddress->setText(module->getSettings().value("i2cAddress").toString());
-    ui->frequency->setText(module->getSettings().value("frequency").toString());
-    ui->airPressure->setText(module->getSettings().value("airPressure").toString());
+    ui->i2cAddress->setText(module->getSettingsValue("i2cAddress").toString());
+    ui->frequency->setText(module->getSettingsValue("frequency").toString());
+    ui->airPressure->setText(module->getSettingsValue("airPressure").toString());
 }
 
 Pressure_Form::~Pressure_Form()
@@ -31,7 +31,7 @@ void Pressure_Form::changeEvent(QEvent *e)
 
 void Pressure_Form::on_save_clicked()
 {
-    module->getSettings().setValue("i2cAddress", ui->i2cAddress->text().toInt());
-    module->getSettings().setValue("airPressure", ui->airPressure->text().toInt());
-    module->getSettings().setValue("frequency", ui->frequency->text().toInt());
+    module->setSettingsValue("i2cAddress", ui->i2cAddress->text().toInt());
+    module->setSettingsValue("airPressure", ui->airPressure->text().toInt());
+    module->setSettingsValue("frequency", ui->frequency->text().toInt());
 }

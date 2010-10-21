@@ -2,12 +2,12 @@
 #define MODULE_IMU_H
 
 #include <QtCore>
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 #include "inttypes.h"
 
 class Module_UID;
 
-class Module_IMU : public RobotModule {
+class Module_IMU : public RobotModule_MT {
     Q_OBJECT
 
     friend class IMU_Form;
@@ -44,6 +44,7 @@ public slots:
     void terminate();
 
 
+
 signals:
     void healthStatusChanged(HealthStatus data);
 
@@ -51,7 +52,12 @@ protected:
     virtual void doHealthCheck();
 
 private slots:
-    void refreshData();
+    void refreshData();    
+    void doPrecisionCalib();
+//    void refresh();
+    void doSelfTest();
+    void doNullCalib();
+    void updateBiasFields();
 
 private:
     Module_UID *uid;
@@ -80,15 +86,15 @@ private:
     /**
      * Read out new data from the sensors.
      */
-    void refresh();
-
-    void doSelfTest();
-
-    void doNullCalib();
-
-    void doPrecisionCalib();
-
-    void updateBiasFields();
+//    void refresh();
+//
+//    void doSelfTest();
+//
+//    void doNullCalib();
+//
+//    void doPrecisionCalib();
+//
+//    void updateBiasFields();
 
 };
 

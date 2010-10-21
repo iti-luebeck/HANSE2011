@@ -6,7 +6,10 @@ RobotModule_MT::RobotModule_MT(QString id)
 {
     moduleThread.start(QThread::NormalPriority);
     this->moveToThread(&moduleThread);
-
+    qDebug() << "THREAD ID ModuleMT";
+    qDebug() << QThread::currentThreadId();
+    qDebug() << "Module THREAD ID";
+    qDebug() << moduleThread.currentThreadId();
 }
 
 const QMap<QString,QVariant> RobotModule_MT::getData()
@@ -20,11 +23,19 @@ const QMap<QString,QVariant> RobotModule_MT::getData()
     return map;
 }
 
+
 QVariant RobotModule_MT::getDataValue(QString key)
 {
     QMutexLocker l(&dataLockerMutex);
     QVariant qv = data[key];
     return qv;
+}
+
+void RobotModule_MT::getDataValue(QString key, QVariant &data)
+{
+    QMutexLocker l(&dataLockerMutex);
+    QVariant qv = this->data[key];
+    data = qv;
 }
 
 void RobotModule_MT::addData(QString key, QVariant value)
@@ -53,6 +64,20 @@ const QVariant RobotModule_MT::getSettingsValue(const QString key)
     QMutexLocker l(&settingsMutex);
     QVariant qv = settings.value(key);
     return qv;
+}
+
+void RobotModule_MT::getSettingsValueSl(QString key, QVariant &value)
+{
+    QMutexLocker l(&settingsMutex);
+    QVariant qv = settings.value(key);
+    value = qv;
+}
+
+void RobotModule_MT::getSettingsValueSl(QString key, QVariant defValue, QVariant &value)
+{
+    QMutexLocker l(&settingsMutex);
+    QVariant qv = settings.value(key,defValue);
+    value = qv;
 }
 
 void RobotModule_MT::setSettingsValue(QString key, QVariant value)

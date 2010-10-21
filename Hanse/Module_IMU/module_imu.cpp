@@ -88,7 +88,7 @@
 #define ADIS_REGISTER_STATUS_LO 0x3C
 
 Module_IMU::Module_IMU(QString id, Module_UID *uid)
-    : RobotModule(id)
+    : RobotModule_MT(id)
 {
     thread.start();
     this->uid=uid;
@@ -127,10 +127,10 @@ void Module_IMU::reset()
 {
     RobotModule::reset();
 
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
-    int freq = 1000/getSettings().value("frequency").toInt();
+    int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
         timer.setInterval(freq);
         QTimer::singleShot(0, &timer, SLOT(start()));
@@ -152,13 +152,13 @@ void Module_IMU::reset()
 
     QMutexLocker l(&moduleMutex);
 
-    data["flashCounter"] = readRegister(ADIS_REGISTER_ENDURANCE);
+    addData("flashCounter", readRegister(ADIS_REGISTER_ENDURANCE));
 
 }
 
 void Module_IMU::refreshData()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     configureSPI();
@@ -186,21 +186,21 @@ void Module_IMU::refreshData()
     unsigned short voltage_raw = readRegister(ADIS_REGISTER_POWER);
     double voltage = (voltage_raw & 0x0FFF) *1.8315; // mV
     QMutexLocker l(&moduleMutex);
-    data["voltage"] = voltage/1000;
+    addData("voltage", voltage/1000);
 
     if (getHealthStatus().isHealthOk()) {
 
-        data["gyroX"] = currentGyroX * 0.07326;
-        data["gyroY"] = currentGyroY * 0.07326;
-        data["gyroZ"] = currentGyroZ * 0.07326;
+        addData("gyroX", currentGyroX * 0.07326);
+        addData("gyroY", currentGyroY * 0.07326);
+        addData("gyroZ", currentGyroZ * 0.07326);
 
-        data["accelX"] = currentAccelX * 0.4672 * settings.value("g").toFloat() / 1000;
-        data["accelY"] = currentAccelY * 0.4672 * settings.value("g").toFloat() / 1000;
-        data["accelZ"] = currentAccelZ * 0.4672 * settings.value("g").toFloat() / 1000;
+        addData("accelX", currentAccelX * 0.4672 * settings.value("g").toFloat() / 1000);
+        addData("accelY", currentAccelY * 0.4672 * settings.value("g").toFloat() / 1000);
+        addData("accelZ", currentAccelZ * 0.4672 * settings.value("g").toFloat() / 1000);
 
-        data["gyroTempX"] = gyroTempX * 0.1453 + 25;
-        data["gyroTempY"] = gyroTempY * 0.1453 + 25;
-        data["gyroTempZ"] = gyroTempZ * 0.1453 + 25;
+        addData("gyroTempX", gyroTempX * 0.1453 + 25);
+        addData("gyroTempY", gyroTempY * 0.1453 + 25);
+        addData("gyroTempZ", gyroTempZ * 0.1453 + 25);
 
         emit dataChanged(this);
 
@@ -223,7 +223,7 @@ QWidget* Module_IMU::createView(QWidget* parent)
 
 void Module_IMU::doHealthCheck()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     // we don't check for voltage. we just want to see if the device returns
@@ -243,7 +243,7 @@ void Module_IMU::doHealthCheck()
 
     QMutexLocker l(&moduleMutex);
 
-    data["statusReg"] = status_reg;
+    addData("statusReg", status_reg);
     if (status_reg != 0x0000) {
         setHealthToSick("Status Register indicating an error: register content=0x" +QString::number(status_reg,16));
         // TODO: translate error bits
@@ -287,19 +287,19 @@ void Module_IMU::configureSPI()
 {
         uid->SPI_SetPOL(true);
         uid->SPI_SetPHA(true);
-        uid->SPI_Speed(getSettings().value("spiSpeed").toInt()); // XXX: 14.67Mhz/X < 2Mhz
+        uid->SPI_Speed(getSettingsValue("spiSpeed").toInt()); // XXX: 14.67Mhz/X < 2Mhz
 }
 
 void Module_IMU::configureADIS()
 {
     configureSPI();
 
-    short filterTaps = settings.value("filterTaps").toInt();
+    short filterTaps = getSettingsValue("filterTaps").toInt();
 
     short sens_avg_soll = 0;
     sens_avg_soll |= filterTaps;
 
-    QString gyroSens = settings.value("gyroSens").toString();
+    QString gyroSens = getSettingsValue("gyroSens").toString();
     if (gyroSens == "75") {
         sens_avg_soll |= 0x0100;
     } else if (gyroSens == "150") {
@@ -310,9 +310,9 @@ void Module_IMU::configureADIS()
 
     writeFullRegister(ADIS_REGISTER_SENS_AVG_LO, sens_avg_soll);
 
-    short multiplier = settings.value("smplTimeMult").toInt()-1;
+    short multiplier = getSettingsValue("smplTimeMult").toInt()-1;
     short smpl_prd_soll = multiplier;
-    if (settings.value("smplTimeBase").toBool()) {
+    if (getSettingsValue("smplTimeBase").toBool()) {
             smpl_prd_soll |= (1 << 6);
     } else {
             smpl_prd_soll &= ~(1 << 6);
@@ -321,10 +321,10 @@ void Module_IMU::configureADIS()
     writeFullRegister(ADIS_REGISTER_SMPL_PRD_LO, smpl_prd_soll);
 
     uint8_t msc_ctrl = 0;
-    if (settings.value("originAllign").toBool()) {
+    if (getSettingsValue("originAllign").toBool()) {
         msc_ctrl |= 0x40;
     }
-    if (settings.value("biasComp").toBool()) {
+    if (getSettingsValue("biasComp").toBool()) {
         msc_ctrl |= 0x80;
     }
     writeRegister(ADIS_REGISTER_MSC_CTRL_LO, msc_ctrl);
@@ -381,10 +381,10 @@ unsigned short Module_IMU::readRegister(uint8_t address)
     char buf_recv[] = {0x00, 0x00};
     char buf_send[] = {address, 0x00};
 
-    bool ret = uid->SPI_Write(settings.value("ssLine").toInt(), buf_send, 2);
+    bool ret = uid->SPI_Write(getSettingsValue("ssLine").toInt(), buf_send, 2);
     if (!ret)
         setHealthToSick(uid->getLastError());
-    ret = uid->SPI_Read(settings.value("ssLine").toInt(), 2, buf_recv);
+    ret = uid->SPI_Read(getSettingsValue("ssLine").toInt(), 2, buf_recv);
     if (!ret)
         setHealthToSick(uid->getLastError());
     return toShort(buf_recv[0],buf_recv[1]);
@@ -406,10 +406,10 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
     // set highest bit to indicate write
     buf_send[0] |= 0x80;
 
-    bool ret = uid->SPI_Write(settings.value("ssLine").toInt(), buf_send, 2);
+    bool ret = uid->SPI_Write(getSettingsValue("ssLine").toInt(), buf_send, 2);
     if (!ret)
         setHealthToSick(uid->getLastError());
-    ret = uid->SPI_Read(settings.value("ssLine").toInt(), 2, buf_recv);
+    ret = uid->SPI_Read(getSettingsValue("ssLine").toInt(), 2, buf_recv);
     if (!ret)
         setHealthToSick(uid->getLastError());
 }
@@ -417,37 +417,37 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 float Module_IMU::getGyroX(void)
 {
     QMutexLocker l(&moduleMutex);
-    return data["gyroX"].toFloat();
+    return getDataValue("gyroX").toFloat();
 }
 
 float Module_IMU::getGyroY(void)
 {
     QMutexLocker l(&moduleMutex);
-    return data["gyroY"].toFloat();
+    return getDataValue("gyroY").toFloat();
 }
 
 float Module_IMU::getGyroZ(void)
 {
     QMutexLocker l(&moduleMutex);
-    return data["gyroZ"].toFloat();
+    return getDataValue("gyroZ").toFloat();
 }
 
 float Module_IMU::getAccelX(void)
 {
     QMutexLocker l(&moduleMutex);
-    return data["accelX"].toFloat();
+    return getDataValue("accelX").toFloat();
 }
 
 float Module_IMU::getAccelY(void)
 {
     QMutexLocker l(&moduleMutex);
-    return data["accelY"].toFloat();
+    return getDataValue("accelY").toFloat();
 }
 
 float Module_IMU::getAccelZ(void)
 {
     QMutexLocker l(&moduleMutex);
-    return data["accelZ"].toFloat();
+    return getDataValue("accelZ").toFloat();
 }
 
 void Module_IMU::doNullCalib()
@@ -463,10 +463,10 @@ void Module_IMU::doPrecisionCalib()
 void Module_IMU::updateBiasFields()
 {
     QMutexLocker l(&moduleMutex);
-    data["biasGyroX"] = readDataRegister(ADIS_REGISTER_XGYRO_OFF_LO, 12);
-    data["biasGyroY"] = readDataRegister(ADIS_REGISTER_YGYRO_OFF_LO, 12);
-    data["biasGyroZ"] = readDataRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 12);
-    data["biasAccelX"] = readDataRegister(ADIS_REGISTER_XACCL_OFF_LO, 12);
-    data["biasAccelY"] = readDataRegister(ADIS_REGISTER_YACCL_OFF_LO, 12);
-    data["biasAccelZ"] = readDataRegister(ADIS_REGISTER_ZACCL_OFF_LO, 12);
+    addData("biasGyroX", readDataRegister(ADIS_REGISTER_XGYRO_OFF_LO, 12));
+    addData("biasGyroY", readDataRegister(ADIS_REGISTER_YGYRO_OFF_LO, 12));
+    addData("biasGyroZ", readDataRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 12));
+    addData("biasAccelX", readDataRegister(ADIS_REGISTER_XACCL_OFF_LO, 12));
+    addData("biasAccelY", readDataRegister(ADIS_REGISTER_YACCL_OFF_LO, 12));
+    addData("biasAccelZ", readDataRegister(ADIS_REGISTER_ZACCL_OFF_LO, 12));
 }

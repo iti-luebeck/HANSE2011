@@ -13,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     logger = Log4Qt::Logger::logger("MainWindow");
-
+    qDebug() << "MAIN THREAD ID";
+    qDebug() << QThread::currentThreadId();
     graph.build();
 
     ui->setupUi(this);

@@ -24,8 +24,12 @@ private:
     Ui::TestMTForm *ui;
     Behaviour_TestMT *testmt;
 
+signals:
+    void startBehaviour();
+    void stopBehaviour();
 private slots:
-
+    void on_stopButton_clicked();
+    void on_startButton_clicked();
 };
 
 #endif // TestMTFORM_H

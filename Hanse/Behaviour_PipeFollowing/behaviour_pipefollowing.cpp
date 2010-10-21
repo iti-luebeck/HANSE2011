@@ -12,6 +12,8 @@
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam) :
         RobotBehaviour_MT(id)
 {
+    qDebug() << "pipe thread id";
+    qDebug() << QThread::currentThreadId();
     this->tcl = tcl;
     this->cam = cam;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
@@ -20,7 +22,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
-    connect(this,SIGNAL(grabBottomFrame(cv::Mat&)),cam,SLOT(grabBottom(cv::Mat&)),Qt::DirectConnection);
+    connect(this,SIGNAL(grabBottomFrame(cv::Mat&)),cam,SLOT(grabBottom(cv::Mat&)),Qt::BlockingQueuedConnection);
 
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
     displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );

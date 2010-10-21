@@ -27,6 +27,12 @@ private slots:
     void on_calibNull_clicked();
     void on_save_clicked();
     void updateBiasFields();
+signals:
+    void doPrecisionCalib();
+    void doNullCalib();
+    void reset();
+    void newDataValue(QString key, const QVariant data);
+    void newSettingsValue(QString key, const QVariant value);
 };
 
 #endif // IMU_FORM_H

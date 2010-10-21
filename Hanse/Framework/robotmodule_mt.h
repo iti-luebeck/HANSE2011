@@ -27,8 +27,6 @@ public:
           */
         QVariant getDataValue(QString key);
 
-
-
         /**
           * returns
           */
@@ -58,9 +56,12 @@ public slots:
         void setSettingsValue(QString key, const QVariant value);
 
         void setDefaultValue(const QString &key, const QVariant &value);
+
+        void getDataValue(const QString key,  QVariant &data);
+        void getSettingsValueSl(const QString key, QVariant &value);
+        void getSettingsValueSl(const QString key,const QVariant defValue, QVariant &value);
+
 protected:
-
-
 
     /**
       * sleep for the given amount of milliseconds
@@ -71,6 +72,7 @@ protected:
 
 
 private:
+
     class MyModuleThread: public QThread
     {
     public:
