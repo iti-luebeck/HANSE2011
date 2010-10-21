@@ -62,7 +62,7 @@ public:
     };
 
     /**
-     *	Enumerator für die I2C Geschwindigkeiten
+     *	Enumerator fuer die I2C Geschwindigkeiten
      */
     enum I2CSpeed
     {
@@ -73,7 +73,7 @@ public:
 
     /** \brief  UID Available
      *
-     *  Überprüft ob UID vorhanden
+     *  Ueberprueft ob UID vorhanden
      *
      *  @return                     TRUE, wenn UID gefunden wurde.
      */
@@ -105,10 +105,10 @@ public:
 
     /** \brief I2C-Speed Methode
      *
-     *  Setzt die Geschwindigkeit für die I2C-Kommunikation (Standard: 200Khz)
+     *  Setzt die Geschwindigkeit fuer die I2C-Kommunikation (Standard: 200Khz)
      *
      *  @param[in]      speed       Geschwindigkeit (100khz, 200khz, 400khz)
-     *  @return                     TRUE wenn Ausführung erfolgreich
+     *  @return                     TRUE wenn Ausfuehrung erfolgreich
      */
     bool I2C_Speed(I2CSpeed speed);
 
@@ -176,21 +176,21 @@ public:
 
     /** \brief SPI-SetPHA Methode
      *
-     *  Setzt die Phase für die SPI-Kommunikation
+     *  Setzt die Phase fuer die SPI-Kommunikation
      *
      *  @param[in]      phase
      *  <img src="SPI.png" alt="SPI">
-     *  @return                     TRUE wenn Ausführung erfolgreich
+     *  @return                     TRUE wenn Ausfuehrung erfolgreich
      */
     bool SPI_SetPHA(bool phase);
 
     /** \brief SPI-SetPol Methode
      *
-     *  Setzt die Polarität für die SPI-Kommunikation
+     *  Setzt die Polaritaet fuer die SPI-Kommunikation
      *
      *  @param[in]      pol
      *  <img src="SPI.png" alt="SPI">
-     *  @return                     TRUE wenn Ausführung erfolgreich
+     *  @return                     TRUE wenn Ausfuehrung erfolgreich
      */
     bool SPI_SetPOL(bool pol);
 

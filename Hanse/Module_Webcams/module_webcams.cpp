@@ -4,9 +4,9 @@
 #include <opencv/highgui.h>
 
 Module_Webcams::Module_Webcams( QString id ) :
-        RobotModule( id )
+        RobotModule_MT( id )
 {
-    VI.setUseCallback( false );
+    VI.setUseCallback( true );
     leftConnected = false;
     rightConnected = false;
     bottomConnected = false;
@@ -140,15 +140,25 @@ void Module_Webcams::showSettings( int camNr )
 void Module_Webcams::settingsChanged()
 {
     nCams = VI.listDevices( true );
-    leftID = settings.value( "leftID", 0 ).toInt();
-    rightID = settings.value( "rightID", 1 ).toInt();
-    bottomID = settings.value( "bottomID", 2 ).toInt();
-    leftEnabled = settings.value("leftEnabled",true).toBool();
-    rightEnabled = settings.value("rightEnabled",true).toBool();
-    bottomEnabled = settings.value("bottomEnabled",true).toBool();
-    leftFramerate = settings.value("leftFramerate",5).toInt();
-    rightFramerate = settings.value("rightFramerate",5).toInt();
-    bottomFramerate = settings.value("bottomFramerate",5).toInt();
+    leftID = this->getSettingsValue("leftID",0).toInt();
+    rightID = this->getSettingsValue("rightID",1).toInt();
+    bottomID = this->getSettingsValue("bottomID",2).toInt();
+    leftEnabled = this->getSettingsValue("leftEnabled",true).toBool();
+    rightEnabled = this->getSettingsValue("rightEnabled",true).toBool();
+    bottomEnabled = this->getSettingsValue("bottomEnabled",true).toBool();
+    leftFramerate = this->getSettingsValue("leftFramerate",5).toInt();
+    rightFramerate = this->getSettingsValue("rightFramerate",5).toInt();
+    bottomFramerate = this->getSettingsValue("bottomFramerate",5).toInt();
+
+//    leftID = settings.value( "leftID", 0 ).toInt();
+//    rightID = settings.value( "rightID", 1 ).toInt();
+//    bottomID = settings.value( "bottomID", 2 ).toInt();
+//    leftEnabled = settings.value("leftEnabled",true).toBool();
+//    rightEnabled = settings.value("rightEnabled",true).toBool();
+//    bottomEnabled = settings.value("bottomEnabled",true).toBool();
+//    leftFramerate = settings.value("leftFramerate",5).toInt();
+//    rightFramerate = settings.value("rightFramerate",5).toInt();
+//    bottomFramerate = settings.value("bottomFramerate",5).toInt();
     if ( isEnabled() )
     {
         reset();

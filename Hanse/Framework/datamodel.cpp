@@ -30,6 +30,7 @@ void DataModel::updateModel()
         foreach (QString key, module->getData().keys()) {
             QString mk = name+"/"+key;
             if (mk.contains(filterModule,Qt::CaseInsensitive)) {
+//                mergedMap.insert(mk,module->getData().value(key));
                 if (!mergedMap.contains(mk)) {
                     // yes, this looks very wrong. but it also works. :)
                     // so until I figure out the Right Way(tm) to do this,
@@ -38,10 +39,11 @@ void DataModel::updateModel()
                     mergedMap.insert(mk,module->getData().value(key));
                     emit beginInsertRows(QModelIndex(),mergedMap.keys().indexOf(mk),mergedMap.keys().indexOf(mk));
                     emit endInsertRows();
-                } else {
-//                    mergedMap[mk] = module->getData().value(key);
-                    mergedMap.insert(mk,module->getData().value(key));
                 }
+//                else {
+////                    mergedMap[mk] = module->getData().value(key);
+                    mergedMap.insert(mk,module->getData().value(key));
+//                }
             } else if (mergedMap.contains(mk) ) {
                 emit beginRemoveRows(QModelIndex(), mergedMap.keys().indexOf(mk),mergedMap.keys().indexOf(mk));
                 mergedMap.remove(mk);

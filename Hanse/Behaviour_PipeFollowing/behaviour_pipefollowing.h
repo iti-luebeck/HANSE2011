@@ -1,7 +1,7 @@
 #ifndef PIPEBEHAVIOUR_H
 #define PIPEBEHAVIOUR_H
 
-#include <Framework/robotbehaviour.h>
+#include <Framework/robotbehaviour_mt.h>
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
@@ -15,7 +15,7 @@ using namespace cv;
 class Module_ThrusterControlLoop;
 class PipeFollowingForm;
 
-class Behaviour_PipeFollowing : public RobotBehaviour
+class Behaviour_PipeFollowing : public RobotBehaviour_MT
 {
     Q_OBJECT
 public:
@@ -24,19 +24,17 @@ public:
 
     QWidget* createView(QWidget *parent);
 
-    /** starts PipeFollow Behaviour */
-    void start();
-    /** stops PipeFollow Behaviour */
-    void stop();
 
-    void reset();
-    void terminate();
     /** returns true if Behaviour is active
         return false if the Behaviour is not active
     */
     bool isActive();
     /** Extrahiert die Frames aus einem Videofile und uebergibt sie an findPipe*/
     void analyzeVideo(QString videoFile);
+
+
+private:
+
     /** Such ein Rohr in einem Frame und berechnet zugehoerige Parameter */
     void findPipe(Mat &frame, Mat &binaryFrame);
     /** Zeichnet eine Linie aus gegebenen Hough Parametern in ein Bild
@@ -46,16 +44,7 @@ public:
         Scalar color - Farbe der Linie
      */
     void drawLineHough(Mat &frame, double rho, double theta, Scalar color);
-    /** sets threshold for segmentation */
-    void setThresh(int thresh);
-    /** turns debuggin on and off */
-    void setDebug(int debug);
-    /** sets parameter for the p-controller */
-    void setDeltaPipe(float deltaDistPipe, float deltaAngPipe);
-    /** sets gain for p-controller */
-    void setKpDist(float kp);
-    void setKpAngle(float kp);
-    void setRobCenter(double robCenterX, double robCenterY);
+
     /** Berechnet den Schnittpunkt der Ideallinie mit einer gefundenen
         Linie (rho, theta) und ermittelt den Abstand zwischen robCenter
         und der gefundenen Gerade.
@@ -64,11 +53,6 @@ public:
     void compIntersect(Point pt1, Point pt2);
     /** the p-controller. controls the angle speed of the robot */
     void controlPipeFollow();
-    /** reset first run for median filter */
-    void resetFirstRun();
-    /** updates local variables */
-    void updateFromSettings();
-private:
 
     /** Update data on data panel */
     void updateData();
@@ -119,6 +103,7 @@ private:
     /* konstante parameter */
     int threshSegmentation;
     int debug;
+    int timerTime;
     Point robCenter;
     float constFWSpeed;
     float deltaDistPipe;
@@ -146,10 +131,30 @@ private:
 private slots:
     void timerSlot();
 
+public slots:
+    /** updates local variables */
+    void updateFromSettings();
+    /** starts PipeFollow Behaviour */
+    void start();
+    /** stops PipeFollow Behaviour */
+    void stop();
+
+    void reset();
+    void terminate();
+
+    void newImage(cv::Mat frame);
+
 signals:
-    void printFrameOnUi(cv::Mat &frame);
+//    void printFrameOnUi(cv::Mat &frame);
     void timerStart( int msec );
     void timerStop();
+
+    void forwardSpeed(float fwSpeed);
+    void angularSpeed(float anSpeed);
+    void grabBottomFrame(cv::Mat &bottom);
+
+    void pipeFrame(const QImage &image);
+
 
 };
 

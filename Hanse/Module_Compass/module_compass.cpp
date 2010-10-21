@@ -26,7 +26,7 @@
 #define COMPASS_CMD_EEPROM_WRITE	0xF1
 
 Module_Compass::Module_Compass(QString id, Module_UID *uid)
-    : RobotModule(id)
+    : RobotModule_MT(id)
 {
     thread.start();
 
@@ -63,10 +63,10 @@ void Module_Compass::reset()
 {
     RobotModule::reset();
 
-    if (!getSettings().value("enabled").toBool())
+    if (!this->getSettingsValue("enabled").toBool())
         return;
 
-    int freq = 1000/getSettings().value("frequency").toInt();
+    int freq = 1000/this->getSettingsValue("frequency").toInt();
     if (freq>0) {
         timer.setInterval(freq);
         QTimer::singleShot(0, &timer, SLOT(start()));
@@ -81,13 +81,13 @@ void Module_Compass::reset()
 
 void Module_Compass::configure()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!this->getSettingsValue("enabled").toBool())
         return;
 
     uint8_t op1 = 0;
     uint8_t op2 = 0;
 
-    QString orientation = settings.value("orientation").toString();
+    QString orientation = this->getSettingsValue("orientation").toString();
     if (orientation == "level") {
         op1 |= 0x01;
     } else if (orientation == "upright edge") {
@@ -98,11 +98,11 @@ void Module_Compass::configure()
         setHealthToSick("Bad config: "+orientation+" is not a valid orientation!");
     }
 
-    int iir = settings.value("iirFilter").toInt();
+    int iir = this->getSettingsValue("iirFilter").toInt();
     if (iir>0)
         op1 |= 0x20;
 
-    int sampleRate = settings.value("sampleRate").toInt();
+    int sampleRate = this->getSettingsValue("sampleRate").toInt();
     switch (sampleRate) {
     case 1:
         break;
@@ -135,11 +135,11 @@ void Module_Compass::configure()
 
 void Module_Compass::refreshData()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!this->getSettingsValue("enabled").toBool())
         return;
 
     updateHeadingData();
-    if (settings.value("debug").toBool()) {
+    if (this->getSettingsValue("debug").toBool()) {
         updateAccelData();
         updateMagData();
         updateStatusRegister();
@@ -199,9 +199,15 @@ void Module_Compass::updateHeadingData()
         logger->error("Could not read heading data!");
     } else {
         QMutexLocker l(&moduleMutex);
-        data["heading"] = toShort(recv_buffer[0], recv_buffer[1])/10.0;
-        data["pitch"] = (signed short)toShort(recv_buffer[2], recv_buffer[3])/10.0;
-        data["roll"] = (signed short)toShort(recv_buffer[4], recv_buffer[5])/10.0;
+        this->addData("heading",toShort(recv_buffer[0], recv_buffer[1])/10.0);
+        this->addData("pitch",(signed short)toShort(recv_buffer[2], recv_buffer[3])/10.0);
+        this->addData("roll",(signed short)toShort(recv_buffer[4], recv_buffer[5])/10.0);
+//        data["heading"] = toShort(recv_buffer[0], recv_buffer[1])/10.0;
+//        data["pitch"] = (signed short)toShort(recv_buffer[2], recv_buffer[3])/10.0;
+//        data["roll"] = (signed short)toShort(recv_buffer[4], recv_buffer[5])/10.0;
+        emit newHeading(this->getDataValue("heading").toFloat());
+        emit newPitch(this->getSettingsValue("pitch").toFloat());
+        emit newRoll(this->getDataValue("roll").toFloat());
     }
 }
 
@@ -216,7 +222,7 @@ void Module_Compass::updateStatusRegister()
         logger->error("Could not read op mode!");
     } else {
         QMutexLocker l(&moduleMutex);
-        data["reg_om1"] = recv_buffer[0];
+        this->addData("reg_om1", recv_buffer[0]);
     }
     //data["reg_om1_eep"] = eepromRead(0x04);
 }
@@ -232,9 +238,12 @@ void Module_Compass::updateMagData(void)
             logger->error("Could not read mag data!");
         } else {
             QMutexLocker l(&moduleMutex);
-            data["magX"] = (signed short)toShort(recv_buffer[0], recv_buffer[1]);
-            data["magY"] = (signed short)toShort(recv_buffer[2], recv_buffer[3]);
-            data["magZ"] = (signed short)toShort(recv_buffer[4], recv_buffer[5]);
+            this->addData("magX",(signed short)toShort(recv_buffer[0], recv_buffer[1]));
+            this->addData("magY",(signed short)toShort(recv_buffer[2], recv_buffer[3]));
+            this->addData("magZ",(signed short)toShort(recv_buffer[4], recv_buffer[5]));
+//            data["magX"] = (signed short)toShort(recv_buffer[0], recv_buffer[1]);
+//            data["magY"] = (signed short)toShort(recv_buffer[2], recv_buffer[3]);
+//            data["magZ"] = (signed short)toShort(recv_buffer[4], recv_buffer[5]);
         }
 
 }
@@ -250,9 +259,12 @@ void Module_Compass::updateAccelData(void)
                 logger->error("Could not read accel data!");
         } else {
             QMutexLocker l(&moduleMutex);
-            data["accelX"] = ((signed short)toShort(recv_buffer[0], recv_buffer[1]))/1000.0;
-            data["accelY"] = ((signed short)toShort(recv_buffer[2], recv_buffer[3]))/1000.0;
-            data["accelZ"] = ((signed short)toShort(recv_buffer[4], recv_buffer[5]))/1000.0;
+            this->addData("accelX",((signed short)toShort(recv_buffer[0], recv_buffer[1]))/1000.0);
+            this->addData("accelY",((signed short)toShort(recv_buffer[2], recv_buffer[4]))/1000.0);
+            this->addData("accelZ",((signed short)toShort(recv_buffer[4], recv_buffer[5]))/1000.0);
+//            data["accelX"] = ((signed short)toShort(recv_buffer[0], recv_buffer[1]))/1000.0;
+//            data["accelY"] = ((signed short)toShort(recv_buffer[2], recv_buffer[3]))/1000.0;
+//            data["accelZ"] = ((signed short)toShort(recv_buffer[4], recv_buffer[5]))/1000.0;
         }
 
 }
@@ -325,7 +337,7 @@ void Module_Compass::setOrientation()
 
 void Module_Compass::startCalibration()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!this->getSettingsValue("enabled").toBool())
         return;
 
         char recv_buffer[1];
@@ -338,7 +350,7 @@ void Module_Compass::startCalibration()
 
 void Module_Compass::stopCalibration()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!this->getSettingsValue("enabled").toBool())
         return;
 
         char recv_buffer[1];
@@ -363,7 +375,7 @@ void Module_Compass::resetDevice()
 bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
                                     char *recv_buf, int recv_size, int delay)
 {
-    char address = getSettings().value("i2cAddress").toInt();
+    char address = this->getSettingsValue("i2cAddress").toInt();
 
     if (!uid->I2C_Write(address, send_buf, send_size)) {
         setHealthToSick(uid->getLastError());
@@ -380,17 +392,17 @@ bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
 float Module_Compass::getHeading()
 {
     QMutexLocker l(&moduleMutex);
-    return data["heading"].toFloat();
+    return this->getDataValue("heading").toFloat();
 }
 
 float Module_Compass::getPitch()
 {
     QMutexLocker l(&moduleMutex);
-    return data["pitch"].toFloat();
+    return this->getDataValue("pitch").toFloat();
 }
 
 float Module_Compass::getRoll()
 {
     QMutexLocker l(&moduleMutex);
-    return data["roll"].toFloat();
+    return this->getDataValue("roll").toFloat();
 }

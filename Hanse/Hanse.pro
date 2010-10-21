@@ -108,6 +108,7 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.h \
     Behaviour_TurnOneEighty/form_turnoneeighty.h \
     Framework/robotmodule_mt.h \
+    Framework/robotbehaviour_mt.h \
     Module_Simulation/simulation_form.h \
     Module_Simulation/module_simulation.h
 SOURCES += Framework/robotmodule.cpp \
@@ -200,6 +201,7 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.cpp \
     Behaviour_TurnOneEighty/form_turnoneeighty.cpp \
     Framework/robotmodule_mt.cpp \
+    Framework/robotbehaviour_mt.cpp \
     Module_Simulation/simulation_form.cpp \
     Module_Simulation/module_simulation.cpp
 FORMS += Framework/mainwindow.ui \

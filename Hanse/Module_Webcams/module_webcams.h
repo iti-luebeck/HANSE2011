@@ -3,14 +3,14 @@
 
 #include <QtGui>
 #include <QtCore>
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 #include <videoInput.h>
 #include <opencv/cxcore.h>
 
 #define WEBCAM_WIDTH    640
 #define WEBCAM_HEIGHT   480
 
-class Module_Webcams : public RobotModule
+class Module_Webcams : public RobotModule_MT
 {
     Q_OBJECT
 public:
@@ -19,15 +19,18 @@ public:
     QWidget* createView(QWidget* parent);
     QList<RobotModule*> getDependencies();
 
-    void grabLeft( IplImage *left );
-    void grabRight( IplImage *right );
-    void grabBottom( IplImage *bottom );
-    void grabBottom( cv::Mat &bottom );
+
 
 private:
     void stopWebcams();
 
 public slots:
+
+    void grabLeft( IplImage *left );
+    void grabRight( IplImage *right );
+    void grabBottom( IplImage *bottom );
+    void grabBottom( cv::Mat &bottom );
+
     void statusChange( bool value );
     void settingsChanged();
     void reset();

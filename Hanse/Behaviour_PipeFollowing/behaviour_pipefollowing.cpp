@@ -10,22 +10,17 @@
 //using namespace cv;
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam) :
-        RobotBehaviour(id)
+        RobotBehaviour_MT(id)
 {
     this->tcl = tcl;
     this->cam = cam;
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
     connect (this,SIGNAL(timerStart(int)),&timer,SLOT(start(int)));
     connect(this, SIGNAL(timerStop()),&timer,SLOT(stop()));
-//    updateThread.start(QThread::LowPriority);
-//    updateThread.moveTimer();
 
-//    QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( timerSlot() ),
-//                      Qt::DirectConnection );
-//    QObject::connect( this, SIGNAL( timerStart(int) ), &updateThread.timer, SLOT( start(int) ) );
-//    QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ),
-//                      Qt::BlockingQueuedConnection );
-
+    connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+    connect(this,SIGNAL(grabBottomFrame(cv::Mat&)),cam,SLOT(grabBottom(cv::Mat&)),Qt::DirectConnection);
 
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
     displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
@@ -33,13 +28,22 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     setEnabled(false);
     Behaviour_PipeFollowing::noPipeCnt = 0;
 
-    Behaviour_PipeFollowing::firstRun = 1;
     this->updateFromSettings();
+//    this->getId();
  }
 
 bool Behaviour_PipeFollowing::isActive()
 {
     return isEnabled();
+}
+
+void Behaviour_PipeFollowing::newImage(cv::Mat frame)
+{
+    if(this->moduleMutex.tryLock(10))
+    {
+        this->frame = frame;
+    }
+    return;
 }
 
 void Behaviour_PipeFollowing::start()
@@ -50,27 +54,31 @@ void Behaviour_PipeFollowing::start()
     this->noPipeCnt = 0;
     if( !isEnabled() )
     {
-        logger->debug( "Behaviour started" );
+        logger->info("Behaviour started" );
         Behaviour_PipeFollowing::updateFromSettings();
         this->setHealthToOk();
         setEnabled(true);
 //        timer.start(250);
-        emit timerStart(this->getSettings().value("timer").toInt());
+        emit timerStart(timerTime);
 
     }
 }
 
 void Behaviour_PipeFollowing::stop()
 {
-    this->tcl->setForwardSpeed(0.0);
-    this->tcl->setAngularSpeed(0.0);
+    emit forwardSpeed(0.0);
+    emit angularSpeed(0.0);
+//    this->tcl->setForwardSpeed(0.0);
+//    this->tcl->setAngularSpeed(0.0);
     if (this->isActive())
     {
 //        timer.stop();
         emit timerStop();
-        logger->debug( "Behaviour stopped" );
-        this->tcl->setForwardSpeed(0.0);
-        this->tcl->setAngularSpeed(0.0);
+        logger->info( "Behaviour stopped" );
+        emit forwardSpeed(0.0);
+        emit angularSpeed(0.0);
+//        this->tcl->setForwardSpeed(0.0);
+//        this->tcl->setAngularSpeed(0.0);
         setEnabled(false);
         emit finished(this,false);
    }
@@ -80,7 +88,7 @@ void Behaviour_PipeFollowing::terminate()
 {
 //    timer.stop();
     emit timerStop();
-    RobotBehaviour::terminate();
+    RobotBehaviour_MT::terminate();
 }
 
 void Behaviour_PipeFollowing::reset()
@@ -88,9 +96,11 @@ void Behaviour_PipeFollowing::reset()
     this->curAngle = 0.0;
     this->distanceY = 0.0;
 
-    RobotBehaviour::reset();
-    this->tcl->setForwardSpeed(0.0);
-    this->tcl->setAngularSpeed(0.0);
+    RobotBehaviour_MT::reset();
+    emit forwardSpeed(0.0);
+    emit angularSpeed(0.0);
+//    this->tcl->setForwardSpeed(0.0);
+//    this->tcl->setAngularSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
@@ -111,7 +121,8 @@ void Behaviour_PipeFollowing::timerSlot()
     QTime run;
     run.restart();
 //    Mat binaryFrame;
-    cam->grabBottom( frame );
+//    cam->grabBottom( frame );
+    emit grabBottomFrame(frame);
 
     if(!frame.empty())
     {
@@ -126,9 +137,13 @@ void Behaviour_PipeFollowing::timerSlot()
     }
     else this->setHealthToSick("empty frame");
 
-    data["run"] = run.elapsed();
-    if(data["run"].toInt() > this->getSettings().value("timer").toInt())
-        this->setHealthToSick("to slow " + QString::number(data["run"].toInt()));
+    addData("run",run.elapsed());
+    if(getDataValue("run").toInt() > timerTime)
+        this->setHealthToSick("to slow " + QString::number(getDataValue("run").toInt()) + " / " + QString::number(timerTime));
+
+//    data["run"] = run.elapsed();
+//    if(data["run"].toInt() > timerTime)
+//        this->setHealthToSick("to slow " + QString::number(data["run"].toInt()) + " / " + QString::number(timerTime));
 }
 
 void Behaviour_PipeFollowing::initPictureFolder()
@@ -148,10 +163,12 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 {
    float ctrAngleSpeed = 0.0;
 
-   logger->debug( "pipe angle %f°", curAngle );
-   data["pipe_angle"] = curAngle;
-   logger->debug( "pipe distance %f", distanceY );
-   data["pipe_distance"]= distanceY;
+//   logger->debug( "pipe angle" +QString::number(curAngle) + "°");
+//   logger->debug( "pipe distance " +QString::number( distanceY ));
+   addData("pipe_angle",curAngle);
+   addData("pipe_distance",distanceY);
+//   data["pipe_angle"] = curAngle;
+//   data["pipe_distance"]= distanceY;
 
    if(fabs(Behaviour_PipeFollowing::curAngle) > Behaviour_PipeFollowing::deltaAngPipe)
    {
@@ -163,12 +180,16 @@ void Behaviour_PipeFollowing::controlPipeFollow()
        ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
    }
 
-   tcl->setAngularSpeed(ctrAngleSpeed);
-   tcl->setForwardSpeed(this->constFWSpeed);
-   data["angular_speed"] = ctrAngleSpeed;
-   data["forward_speed"] = this->constFWSpeed;
-
-   data["intersect_y"] = potentialY;
+   emit angularSpeed(ctrAngleSpeed);
+   emit forwardSpeed(this->constFWSpeed);
+   addData("angular_speed",ctrAngleSpeed);
+   addData("forward_speed",this->constFWSpeed);
+   addData("intersect_y",potentialY);
+//   tcl->setAngularSpeed(ctrAngleSpeed);
+//   tcl->setForwardSpeed(this->constFWSpeed);
+//   data["angular_speed"] = ctrAngleSpeed;
+//   data["forward_speed"] = this->constFWSpeed;
+//   data["intersect_y"] = potentialY;
 
    emit dataChanged( this );
 }
@@ -418,23 +439,13 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         line( displayFrame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(255,0,0), 3, 8 );
 
         /* ins Qt Widget malen */
-        emit printFrameOnUi( displayFrame );
+//        emit printFrameOnUi( displayFrame );
 
         if(debug)
         {
             imshow("image",frame);
             waitKey();
         }
-}
-
-void Behaviour_PipeFollowing::setThresh(int thresh)
-{
-    threshSegmentation = thresh;
-}
-
-void Behaviour_PipeFollowing::setDebug(int debug)
-{
-    Behaviour_PipeFollowing::debug = debug;
 }
 
 void Behaviour_PipeFollowing::drawLineHough(Mat &frame, double rho, double theta, Scalar color)
@@ -536,51 +547,61 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
 //    distanceY = (pt1.x - robCenter.x) * (pt1.y - pt2.y) + (robCenter.y - pt1.y) * (pt1.x - pt2.x);
 }
 
-
-void Behaviour_PipeFollowing::setDeltaPipe(float deltaDistPipe, float deltaAngPipe)
-{
-    Behaviour_PipeFollowing::deltaDistPipe = deltaDistPipe;
-    Behaviour_PipeFollowing::deltaAngPipe = deltaAngPipe;
-}
-
-void Behaviour_PipeFollowing::setKpDist(float kp)
-{
-    Behaviour_PipeFollowing::kpDist = kp;
-}
-
-void Behaviour_PipeFollowing::setKpAngle(float kp)
-{
-    Behaviour_PipeFollowing::kpAngle = kp;
-}
-
 void Behaviour_PipeFollowing::updateData()
 {
-    data["current Angle"] = this->curAngle;
-    data["intersect.x"] = this->intersect.x;
-    data["intersect.y"] = this->intersect.y;
-    data["distanceY"] = this->distanceY;
-    data["deltaDistPipe"] = this->deltaDistPipe;
-    data["deltaAnglePipe"] = this->deltaAngPipe;
-    data["kpAngle"] = this->kpAngle;
-    data["kpDist"] = this->kpDist;
-    data["robCenter.x"] = this->robCenter.x;
-    data["robCenter.y"] = this->robCenter.y;
-    data["potential Vector"] = this->potentialVec;
+    addData("current Angle",this->curAngle);
+
+    addData("current Angle",this->curAngle);
+    addData("intersect.x",this->intersect.x);
+    addData("intersect.y",this->intersect.y);
+    addData("distanceY",this->distanceY);
+    addData("deltaDistPipe",this->deltaDistPipe);
+    addData("deltaAnglePipe",this->deltaAngPipe);
+    addData("kpAngle",this->kpAngle);
+    addData("kpDist",this->kpDist);
+    addData("robCenter.x",this->robCenter.x);
+    addData("robCenter.y",this->robCenter.y);
+    addData("potential Vector",this->potentialVec);
+
+//    data["current Angle"] = this->curAngle;
+//    data["intersect.x"] = this->intersect.x;
+//    data["intersect.y"] = this->intersect.y;
+//    data["distanceY"] = this->distanceY;
+//    data["deltaDistPipe"] = this->deltaDistPipe;
+//    data["deltaAnglePipe"] = this->deltaAngPipe;
+//    data["kpAngle"] = this->kpAngle;
+//    data["kpDist"] = this->kpDist;
+//    data["robCenter.x"] = this->robCenter.x;
+//    data["robCenter.y"] = this->robCenter.y;
+//    data["potential Vector"] = this->potentialVec;
        emit dataChanged( this );
 }
 
 void Behaviour_PipeFollowing::updateFromSettings()
 {
+    this->firstRun = 1;
+    this->timerTime = this->getSettingsValue("timer",0).toInt();
+    this->threshSegmentation = this->getSettingsValue("threshold",188).toInt();
+    this->debug = this->getSettingsValue("debug",0).toInt();
+    this->deltaAngPipe = this->getSettingsValue("deltaAngle",11).toFloat();
+    this->deltaDistPipe = this->getSettingsValue("deltaDist",100).toFloat();
+    this->kpAngle = this->getSettingsValue("kpDist",1).toFloat();
+    this->kpDist = this->getSettingsValue("kpAngle",1).toFloat();
+    this->constFWSpeed = this->getSettingsValue("fwSpeed",0.8).toFloat();
+    this->robCenter = Point(this->getSettingsValue("robCenterX",320).toDouble(),this->getSettingsValue("robCenterY",240).toDouble());
+    this->maxDistance = this->getSettingsValue("maxDistance",320).toFloat();
+
+
 //    this->timerTime = this->getSettings().value("timer",0).toInt();
-    this->threshSegmentation = this->getSettings().value("threshold",188).toInt();
-    this->debug = this->getSettings().value("debug",0).toInt();
-    this->deltaAngPipe = this->getSettings().value("deltaAngle",11).toFloat();
-    this->deltaDistPipe = this->getSettings().value("deltaDist",100).toFloat();
-    this->kpAngle = this->getSettings().value("kpDist",1).toFloat();
-    this->kpDist = this->getSettings().value("kpAngle",1).toFloat();
-    this->constFWSpeed = this->getSettings().value("fwSpeed",0.8).toFloat();
-    this->robCenter = Point(this->getSettings().value("robCenterX",320).toDouble(),this->getSettings().value("robCenterY",240).toDouble());
-    this->maxDistance = this->getSettings().value("maxDistance",320).toFloat();
+//    this->threshSegmentation = this->getSettings().value("threshold",188).toInt();
+//    this->debug = this->getSettings().value("debug",0).toInt();
+//    this->deltaAngPipe = this->getSettings().value("deltaAngle",11).toFloat();
+//    this->deltaDistPipe = this->getSettings().value("deltaDist",100).toFloat();
+//    this->kpAngle = this->getSettings().value("kpDist",1).toFloat();
+//    this->kpDist = this->getSettings().value("kpAngle",1).toFloat();
+//    this->constFWSpeed = this->getSettings().value("fwSpeed",0.8).toFloat();
+//    this->robCenter = Point(this->getSettings().value("robCenterX",320).toDouble(),this->getSettings().value("robCenterY",240).toDouble());
+//    this->maxDistance = this->getSettings().value("maxDistance",320).toFloat();
 }
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
@@ -630,11 +651,6 @@ void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
     theta = sortTheta[2];
 }
 
-void Behaviour_PipeFollowing::resetFirstRun()
-{
-    Behaviour_PipeFollowing::firstRun = 1;
-}
-
 void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
 {
 
@@ -653,11 +669,19 @@ void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
 
 void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 {
-        data["farbraum"] = this->getSettings().value("convColor");
-    if(this->getSettings().value("convColor").toInt() == 4)
+    int farbraum =  this->getSettingsValue("convColor").toInt();
+    addData("farbraum",farbraum);
+//    data["farbraum"] = this->getSettings().value("convColor");
+    if(farbraum == 4)
+    {
+        convFrame.create(frame.rows,frame.cols,CV_8UC3);
         cvtColor(frame,convFrame,CV_RGB2GRAY);
-    else if(this->getSettings().value("convColor").toInt() == 0)
-     cvtColor(frame,convFrame,CV_RGB2GRAY);
+    }
+    else if(farbraum == 0)
+    {
+        convFrame.create(frame.rows,frame.cols,CV_8UC3);
+        cvtColor(frame,convFrame,CV_RGB2GRAY);
+    }
     else
     {
         Mat frameHSV,h,s,v;
@@ -668,13 +692,13 @@ void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
         s.create(frame.rows,frame.cols,CV_8UC1);
         v.create(frame.rows,frame.cols,CV_8UC1);
 
-        if(this->getSettings().value("convColor").toInt() == 1)
+        if(farbraum == 1)
         {
 
             Mat out[] = {convFrame,s,v};
             split(frameHSV,out);
         }
-        else if(this->getSettings().value("convColor").toInt() == 2)
+        else if(farbraum == 2)
         {
             Mat out[] = {h,convFrame,v};
             split(frameHSV,out);
@@ -711,17 +735,19 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
 Mat gray;
 convertColor(frame,gray);
     //    equalizeHist(gray,gray);
-
-    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
-imshow("blub",gray);
+threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
+//    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
+//imshow("blub",gray);
     int sum;
     this->countPixel(gray,sum);
 
     if( sum > 10000 )
     {
         noPipeCnt = 0;
-        data["pipe_area"] = sum;
-        emit dataChanged( this );
+        addData("pipe_area",sum);
+//        data["pipe_area"] = sum;
+
+//        emit dataChanged( this );
 //        imshow("Dummy",gray);
         IplImage *ipl = new IplImage(gray);
         CvMoments M;
@@ -778,24 +804,28 @@ imshow("blub",gray);
         Behaviour_PipeFollowing::compIntersect(pt1,pt2);
 
         int nMilliseconds = runningTime.elapsed();
-        data["runningTime"] = nMilliseconds;
+        addData("runningTime",nMilliseconds);
+//        data["runningTime"] = nMilliseconds;
         Behaviour_PipeFollowing::updateData();
-        emit printFrameOnUi(frame);
+//        emit printFrameOnUi(frame);
     }
     else
     {
         noPipeCnt++;
-        tcl->setForwardSpeed( this->getSettings().value("fwSpeed").toFloat() / 2 );
-        tcl->setAngularSpeed( .0 ); // wegen anschließendem drehen / Ballverfolgen !!!
+        emit forwardSpeed(this->constFWSpeed / 2);
+        emit angularSpeed(0.0);
+//        tcl->setForwardSpeed( this->getSettings().value("fwSpeed").toFloat() / 2 );
+//        tcl->setAngularSpeed( .0 ); // wegen anschließendem drehen / Ballverfolgen !!!
         if(noPipeCnt > this->getSettings().value("badFrames").toInt())
         {
             this->stop();
             this->setHealthToSick("no pipe");
         }
-        emit printFrameOnUi(frame);
+//        emit printFrameOnUi(frame);
     }
 
+       QImage image1 ((unsigned char*)this->frame.data, this->frame.cols, this->frame.rows, QImage::Format_RGB888);
+       emit pipeFrame(image1);
 
 }
-
 

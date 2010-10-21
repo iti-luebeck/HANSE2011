@@ -32,7 +32,15 @@ private slots:
     void on_startPipeFollowingButton_clicked();
 
 public slots:
-    void printFrame(cv::Mat &frame);
+    void updatePixmap(const QImage &image);
+
+signals:
+   void startPipeFollow();
+   void stopPipeFollow();
+   void newDataPipeFollow(QString key, const QVariant data);
+   void newSettingsPipeFollow(QString key, const QVariant value);
+   void settingsChanged();
+
 };
 
 #endif // PIPEFOLLOWINGFORM_H
