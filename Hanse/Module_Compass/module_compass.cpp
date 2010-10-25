@@ -32,6 +32,9 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
 
     this->uid=uid;
 
+    QObject::connect(this,SIGNAL(I2C_Read(unsigned char,short,char*,bool&)),uid,SLOT(I2C_Read(unsigned char,short,char*,bool&)),Qt::BlockingQueuedConnection);
+    QObject::connect(this,SIGNAL(getUIDErrorMsg(QString&)),uid,SLOT(getLastError(QString&)),Qt::BlockingQueuedConnection);
+
     setDefaultValue("i2cAddress", 0x19);
     setDefaultValue("frequency", 1);
     setDefaultValue("orientation","level");
@@ -169,7 +172,9 @@ void Module_Compass::doHealthCheck()
 
     uint8_t sw_version;
     if (!eepromRead(0x02,sw_version)) {
-        setHealthToSick(uid->getLastError());
+        QString err;
+        emit getUIDErrorMsg(err);
+        setHealthToSick(err);
         return;
     }
 
@@ -376,9 +381,12 @@ bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
                                     char *recv_buf, int recv_size, int delay)
 {
     char address = this->getSettingsValue("i2cAddress").toInt();
-
-    if (!uid->I2C_Write(address, send_buf, send_size)) {
-        setHealthToSick(uid->getLastError());
+    bool status;
+    emit I2C_Read(address,send_buf,sund_size,status);
+    if (!status) {
+        QString err;
+        emit getUIDErrorMsg(err);
+        setHealthToSick(err);
         return false;
     }
     msleep(delay);

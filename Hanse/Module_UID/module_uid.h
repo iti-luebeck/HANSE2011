@@ -1,13 +1,13 @@
 #ifndef MODULE_UID_H
 #define MODULE_UID_H
 
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 
 class QextSerialPort;
 class QextPortInfo;
 class PortSettings;
 
-class Module_UID : public RobotModule {
+class Module_UID : public RobotModule_MT {
     Q_OBJECT
 public:
 
@@ -71,6 +71,8 @@ public:
         khz400 = 0xFF
     };
 
+
+public slots:
     /** \brief  UID Available
      *
      *  Ueberprueft ob UID vorhanden
@@ -122,7 +124,7 @@ public:
      *  @return                     TRUE wenn Lesen erfolgreich
      */
     bool I2C_Read(unsigned char address, short byteCount, char* result);
-
+    void I2C_Read(unsigned char address, short byteCount, char* result, bool& status);
     /** \brief I2C-Read Register Methode
      *
      *  Liest Daten aus einem Register von einem Slave
@@ -134,7 +136,7 @@ public:
      *  @return                     TRUE wenn Lesen erfolgreich
      */
     bool I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result);
-
+    void I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char *result, bool& status);
 
     /** \brief I2C-Write Methode
      *
@@ -146,6 +148,8 @@ public:
      *  @return                     TRUE wenn Schreiben erfolgreich
      */
     bool I2C_Write(unsigned char address, const char* data, short byteCount);
+    void I2C_Write(unsigned char address, const char* data, short byteCount, bool& status);
+
 
     /** \brief I2C-Write Register Methode
      *
@@ -229,13 +233,13 @@ public:
     bool SPI_WriteRead(unsigned char address, const char* data, short byteCount, char* result);
 
     QString getLastError();
+    void getLastError(QString& msg);
 
     /**
       * returns true if the last problem is a slave problem, i.e. its not a fault of the uid.
       */
     bool isSlaveProblem();
 
-public slots:
     // inherited from RobotModule
     void reset();
     // inherited from RobotModule

@@ -6,7 +6,7 @@
 #include <qextserialenumerator.h>
 
 Module_UID::Module_UID(QString moduleId)
-    :RobotModule(moduleId)
+    :RobotModule_MT(moduleId)
 {
 
     portSettings = new PortSettings();
@@ -332,6 +332,17 @@ bool Module_UID::I2C_Write(unsigned char address, const char* data, short byteCo
     return SendCheckCommand(send);
 }
 
+void Module_UID::I2C_Write(unsigned char address, const char* data, short byteCount, bool& status) {
+    logger->trace("I2C_Write");
+
+    QByteArray send;
+    send += Module_UID::I2C_WRITE;
+    send += address;
+    send += byteCount;
+    send.append(data, byteCount);
+    status = SendCheckCommand(send);
+}
+
 bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) {
     logger->trace("I2C_Read");
 
@@ -340,6 +351,16 @@ bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) 
     send += address;
     send += byteCount;
     return SendCheckCommand(send,result,byteCount);
+}
+
+void Module_UID::I2C_Read(unsigned char address, short byteCount, char* result, bool& status) {
+    logger->trace("I2C_Read");
+
+    QByteArray send;
+    send += Module_UID::I2C_READ;
+    send += address;
+    send += byteCount;
+    status = SendCheckCommand(send,result,byteCount);
 }
 
 QString Module_UID::UID_Identify() {
@@ -392,6 +413,18 @@ bool Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, sho
     return SendCheckCommand(send,result, byteCount);
 }
 
+
+void Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result, bool& status) {
+    logger->trace("I2C_ReadRegisters");
+
+    QByteArray send;
+    send += Module_UID::I2C_READREGISTER;
+    send += address;
+    send += reg;
+    send += byteCount;
+
+    status = SendCheckCommand(send,result, byteCount);
+}
 
 QVector<unsigned char> Module_UID::I2C_Scan() {
     QMutexLocker l(&this->moduleMutex);
@@ -488,6 +521,26 @@ QString Module_UID::getLastError()
     default: return QString("Unknown error: %1").arg(lastError);
     }
 }
+
+void Module_UID::getLastError(QString& err)
+{
+    switch(lastError)
+    {
+    case E_NO_ERROR: err = "No error";
+    case E_I2C_LOW: err = "I2C Bus is low.";
+    case E_I2C_START: err = "Could not send I2C START";
+    case E_I2C_MT_SLA_ACK: err = "Slave didn't respond to SLA+W";
+    case E_I2C_MR_SLA_ACK: err = "Slave didn't respond to SLA+R";
+    case E_I2C_MT_DATA_ACK: err = "Slave didn't ACK data of SLA+W";
+    case E_I2C_MR_DATA_ACK: err = "Slave didn't ACK data of SLA+R";
+    case E_I2C_MR_DATA_NACK: err = "Slave didn't NACK data of SLA+R";
+    case E_SHORT_READ: err = "Read less bytes than expected.";
+    case E_EXTRA_READ: err = "Read more bytes than expected.";
+    case E_USB: err = "Serial connection to UID broke down.";
+    default: err = QString("Unknown error: %1").arg(lastError);
+    }
+}
+
 
 bool Module_UID::isSlaveProblem()
 {
