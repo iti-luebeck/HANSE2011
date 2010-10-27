@@ -30,6 +30,7 @@ public slots:
     void grabRight( IplImage *right );
     void grabBottom( IplImage *bottom );
     void grabBottom( cv::Mat &bottom );
+    void grabBottom(QImage bottom);
 
     void statusChange( bool value );
     void settingsChanged();

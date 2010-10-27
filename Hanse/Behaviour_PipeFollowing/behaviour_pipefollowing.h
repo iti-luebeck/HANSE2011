@@ -151,8 +151,8 @@ signals:
 
     void forwardSpeed(float fwSpeed);
     void angularSpeed(float anSpeed);
-    void grabBottomFrame(cv::Mat &bottom);
-
+//    void grabBottomFrame(cv::Mat &bottom);
+    void grabBottomFrame(QImage bottom);
     void pipeFrame(const QImage &image);
 
 

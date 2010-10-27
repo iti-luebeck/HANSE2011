@@ -16,7 +16,7 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     QObject::connect(this,SIGNAL(newSettingsPipeFollow(QString,QVariant)),pipefollow,SLOT(setSettingsValue(QString,QVariant)),Qt::BlockingQueuedConnection);
     QObject::connect(this,SIGNAL(settingsChanged()),pipefollow,SLOT(updateFromSettings()));
 
-    qRegisterMetaType<QImage>("QImage");
+//    qRegisterMetaType<QImage>("QImage");
 //    QObject::connect(pipefollow,SIGNAL(pipeFrame(QImage)),this,SLOT(updatePixmap(QImage)));
 
     this->videoFile = "../../../pipe_handy.avi" ;
@@ -161,6 +161,8 @@ void PipeFollowingForm::on_startFromVideoFileButton_clicked()
 
 void PipeFollowingForm::on_saveApplyButton_clicked()
 {
+    qDebug() << "pipeform thread id";
+    qDebug() << QThread::currentThreadId();
 
     emit newSettingsPipeFollow("useCamera",ui->useCameraRadioButton->isChecked());
     emit newSettingsPipeFollow("threshold",ui->thresholdLineEdit->text().toInt());

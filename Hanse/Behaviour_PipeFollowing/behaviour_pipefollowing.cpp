@@ -22,8 +22,9 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
-    connect(this,SIGNAL(grabBottomFrame(cv::Mat&)),cam,SLOT(grabBottom(cv::Mat&)),Qt::BlockingQueuedConnection);
-
+    qRegisterMetaType<QImage>("QImage");
+//    connect(this,SIGNAL(grabBottomFrame(QImage &bottom)),cam,SLOT(grabBottom(QImage &bottom)),Qt::BlockingQueuedConnection);
+    connect(this,SIGNAL(grabBottomFrame(QImage)),cam,SLOT(grabBottom(QImage)),Qt::BlockingQueuedConnection);
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
     displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
 
@@ -120,11 +121,15 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::timerSlot()
 {
+    qDebug() << "pipe thread id";
+    qDebug() << QThread::currentThreadId();
     QTime run;
     run.restart();
 //    Mat binaryFrame;
 //    cam->grabBottom( frame );
-    emit grabBottomFrame(frame);
+    QImage u;
+    emit grabBottomFrame(u);
+    frame.data = (unsigned char*)u.bits();
 
     if(!frame.empty())
     {

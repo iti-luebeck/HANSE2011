@@ -55,7 +55,9 @@ public slots:
           */
         void setSettingsValue(QString key, const QVariant value);
 
-        void setDefaultValue(const QString &key, const QVariant &value);
+        void setDefaultValue(const QString key, const QVariant value);
+
+
 
         void getDataValue(const QString key,  QVariant &data);
         void getSettingsValueSl(const QString key, QVariant &value);

@@ -6,10 +6,6 @@ RobotModule_MT::RobotModule_MT(QString id)
 {
     moduleThread.start(QThread::NormalPriority);
     this->moveToThread(&moduleThread);
-    qDebug() << "THREAD ID ModuleMT";
-    qDebug() << QThread::currentThreadId();
-    qDebug() << "Module THREAD ID";
-    qDebug() << moduleThread.currentThreadId();
 }
 
 const QMap<QString,QVariant> RobotModule_MT::getData()
@@ -98,10 +94,12 @@ void RobotModule_MT::MyModuleThread::msleep(int millies)
 
 void RobotModule_MT::MyModuleThread::run()
 {
+    qDebug() << "ausm THREAD ID";
+    qDebug() << QThread::currentThreadId();
     QThread::exec();
 
 }
-void RobotModule_MT::setDefaultValue(const QString &key, const QVariant &value)
+void RobotModule_MT::setDefaultValue(const QString key, const QVariant value)
 {
     QMutexLocker l(&settingsMutex);
     if (!settings.contains(key))
