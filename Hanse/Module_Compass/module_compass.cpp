@@ -31,9 +31,8 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     thread.start();
 
     this->uid=uid;
-
-    QObject::connect(this,SIGNAL(I2C_Read(unsigned char,short,char*,bool&)),uid,SLOT(I2C_Read(unsigned char,short,char*,bool&)),Qt::BlockingQueuedConnection);
-    QObject::connect(this,SIGNAL(getUIDErrorMsg(QString&)),uid,SLOT(getLastError(QString&)),Qt::BlockingQueuedConnection);
+    QObject::connect(this,SIGNAL(I2C_Read(unsigned char,short,char*,bool)),uid,SLOT(I2C_Read(unsigned char,short,char*,bool)),Qt::BlockingQueuedConnection);
+    QObject::connect(this,SIGNAL(getUIDErrorMsg(QString)),uid,SLOT(getLastError(QString)),Qt::BlockingQueuedConnection);
 
     setDefaultValue("i2cAddress", 0x19);
     setDefaultValue("frequency", 1);
@@ -382,7 +381,7 @@ bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
 {
     char address = this->getSettingsValue("i2cAddress").toInt();
     bool status;
-    emit I2C_Read(address,send_buf,sund_size,status);
+    emit I2C_Read(address,send_size,send_buf,status);
     if (!status) {
         QString err;
         emit getUIDErrorMsg(err);
@@ -390,8 +389,11 @@ bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
         return false;
     }
     msleep(delay);
-    if (recv_size>0 && !uid->I2C_Read(address, recv_size, recv_buf)) {
-        setHealthToSick(uid->getLastError());
+    emit I2C_Read(address, recv_size, recv_buf, status);
+    if (recv_size>0 && !status) {
+        QString err;
+        emit getUIDErrorMsg(err);
+        setHealthToSick(err);
         return false;
     }
     return true;

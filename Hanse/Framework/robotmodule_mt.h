@@ -20,7 +20,7 @@ public:
       * return a copy of local data Map using datalockermutex
       *
       */
-        const QMap<QString,QVariant> getData();
+      virtual const QMap<QString,QVariant> getData();
 
         /**
           * returns value for given key from data map using datalockermutex
@@ -30,7 +30,7 @@ public:
         /**
           * returns
           */
-        QSettings& getSettings();
+        virtual QSettings& getSettings();
 
         /**
           * returns value for given key from local settings map using settingsMutex
@@ -55,7 +55,7 @@ public slots:
           */
         void setSettingsValue(QString key, const QVariant value);
 
-        void setDefaultValue(const QString key, const QVariant value);
+        void setDefaultValue(const QString &key, const QVariant &value);
 
 
 
@@ -70,6 +70,8 @@ protected:
       */
     void msleep(int millies);
 
+    QMutex dataLockerMutex;
+//    QMutex settingsMutex;
 //protected slots:
 
 
@@ -83,8 +85,7 @@ private:
 //        int getID();
     };
 
-    QMutex dataLockerMutex;
-    QMutex settingsMutex;
+
     MyModuleThread moduleThread;
 
 

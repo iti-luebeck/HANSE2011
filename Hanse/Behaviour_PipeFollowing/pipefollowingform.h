@@ -24,6 +24,7 @@ private:
     Ui::PipeFollowingForm *ui;
     Behaviour_PipeFollowing *pipefollow;
     QString videoFile;
+    QTimer updateUI;
 
 private slots:
     void on_stopButton_clicked();
@@ -32,7 +33,7 @@ private slots:
     void on_startPipeFollowingButton_clicked();
 
 public slots:
-    void updatePixmap(const QImage &image);
+    void updatePixmap();
 
 signals:
    void startPipeFollow();

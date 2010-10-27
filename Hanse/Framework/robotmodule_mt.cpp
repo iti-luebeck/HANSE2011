@@ -10,11 +10,13 @@ RobotModule_MT::RobotModule_MT(QString id)
 
 const QMap<QString,QVariant> RobotModule_MT::getData()
 {
+    logger->debug("jetzt aber");
     QMutexLocker l(&dataLockerMutex);
     QMap<QString,QVariant> map;
     QMap<QString, QVariant>::const_iterator i = data.constBegin();
     while (i != data.constEnd()) {
         map.insert(i.key(),i.value());
+        ++i;
     }
     return map;
 }
@@ -43,42 +45,42 @@ void RobotModule_MT::addData(QString key, QVariant value)
 
 QSettings& RobotModule_MT::getSettings()
 {
-    QMutexLocker l(&settingsMutex);
+    QMutexLocker l(&dataLockerMutex);
     settings.sync();
     return settings;
 }
 
 const QVariant RobotModule_MT::getSettingsValue(const QString key, const QVariant defValue)
 {
-    QMutexLocker l(&settingsMutex);
+    QMutexLocker l(&dataLockerMutex);
     QVariant qv = settings.value(key,defValue);
     return qv;
 }
 
 const QVariant RobotModule_MT::getSettingsValue(const QString key)
 {
-    QMutexLocker l(&settingsMutex);
+    QMutexLocker l(&dataLockerMutex);
     QVariant qv = settings.value(key);
     return qv;
 }
 
 void RobotModule_MT::getSettingsValueSl(QString key, QVariant &value)
 {
-    QMutexLocker l(&settingsMutex);
+    QMutexLocker l(&dataLockerMutex);
     QVariant qv = settings.value(key);
     value = qv;
 }
 
 void RobotModule_MT::getSettingsValueSl(QString key, QVariant defValue, QVariant &value)
 {
-    QMutexLocker l(&settingsMutex);
+    QMutexLocker l(&dataLockerMutex);
     QVariant qv = settings.value(key,defValue);
     value = qv;
 }
 
 void RobotModule_MT::setSettingsValue(QString key, QVariant value)
 {
-    QMutexLocker l(&settingsMutex);
+    QMutexLocker l(&dataLockerMutex);
     settings.setValue(key,value);
 }
 
@@ -99,9 +101,10 @@ void RobotModule_MT::MyModuleThread::run()
     QThread::exec();
 
 }
-void RobotModule_MT::setDefaultValue(const QString key, const QVariant value)
+void RobotModule_MT::setDefaultValue(const QString &key, const QVariant &value)
 {
-    QMutexLocker l(&settingsMutex);
+
+    QMutexLocker l(&dataLockerMutex);
     if (!settings.contains(key))
         settings.setValue(key, value);
 }

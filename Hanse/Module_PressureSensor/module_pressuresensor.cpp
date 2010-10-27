@@ -28,9 +28,9 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
 
     this->uid=uid;
 
-    QObject::connect(this,SIGNAL(I2C_ReadRegisters(unsigned char,unsigned char,short,char*)),uid,SLOT(I2C_ReadRegisters(unsigned char,unsigned char,short,char*)),Qt::BlockingQueuedConnection);
-    QObject::connect(this,SIGNAL(I2C_Write(unsigned char,const char*,short)),uid,SLOT(I2C_Write(unsigned char,const char*,short)),Qt::BlockingQueuedConnection);
-    QObject::connect(this,SIGNAL(getUIDErrorMsg(QString&)),uid,SLOT(getLastError(QString&)),Qt::BlockingQueuedConnection);
+    QObject::connect(this,SIGNAL(I2C_ReadRegisters(unsigned char,unsigned char,short,char*,bool)),uid,SLOT(I2C_ReadRegisters(unsigned char,unsigned char,short,char*,bool)),Qt::BlockingQueuedConnection);
+    QObject::connect(this,SIGNAL(I2C_Write(unsigned char,const char*,short,bool*)),uid,SLOT(I2C_Write(unsigned char,const char*,short,bool*)),Qt::BlockingQueuedConnection);
+    QObject::connect(this,SIGNAL(getUIDErrorMsg(QString)),uid,SLOT(getLastError(QString)),Qt::BlockingQueuedConnection);
 
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
@@ -73,7 +73,9 @@ void Module_PressureSensor::reset()
     char reg = REQUEST_NEW_CALIB_VALUES;
 
     bool status;
-    emit I2C_Write(address, &reg, 1, status);
+    emit I2C_Write(address, &reg, 1, &status);
+    data["AAstatus"] = status;
+    emit dataChanged(this);
     if(!status)
     {
         QString err;

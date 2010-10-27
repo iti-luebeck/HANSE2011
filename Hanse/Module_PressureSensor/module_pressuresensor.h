@@ -51,10 +51,10 @@ signals:
     /**
       * I2C Signals for UID communication
       */
-    void I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result, bool& status);
-    void I2C_Write(unsigned char address, const char* data, short byteCount, bool& status);
+    void I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result, bool status);
+    void I2C_Write(unsigned char address, const char* data, short byteCount, bool* status);
 
-    void getUIDErrorMsg(QString& msg);
+    void getUIDErrorMsg(QString msg);
 protected:
     virtual void doHealthCheck();
 

@@ -332,7 +332,7 @@ bool Module_UID::I2C_Write(unsigned char address, const char* data, short byteCo
     return SendCheckCommand(send);
 }
 
-void Module_UID::I2C_Write(unsigned char address, const char* data, short byteCount, bool& status) {
+void Module_UID::I2C_Write(unsigned char address, const char* data, short byteCount, bool* status) {
     logger->trace("I2C_Write");
 
     QByteArray send;
@@ -340,7 +340,8 @@ void Module_UID::I2C_Write(unsigned char address, const char* data, short byteCo
     send += address;
     send += byteCount;
     send.append(data, byteCount);
-    status = SendCheckCommand(send);
+    bool u = SendCheckCommand(send);
+    status = &u;
 }
 
 bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) {
@@ -353,7 +354,7 @@ bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) 
     return SendCheckCommand(send,result,byteCount);
 }
 
-void Module_UID::I2C_Read(unsigned char address, short byteCount, char* result, bool& status) {
+void Module_UID::I2C_Read(unsigned char address, short byteCount, char* result, bool status) {
     logger->trace("I2C_Read");
 
     QByteArray send;
@@ -414,7 +415,7 @@ bool Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, sho
 }
 
 
-void Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result, bool& status) {
+void Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result, bool status) {
     logger->trace("I2C_ReadRegisters");
 
     QByteArray send;

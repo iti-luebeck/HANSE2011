@@ -40,10 +40,10 @@ void DataModel::updateModel()
                     emit beginInsertRows(QModelIndex(),mergedMap.keys().indexOf(mk),mergedMap.keys().indexOf(mk));
                     emit endInsertRows();
                 }
-//                else {
+                else {
 ////                    mergedMap[mk] = module->getData().value(key);
                     mergedMap.insert(mk,module->getData().value(key));
-//                }
+                }
             } else if (mergedMap.contains(mk) ) {
                 emit beginRemoveRows(QModelIndex(), mergedMap.keys().indexOf(mk),mergedMap.keys().indexOf(mk));
                 mergedMap.remove(mk);

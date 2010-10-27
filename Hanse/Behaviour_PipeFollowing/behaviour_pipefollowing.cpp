@@ -22,9 +22,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
-    qRegisterMetaType<QImage>("QImage");
-//    connect(this,SIGNAL(grabBottomFrame(QImage &bottom)),cam,SLOT(grabBottom(QImage &bottom)),Qt::BlockingQueuedConnection);
-    connect(this,SIGNAL(grabBottomFrame(QImage)),cam,SLOT(grabBottom(QImage)),Qt::BlockingQueuedConnection);
+
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
     displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
 
@@ -38,15 +36,6 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 bool Behaviour_PipeFollowing::isActive()
 {
     return isEnabled();
-}
-
-void Behaviour_PipeFollowing::newImage(cv::Mat frame)
-{
-    if(this->moduleMutex.tryLock(10))
-    {
-        this->frame = frame;
-    }
-    return;
 }
 
 void Behaviour_PipeFollowing::start()
@@ -126,10 +115,9 @@ void Behaviour_PipeFollowing::timerSlot()
     QTime run;
     run.restart();
 //    Mat binaryFrame;
-//    cam->grabBottom( frame );
-    QImage u;
-    emit grabBottomFrame(u);
-    frame.data = (unsigned char*)u.bits();
+    qDebug() << "grab";
+    cam->grabBottom( frame );
+    qDebug() << "grabbed";
 
     if(!frame.empty())
     {
@@ -830,9 +818,18 @@ threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
         }
 //        emit printFrameOnUi(frame);
     }
-
-       QImage image1 ((unsigned char*)this->frame.data, this->frame.cols, this->frame.rows, QImage::Format_RGB888);
-       emit pipeFrame(image1);
-
+//    qDebug() << "lock pipe mutex";
+//    dataLockerMutex.lock();
+//    qDebug() << "copy frame";
+//    frame.copyTo(displayFrame);
+//    qDebug() << "unlock pipe mutex";
+//    dataLockerMutex.unlock();
+//    qDebug() << "unlocked";
 }
 
+void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
+{
+//    dataLockerMutex.lock();
+//    displayFrame.copyTo(frame);
+//    dataLockerMutex.unlock();
+}

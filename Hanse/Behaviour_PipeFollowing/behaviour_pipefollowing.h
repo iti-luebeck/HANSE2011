@@ -32,6 +32,10 @@ public:
     /** Extrahiert die Frames aus einem Videofile und uebergibt sie an findPipe*/
     void analyzeVideo(QString videoFile);
 
+    /**
+      * gibt den aktuellen Frame zurueck
+      */
+    void grabFrame(cv::Mat &frame);
 
 private:
 
@@ -142,8 +146,6 @@ public slots:
     void reset();
     void terminate();
 
-    void newImage(cv::Mat frame);
-
 signals:
 //    void printFrameOnUi(cv::Mat &frame);
     void timerStart( int msec );
@@ -151,10 +153,6 @@ signals:
 
     void forwardSpeed(float fwSpeed);
     void angularSpeed(float anSpeed);
-//    void grabBottomFrame(cv::Mat &bottom);
-    void grabBottomFrame(QImage bottom);
-    void pipeFrame(const QImage &image);
-
 
 };
 

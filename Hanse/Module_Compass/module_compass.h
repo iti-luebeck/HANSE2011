@@ -48,8 +48,8 @@ signals:
        /**
          * signals for UID communication
          */
-    void I2C_Read(unsigned char address, short byteCount, char* result, bool& status);
-    void getUIDErrorMsg(QString& err);
+    void I2C_Read(unsigned char address, short byteCount, char* result, bool status);
+    void getUIDErrorMsg(QString err);
 protected:
     virtual void doHealthCheck();
 

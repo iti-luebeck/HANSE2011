@@ -16,76 +16,77 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     QObject::connect(this,SIGNAL(newSettingsPipeFollow(QString,QVariant)),pipefollow,SLOT(setSettingsValue(QString,QVariant)),Qt::BlockingQueuedConnection);
     QObject::connect(this,SIGNAL(settingsChanged()),pipefollow,SLOT(updateFromSettings()));
 
-//    qRegisterMetaType<QImage>("QImage");
-//    QObject::connect(pipefollow,SIGNAL(pipeFrame(QImage)),this,SLOT(updatePixmap(QImage)));
-
     this->videoFile = "../../../pipe_handy.avi" ;
+
+    QObject::connect(&updateUI,SIGNAL(timeout()),this,SLOT(updatePixmap()));
+//    QTimer::singleShot(10, &updateUI,SLOT(start()));
+
 //    pipefollow->getSettings().setValue("videoFilePath",this->videoFile);
 //    pipefollow->setSettingsValue("videoFilePath",this->videoFile);
 //    emit newSettingsPipeFollow("videoFilePath",this->videoFile);
 
-    QObject::connect(this,SIGNAL(getSettingsValue(QString,QVariant&)),pipefollow,SLOT(getSettingsValueSl(QString,QVariant&)),Qt::DirectConnection);
+//    QObject::connect(this,SIGNAL(getSettingsValue(QString,QVariant&)),pipefollow,SLOT(getSettingsValueSl(QString,QVariant&)),Qt::DirectConnection);
 
-    QVariant text;
-    emit getSettingsValue("videoFilePath",text);
-    ui->curVideofileLabel->setText(text.toString());
-    emit getSettingsValue("threshold",text);
-    ui->thresholdLineEdit->setText(text.toString());
-    emit getSettingsValue("timer",text);
-    ui->timer_LineEdit->setText(text.toString());
-    emit getSettingsValue("deltaDist",text);
-    ui->deltaDistPipeLineEdit->setText(text.toString());
-    emit getSettingsValue("deltaAngle",text);
-    ui->deltaAnglePipeLineEdit->setText(text.toString());
-    emit getSettingsValue("kpDist",text);
-    ui->kpDistLineEdit->setText(text.toString());
-    emit getSettingsValue("kpAngle",text);
-    ui->kpAngleLineEdit->setText(text.toString());
-    emit getSettingsValue("robCenterX",text);
-    ui->robCenterXLineEdit->setText(text.toString());
-    emit getSettingsValue("robCenterY",text);
-    ui->robCenterYLineEdit->setText(text.toString());
-    emit getSettingsValue("debug",text);
-    ui->debugCheckBox->setChecked(text.toBool());
-    emit getSettingsValue("maxDistance",text);
-    ui->maxDistLineEdti->setText(text.toString());
-    emit getSettingsValue("fwSpeed",text);
-    ui->speedFwLineEdit->setText(text.toString());
-    emit getSettingsValue("camHeight",text);
-    ui->camHeightLineEdit->setText(text.toString());
-    emit getSettingsValue("camWidth",text);
-    ui->camWidthLineEdit->setText(text.toString());
-    emit getSettingsValue("badFrames",text);
-    ui->badFramesLineEdit->setText(text.toString());
-    emit getSettingsValue("convColor",text);
-    ui->hRadioButton->setChecked(text.toInt() == 1);
-    ui->sRadioButton->setChecked(text.toInt() == 2);
-    ui->vRadioButton->setChecked(text.toInt() == 3);
-    ui->grayRadioButton->setChecked(text.toInt() == 4);
-    ui->hsvRadioButton->setChecked(text.toInt() == 0);
+//    QVariant text;
+//    emit getSettingsValue("videoFilePath",text);
+//    ui->curVideofileLabel->setText(text.toString());
+//    emit getSettingsValue("threshold",text);
+//    ui->thresholdLineEdit->setText(text.toString());
+//    emit getSettingsValue("timer",text);
+//    ui->timer_LineEdit->setText(text.toString());
+//    emit getSettingsValue("deltaDist",text);
+//    ui->deltaDistPipeLineEdit->setText(text.toString());
+//    emit getSettingsValue("deltaAngle",text);
+//    ui->deltaAnglePipeLineEdit->setText(text.toString());
+//    emit getSettingsValue("kpDist",text);
+//    ui->kpDistLineEdit->setText(text.toString());
+//    emit getSettingsValue("kpAngle",text);
+//    ui->kpAngleLineEdit->setText(text.toString());
+//    emit getSettingsValue("robCenterX",text);
+//    ui->robCenterXLineEdit->setText(text.toString());
+//    emit getSettingsValue("robCenterY",text);
+//    ui->robCenterYLineEdit->setText(text.toString());
+//    emit getSettingsValue("debug",text);
+//    ui->debugCheckBox->setChecked(text.toBool());
+//    emit getSettingsValue("maxDistance",text);
+//    ui->maxDistLineEdti->setText(text.toString());
+//    emit getSettingsValue("fwSpeed",text);
+//    ui->speedFwLineEdit->setText(text.toString());
+//    emit getSettingsValue("camHeight",text);
+//    ui->camHeightLineEdit->setText(text.toString());
+//    emit getSettingsValue("camWidth",text);
+//    ui->camWidthLineEdit->setText(text.toString());
+//    emit getSettingsValue("badFrames",text);
+//    ui->badFramesLineEdit->setText(text.toString());
+//    emit getSettingsValue("convColor",text);
+//    ui->hRadioButton->setChecked(text.toInt() == 1);
+//    ui->sRadioButton->setChecked(text.toInt() == 2);
+//    ui->vRadioButton->setChecked(text.toInt() == 3);
+//    ui->grayRadioButton->setChecked(text.toInt() == 4);
+//    ui->hsvRadioButton->setChecked(text.toInt() == 0);
 
 
-//    ui->curVideofileLabel->setText(pipefollow->getSettingsValue("videoFilePath").toString());
-//    ui->thresholdLineEdit->setText(pipefollow->getSettingsValue("threshold").toString());
-//    ui->timer_LineEdit->setText(pipefollow->getSettingsValue("timer").toString());
-//    ui->deltaDistPipeLineEdit->setText(pipefollow->getSettingsValue("deltaDist").toString());
-//    ui->deltaAnglePipeLineEdit->setText(pipefollow->getSettingsValue("deltaAngle").toString());
-//    ui->kpDistLineEdit->setText(pipefollow->getSettingsValue("kpDist").toString());
-//    ui->kpAngleLineEdit->setText(pipefollow->getSettingsValue("kpAngle").toString());
-//    ui->robCenterXLineEdit->setText(pipefollow->getSettingsValue("robCenterX").toString());
-//    ui->robCenterYLineEdit->setText(pipefollow->getSettingsValue("robCenterY").toString());
-//    ui->debugCheckBox->setChecked(pipefollow->getSettingsValue("debug").toBool());
-//    ui->useCameraRadioButton->setChecked(pipefollow->getSettingsValue("useCamera").toBool());
-//    ui->maxDistLineEdti->setText(pipefollow->getSettingsValue("maxDistance").toString());
-//    ui->speedFwLineEdit->setText(pipefollow->getSettingsValue("fwSpeed").toString());
-//    ui->camHeightLineEdit->setText(pipefollow->getSettingsValue("camHeight").toString());
-//    ui->camWidthLineEdit->setText(pipefollow->getSettingsValue("camWidth").toString());
-//    ui->badFramesLineEdit->setText(pipefollow->getSettingsValue("badFrames").toString());
-//    ui->hRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 1);
-//    ui->sRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 2);
-//    ui->vRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 3);
-//    ui->grayRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 4);
-//    ui->hsvRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 0);
+    ui->curVideofileLabel->setText(pipefollow->getSettingsValue("videoFilePath").toString());
+    ui->thresholdLineEdit->setText(pipefollow->getSettingsValue("threshold").toString());
+    ui->timer_LineEdit->setText(pipefollow->getSettingsValue("timer").toString());
+    ui->deltaDistPipeLineEdit->setText(pipefollow->getSettingsValue("deltaDist").toString());
+    ui->deltaAnglePipeLineEdit->setText(pipefollow->getSettingsValue("deltaAngle").toString());
+    ui->kpDistLineEdit->setText(pipefollow->getSettingsValue("kpDist").toString());
+    ui->kpAngleLineEdit->setText(pipefollow->getSettingsValue("kpAngle").toString());
+    ui->robCenterXLineEdit->setText(pipefollow->getSettingsValue("robCenterX").toString());
+    ui->robCenterYLineEdit->setText(pipefollow->getSettingsValue("robCenterY").toString());
+    ui->debugCheckBox->setChecked(pipefollow->getSettingsValue("debug").toBool());
+    ui->useCameraRadioButton->setChecked(pipefollow->getSettingsValue("useCamera").toBool());
+    ui->maxDistLineEdti->setText(pipefollow->getSettingsValue("maxDistance").toString());
+    ui->speedFwLineEdit->setText(pipefollow->getSettingsValue("fwSpeed").toString());
+    ui->camHeightLineEdit->setText(pipefollow->getSettingsValue("camHeight").toString());
+    ui->camWidthLineEdit->setText(pipefollow->getSettingsValue("camWidth").toString());
+    ui->badFramesLineEdit->setText(pipefollow->getSettingsValue("badFrames").toString());
+    ui->hRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 1);
+    ui->sRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 2);
+    ui->vRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 3);
+    ui->grayRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 4);
+    ui->hsvRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 0);
 
 //    ui->curVideofileLabel->setText(pipefollow->getSettings().value("videoFilePath").toString());
 //    ui->thresholdLineEdit->setText(pipefollow->getSettings().value("threshold").toString());
@@ -109,7 +110,6 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
 //    ui->grayRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 4);
 //    ui->hsvRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 0);
 
-//    QObject::connect( pipefollow, SIGNAL( printFrameOnUi(cv::Mat&)) , SLOT( printFrame(cv::Mat&))  );
     QObject::connect(this, SIGNAL(startPipeFollow()),pipefollow , SLOT(start()));
     QObject::connect(this, SIGNAL(stopPipeFollow()), pipefollow , SLOT(stop()));
  }
@@ -224,13 +224,21 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
 //    pipefollow->updateFromSettings();
 }
 
-void PipeFollowingForm::updatePixmap(const QImage &image1)
+void PipeFollowingForm::updatePixmap()
 {
-
-//    QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
+    cv::Mat frame;
+    pipefollow->grabFrame(frame);
+    if(!frame.empty())
+    {
+   QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
 //    QImage image1;
     ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
-//    ui->curVideofileLabel->setText("Blub");
+
+    }
+     else
+    {
+        ui->curVideofileLabel->setText("Empty Frame");
+    }
 
 }
 

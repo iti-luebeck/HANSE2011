@@ -56,14 +56,14 @@ public:
     /**
       * The settings of this module
       */
-    QSettings& getSettings();
+    virtual QSettings& getSettings();
 
     /**
       * Returns the data store.
       *
       * Only the owning module itself is allowed to modify it.
       */
-    const QMap<QString,QVariant> getData();
+    virtual const QMap<QString,QVariant> getData();
 
     /**
       * Returns the current health status of this module
