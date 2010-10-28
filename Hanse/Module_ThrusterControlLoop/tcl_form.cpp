@@ -10,15 +10,15 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     ui->setupUi(this);
     this->module = module;
 
-    ui->p_up->setText(module->getSettings().value(      "p_up").toString());
-    ui->p_down->setText(module->getSettings().value(    "p_down").toString());
-    ui->maxSpU->setText(module->getSettings().value(    "maxSpU").toString());
-    ui->maxSpD->setText(module->getSettings().value(    "maxSpD").toString());
-    ui->neutrSpD->setText(module->getSettings().value(  "neutrSpD").toString());
-    ui->maxDepthError->setText(module->getSettings().value(  "maxDepthError").toString());
-    ui->forceUnpauseError->setText(module->getSettings().value("forceUnpauseError").toString());
+    ui->p_up->setText(module->getSettingsValue(      "p_up").toString());
+    ui->p_down->setText(module->getSettingsValue(    "p_down").toString());
+    ui->maxSpU->setText(module->getSettingsValue(    "maxSpU").toString());
+    ui->maxSpD->setText(module->getSettingsValue(    "maxSpD").toString());
+    ui->neutrSpD->setText(module->getSettingsValue(  "neutrSpD").toString());
+    ui->maxDepthError->setText(module->getSettingsValue(  "maxDepthError").toString());
+    ui->forceUnpauseError->setText(module->getSettingsValue("forceUnpauseError").toString());
 
-    ui->horizSpM_exp->setChecked( module->getSettings().value("horizSpM_exp").toBool() );
+    ui->horizSpM_exp->setChecked( module->getSettingsValue("horizSpM_exp").toBool() );
 
     // add curves
     QLayout* l = new QBoxLayout(QBoxLayout::LeftToRight);
@@ -71,16 +71,16 @@ void TCL_Form::changeEvent(QEvent *e)
 
 void TCL_Form::on_save_clicked()
 {
-    module->getSettings().setValue("p_up",      ui->p_up->text().toFloat());
-    module->getSettings().setValue("p_down",    ui->p_down->text().toFloat());
-    module->getSettings().setValue("maxSpU",    ui->maxSpU->text().toFloat());
-    module->getSettings().setValue("maxSpD",    ui->maxSpD->text().toFloat());
-    module->getSettings().setValue("neutrSpD",  ui->neutrSpD->text().toFloat());
-    module->getSettings().setValue("maxDepthError",  ui->maxDepthError->text().toFloat());
-    module->getSettings().setValue("forceUnpauseError", ui->forceUnpauseError->text());
+    module->setSettingsValue("p_up",      ui->p_up->text().toFloat());
+    module->setSettingsValue("p_down",    ui->p_down->text().toFloat());
+    module->setSettingsValue("maxSpU",    ui->maxSpU->text().toFloat());
+    module->setSettingsValue("maxSpD",    ui->maxSpD->text().toFloat());
+    module->setSettingsValue("neutrSpD",  ui->neutrSpD->text().toFloat());
+    module->setSettingsValue("maxDepthError",  ui->maxDepthError->text().toFloat());
+    module->setSettingsValue("forceUnpauseError", ui->forceUnpauseError->text());
 
-    module->getSettings().setValue("horizSpM_exp", ui->horizSpM_exp->isChecked() );
-    module->getSettings().setValue("ignoreHealth", ui->ignoreHealth->isChecked() );
+    module->setSettingsValue("horizSpM_exp", ui->horizSpM_exp->isChecked() );
+    module->setSettingsValue("ignoreHealth", ui->ignoreHealth->isChecked() );
 
     module->updateConstantsFromInitNow();
 }

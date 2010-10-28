@@ -9,9 +9,9 @@ Form_TurnOneEighty::Form_TurnOneEighty( Behaviour_TurnOneEighty *behaviour, QWid
     ui->setupUi(this);
     this->behaviour = behaviour;
 
-    QSettings& settings = behaviour->getSettings();
-    ui->pEdit->setText( settings.value( "p", TURN_DEFAULT_P ).toString() );
-    ui->hysteresisEdit->setText( settings.value( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toString() );
+//    QSettings& settings = behaviour->getSettings();
+    ui->pEdit->setText( behaviour->getSettingsValue( "p", TURN_DEFAULT_P ).toString() );
+    ui->hysteresisEdit->setText( behaviour->getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toString() );
 }
 
 Form_TurnOneEighty::~Form_TurnOneEighty()
@@ -33,9 +33,9 @@ void Form_TurnOneEighty::changeEvent(QEvent *e)
 
 void Form_TurnOneEighty::on_applyButton_clicked()
 {
-    QSettings& settings = behaviour->getSettings();
-    settings.setValue( "p", ui->pEdit->text().toDouble() );
-    settings.setValue( "hysteresis", ui->hysteresisEdit->text().toDouble() );
+//    QSettings& settings = behaviour->getSettings();
+    behaviour->setSettingsValue( "p", ui->pEdit->text().toDouble() );
+    behaviour->setSettingsValue( "hysteresis", ui->hysteresisEdit->text().toDouble() );
 }
 
 void Form_TurnOneEighty::on_startButton_clicked()

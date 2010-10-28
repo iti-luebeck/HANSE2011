@@ -65,7 +65,7 @@ void Form_SonarLocalization::createMap()
 
     ui->PFactive->setVisible(false);
 
-    QImage satImg(m->getSettings().value("satImgFile").toString());
+    QImage satImg(m->getSettingsValue("satImgFile").toString());
     QGraphicsPixmapItem *result = scene->addPixmap(QPixmap::fromImage(satImg));
     result->setPos(0,0);
     result->setZValue(-1);
@@ -85,30 +85,30 @@ void Form_SonarLocalization::createMap()
 void Form_SonarLocalization::setFields()
 {
 
-    ui->config_mapFile->setText(m->getSettings().value("mapFile").toString());
-    ui->config_satImage->setText(m->getSettings().value("satImgFile").toString());
+    ui->config_mapFile->setText(m->getSettingsValue("mapFile").toString());
+    ui->config_satImage->setText(m->getSettingsValue("satImgFile").toString());
 
-    ui->debug->setChecked((m->getSettings().value("debug").toBool()));
+    ui->debug->setChecked((m->getSettingsValue("debug").toBool()));
 
-    ui->gaussFactor->setText((m->getSettings().value("gaussFactor").toString()));
+    ui->gaussFactor->setText((m->getSettingsValue("gaussFactor").toString()));
 
-    ui->darknessCnt->setText((m->getSettings().value("darknessCnt").toString()));
-    ui->swipedArea->setText((m->getSettings().value("swipedArea").toString()));
+    ui->darknessCnt->setText((m->getSettingsValue("darknessCnt").toString()));
+    ui->swipedArea->setText((m->getSettingsValue("swipedArea").toString()));
 
-    ui->wallWindowSize->setText((m->getSettings().value("wallWindowSize").toString()));
-    ui->varTH->setText((m->getSettings().value("varTH").toString()));
-    ui->largePeakTH->setText((m->getSettings().value("largePeakTH").toString()));
-    ui->meanBehindTH->setText((m->getSettings().value("meanBehindTH").toString()));
+    ui->wallWindowSize->setText((m->getSettingsValue("wallWindowSize").toString()));
+    ui->varTH->setText((m->getSettingsValue("varTH").toString()));
+    ui->largePeakTH->setText((m->getSettingsValue("largePeakTH").toString()));
+    ui->meanBehindTH->setText((m->getSettingsValue("meanBehindTH").toString()));
 
-    ui->imgMinPixels->setText((m->getSettings().value("imgMinPixels").toString()));
-    ui->controlVariance->setText((m->getSettings().value("controlVariance").toString()));
-    ui->initVariance->setText((m->getSettings().value("initVariance").toString()));
-    ui->distanceCutoff->setText((m->getSettings().value("distanceCutoff").toString()));
-    ui->particleCount->setText((m->getSettings().value("particleCount").toString()));
-    ui->boltzmann->setText((m->getSettings().value("boltzmann").toString()));
+    ui->imgMinPixels->setText((m->getSettingsValue("imgMinPixels").toString()));
+    ui->controlVariance->setText((m->getSettingsValue("controlVariance").toString()));
+    ui->initVariance->setText((m->getSettingsValue("initVariance").toString()));
+    ui->distanceCutoff->setText((m->getSettingsValue("distanceCutoff").toString()));
+    ui->particleCount->setText((m->getSettingsValue("particleCount").toString()));
+    ui->boltzmann->setText((m->getSettingsValue("boltzmann").toString()));
 
-    ui->a1->setText(m->getSettings().value("a1").toString());
-    ui->a2->setText(m->getSettings().value("a2").toString());
+    ui->a1->setText(m->getSettingsValue("a1").toString());
+    ui->a2->setText(m->getSettingsValue("a2").toString());
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -173,7 +173,7 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
 
     curveVarTH->setSymbol(QwtSymbol(QwtSymbol::HLine, QBrush(), QPen("green"), QSize(2000,1)));
     curveVarTH->setXValue(0);
-    curveVarTH->setYValue(m->getSettings().value("varTH").toFloat());
+    curveVarTH->setYValue(m->getSettingsValue("varTH").toFloat());
     curveVarTH->attach(plot);
 
     // finally, refresh the plot
@@ -182,30 +182,30 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
 
 void Form_SonarLocalization::on_pushButton_clicked()
 {
-    m->getSettings().setValue("mapFile", ui->config_mapFile->text());
-    m->getSettings().setValue("satImgFile", ui->config_satImage->text());
+    m->setSettingsValue("mapFile", ui->config_mapFile->text());
+    m->setSettingsValue("satImgFile", ui->config_satImage->text());
 
-    m->getSettings().setValue("debug", ui->debug->isChecked());
+    m->setSettingsValue("debug", ui->debug->isChecked());
 
-    m->getSettings().setValue("gaussFactor", ui->gaussFactor->text());
+    m->setSettingsValue("gaussFactor", ui->gaussFactor->text());
 
-    m->getSettings().setValue("darknessCnt", ui->darknessCnt->text());
-    m->getSettings().setValue("swipedArea", ui->swipedArea->text());
+    m->setSettingsValue("darknessCnt", ui->darknessCnt->text());
+    m->setSettingsValue("swipedArea", ui->swipedArea->text());
 
-    m->getSettings().setValue("wallWindowSize", ui->wallWindowSize->text());
-    m->getSettings().setValue("varTH", ui->varTH->text());
-    m->getSettings().setValue("largePeakTH", ui->largePeakTH->text());
-    m->getSettings().setValue("meanBehindTH", ui->meanBehindTH->text());
+    m->setSettingsValue("wallWindowSize", ui->wallWindowSize->text());
+    m->setSettingsValue("varTH", ui->varTH->text());
+    m->setSettingsValue("largePeakTH", ui->largePeakTH->text());
+    m->setSettingsValue("meanBehindTH", ui->meanBehindTH->text());
 
-    m->getSettings().setValue("imgMinPixels", ui->imgMinPixels->text());
-    m->getSettings().setValue("controlVariance", ui->controlVariance->text());
-    m->getSettings().setValue("initVariance", ui->initVariance->text());
-    m->getSettings().setValue("distanceCutoff", ui->distanceCutoff->text());
-    m->getSettings().setValue("particleCount", ui->particleCount->text());
-    m->getSettings().setValue("boltzmann", ui->boltzmann->text());
+    m->setSettingsValue("imgMinPixels", ui->imgMinPixels->text());
+    m->setSettingsValue("controlVariance", ui->controlVariance->text());
+    m->setSettingsValue("initVariance", ui->initVariance->text());
+    m->setSettingsValue("distanceCutoff", ui->distanceCutoff->text());
+    m->setSettingsValue("particleCount", ui->particleCount->text());
+    m->setSettingsValue("boltzmann", ui->boltzmann->text());
 
-    m->getSettings().setValue("a1",  ui->a1->text());
-    m->getSettings().setValue("a2",  ui->a2->text());
+    m->setSettingsValue("a1",  ui->a1->text());
+    m->setSettingsValue("a2",  ui->a2->text());
 
     m->reset();
 }

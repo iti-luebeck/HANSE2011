@@ -29,11 +29,11 @@ Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
 
 void Module_Thruster::initController()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     char sendValue[] = { 0x01 };
-    unsigned char address = getSettings().value("i2cAddress").toInt();
+    unsigned char address = getSettingsValue("i2cAddress").toInt();
 
     bool ret = uid->I2C_WriteRegister(address,REG_MODE,sendValue,0x01);
     if (!ret)
@@ -63,7 +63,7 @@ void Module_Thruster::reset()
 
 void Module_Thruster::setSpeed(float speed)
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     if (speed > 1)
@@ -73,12 +73,12 @@ void Module_Thruster::setSpeed(float speed)
         speed = -1;
 
 
-    int speedRaw = (int)(speed * getSettings().value("multiplicator").toInt());
+    int speedRaw = (int)(speed * getSettingsValue("multiplicator").toInt());
     data["speed"] = speedRaw;
 
     char sendValue[] = { speedRaw };
-    unsigned char address = getSettings().value("i2cAddress").toInt();
-    unsigned char channel = getSettings().value("channel").toInt();
+    unsigned char address = getSettingsValue("i2cAddress").toInt();
+    unsigned char channel = getSettingsValue("channel").toInt();
 
     if (channel != 1 && channel != 2) {
         setHealthToSick("thruster configured to an illegal channel.");
@@ -109,10 +109,10 @@ QWidget* Module_Thruster::createView(QWidget* parent)
 
 void Module_Thruster::doHealthCheck()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
-    int address = getSettings().value("i2cAddress").toInt();
+    int address = getSettingsValue("i2cAddress").toInt();
     char data[1];
     bool ret = uid->I2C_ReadRegisters(address,REG_SWREV,1,data);
     if (!ret)

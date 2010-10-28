@@ -9,12 +9,12 @@ GoalFollowingForm::GoalFollowingForm(QWidget *parent, Behaviour_GoalFollowing *g
     goalfollow = goalfollowing;
     ui->setupUi(this);
 
-    ui->kpGoallineEdit->setText(goalfollow->getSettings().value("kpGoal").toString());
-    ui->deltaGoalLineEdit->setText(goalfollow->getSettings().value("deltaGoal").toString());
-    ui->robCenterXLineEdit->setText(goalfollow->getSettings().value("robCenterX").toString());
-    ui->robCenterYLineEdit->setText(goalfollow->getSettings().value("robCenterY").toString());
-    ui->fwSpeedLineEdit->setText(goalfollow->getSettings().value("fwSpeed").toString());
-    ui->maxDistanceLineEdit->setText(goalfollow->getSettings().value("maxDistance").toString());
+    ui->kpGoallineEdit->setText(goalfollow->getSettingsValue("kpGoal").toString());
+    ui->deltaGoalLineEdit->setText(goalfollow->getSettingsValue("deltaGoal").toString());
+    ui->robCenterXLineEdit->setText(goalfollow->getSettingsValue("robCenterX").toString());
+    ui->robCenterYLineEdit->setText(goalfollow->getSettingsValue("robCenterY").toString());
+    ui->fwSpeedLineEdit->setText(goalfollow->getSettingsValue("fwSpeed").toString());
+    ui->maxDistanceLineEdit->setText(goalfollow->getSettingsValue("maxDistance").toString());
  }
 
 GoalFollowingForm::~GoalFollowingForm()
@@ -49,10 +49,10 @@ void GoalFollowingForm::on_stopGoalFollowingButton_clicked()
 
 void GoalFollowingForm::on_saveAndApplyButton_clicked()
 {
-    goalfollow->getSettings().setValue("kpGoal",ui->kpGoallineEdit->text().toFloat());
-    goalfollow->getSettings().setValue("deltaGoal",ui->deltaGoalLineEdit->text().toFloat());
-    goalfollow->getSettings().setValue("robCenterX",ui->robCenterXLineEdit->text().toFloat());
-    goalfollow->getSettings().setValue("robCenterY",ui->robCenterYLineEdit->text().toFloat());
-    goalfollow->getSettings().setValue("fwSpeed",ui->fwSpeedLineEdit->text().toFloat());
-    goalfollow->getSettings().setValue("maxDistance",ui->maxDistanceLineEdit->text().toFloat());
+    goalfollow->setSettingsValue("kpGoal",ui->kpGoallineEdit->text().toFloat());
+    goalfollow->setSettingsValue("deltaGoal",ui->deltaGoalLineEdit->text().toFloat());
+    goalfollow->setSettingsValue("robCenterX",ui->robCenterXLineEdit->text().toFloat());
+    goalfollow->setSettingsValue("robCenterY",ui->robCenterYLineEdit->text().toFloat());
+    goalfollow->setSettingsValue("fwSpeed",ui->fwSpeedLineEdit->text().toFloat());
+    goalfollow->setSettingsValue("maxDistance",ui->maxDistanceLineEdit->text().toFloat());
 }

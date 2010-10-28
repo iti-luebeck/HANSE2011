@@ -45,13 +45,57 @@ QString RobotModule::getId()
     return id;
 }
 
-QSettings& RobotModule::getSettings()
+//QSettings& RobotModule::getSettings()
+//{
+//    return settings;
+//}
+
+const  QMap<QString,QVariant> RobotModule::getSettingsCopy()
 {
-    return settings;
+    QMutexLocker l(&dataLockerMutex);
+    QMap<QString,QVariant> map;
+
+    QStringList keys = settings.allKeys();
+
+    foreach (QString key, keys) {
+       map.insert(key,settings.value(key));
+    }
+    return map;
+//    return settings;
 }
+
+QStringList RobotModule::getSettingKeys()
+{
+    QMutexLocker l(&dataLockerMutex);
+    QStringList list = settings.allKeys();
+    return list;
+}
+
+
+const QVariant RobotModule::getSettingsValue(const QString key, const QVariant defValue)
+{
+    QMutexLocker l(&dataLockerMutex);
+    QVariant qv = settings.value(key,defValue);
+    return qv;
+}
+
+const QVariant RobotModule::getSettingsValue(const QString key)
+{
+    QMutexLocker l(&dataLockerMutex);
+    QVariant qv = settings.value(key);
+    return qv;
+}
+
+void RobotModule::setSettingsValue(QString key, QVariant value)
+{
+    QMutexLocker l(&dataLockerMutex);
+    settings.setValue(key,value);
+}
+
 
 void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
 {
+    QMutexLocker l(&dataLockerMutex);
     if (!settings.contains(key))
         settings.setValue(key, value);
 }
@@ -98,8 +142,28 @@ void RobotModule::doHealthCheck()
     // Needs to be reimplemented in subclasses
 }
 
-const QMap<QString,QVariant> RobotModule::getData() {
-    return data;
+const QMap<QString,QVariant> RobotModule::getDataCopy() {
+    QMutexLocker l(&dataLockerMutex);
+    QMap<QString,QVariant> map;
+    QMap<QString, QVariant>::const_iterator i = data.constBegin();
+    while (i != data.constEnd()) {
+        map.insert(i.key(),i.value());
+        ++i;
+    }
+    return map;
+}
+
+const QVariant RobotModule::getDataValue(QString key)
+{
+    QMutexLocker l(&dataLockerMutex);
+    QVariant qv = data[key];
+    return qv;
+}
+
+void RobotModule::addData(QString key, QVariant value)
+{
+    QMutexLocker l(&dataLockerMutex);
+    data[key] = value;
 }
 
 void RobotModule::terminate()

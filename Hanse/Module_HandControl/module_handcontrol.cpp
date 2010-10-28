@@ -68,7 +68,7 @@ void Module_HandControl::emergencyStopReceived()
 
 void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int speedUpDown)
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     data["forwardSpeed"] = forwardSpeed;
@@ -85,7 +85,7 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
 
 void Module_HandControl::sendNewControls()
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     int forwardSpeed = data["forwardSpeed"].toInt();

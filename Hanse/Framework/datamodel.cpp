@@ -27,7 +27,7 @@ void DataModel::updateModel()
     // TODO: we will not notice when a module *removes* an item from their data store.
     foreach (RobotModule *module, graph->getModules()) {
         QString name = module->getTabName();
-        foreach (QString key, module->getData().keys()) {
+        foreach (QString key, module->getDataCopy().keys()) {
             QString mk = name+"/"+key;
             if (mk.contains(filterModule,Qt::CaseInsensitive)) {
 //                mergedMap.insert(mk,module->getData().value(key));
@@ -36,13 +36,13 @@ void DataModel::updateModel()
                     // so until I figure out the Right Way(tm) to do this,
                     // just pray that this won't break.
 //                    mergedMap[mk] = module->getData().value(key);
-                    mergedMap.insert(mk,module->getData().value(key));
+                    mergedMap.insert(mk,module->getDataCopy().value(key));
                     emit beginInsertRows(QModelIndex(),mergedMap.keys().indexOf(mk),mergedMap.keys().indexOf(mk));
                     emit endInsertRows();
                 }
                 else {
 ////                    mergedMap[mk] = module->getData().value(key);
-                    mergedMap.insert(mk,module->getData().value(key));
+                    mergedMap.insert(mk,module->getDataCopy().value(key));
                 }
             } else if (mergedMap.contains(mk) ) {
                 emit beginRemoveRows(QModelIndex(), mergedMap.keys().indexOf(mk),mergedMap.keys().indexOf(mk));

@@ -8,11 +8,11 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
     ui->setupUi(this);
     this->module = module;
 
-    ui->port->setText(module->getSettings().value("port").toString());
-    ui->divFw->setText(module->getSettings().value("divFw").toString());
-    ui->divLR->setText(module->getSettings().value("divLR").toString());
-    ui->divUD->setText(module->getSettings().value("divUD").toString());
-    if (module->getSettings().value("receiver").toString()=="thruster") {
+    ui->port->setText(module->getSettingsValue("port").toString());
+    ui->divFw->setText(module->getSettingsValue("divFw").toString());
+    ui->divLR->setText(module->getSettingsValue("divLR").toString());
+    ui->divUD->setText(module->getSettingsValue("divUD").toString());
+    if (module->getSettingsValue("receiver").toString()=="thruster") {
         ui->controlThruster->setChecked(true);
     } else {
         ui->controlTCL->setChecked(true);
@@ -46,17 +46,17 @@ void HandControl_Form::changeEvent(QEvent *e)
 
 void HandControl_Form::on_save_clicked()
 {
-    module->getSettings().setValue("port", ui->port->text().toInt());
-    module->getSettings().setValue("divFw", ui->divFw->text().toFloat());
-    module->getSettings().setValue("divUD", ui->divUD->text().toFloat());
-    module->getSettings().setValue("divLR", ui->divLR->text().toFloat());
+    module->setSettingsValue("port", ui->port->text().toInt());
+    module->setSettingsValue("divFw", ui->divFw->text().toFloat());
+    module->setSettingsValue("divUD", ui->divUD->text().toFloat());
+    module->setSettingsValue("divLR", ui->divLR->text().toFloat());
 
     if (ui->controlThruster->isChecked())
-        module->getSettings().setValue("receiver","thruster");
+        module->setSettingsValue("receiver","thruster");
     else
-        module->getSettings().setValue("receiver","controlLoop");
+        module->setSettingsValue("receiver","controlLoop");
 
-    module->getSettings().setValue("enableGamepad", ui->enableGamepad->isChecked());
+    module->setSettingsValue("enableGamepad", ui->enableGamepad->isChecked());
 
     ui->sliderFw->setMaximum(ui->divFw->text().toInt());
     ui->sliderLR->setMaximum(ui->divLR->text().toInt());
@@ -81,9 +81,9 @@ void HandControl_Form::connectionStatusChanged()
 void HandControl_Form::dataChanged(RobotModule *m)
 {
 
-    int forwardSpeed = m->getData().value("forwardSpeed").toInt();
-    int angularSpeed = m->getData().value("angularSpeed").toInt();
-    int speedUpDown = m->getData().value("speedUpDown").toInt();
+    int forwardSpeed = m->getDataValue("forwardSpeed").toInt();
+    int angularSpeed = m->getDataValue("angularSpeed").toInt();
+    int speedUpDown = m->getDataValue("speedUpDown").toInt();
 
     ui->sliderFw->setValue(forwardSpeed);
     ui->sliderLR->setValue(angularSpeed);

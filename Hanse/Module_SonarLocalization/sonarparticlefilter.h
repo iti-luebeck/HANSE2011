@@ -41,7 +41,7 @@ signals:
 
 private:
 
-    QSettings& s;
+//    QSettings& s;
 
     QQueue< QList<QVector2D> > zList;
     QList<QVector2D> lastZ;

@@ -219,22 +219,22 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     if ( x > 0 )
     {
         timerNoBall.stop();
-        float robCenterX = this->getSettings().value("robCenterX").toFloat();
+        float robCenterX = this->getSettingsValue("robCenterX").toFloat();
         float diff = robCenterX - x;
         float angleSpeed = 0.0;
         diff < 0.0 ? diff *= (-1) : diff;
-        if(diff > this->getSettings().value("deltaBall").toFloat())
+        if(diff > this->getSettingsValue("deltaBall").toFloat())
         {
-            angleSpeed = this->getSettings().value("kpBall").toFloat() * ((robCenterX - x)/this->getSettings().value("maxDistance").toFloat());
+            angleSpeed = this->getSettingsValue("kpBall").toFloat() * ((robCenterX - x)/this->getSettingsValue("maxDistance").toFloat());
         }
         tcl->setAngularSpeed(angleSpeed);
-        tcl->setForwardSpeed(this->getSettings().value("fwSpeed").toFloat());
+        tcl->setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
 
         data["ball_area"] = maxArea;
         data["ball_x"] = x;
         data["position_difference"] = diff;
         data["angular_speed"] = angleSpeed;
-        data["forward_speed"] = this->getSettings().value("fwSpeed").toFloat();
+        data["forward_speed"] = this->getSettingsValue("fwSpeed").toFloat();
         dataChanged( this );
         timerNoBall.start( 60000 );
     }

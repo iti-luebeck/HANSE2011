@@ -79,7 +79,7 @@ void Module_ScanningSonar::ThreadedReader::run(void)
     running = true;
     while(running)
     {
-        if (!m->getSettings().value("enabled").toBool())
+        if (!m->getSettingsValue("enabled").toBool())
             msleep(500);
     }
 }

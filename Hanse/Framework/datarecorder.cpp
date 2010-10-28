@@ -28,10 +28,10 @@ bool DataRecorder::isChanged(QStringList a, QStringList b)
 
 void DataRecorder::open()
 {
-    QStringList dataKeysNew = module.getData().keys();
+    QStringList dataKeysNew = module.getDataCopy().keys();
     dataKeysNew.sort();
 
-    QStringList settingsKeysNew = module.getSettings().allKeys();
+    QStringList settingsKeysNew = module.getSettingKeys();
     settingsKeysNew.sort();
     settingsKeysNew.removeOne("enableLogging");
 
@@ -57,10 +57,10 @@ void DataRecorder::open()
             return;
         }
 
-        dataKeys = module.getData().keys();
+        dataKeys = module.getDataCopy().keys();
         dataKeys.sort();
 
-        settingsKeys = module.getSettings().allKeys();
+        settingsKeys = module.getSettingKeys();
         settingsKeys.sort();
         settingsKeys.removeOne("enableLogging");
 
@@ -81,7 +81,7 @@ void DataRecorder::open()
 
 void DataRecorder::newDataReceived(RobotModule *module)
 {
-    if (!module->getSettings().value("enableLogging").toBool()) {
+    if (!module->getSettingsValue("enableLogging").toBool()) {
         return;
     }
 
@@ -98,17 +98,21 @@ void DataRecorder::newDataReceived(RobotModule *module)
 
     // TODO: write health status to different logfile
 //    *stream << "\"" << module->getHealthStatus().getLastError() << "\"";
+    QMap<QString,QVariant> settingsMap;
+    settingsMap = module->getSettingsCopy();
 
     foreach (QString key, settingsKeys) {
         if (key == "enableLogging")
             continue;
 
-        QVariant value = module->getSettings().value(key);
+        QVariant value =settingsMap.value(key);
+//        QVariant value = module->getSettingsValue(key);
         if (value.convert(QVariant::Double)) {
             *stream << "," << value.toDouble();
             continue;
         }
-        value = module->getSettings().value(key);
+        value = settingsMap.value(key);
+//        value = module->getSettingsValue(key);
         if (value.convert(QVariant::Bool)) {
             *stream << "," << value.toBool();
             continue;
@@ -120,17 +124,17 @@ void DataRecorder::newDataReceived(RobotModule *module)
     }
 
     foreach (QString key, dataKeys) {
-        QVariant value = module->getData().value(key);
+        QVariant value = module->getDataValue(key);
         if (value.convert(QVariant::Double)) {
             *stream << "," << value.toDouble();
             continue;
         }
-        value = module->getData().value(key);
+        value = module->getDataValue(key);
         if (value.convert(QVariant::String) && value.toString() != "false" && value.toString() != "true") {
             *stream << ",\"" << value.toString() << "\"";
             continue;
         }
-        value = module->getData().value(key);
+        value = module->getDataValue(key);
         if (value.convert(QVariant::Bool)) {
             *stream << "," << value.toBool();
             continue;

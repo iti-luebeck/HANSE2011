@@ -47,7 +47,7 @@ private:
     void addToList(QList<QVector2D>& list, const QVector2D p);
 
     bool DEBUG;
-    QSettings& s;
+//    QSettings& s;
 
     Module_SonarLocalization* sloc;
 

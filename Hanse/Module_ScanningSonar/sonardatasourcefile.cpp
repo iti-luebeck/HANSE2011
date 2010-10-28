@@ -31,7 +31,7 @@ const SonarReturnData SonarDataSourceFile::getNextPacket()
         p = readPacket();
     }
 
-    parent.msleep(parent.getSettings().value("fileReaderDelay").toInt());
+    parent.msleep(parent.getSettingsValue("fileReaderDelay").toInt());
 
     return p;
 }
@@ -40,7 +40,7 @@ SonarReturnData SonarDataSourceFile::readPacket()
 {
     if (!stream) {
         logger->error("Stream not open!");
-        parent.msleep(parent.getSettings().value("fileReaderDelay").toInt());
+        parent.msleep(parent.getSettingsValue("fileReaderDelay").toInt());
         SonarReturnData inv;
         return inv;
     }

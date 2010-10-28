@@ -11,22 +11,22 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     this->nav = nav;
     ui->mapWidget->setNavigation(nav);
 
-    QSettings& settings = nav->getSettings();
-    ui->headingPEdit->setText( settings.value( QString( "p_heading" ),
+//    QSettings& settings = nav->getSettings();
+    ui->headingPEdit->setText( nav->getSettingsValue( QString( "p_heading" ),
                                                NAV_P_HEADING ).toString() );
-    ui->headingHysteresisEdit->setText( settings.value( QString( "hysteresis_heading" ),
+    ui->headingHysteresisEdit->setText( nav->getSettingsValue( QString( "hysteresis_heading" ),
                                                         NAV_HYSTERESIS_HEADING ).toString() );
-    ui->goalHysteresisEdit->setText( settings.value( QString( "hysteresis_goal" ),
+    ui->goalHysteresisEdit->setText( nav->getSettingsValue( QString( "hysteresis_goal" ),
                                                     NAV_HYSTERESIS_GOAL ).toString() );
-    ui->depthHysteresisEdit->setText( settings.value( QString( "hysteresis_depth" ),
+    ui->depthHysteresisEdit->setText( nav->getSettingsValue( QString( "hysteresis_depth" ),
                                                       NAV_HYSTERESIS_DEPTH ).toString() );    
-    ui->forwardSpeedEdit->setText( settings.value( "p_forward",
+    ui->forwardSpeedEdit->setText( nav->getSettingsValue( "p_forward",
                                                    NAV_P_FORWARD).toString() );
-    ui->forwardMaxDistEdit->setText( settings.value( "forward_max_dist",
+    ui->forwardMaxDistEdit->setText( nav->getSettingsValue( "forward_max_dist",
                                                      NAV_FORWARD_MAX_DIST).toString() );
-    ui->forwardMaxSpeedEdit->setText( settings.value( "forward_max_speed",
+    ui->forwardMaxSpeedEdit->setText( nav->getSettingsValue( "forward_max_speed",
                                                       NAV_FORWARD_MAX_SPEED).toString() );
-    ui->forwardTimeEdit->setText( settings.value( QString( "forward_time" ),
+    ui->forwardTimeEdit->setText( nav->getSettingsValue( QString( "forward_time" ),
                                                   NAV_FORWARD_TIME).toString() );
 }
 
@@ -182,16 +182,16 @@ void Form_Navigation::on_applyButton_clicked()
         return;
     }
 
-    QSettings& settings = nav->getSettings();
-    settings.setValue( "p_heading", p_heading );
-    settings.setValue( "hysteresis_heading", hysteresis_heading );
-    settings.setValue( "hysteresis_goal", hysteresis_goal );
-    settings.setValue( "hysteresis_depth", hysteresis_depth );
-    settings.setValue( "p_forward", p_forward );
-    settings.setValue( "forward_time", forward_time );
-    settings.setValue( "forward_max_speed", forward_max_speed );
-    settings.setValue( "forward_max_dist", forward_max_dist );
-    settings.setValue( "heading_sensor", ui->headingBox->currentIndex() );
+//    QSettings& settings = nav->getSettings();
+    nav->setSettingsValue( "p_heading", p_heading );
+    nav->setSettingsValue( "hysteresis_heading", hysteresis_heading );
+    nav->setSettingsValue( "hysteresis_goal", hysteresis_goal );
+    nav->setSettingsValue( "hysteresis_depth", hysteresis_depth );
+    nav->setSettingsValue( "p_forward", p_forward );
+    nav->setSettingsValue( "forward_time", forward_time );
+    nav->setSettingsValue( "forward_max_speed", forward_max_speed );
+    nav->setSettingsValue( "forward_max_dist", forward_max_dist );
+    nav->setSettingsValue( "heading_sensor", ui->headingBox->currentIndex() );
 }
 
 void Form_Navigation::on_gotoButton_clicked()

@@ -39,13 +39,13 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     createMap();
 
     // TODO: somehow doesn't work
-    ui->graphicsView->setTransform(nav->getSettings().value("mapPosition").value<QTransform>());
+    ui->graphicsView->setTransform(nav->getSettingsValue("mapPosition").value<QTransform>());
 
-    ui->showParticles->setChecked(nav->getSettings().value("showParticles").toBool());
-    ui->showSatImg->setChecked(nav->getSettings().value("showSatImg").toBool());
-    ui->showSonarMap->setChecked(nav->getSettings().value("showSonarMap").toBool());
-    ui->showSonarObs->setChecked(nav->getSettings().value("showSonarObs").toBool());
-    ui->showVisSLAM->setChecked(nav->getSettings().value("showVisSLAM").toBool());
+    ui->showParticles->setChecked(nav->getSettingsValue("showParticles").toBool());
+    ui->showSatImg->setChecked(nav->getSettingsValue("showSatImg").toBool());
+    ui->showSonarMap->setChecked(nav->getSettingsValue("showSonarMap").toBool());
+    ui->showSonarObs->setChecked(nav->getSettingsValue("showSonarObs").toBool());
+    ui->showVisSLAM->setChecked(nav->getSettingsValue("showVisSLAM").toBool());
 
     connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
     connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
@@ -304,34 +304,34 @@ void MapWidget::on_showSonarMap_toggled(bool checked)
 {
     masterMapPoint->setVisible(checked);
     if (nav)
-        nav->getSettings().setValue("showSonarMap", checked);
+        nav->setSettingsValue("showSonarMap", checked);
 }
 
 void MapWidget::on_showSonarObs_toggled(bool checked)
 {
     masterObsPoint->setVisible(checked);
     if (nav)
-        nav->getSettings().setValue("showSonarObs", checked);
+        nav->setSettingsValue("showSonarObs", checked);
 }
 
 void MapWidget::on_showSatImg_toggled(bool checked)
 {
     satImage->setVisible(checked);
     if (nav)
-        nav->getSettings().setValue("showSatImg", checked);
+        nav->setSettingsValue("showSatImg", checked);
 }
 
 void MapWidget::on_showParticles_toggled(bool checked)
 {
     masterParticle->setVisible(checked);
     if (nav)
-        nav->getSettings().setValue("showParticles", checked);
+        nav->setSettingsValue("showParticles", checked);
 }
 
 void MapWidget::on_showVisSLAM_toggled(bool checked)
 {
     if (nav)
-        nav->getSettings().setValue("showVisSLAM", checked);
+        nav->setSettingsValue("showVisSLAM", checked);
 }
 
 void MapWidget::on_pushButton_clicked()
@@ -356,5 +356,5 @@ void MapWidget::stopSonarLocalization(QPointF point)
 
 void MapWidget::timerElapsed()
 {
-    nav->getSettings().setValue("mapPosition", ui->graphicsView->transform());
+    nav->setSettingsValue("mapPosition", ui->graphicsView->transform());
 }

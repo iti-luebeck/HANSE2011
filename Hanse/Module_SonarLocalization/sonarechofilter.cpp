@@ -8,7 +8,7 @@
 using namespace cv;
 
 SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent)
-    : s(parent->getSettings())
+//    : s(parent->getSettingsCopy())
 {
     this->sloc = parent;
 
@@ -77,7 +77,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     }
 
     // todo: this must be absolutely robust!!
-    if (localKlist.size()>0 && (darknessCount>=s.value("darknessCnt").toInt() || swipedArea>s.value("swipedArea").toInt())) {
+    if (localKlist.size()>0 && (darknessCount>=sloc->getSettingsValue("darknessCnt").toInt() || swipedArea>sloc->getSettingsValue("swipedArea").toInt())) {
         // connect Ks until we have a closed image
         // transform from polar coordinates int euclid coordinates
         // form lines between points
@@ -145,7 +145,7 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
         Mat window = echo.colRange(i-wSize, i+wSize);
 
         // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
-        float gF = s.value("gaussFactor").toFloat();
+        float gF = sloc->getSettingsValue("gaussFactor").toFloat();
         echoFiltered.at<float>(0,i) =  window.at<float>(0,0)*(1-gF)/2
                                      + window.at<float>(0,1)*gF
                                      + window.at<float>(0,2)*(1-gF)/2;
@@ -156,7 +156,7 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
         if (data.switchCommand.startGain==15)
             cutOff = (7.0/20)*(i-50)/127;
         else {
-            cutOff = s.value("a1").toFloat()*(i-s.value("a2").toFloat())/127;
+            cutOff = sloc->getSettingsValue("a1").toFloat()*(i-sloc->getSettingsValue("a2").toFloat())/127;
             logger->debug("Using parameters as gain.");
         }
 
@@ -193,7 +193,7 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 {
     // find last maximum
 
-    int wSize=s.value("wallWindowSize").toInt();
+    int wSize=sloc->getSettingsValue("wallWindowSize").toInt();
 
     QVector<double> varHist(N);
     QVector<double> meanHist(N);
@@ -215,7 +215,7 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
         varHist[j]=stdDevInWindow;
 
         // TODO: fiddle with TH, or move it a little bit to the left
-        bool largePeak = mean[0]>s.value("largePeakTH").toFloat();
+        bool largePeak = mean[0]>sloc->getSettingsValue("largePeakTH").toFloat();
 
         // calc mean in area behind our current pos.
         Mat prev = echo.colRange(j+wSize,echo.cols-1);
@@ -225,8 +225,8 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
         meanHist[j]=meanBehind;
 
         // take first peak found.
-        if (stdDevInWindow > s.value("varTH").toFloat()
-            && meanBehind<s.value("meanBehindTH").toFloat()
+        if (stdDevInWindow > sloc->getSettingsValue("varTH").toFloat()
+            && meanBehind<sloc->getSettingsValue("meanBehindTH").toFloat()
             && largePeak && K<0) {
             K=j;
         }
@@ -243,7 +243,7 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 
 void SonarEchoFilter::reset()
 {
-    this->DEBUG = s.value("DEBUG").toBool();
+    this->DEBUG = sloc->getSettingsValue("DEBUG").toBool();
 
     this->darknessCount = 0;
     this->swipedArea = 0;

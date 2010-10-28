@@ -56,14 +56,38 @@ public:
     /**
       * The settings of this module
       */
-    virtual QSettings& getSettings();
+//    QSettings& getSettings();
+    const QMap<QString,QVariant> getSettingsCopy();
 
     /**
-      * Returns the data store.
+      * The setting keys of this module
+      */
+    QStringList getSettingKeys();
+
+    /**
+      * returns value for given key from local settings map using settingsMutex
+      */
+    const QVariant getSettingsValue(const QString key, const QVariant defaultValue);
+    const QVariant getSettingsValue(const QString key);
+
+    /**
+      * adds given value for given key in settings map using settingsMutex
+      */
+    void setSettingsValue(QString key, const QVariant value);
+
+
+    /**
+      * Returns a copy of the data store using dataLockerMutex (thread safe).
       *
       * Only the owning module itself is allowed to modify it.
       */
-    virtual const QMap<QString,QVariant> getData();
+    const QMap<QString,QVariant> getDataCopy();
+
+    /**
+      * returns value for given key from data map using dataLockerMutex (thread safe)
+      */
+    const QVariant getDataValue(QString key);
+
 
     /**
       * Returns the current health status of this module
@@ -133,6 +157,10 @@ protected:
     QMutex moduleMutex;
 
     /**
+      * mutex to lock if acces data or settings map
+      */
+    QMutex dataLockerMutex;
+    /**
       * Central data store for this module. Everything stored in this Map is
       * automatically displayed in the GUI, and will also be recorded to file.
       */
@@ -144,7 +172,8 @@ protected:
     Log4Qt::Logger *logger;
 
     /**
-      * Sets the config value of "key" to "value" if it is not already set.
+      * Sets the config value of "key" to "value" if it is not already
+      * set using dataLockerMutex (thread safe).
       */
     void setDefaultValue(const QString &key, const QVariant &value);
 
@@ -187,6 +216,11 @@ private:
       * ID of the module. must be unique across all robot instances. won't change at runtime.
       */
     const QString id;
+
+    /**
+     * adds given value for given key in data map using dataLockerMutex (thread safe)
+     */
+    void addData(QString key, const QVariant value);
 
     /**
       * Current health status

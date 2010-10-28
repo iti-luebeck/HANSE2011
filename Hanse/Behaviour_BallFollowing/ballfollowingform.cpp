@@ -9,13 +9,13 @@ BallFollowingForm::BallFollowingForm(QWidget *parent, Behaviour_BallFollowing *b
     ballfollow = ballfollowing;
     ui->setupUi(this);
 
-    ui->kpBalllineEdit->setText(ballfollow->getSettings().value("kpBall").toString());
-    ui->deltaBallLineEdit->setText(ballfollow->getSettings().value("deltaBall").toString());
-    ui->robCenterXLineEdit->setText(ballfollow->getSettings().value("robCenterX").toString());
-    ui->robCenterYLineEdit->setText(ballfollow->getSettings().value("robCenterY").toString());
-    ui->fwSpeedLineEdit->setText(ballfollow->getSettings().value("fwSpeed").toString());
-    ui->maxDistanceLineEdit->setText(ballfollow->getSettings().value("maxDistance").toString());
-    ui->thresholdEdit->setText( ballfollow->getSettings().value( "threshold", 100 ).toString() );
+    ui->kpBalllineEdit->setText(ballfollow->getSettingsValue("kpBall").toString());
+    ui->deltaBallLineEdit->setText(ballfollow->getSettingsValue("deltaBall").toString());
+    ui->robCenterXLineEdit->setText(ballfollow->getSettingsValue("robCenterX").toString());
+    ui->robCenterYLineEdit->setText(ballfollow->getSettingsValue("robCenterY").toString());
+    ui->fwSpeedLineEdit->setText(ballfollow->getSettingsValue("fwSpeed").toString());
+    ui->maxDistanceLineEdit->setText(ballfollow->getSettingsValue("maxDistance").toString());
+    ui->thresholdEdit->setText( ballfollow->getSettingsValue( "threshold", 100 ).toString() );
 
     QObject::connect( ballfollowing, SIGNAL(printFrame(IplImage*)),
                       this, SLOT(printFrame(IplImage*)),
@@ -56,13 +56,13 @@ void BallFollowingForm::on_stopBallFollowingButton_clicked()
 
 void BallFollowingForm::on_saveAndApplyButton_clicked()
 {
-    ballfollow->getSettings().setValue("kpBall",ui->kpBalllineEdit->text().toFloat());
-    ballfollow->getSettings().setValue("deltaBall",ui->deltaBallLineEdit->text().toFloat());
-    ballfollow->getSettings().setValue("robCenterX",ui->robCenterXLineEdit->text().toFloat());
-    ballfollow->getSettings().setValue("robCenterY",ui->robCenterYLineEdit->text().toFloat());
-    ballfollow->getSettings().setValue("fwSpeed",ui->fwSpeedLineEdit->text().toFloat());
-    ballfollow->getSettings().setValue("maxDistance",ui->maxDistanceLineEdit->text().toFloat());
-    ballfollow->getSettings().setValue("threshold",ui->thresholdEdit->text().toInt());
+    ballfollow->setSettingsValue("kpBall",ui->kpBalllineEdit->text().toFloat());
+    ballfollow->setSettingsValue("deltaBall",ui->deltaBallLineEdit->text().toFloat());
+    ballfollow->setSettingsValue("robCenterX",ui->robCenterXLineEdit->text().toFloat());
+    ballfollow->setSettingsValue("robCenterY",ui->robCenterYLineEdit->text().toFloat());
+    ballfollow->setSettingsValue("fwSpeed",ui->fwSpeedLineEdit->text().toFloat());
+    ballfollow->setSettingsValue("maxDistance",ui->maxDistanceLineEdit->text().toFloat());
+    ballfollow->setSettingsValue("threshold",ui->thresholdEdit->text().toInt());
 }
 
 void BallFollowingForm::printFrame(IplImage *frame)

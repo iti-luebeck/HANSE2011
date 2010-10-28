@@ -30,27 +30,27 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *paren
 
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(updateSonarView(SonarReturnData)));
 
-    ui->serialPort->setText(sonar->getSettings().value("serialPort").toString());
-    ui->frequency->setText(sonar->getSettings().value("frequency").toString());
-    ui->gain->setValue(sonar->getSettings().value("gain").toInt());
-    ui->pulseLength->setValue(sonar->getSettings().value("pulseLength").toInt());
-    ui->range->setValue(sonar->getSettings().value("range").toInt());
-    ui->sectorWidth->setValue(sonar->getSettings().value("sectorWidth").toInt());
-    ui->stepSize->setCurrentIndex(sonar->getSettings().value("stepSize").toInt()-1);
-    ui->switchDelay->setText(sonar->getSettings().value("switchDelay").toString());
-    ui->trainAngle->setText(sonar->getSettings().value("trainAngle").toString());
-    ui->dataPoints->setText(sonar->getSettings().value("dataPoints").toString());
+    ui->serialPort->setText(sonar->getSettingsValue("serialPort").toString());
+    ui->frequency->setText(sonar->getSettingsValue("frequency").toString());
+    ui->gain->setValue(sonar->getSettingsValue("gain").toInt());
+    ui->pulseLength->setValue(sonar->getSettingsValue("pulseLength").toInt());
+    ui->range->setValue(sonar->getSettingsValue("range").toInt());
+    ui->sectorWidth->setValue(sonar->getSettingsValue("sectorWidth").toInt());
+    ui->stepSize->setCurrentIndex(sonar->getSettingsValue("stepSize").toInt()-1);
+    ui->switchDelay->setText(sonar->getSettingsValue("switchDelay").toString());
+    ui->trainAngle->setText(sonar->getSettingsValue("trainAngle").toString());
+    ui->dataPoints->setText(sonar->getSettingsValue("dataPoints").toString());
 
-    ui->sourceFile->setChecked(sonar->getSettings().value("readFromFile").toBool());
-    ui->sourceSerial->setChecked(!sonar->getSettings().value("readFromFile").toBool());
-    ui->fileName->setText(sonar->getSettings().value("filename").toString());
-    ui->enableRecording->setChecked(sonar->getSettings().value("enableRecording").toBool());
-    ui->fileReaderDelay->setValue(sonar->getSettings().value("fileReaderDelay").toInt());
-    ui->formatCSV->setChecked(sonar->getSettings().value("formatCSV").toBool());
-    ui->format852->setChecked(!sonar->getSettings().value("formatCSV").toBool());
-    ui->startTime->setDateTime(sonar->getSettings().value("startTime").toDateTime());
-    ui->scanPeriod->setText(sonar->getSettings().value("scanPeriod").toString());
-    ui->scanPeriodMaxScans->setText(sonar->getSettings().value("scanPeriodMaxScans").toString());
+    ui->sourceFile->setChecked(sonar->getSettingsValue("readFromFile").toBool());
+    ui->sourceSerial->setChecked(!sonar->getSettingsValue("readFromFile").toBool());
+    ui->fileName->setText(sonar->getSettingsValue("filename").toString());
+    ui->enableRecording->setChecked(sonar->getSettingsValue("enableRecording").toBool());
+    ui->fileReaderDelay->setValue(sonar->getSettingsValue("fileReaderDelay").toInt());
+    ui->formatCSV->setChecked(sonar->getSettingsValue("formatCSV").toBool());
+    ui->format852->setChecked(!sonar->getSettingsValue("formatCSV").toBool());
+    ui->startTime->setDateTime(sonar->getSettingsValue("startTime").toDateTime());
+    ui->scanPeriod->setText(sonar->getSettingsValue("scanPeriod").toString());
+    ui->scanPeriodMaxScans->setText(sonar->getSettingsValue("scanPeriodMaxScans").toString());
 
     ui->recorderFilename->setText(DataLogHelper::getLogDir()+"sonarlog.XXX");
 }
@@ -131,16 +131,16 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 
 void ScanningSonarForm::on_save_clicked()
 {
-    sonar->getSettings().setValue("serialPort", ui->serialPort->text());
-    sonar->getSettings().setValue("frequency", ui->frequency->text().toInt());
-    sonar->getSettings().setValue("gain", ui->gain->value());
-    sonar->getSettings().setValue("pulseLength", ui->pulseLength->value());
-    sonar->getSettings().setValue("range", ui->range->value());
-    sonar->getSettings().setValue("sectorWidth", ui->sectorWidth->value());
-    sonar->getSettings().setValue("stepSize", ui->stepSize->currentIndex()+1);
-    sonar->getSettings().setValue("switchDelay", ui->switchDelay->text().toInt());
-    sonar->getSettings().setValue("trainAngle", ui->trainAngle->text().toInt());
-    sonar->getSettings().setValue("dataPoints", ui->dataPoints->text().toInt());
+    sonar->setSettingsValue("serialPort", ui->serialPort->text());
+    sonar->setSettingsValue("frequency", ui->frequency->text().toInt());
+    sonar->setSettingsValue("gain", ui->gain->value());
+    sonar->setSettingsValue("pulseLength", ui->pulseLength->value());
+    sonar->setSettingsValue("range", ui->range->value());
+    sonar->setSettingsValue("sectorWidth", ui->sectorWidth->value());
+    sonar->setSettingsValue("stepSize", ui->stepSize->currentIndex()+1);
+    sonar->setSettingsValue("switchDelay", ui->switchDelay->text().toInt());
+    sonar->setSettingsValue("trainAngle", ui->trainAngle->text().toInt());
+    sonar->setSettingsValue("dataPoints", ui->dataPoints->text().toInt());
     sonar->reset();
 
     // the scan resolution may have changed, clear the graphics scene
@@ -151,14 +151,14 @@ void ScanningSonarForm::on_save_clicked()
 
 void ScanningSonarForm::on_fileCfgApply_clicked()
 {
-    sonar->getSettings().setValue("readFromFile", ui->sourceFile->isChecked());
-    sonar->getSettings().setValue("filename", ui->fileName->text());
-    sonar->getSettings().setValue("fileReaderDelay", ui->fileReaderDelay->value());
-    sonar->getSettings().setValue("enableRecording", ui->enableRecording->isChecked());
-    sonar->getSettings().setValue("formatCSV", ui->formatCSV->isChecked());
-    sonar->getSettings().setValue("startTime", ui->startTime->dateTime());
-    sonar->getSettings().setValue("scanPeriodMaxScans", ui->scanPeriodMaxScans->text());
-    sonar->getSettings().setValue("scanPeriod", ui->scanPeriod->text());
+    sonar->setSettingsValue("readFromFile", ui->sourceFile->isChecked());
+    sonar->setSettingsValue("filename", ui->fileName->text());
+    sonar->setSettingsValue("fileReaderDelay", ui->fileReaderDelay->value());
+    sonar->setSettingsValue("enableRecording", ui->enableRecording->isChecked());
+    sonar->setSettingsValue("formatCSV", ui->formatCSV->isChecked());
+    sonar->setSettingsValue("startTime", ui->startTime->dateTime());
+    sonar->setSettingsValue("scanPeriodMaxScans", ui->scanPeriodMaxScans->text());
+    sonar->setSettingsValue("scanPeriod", ui->scanPeriod->text());
 
 
     sonar->reset();
@@ -166,7 +166,7 @@ void ScanningSonarForm::on_fileCfgApply_clicked()
 
 void ScanningSonarForm::on_fileReaderDelay_valueChanged(int )
 {
-    sonar->getSettings().setValue("fileReaderDelay", ui->fileReaderDelay->value());
+    sonar->setSettingsValue("fileReaderDelay", ui->fileReaderDelay->value());
 }
 
 void ScanningSonarForm::on_selFile_clicked()

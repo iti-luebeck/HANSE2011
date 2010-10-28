@@ -28,13 +28,13 @@ Form_VisualSLAM::Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent
         ui->rightCameraBox->addItem( boxName );
     }
 
-    QSettings& settings = visualSlam->getSettings();
+//    QSettings& settings = visualSlam->getSettings();
     ui->leftCameraBox->setCurrentIndex(
-            settings.value( QString( "left_camera" ), VSLAM_CAMERA_LEFT ).toInt() );
+            visualSlam->getSettingsValue( QString( "left_camera" ), VSLAM_CAMERA_LEFT ).toInt() );
     ui->rightCameraBox->setCurrentIndex(
-            settings.value( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
-    ui->checkBox->setChecked( settings.value( QString( "capture" ), false ).toBool() );
-    ui->noSLAMBox->setChecked( settings.value( "no_slam", true ).toBool() );
+            visualSlam->getSettingsValue( QString( "right_camera" ), VSLAM_CAMERA_RIGHT ).toInt() );
+    ui->checkBox->setChecked( visualSlam->getSettingsValue( QString( "capture" ), false ).toBool() );
+    ui->noSLAMBox->setChecked( visualSlam->getSettingsValue( "no_slam", true ).toBool() );
 }
 
 Form_VisualSLAM::~Form_VisualSLAM()
@@ -113,16 +113,16 @@ void Form_VisualSLAM::on_applyButton_clicked()
         msgBox.exec();
         return;
     }
-    QSettings& settings = visualSlam->getSettings();
-    settings.setValue( QString( "left_camera"), device1 );
-    settings.setValue( QString( "right_camera"), device2 );
-    settings.setValue( "no_slam", ui->noSLAMBox->isChecked() );
+//    QSettings& settings = visualSlam->getSettings();
+    visualSlam->setSettingsValue( QString( "left_camera"), device1 );
+    visualSlam->setSettingsValue( QString( "right_camera"), device2 );
+    visualSlam->setSettingsValue( "no_slam", ui->noSLAMBox->isChecked() );
 }
 
 void Form_VisualSLAM::on_checkBox_clicked()
 {
-    QSettings& settings = visualSlam->getSettings();
-    settings.setValue( QString( "capture" ), ui->checkBox->isChecked() );
+//    QSettings& settings = visualSlam->getSettings();
+    visualSlam->setSettingsValue( QString( "capture" ), ui->checkBox->isChecked() );
 }
 
 void Form_VisualSLAM::updateCams( RobotModule * )

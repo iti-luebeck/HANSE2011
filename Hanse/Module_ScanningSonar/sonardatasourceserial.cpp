@@ -17,15 +17,15 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
 
     SonarSwitchCommand cmd;
 
-    cmd.range = parent.getSettings().value("range").toInt();
-    cmd.startGain = parent.getSettings().value("gain").toInt();
-    cmd.trainAngle = parent.getSettings().value("trainAngle").toInt();
-    cmd.sectorWidth = parent.getSettings().value("sectorWidth").toInt();
-    cmd.stepSize = parent.getSettings().value("stepSize").toInt();
-    cmd.pulseLength = parent.getSettings().value("pulseLength").toInt();
-    cmd.dataPoints = parent.getSettings().value("dataPoints").toInt();
-    cmd.switchDelay = parent.getSettings().value("switchDelay").toInt();
-    cmd.frequency = parent.getSettings().value("frequency").toInt();
+    cmd.range = parent.getSettingsValue("range").toInt();
+    cmd.startGain = parent.getSettingsValue("gain").toInt();
+    cmd.trainAngle = parent.getSettingsValue("trainAngle").toInt();
+    cmd.sectorWidth = parent.getSettingsValue("sectorWidth").toInt();
+    cmd.stepSize = parent.getSettingsValue("stepSize").toInt();
+    cmd.pulseLength = parent.getSettingsValue("pulseLength").toInt();
+    cmd.dataPoints = parent.getSettingsValue("dataPoints").toInt();
+    cmd.switchDelay = parent.getSettingsValue("switchDelay").toInt();
+    cmd.frequency = parent.getSettingsValue("frequency").toInt();
 
 
     QByteArray sendArray = cmd.toSerialCmd();
@@ -36,8 +36,8 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
     QByteArray retData;
 
     int expectedLength;
-    logger->debug("dataPoints:"+QString::number(parent.getSettings().value("dataPoints").toInt()));
-    if (parent.getSettings().value("dataPoints").toInt()==50)
+    logger->debug("dataPoints:"+QString::number(parent.getSettingsValue("dataPoints").toInt()));
+    if (parent.getSettingsValue("dataPoints").toInt()==50)
         expectedLength = 513;
     else
         expectedLength = 265;
@@ -70,12 +70,12 @@ void SonarDataSourceSerial::configurePort()
     s.StopBits = STOP_1;
     s.Parity = PAR_NONE;
     s.Timeout_Millisec = 1;
-    port = new QextSerialPort(parent.getSettings().value("serialPort").toString(), s,QextSerialPort::Polling);
+    port = new QextSerialPort(parent.getSettingsValue("serialPort").toString(), s,QextSerialPort::Polling);
     bool ret = port->open(QextSerialPort::ReadWrite);
     if (ret)
         logger->debug("Opened serial port!");
     else
-        parent.setHealthToSick("Could not open serial port '"+parent.getSettings().value("serialPort").toString()+"'");
+        parent.setHealthToSick("Could not open serial port '"+parent.getSettingsValue("serialPort").toString()+"'");
 }
 
 bool SonarDataSourceSerial::isOpen()

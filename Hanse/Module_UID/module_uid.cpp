@@ -332,17 +332,17 @@ bool Module_UID::I2C_Write(unsigned char address, const char* data, short byteCo
     return SendCheckCommand(send);
 }
 
-void Module_UID::I2C_Write(unsigned char address, const char* data, short byteCount, bool* status) {
-    logger->trace("I2C_Write");
-
-    QByteArray send;
-    send += Module_UID::I2C_WRITE;
-    send += address;
-    send += byteCount;
-    send.append(data, byteCount);
-    bool u = SendCheckCommand(send);
-    status = &u;
-}
+//void Module_UID::I2C_Write(unsigned char address, const char* data, short byteCount, bool* status) {
+//    logger->trace("I2C_Write");
+//
+//    QByteArray send;
+//    send += Module_UID::I2C_WRITE;
+//    send += address;
+//    send += byteCount;
+//    send.append(data, byteCount);
+//    bool u = SendCheckCommand(send);
+//    status = &u;
+//}
 
 bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) {
     logger->trace("I2C_Read");
@@ -354,15 +354,15 @@ bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) 
     return SendCheckCommand(send,result,byteCount);
 }
 
-void Module_UID::I2C_Read(unsigned char address, short byteCount, char* result, bool status) {
-    logger->trace("I2C_Read");
-
-    QByteArray send;
-    send += Module_UID::I2C_READ;
-    send += address;
-    send += byteCount;
-    status = SendCheckCommand(send,result,byteCount);
-}
+//void Module_UID::I2C_Read(unsigned char address, short byteCount, char* result, bool status) {
+//    logger->trace("I2C_Read");
+//
+//    QByteArray send;
+//    send += Module_UID::I2C_READ;
+//    send += address;
+//    send += byteCount;
+//    status = SendCheckCommand(send,result,byteCount);
+//}
 
 QString Module_UID::UID_Identify() {
     // deadlock if commented in
@@ -415,17 +415,17 @@ bool Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, sho
 }
 
 
-void Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result, bool status) {
-    logger->trace("I2C_ReadRegisters");
-
-    QByteArray send;
-    send += Module_UID::I2C_READREGISTER;
-    send += address;
-    send += reg;
-    send += byteCount;
-
-    status = SendCheckCommand(send,result, byteCount);
-}
+//void Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result, bool status) {
+//    logger->trace("I2C_ReadRegisters");
+//
+//    QByteArray send;
+//    send += Module_UID::I2C_READREGISTER;
+//    send += address;
+//    send += reg;
+//    send += byteCount;
+//
+//    status = SendCheckCommand(send,result, byteCount);
+//}
 
 QVector<unsigned char> Module_UID::I2C_Scan() {
     QMutexLocker l(&this->moduleMutex);

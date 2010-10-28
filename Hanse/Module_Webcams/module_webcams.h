@@ -20,17 +20,18 @@ public:
     QList<RobotModule*> getDependencies();
 
 
+    void grabLeft( IplImage *left );
+    void grabRight( IplImage *right );
+    void grabBottom( IplImage *bottom );
+    void grabBottom( cv::Mat &bottom );
+//    void grabBottom(QImage bottom);
+
+
 
 private:
     void stopWebcams();
 
 public slots:
-
-    void grabLeft( IplImage *left );
-    void grabRight( IplImage *right );
-    void grabBottom( IplImage *bottom );
-    void grabBottom( cv::Mat &bottom );
-    void grabBottom(QImage bottom);
 
     void statusChange( bool value );
     void settingsChanged();

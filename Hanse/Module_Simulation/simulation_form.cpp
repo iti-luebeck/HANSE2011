@@ -7,8 +7,8 @@ Simulation_Form::Simulation_Form(Module_Simulation *module, QWidget *parent) :
 {
     ui->setupUi(this);
     this->module = module;
-    ui->server_ip_adress->setText(module->getSettings().value("server_ip_adress").toString());
-    ui->server_port->setText(module->getSettings().value("server_port").toString());
+    ui->server_ip_adress->setText(module->getSettingsValue("server_ip_adress").toString());
+    ui->server_port->setText(module->getSettingsValue("server_port").toString());
 }
 
 Simulation_Form::~Simulation_Form()
@@ -30,6 +30,6 @@ void Simulation_Form::changeEvent(QEvent *e)
 
 void Simulation_Form::on_save_clicked()
 {
-    module->getSettings().setValue("server_ip_adress", ui->server_ip_adress->text());
-    module->getSettings().setValue("server_port", ui->server_port->text().toInt());
+    module->setSettingsValue("server_ip_adress", ui->server_ip_adress->text());
+    module->setSettingsValue("server_port", ui->server_port->text().toInt());
 }

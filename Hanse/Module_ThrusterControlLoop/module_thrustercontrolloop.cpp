@@ -59,20 +59,20 @@ void Module_ThrusterControlLoop::reset()
 
 void Module_ThrusterControlLoop::updateConstantsFromInitNow()
 {
-    p_down    = getSettings().value("p_down").toFloat();
-    p_up      = getSettings().value("p_up").toFloat();
-    maxSpD    = getSettings().value("maxSpD").toFloat();
-    maxSpU    = getSettings().value("maxSpU").toFloat();
-    neutrSpD  = getSettings().value("neutrSpD").toFloat();
-    maxDepthError = getSettings().value("maxDepthError").toFloat();
+    p_down    = getSettingsValue("p_down").toFloat();
+    p_up      = getSettingsValue("p_up").toFloat();
+    maxSpD    = getSettingsValue("maxSpD").toFloat();
+    maxSpU    = getSettingsValue("maxSpU").toFloat();
+    neutrSpD  = getSettingsValue("neutrSpD").toFloat();
+    maxDepthError = getSettingsValue("maxDepthError").toFloat();
 
-    horizSpM_exp = getSettings().value("horizSpM_exp").toBool();    
-    ignoreHealth = getSettings().value("ignoreHealth").toBool();
+    horizSpM_exp = getSettingsValue("horizSpM_exp").toBool();
+    ignoreHealth = getSettingsValue("ignoreHealth").toBool();
 }
 
 void Module_ThrusterControlLoop::healthStatusChanged(HealthStatus pressureSensorHealth) {
 
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     this->pressureSensor_isHealthOK = pressureSensorHealth.isHealthOk();
@@ -81,7 +81,7 @@ void Module_ThrusterControlLoop::healthStatusChanged(HealthStatus pressureSensor
 
 void Module_ThrusterControlLoop::newDepthData(float depth)
 {
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     if (control_loop_enabled) {
@@ -189,7 +189,7 @@ void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
 
 void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 {
-    if (!getSettings().value("enabled").toBool() || paused)
+    if (!getSettingsValue("enabled").toBool() || paused)
         return;
 
     if (angularSpeed> 1.0) { angularSpeed= 1.0; }
@@ -203,7 +203,7 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 
 void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 {
-    if (!getSettings().value("enabled").toBool() || paused)
+    if (!getSettingsValue("enabled").toBool() || paused)
         return;
 
     if (speed> 1.0) { speed= 1.0; }
@@ -217,7 +217,7 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 
 void Module_ThrusterControlLoop::setDepth(float depth)
 {
-    if (!getSettings().value("enabled").toBool() || paused)
+    if (!getSettingsValue("enabled").toBool() || paused)
         return;
 
     control_loop_enabled=true;

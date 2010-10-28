@@ -63,7 +63,7 @@ void Compass_Form::on_calibStop_clicked()
 
 void Compass_Form::dataChanged(RobotModule *module)
 {
-    uint8_t byte = module->getData().value("reg_om1").toInt();
+    uint8_t byte = module->getDataValue("reg_om1").toInt();
     ui->om_1_0->setChecked(byte & 0x01);
     ui->om_1_1->setChecked(byte & 0x02);
     ui->om_1_2->setChecked(byte & 0x04);

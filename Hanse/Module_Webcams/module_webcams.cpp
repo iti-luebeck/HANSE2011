@@ -82,23 +82,23 @@ void Module_Webcams::grabBottom( cv::Mat &bottom )
         mutex.unlock();
     }
 }
-
-void Module_Webcams::grabBottom(QImage bottom1)
-{
-    cv::Mat bottom;
-    bottom.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-    qDebug() << "cam thread id";
-    qDebug() << QThread::currentThreadId();
-    if ( bottomConnected )//&& VI.isFrameNew(bottomID))
-    {
-        mutex.lock();
-        assert( bottom.cols == WEBCAM_WIDTH && bottom.rows == WEBCAM_HEIGHT );
-        VI.getPixels( bottomID, (unsigned char *)bottom.data, true, true );
-        mutex.unlock();
-    }
-     QImage image1((unsigned char*)bottom.data, bottom.cols, bottom.rows, QImage::Format_RGB888);
-     bottom1 = image1.copy();
-}
+//
+//void Module_Webcams::grabBottom(QImage bottom1)
+//{
+//    cv::Mat bottom;
+//    bottom.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+//    qDebug() << "cam thread id";
+//    qDebug() << QThread::currentThreadId();
+//    if ( bottomConnected )//&& VI.isFrameNew(bottomID))
+//    {
+//        mutex.lock();
+//        assert( bottom.cols == WEBCAM_WIDTH && bottom.rows == WEBCAM_HEIGHT );
+//        VI.getPixels( bottomID, (unsigned char *)bottom.data, true, true );
+//        mutex.unlock();
+//    }
+//     QImage image1((unsigned char*)bottom.data, bottom.cols, bottom.rows, QImage::Format_RGB888);
+//     bottom1 = image1.copy();
+//}
 
 void Module_Webcams::reset()
 {

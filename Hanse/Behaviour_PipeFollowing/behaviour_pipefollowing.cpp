@@ -569,18 +569,20 @@ void Behaviour_PipeFollowing::updateData()
 
 void Behaviour_PipeFollowing::updateFromSettings()
 {
+    qDebug() << "update Settings pipefollow";
+    this->moduleMutex.lock();
     this->firstRun = 1;
     this->timerTime = this->getSettingsValue("timer",0).toInt();
     this->threshSegmentation = this->getSettingsValue("threshold",188).toInt();
     this->debug = this->getSettingsValue("debug",0).toInt();
     this->deltaAngPipe = this->getSettingsValue("deltaAngle",11).toFloat();
     this->deltaDistPipe = this->getSettingsValue("deltaDist",100).toFloat();
-    this->kpAngle = this->getSettingsValue("kpDist",1).toFloat();
-    this->kpDist = this->getSettingsValue("kpAngle",1).toFloat();
+    this->kpDist = this->getSettingsValue("kpDist",1).toFloat();
+    this->kpAngle = this->getSettingsValue("kpAngle",1).toFloat();
     this->constFWSpeed = this->getSettingsValue("fwSpeed",0.8).toFloat();
     this->robCenter = Point(this->getSettingsValue("robCenterX",320).toDouble(),this->getSettingsValue("robCenterY",240).toDouble());
     this->maxDistance = this->getSettingsValue("maxDistance",320).toFloat();
-
+    this->moduleMutex.unlock();
 
 //    this->timerTime = this->getSettings().value("timer",0).toInt();
 //    this->threshSegmentation = this->getSettings().value("threshold",188).toInt();

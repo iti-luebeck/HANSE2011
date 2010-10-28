@@ -8,7 +8,8 @@ using namespace cv;
 using namespace std;
 
 SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization* sonar, SonarEchoFilter *filter)
-    : s(sonar->getSettings()),
+//    : s(sonar->getSettings()),
+    :
       particlesMutex(QMutex::Recursive),
       controlVariance(0,0,0),
       initialVariance(0,0,0)
@@ -34,13 +35,13 @@ void SonarParticleFilter::reset()
 {
     QMutexLocker m(&particlesMutex);
 
-    N = s.value("particleCount").toInt();
+    N = sonar->getSettingsValue("particleCount").toInt();
     if (N<1)
         N=100;
 
     particles.resize(N);
 
-    QStringList initVarString = s.value("initVariance").toString().split(";");
+    QStringList initVarString = sonar->getSettingsValue("initVariance").toString().split(";");
     if (initVarString.size()<3) {
         logger->error("could not parse initVariance");
     } else {
@@ -49,7 +50,7 @@ void SonarParticleFilter::reset()
                                     initVarString[2].toFloat());
     }
 
-    QStringList controlVarString = s.value("controlVariance").toString().split(";");
+    QStringList controlVarString = sonar->getSettingsValue("controlVariance").toString().split(";");
     if (controlVarString.size()<3) {
         logger->error("could not parse controlVariance");
     } else {
@@ -58,7 +59,7 @@ void SonarParticleFilter::reset()
                                     controlVarString[2].toFloat());
     }
 
-    QVector3D initialPos = QVector3D(sonar->getSettings().value("savedPosition").toPointF());
+    QVector3D initialPos = QVector3D(sonar->getSettingsValue("savedPosition").toPointF());
     for (int i=0; i<N; i++) {
         particles[i] = sampleGauss(initialPos, initialVariance).toVector4D();
     }
@@ -67,7 +68,7 @@ void SonarParticleFilter::reset()
 void SonarParticleFilter::loadMap()
 {
     logger->debug("Loading sonar map");
-    Mat combinedMap = cv::imread(sonar->getSettings().value("mapFile").toString().toStdString(), 1);
+    Mat combinedMap = cv::imread(sonar->getSettingsValue("mapFile").toString().toStdString(), 1);
     if (combinedMap.data == NULL) {
         logger->error("Could not read map!");
         return;
@@ -167,7 +168,7 @@ QVector3D SonarParticleFilter::sampleGauss(const QVector3D& mean, const QVector3
 double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations)
 {
     int N = observations.size();
-    float b = s.value("boltzmann").toFloat();
+    float b = sonar->getSettingsValue("boltzmann").toFloat();
 
     // TODO: this data copying can be avoided by doing all math in opencv data structures
     Mat zPoints(N, 2, CV_32F);
@@ -241,7 +242,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
     QVector<QVector4D> oldParticles = particles;
     particlesMutex.unlock();
 
-    if (observations.size()<s.value("imgMinPixels").toInt()) {
+    if (observations.size()<sonar->getSettingsValue("imgMinPixels").toInt()) {
         logger->warn("not enough points. dropping meassurement.");
         return;
     }
@@ -329,7 +330,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
 
     logger->debug("Updating the particle filter... DONE");
 
-    this->sonar->getSettings().setValue("savedPosition", getBestEstimate().toPointF());
+    this->sonar->setSettingsValue("savedPosition", getBestEstimate().toPointF());
 
     emit newPosition(getBestEstimate());
 }

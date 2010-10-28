@@ -171,9 +171,7 @@ void Module_Compass::doHealthCheck()
 
     uint8_t sw_version;
     if (!eepromRead(0x02,sw_version)) {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+        setHealthToSick(uid->getLastError());
         return;
     }
 
@@ -380,20 +378,14 @@ bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
                                     char *recv_buf, int recv_size, int delay)
 {
     char address = this->getSettingsValue("i2cAddress").toInt();
-    bool status;
-    emit I2C_Read(address,send_size,send_buf,status);
-    if (!status) {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+
+    if (!uid->I2C_Read(address,send_size,send_buf)) {
+        setHealthToSick(uid->getLastError());
         return false;
     }
     msleep(delay);
-    emit I2C_Read(address, recv_size, recv_buf, status);
-    if (recv_size>0 && !status) {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+    if (recv_size>0 && !uid->I2C_Read(address,recv_size,recv_buf)) {
+        setHealthToSick(uid->getLastError());
         return false;
     }
     return true;

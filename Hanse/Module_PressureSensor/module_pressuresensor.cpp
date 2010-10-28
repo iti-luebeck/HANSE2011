@@ -28,10 +28,6 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
 
     this->uid=uid;
 
-    QObject::connect(this,SIGNAL(I2C_ReadRegisters(unsigned char,unsigned char,short,char*,bool)),uid,SLOT(I2C_ReadRegisters(unsigned char,unsigned char,short,char*,bool)),Qt::BlockingQueuedConnection);
-    QObject::connect(this,SIGNAL(I2C_Write(unsigned char,const char*,short,bool*)),uid,SLOT(I2C_Write(unsigned char,const char*,short,bool*)),Qt::BlockingQueuedConnection);
-    QObject::connect(this,SIGNAL(getUIDErrorMsg(QString)),uid,SLOT(getLastError(QString)),Qt::BlockingQueuedConnection);
-
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
 
@@ -72,19 +68,9 @@ void Module_PressureSensor::reset()
     unsigned char address = getSettingsValue("i2cAddress").toInt();
     char reg = REQUEST_NEW_CALIB_VALUES;
 
-    bool status;
-    emit I2C_Write(address, &reg, 1, &status);
-    data["AAstatus"] = status;
-    emit dataChanged(this);
-    if(!status)
-    {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+    if (!uid->I2C_Write(address, &reg, 1)) {
+        setHealthToSick(uid->getLastError());
     }
-//    if (!uid->I2C_Write(address, &reg, 1)) {
-//        setHealthToSick(uid->getLastError());
-//    }
     msleep(100);
 
 }
@@ -108,9 +94,7 @@ void Module_PressureSensor::readPressure()
     unsigned char readBuffer[2];
 
     if (!readRegister(REGISTER_PRESSURE, 2, (char*)readBuffer)) {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+        setHealthToSick(uid->getLastError());
         return;
     }
 
@@ -136,9 +120,7 @@ void Module_PressureSensor::readTemperature()
 
     unsigned char readBuffer[2];
     if (!readRegister(REGISTER_TEMP, 2, (char*)readBuffer)) {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+        setHealthToSick(uid->getLastError());
         return;
     }
 
@@ -183,9 +165,7 @@ void Module_PressureSensor::doHealthCheck()
     char readBuffer[1];
 
     if (!readRegister(REGISTER_STATUS, 1, readBuffer)) {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+        setHealthToSick(uid->getLastError());
         return;
     }
 
@@ -197,9 +177,7 @@ void Module_PressureSensor::doHealthCheck()
     // check if the counter is increasing.
 
     if (!readRegister(REGISTER_COUNTER, 1, readBuffer)) {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+        setHealthToSick(uid->getLastError());
         return;
     }
 
@@ -222,18 +200,9 @@ bool Module_PressureSensor::readRegister(unsigned char reg, int size, char *ret_
 {
     unsigned char address = getSettingsValue("i2cAddress").toInt();
 
-    bool status;
-    emit I2C_ReadRegisters(address, reg, size, ret_buf, status);
-    if(!status)
-    {
-        QString err;
-        emit getUIDErrorMsg(err);
-        setHealthToSick(err);
+    if (!uid->I2C_ReadRegisters(address, reg, size, ret_buf)) {
+        setHealthToSick(uid->getLastError());
         return false;
     }
-//    if (!uid->I2C_ReadRegisters(address, reg, size, ret_buf)) {
-//        setHealthToSick(uid->getLastError());
-//        return false;
-//    }
     return true;
 }

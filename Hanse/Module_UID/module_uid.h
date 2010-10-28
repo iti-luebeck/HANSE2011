@@ -71,8 +71,6 @@ public:
         khz400 = 0xFF
     };
 
-
-public slots:
     /** \brief  UID Available
      *
      *  Ueberprueft ob UID vorhanden
@@ -124,7 +122,7 @@ public slots:
      *  @return                     TRUE wenn Lesen erfolgreich
      */
     bool I2C_Read(unsigned char address, short byteCount, char* result);
-    void I2C_Read(unsigned char address, short byteCount, char* result, bool status);
+//    void I2C_Read(unsigned char address, short byteCount, char* result, bool status);
     /** \brief I2C-Read Register Methode
      *
      *  Liest Daten aus einem Register von einem Slave
@@ -136,7 +134,7 @@ public slots:
      *  @return                     TRUE wenn Lesen erfolgreich
      */
     bool I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char* result);
-    void I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char *result, bool status);
+//    void I2C_ReadRegisters(unsigned char address, unsigned char reg, short byteCount, char *result, bool status);
 
     /** \brief I2C-Write Methode
      *
@@ -148,7 +146,7 @@ public slots:
      *  @return                     TRUE wenn Schreiben erfolgreich
      */
     bool I2C_Write(unsigned char address, const char* data, short byteCount);
-    void I2C_Write(unsigned char address, const char* data, short byteCount, bool* status);
+//    void I2C_Write(unsigned char address, const char* data, short byteCount, bool* status);
 
 
     /** \brief I2C-Write Register Methode
@@ -239,7 +237,7 @@ public slots:
       * returns true if the last problem is a slave problem, i.e. its not a fault of the uid.
       */
     bool isSlaveProblem();
-
+public slots:
     // inherited from RobotModule
     void reset();
     // inherited from RobotModule
