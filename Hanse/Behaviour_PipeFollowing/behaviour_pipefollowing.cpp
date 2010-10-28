@@ -40,12 +40,9 @@ bool Behaviour_PipeFollowing::isActive()
 
 void Behaviour_PipeFollowing::start()
 {
-    this->curAngle = 0.0;
-    this->distanceY = 0.0;
-
-    this->noPipeCnt = 0;
     if( !isEnabled() )
     {
+        this->reset();
         logger->info("Behaviour started" );
         Behaviour_PipeFollowing::updateFromSettings();
         this->setHealthToOk();
@@ -87,8 +84,8 @@ void Behaviour_PipeFollowing::reset()
 {
     this->curAngle = 0.0;
     this->distanceY = 0.0;
-
-    RobotBehaviour_MT::reset();
+    this->noPipeCnt = 0;
+//    RobotBehaviour_MT::reset();
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
 //    this->tcl->setForwardSpeed(0.0);
@@ -115,9 +112,7 @@ void Behaviour_PipeFollowing::timerSlot()
     QTime run;
     run.restart();
 //    Mat binaryFrame;
-    qDebug() << "grab";
     cam->grabBottom( frame );
-    qDebug() << "grabbed";
 
     if(!frame.empty())
     {
@@ -818,18 +813,14 @@ threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
         }
 //        emit printFrameOnUi(frame);
     }
-//    qDebug() << "lock pipe mutex";
-//    dataLockerMutex.lock();
-//    qDebug() << "copy frame";
-//    frame.copyTo(displayFrame);
-//    qDebug() << "unlock pipe mutex";
-//    dataLockerMutex.unlock();
-//    qDebug() << "unlocked";
+    dataLockerMutex.lock();
+    frame.copyTo(displayFrame);
+    dataLockerMutex.unlock();
 }
 
 void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
 {
-//    dataLockerMutex.lock();
-//    displayFrame.copyTo(frame);
-//    dataLockerMutex.unlock();
+    dataLockerMutex.lock();
+    displayFrame.copyTo(frame);
+    dataLockerMutex.unlock();
 }

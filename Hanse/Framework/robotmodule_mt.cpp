@@ -10,7 +10,6 @@ RobotModule_MT::RobotModule_MT(QString id)
 
 const QMap<QString,QVariant> RobotModule_MT::getData()
 {
-    logger->debug("jetzt aber");
     QMutexLocker l(&dataLockerMutex);
     QMap<QString,QVariant> map;
     QMap<QString, QVariant>::const_iterator i = data.constBegin();

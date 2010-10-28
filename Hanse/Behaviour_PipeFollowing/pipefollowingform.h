@@ -27,6 +27,7 @@ private:
     QTimer updateUI;
 
 private slots:
+    void on_checkBox_clicked();
     void on_stopButton_clicked();
     void on_saveApplyButton_clicked();
     void on_startFromVideoFileButton_clicked();

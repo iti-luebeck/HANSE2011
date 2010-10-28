@@ -19,7 +19,7 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     this->videoFile = "../../../pipe_handy.avi" ;
 
     QObject::connect(&updateUI,SIGNAL(timeout()),this,SLOT(updatePixmap()));
-//    QTimer::singleShot(10, &updateUI,SLOT(start()));
+    updateUI.setInterval(1000);
 
 //    pipefollow->getSettings().setValue("videoFilePath",this->videoFile);
 //    pipefollow->setSettingsValue("videoFilePath",this->videoFile);
@@ -87,6 +87,7 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     ui->vRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 3);
     ui->grayRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 4);
     ui->hsvRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 0);
+    ui->checkBox->setChecked(pipefollow->getSettingsValue("enableUIOutput").toBool());
 
 //    ui->curVideofileLabel->setText(pipefollow->getSettings().value("videoFilePath").toString());
 //    ui->thresholdLineEdit->setText(pipefollow->getSettings().value("threshold").toString());
@@ -135,6 +136,8 @@ void PipeFollowingForm::on_startPipeFollowingButton_clicked()
 {
 //    pipefollow->getSettings().setValue("useCamera", true /*ui->useCameraRadioButton->isChecked()*/);
     emit startPipeFollow();
+//    QTimer::singleShot(0, &updateUI,SLOT(start()));
+
 //    pipefollow->start();
 //    if(ui->useCameraRadioButton->isChecked())
 //    {
@@ -230,12 +233,12 @@ void PipeFollowingForm::updatePixmap()
     pipefollow->grabFrame(frame);
     if(!frame.empty())
     {
-   QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
-//    QImage image1;
-    ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
+        QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
+        //    QImage image1;
+        ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
 
     }
-     else
+    else
     {
         ui->curVideofileLabel->setText("Empty Frame");
     }
@@ -245,7 +248,20 @@ void PipeFollowingForm::updatePixmap()
 void PipeFollowingForm::on_stopButton_clicked()
 {
     emit stopPipeFollow();
+    QTimer::singleShot(0,&updateUI,SLOT(stop()));
 //    pipefollow->stop();
 }
 
 
+
+void PipeFollowingForm::on_checkBox_clicked()
+{
+    if(ui->checkBox->isChecked())
+    {
+        QTimer::singleShot(0,&updateUI,SLOT(start()));
+        pipefollow->setSettingsValue("enableUIOutput",true);
+    }
+    else if(!ui->checkBox->isChecked())
+        QTimer::singleShot(0,&updateUI,SLOT(stop()));
+        pipefollow->setSettingsValue("enableUIOutput",false);
+}
