@@ -442,9 +442,9 @@
    </property>
    <property name="text">
     <string>WARNING! 
-Please check camera settings. Automatic camera control have to be deactivated. 
-Otherwise there will be a problem with the running time. Grabbing a frame could 
-take up to 300ms in dark enviroments.</string>
+Please check camera settings. Disable automatic camera control. 
+Otherwise there will be a problem with the running time. 
+Grabbing a frame could take up to 300ms in dark enviroments.</string>
    </property>
   </widget>
  </widget>
