@@ -136,7 +136,7 @@ void Behaviour_BallFollowing::testBehaviour( QString path )
         cvCvtColor( left, gray, CV_RGB2GRAY );
         cvCvtColor( left, hsv, CV_RGB2HSV );
         cvSplit( hsv, NULL, gray, NULL, NULL );
-        cvThreshold( gray, thresh, settings.value( "threshold", 100 ).toDouble(), 255, CV_THRESH_BINARY );
+        cvThreshold( gray, thresh, getSettingsValue( "threshold", 100 ).toDouble(), 255, CV_THRESH_BINARY );
         cvMerge( thresh, thresh, thresh, NULL, disp );
 
         // Do blob filtering.
@@ -188,7 +188,7 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     cvCvtColor( left, gray, CV_RGB2GRAY );
     cvCvtColor( left, hsv, CV_RGB2HSV );
     cvSplit( hsv, NULL, gray, NULL, NULL );
-    cvThreshold( gray, thresh, settings.value( "threshold", 100 ).toDouble(), 255, CV_THRESH_BINARY );
+    cvThreshold( gray, thresh, getSettingsValue( "threshold", 100 ).toDouble(), 255, CV_THRESH_BINARY );
     cvMerge( thresh, thresh, thresh, NULL, disp );
 
     // Do blob filtering.
@@ -230,11 +230,11 @@ void Behaviour_BallFollowing::ctrBallFollowing()
         tcl->setAngularSpeed(angleSpeed);
         tcl->setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
 
-        data["ball_area"] = maxArea;
-        data["ball_x"] = x;
-        data["position_difference"] = diff;
-        data["angular_speed"] = angleSpeed;
-        data["forward_speed"] = this->getSettingsValue("fwSpeed").toFloat();
+        addData("ball_area", maxArea);
+        addData("ball_x", x);
+        addData("position_difference", diff);
+        addData("angular_speed", angleSpeed);
+        addData("forward_speed", this->getSettingsValue("fwSpeed").toFloat());
         dataChanged( this );
         timerNoBall.start( 60000 );
     }

@@ -33,10 +33,10 @@ MetaBehaviourForm::MetaBehaviourForm(MetaBehaviour* meta, QWidget *parent) :
             this, SLOT(activateModule(QObject*)));
     connect( this, SIGNAL(testPipe()), meta, SLOT(testPipe()) );
 
-    ui->targetDepth->setText(meta->settings.value("targetDepth").toString());
-    ui->depthErrorVariance->setText(meta->settings.value("depthErrorVariance").toString());
-    ui->timeout->setText(meta->settings.value("timeout").toString());
-    ui->forwardSpeed->setText(meta->settings.value("forwardSpeed").toString());
+    ui->targetDepth->setText(meta->getSettingsValue("targetDepth").toString());
+    ui->depthErrorVariance->setText(meta->getSettingsValue("depthErrorVariance").toString());
+    ui->timeout->setText(meta->getSettingsValue("timeout").toString());
+    ui->forwardSpeed->setText(meta->getSettingsValue("forwardSpeed").toString());
 
 
 }
@@ -97,10 +97,10 @@ void MetaBehaviourForm::moduleHealthFail(RobotModule *module)
 
 void MetaBehaviourForm::on_pipeFollowMeta_clicked()
 {
-    meta->settings.setValue("targetDepth", ui->targetDepth->text());
-    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
-    meta->settings.setValue("timeout", ui->timeout->text());
-    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
+    meta->setSettingsValue("targetDepth", ui->targetDepth->text());
+    meta->setSettingsValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->setSettingsValue("timeout", ui->timeout->text());
+    meta->setSettingsValue("forwardSpeed", ui->forwardSpeed->text());
 
     QTimer::singleShot(0,meta, SLOT(pipeFollowForward()));
 }
@@ -112,28 +112,28 @@ void MetaBehaviourForm::on_pipeFollowNoDepthButton_clicked()
 
 void MetaBehaviourForm::on_simpleForward_clicked()
 {
-    meta->settings.setValue("targetDepth", ui->targetDepth->text());
-    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
-    meta->settings.setValue("timeout", ui->timeout->text());
-    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
+    meta->setSettingsValue("targetDepth", ui->targetDepth->text());
+    meta->setSettingsValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->setSettingsValue("timeout", ui->timeout->text());
+    meta->setSettingsValue("forwardSpeed", ui->forwardSpeed->text());
 
     QTimer::singleShot(0, meta, SLOT(simpleForward()));
 }
 
 void MetaBehaviourForm::on_turnteste_clicked()
 {
-    meta->settings.setValue("targetDepth", ui->targetDepth->text());
-    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
-    meta->settings.setValue("timeout", ui->timeout->text());
-    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
+    meta->setSettingsValue("targetDepth", ui->targetDepth->text());
+    meta->setSettingsValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->setSettingsValue("timeout", ui->timeout->text());
+    meta->setSettingsValue("forwardSpeed", ui->forwardSpeed->text());
     QTimer::singleShot(0,meta, SLOT(simple180deg()));
 }
 
 void MetaBehaviourForm::on_fulProgram_clicked()
 {
-    meta->settings.setValue("targetDepth", ui->targetDepth->text());
-    meta->settings.setValue("depthErrorVariance", ui->depthErrorVariance->text());
-    meta->settings.setValue("timeout", ui->timeout->text());
-    meta->settings.setValue("forwardSpeed", ui->forwardSpeed->text());
+    meta->setSettingsValue("targetDepth", ui->targetDepth->text());
+    meta->setSettingsValue("depthErrorVariance", ui->depthErrorVariance->text());
+    meta->setSettingsValue("timeout", ui->timeout->text());
+    meta->setSettingsValue("forwardSpeed", ui->forwardSpeed->text());
     QTimer::singleShot(0, meta, SLOT(fullProgram()));
 }

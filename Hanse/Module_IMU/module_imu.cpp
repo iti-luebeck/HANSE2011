@@ -88,7 +88,7 @@
 #define ADIS_REGISTER_STATUS_LO 0x3C
 
 Module_IMU::Module_IMU(QString id, Module_UID *uid)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     thread.start();
     this->uid=uid;
@@ -194,9 +194,9 @@ void Module_IMU::refreshData()
         addData("gyroY", currentGyroY * 0.07326);
         addData("gyroZ", currentGyroZ * 0.07326);
 
-        addData("accelX", currentAccelX * 0.4672 * settings.value("g").toFloat() / 1000);
-        addData("accelY", currentAccelY * 0.4672 * settings.value("g").toFloat() / 1000);
-        addData("accelZ", currentAccelZ * 0.4672 * settings.value("g").toFloat() / 1000);
+        addData("accelX", currentAccelX * 0.4672 * getSettingsValue("g").toFloat() / 1000);
+        addData("accelY", currentAccelY * 0.4672 * getSettingsValue("g").toFloat() / 1000);
+        addData("accelZ", currentAccelZ * 0.4672 * getSettingsValue("g").toFloat() / 1000);
 
         addData("gyroTempX", gyroTempX * 0.1453 + 25);
         addData("gyroTempY", gyroTempY * 0.1453 + 25);

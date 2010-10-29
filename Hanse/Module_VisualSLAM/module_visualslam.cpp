@@ -28,9 +28,9 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     QObject::connect( this, SIGNAL( timerStop() ), &updateThread.timer, SLOT( stop() ),
                       Qt::BlockingQueuedConnection );
 
-    double v_observation = settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
-    double v_translation = settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
-    double v_rotation = settings.value( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
+    double v_observation = getSettingsValue( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
+    double v_translation = getSettingsValue( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
+    double v_rotation = getSettingsValue( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
     changeSettings( v_observation, v_translation, v_rotation );
 
     if ( isEnabled() )
@@ -94,11 +94,11 @@ void Module_VisualSLAM::startGrab()
 {
 //    qDebug("blub: %d", QThread::currentThread());
 
-    bool noSLAM = settings.value( "no_slam", true ).toBool();
+    bool noSLAM = getSettingsValue( "no_slam", true ).toBool();
     if ( noSLAM )
     {
         startClock = clock();
-        cap.grab( settings.value( QString( "capture" ), false ).toBool(), noSLAM );
+        cap.grab( getSettingsValue( QString( "capture" ), false ).toBool(), noSLAM );
 
         stopClock = clock();
         logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
@@ -116,29 +116,29 @@ void Module_VisualSLAM::startGrab()
                        .arg( slam.getConfidence(), 0, 'E', 3 ) );
 
         // Update current position.
-        data["Translation - X"] = pos.getX();
-        data["Translation - Y"] = pos.getY();
-        data["Translation - Z"] = pos.getZ();
-        data["Orientation - Yaw"] = pos.getYaw();
-        data["Orientation - Pitch"] = pos.getPitch();
-        data["Orientation - Roll"] = pos.getRoll();
-        data["Confidence"] = slam.getConfidence();
+        addData("Translation - X", pos.getX());
+        addData("Translation - Y", pos.getY());
+        addData("Translation - Z", pos.getZ());
+        addData("Orientation - Yaw", pos.getYaw());
+        addData("Orientation - Pitch", pos.getPitch());
+        addData("Orientation - Roll", pos.getRoll());
+        addData("Confidence", slam.getConfidence());
 
         // Update objects.
         QRectF boundingBox;
         QDateTime lastSeen;
         cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
-        data["Goal - bounding box x"] = boundingBox.left();
-        data["Goal - bounding box y"] = boundingBox.top();
-        data["Goal - bounding box w"] = boundingBox.width();
-        data["Goal - bounding box h"] = boundingBox.height();
-        data["Goal - lastSeen"] = lastSeen.toString();
+        addData("Goal - bounding box x", boundingBox.left());
+        addData("Goal - bounding box y", boundingBox.top());
+        addData("Goal - bounding box w", boundingBox.width());
+        addData("Goal - bounding box h", boundingBox.height());
+        addData("Goal - lastSeen", lastSeen.toString());
         cap.getObjectPosition( BALL_LABEL, boundingBox, lastSeen );
-        data["Ball - bounding box x"] = boundingBox.left();
-        data["Ball - bounding box y"] = boundingBox.top();
-        data["Ball - bounding box w"] = boundingBox.width();
-        data["Ball - bounding box h"] = boundingBox.height();
-        data["Ball - lastSeen"] = lastSeen.toString();
+        addData("Ball - bounding box x", boundingBox.left());
+        addData("Ball - bounding box y", boundingBox.top());
+        addData("Ball - bounding box w", boundingBox.width());
+        addData("Ball - bounding box h", boundingBox.height());
+        addData("Ball - lastSeen", lastSeen.toString());
 
         emit dataChanged( this );
         emit updateFinished();
@@ -147,7 +147,7 @@ void Module_VisualSLAM::startGrab()
     else
     {
         startClock = clock();
-        cap.grab( settings.value( QString( "capture" ), false ).toBool(), noSLAM );
+        cap.grab( getSettingsValue( QString( "capture" ), false ).toBool(), noSLAM );
 
         stopClock = clock();
         logger->debug( QString( "GRAB %1 msec" ).arg( (1000 * (stopClock - startClock) / CLOCKS_PER_SEC) ) );
@@ -171,23 +171,23 @@ void Module_VisualSLAM::startGrab()
                        .arg( slam.getConfidence(), 0, 'E', 3 ) );
 
         // Update current position.
-        data["Translation - X"] = pos.getX();
-        data["Translation - Y"] = pos.getY();
-        data["Translation - Z"] = pos.getZ();
-        data["Orientation - Yaw"] = pos.getYaw();
-        data["Orientation - Pitch"] = pos.getPitch();
-        data["Orientation - Roll"] = pos.getRoll();
-        data["Confidence"] = slam.getConfidence();
+        addData("Translation - X", pos.getX());
+        addData("Translation - Y", pos.getY());
+        addData("Translation - Z", pos.getZ());
+        addData("Orientation - Yaw", pos.getYaw());
+        addData("Orientation - Pitch", pos.getPitch());
+        addData("Orientation - Roll", pos.getRoll());
+        addData("Confidence", slam.getConfidence());
 
         // Update objects.
         QRectF boundingBox;
         QDateTime lastSeen;
         cap.getObjectPosition( GOAL_LABEL, boundingBox, lastSeen );
-        data["Goal - bounding box x"] = boundingBox.left();
-        data["Goal - bounding box y"] = boundingBox.top();
-        data["Goal - bounding box w"] = boundingBox.width();
-        data["Goal - bounding box h"] = boundingBox.height();
-        data["Goal - lastSeen"] = lastSeen.toString();
+        addData("Goal - bounding box x", boundingBox.left());
+        addData("Goal - bounding box y", boundingBox.top());
+        addData("Goal - bounding box w", boundingBox.width());
+        addData("Goal - bounding box h", boundingBox.height());
+        addData("Goal - lastSeen", lastSeen.toString());
 
         emit dataChanged( this );
         emit updateFinished();
@@ -271,27 +271,27 @@ IplImage *Module_VisualSLAM::getFrame( int camNr )
 
 double Module_VisualSLAM::getObservationVariance()
 {
-    return settings.value( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
+    return getSettingsValue( "v_observation", DEFAULT_OBSERVATION_VARIANCE ).toDouble();
 }
 
 double Module_VisualSLAM::getTranslationVariance()
 {
-    return settings.value( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
+    return getSettingsValue( "v_translation", DEFAULT_TRANSLATION_VARIANCE ).toDouble();
 }
 
 double Module_VisualSLAM::getRotationVariance()
 {
-    return settings.value( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
+    return getSettingsValue( "v_rotation", DEFAULT_ROTATION_VARIANCE ).toDouble();
 }
 
 void Module_VisualSLAM::changeSettings( double v_observation, double v_translation, double v_rotation )
 {
     slam.setObservationVariance( v_observation );
-    settings.setValue( "v_observation", v_observation );
+    setSettingsValue( "v_observation", v_observation );
     slam.setTranslationVariance( v_translation );
-    settings.setValue( "v_translation", v_translation );
+    setSettingsValue( "v_translation", v_translation );
     slam.setRotationVariance( v_rotation );
-    settings.setValue( "v_rotation", v_rotation );
+   setSettingsValue( "v_rotation", v_rotation );
 }
 
 void Module_VisualSLAM::updateSonarData()

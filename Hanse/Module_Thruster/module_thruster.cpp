@@ -74,7 +74,7 @@ void Module_Thruster::setSpeed(float speed)
 
 
     int speedRaw = (int)(speed * getSettingsValue("multiplicator").toInt());
-    data["speed"] = speedRaw;
+    addData("speed", speedRaw);
 
     char sendValue[] = { speedRaw };
     unsigned char address = getSettingsValue("i2cAddress").toInt();

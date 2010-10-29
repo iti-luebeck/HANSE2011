@@ -10,14 +10,14 @@ Compass_Form::Compass_Form(Module_Compass *m, QWidget *parent) :
 
     connect(m, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
 
-    ui->frequency->setText(m->getSettings().value("frequency").toString());
-    ui->i2cAddress->setText(m->getSettings().value("i2cAddress").toString());
-    ui->orientation->setCurrentIndex(ui->orientation->findText(m->getSettings().value("orientation").toString()));
-    ui->devAngle->setValue(m->getSettings().value("devAngle").toInt());
-    ui->varAngle->setValue(m->getSettings().value("varAngle").toInt());
-    ui->iirFilter->setValue(m->getSettings().value("iirFilter").toInt());
-    ui->sampleRate->setCurrentIndex(ui->sampleRate->findText(m->getSettings().value("sampleRate").toString()));
-    ui->debug->setChecked(m->getSettings().value("debug").toBool());
+    ui->frequency->setText(m->getSettingsValue("frequency").toString());
+    ui->i2cAddress->setText(m->getSettingsValue("i2cAddress").toString());
+    ui->orientation->setCurrentIndex(ui->orientation->findText(m->getSettingsValue("orientation").toString()));
+    ui->devAngle->setValue(m->getSettingsValue("devAngle").toInt());
+    ui->varAngle->setValue(m->getSettingsValue("varAngle").toInt());
+    ui->iirFilter->setValue(m->getSettingsValue("iirFilter").toInt());
+    ui->sampleRate->setCurrentIndex(ui->sampleRate->findText(m->getSettingsValue("sampleRate").toString()));
+    ui->debug->setChecked(m->getSettingsValue("debug").toBool());
 
 }
 
@@ -40,14 +40,14 @@ void Compass_Form::changeEvent(QEvent *e)
 
 void Compass_Form::on_save_clicked()
 {
-    module->getSettings().setValue("frequency", ui->frequency->text());
-    module->getSettings().setValue("i2cAddress", ui->i2cAddress->text());
-    module->getSettings().setValue("orientation", ui->orientation->currentText());
-    module->getSettings().setValue("devAngle", ui->devAngle->text());
-    module->getSettings().setValue("varAngle", ui->varAngle->text());
-    module->getSettings().setValue("iirFilter", ui->iirFilter->text());
-    module->getSettings().setValue("sampleRate", ui->sampleRate->currentText());
-    module->getSettings().setValue("debug", ui->debug->isChecked());
+    module->setSettingsValue("frequency", ui->frequency->text());
+    module->setSettingsValue("i2cAddress", ui->i2cAddress->text());
+    module->setSettingsValue("orientation", ui->orientation->currentText());
+    module->setSettingsValue("devAngle", ui->devAngle->text());
+    module->setSettingsValue("varAngle", ui->varAngle->text());
+    module->setSettingsValue("iirFilter", ui->iirFilter->text());
+    module->setSettingsValue("sampleRate", ui->sampleRate->currentText());
+    module->setSettingsValue("debug", ui->debug->isChecked());
     module->reset();
 }
 

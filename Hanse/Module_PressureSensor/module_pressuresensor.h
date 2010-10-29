@@ -2,12 +2,12 @@
 #define MODULE_PRESSURESENSOR_H
 
 #include <QtCore>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 #include "inttypes.h"
 
 class Module_UID;
 
-class Module_PressureSensor : public RobotModule_MT {
+class Module_PressureSensor : public RobotModule {
     Q_OBJECT
 
 public:

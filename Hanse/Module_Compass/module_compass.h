@@ -2,12 +2,12 @@
 #define MODULE_COMPASS_H
 
 #include <QtCore>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 #include "inttypes.h"
 
 class Module_UID;
 
-class Module_Compass : public RobotModule_MT {
+class Module_Compass : public RobotModule {
     Q_OBJECT
 
 public:
@@ -35,15 +35,10 @@ public:
 public slots:
     void reset();
     void terminate();
-//    void getPitch(float &pitch);
-//    void getRoll(float &roll);
-//    void getHeading(float &heading);
+
 
 signals:
     void healthStatusChanged(HealthStatus data);
-    void newHeading(float heading);
-    void newPitch(float pitch);
-    void newRoll(float roll);
 
 protected:
     virtual void doHealthCheck();

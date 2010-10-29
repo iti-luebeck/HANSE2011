@@ -58,7 +58,7 @@ void Module_HandControl::reset()
     newMessage(0,0,0);
 
     server->close();
-    server->open(settings.value("port").toInt());
+    server->open(getSettingsValue("port").toInt());
 }
 
 void Module_HandControl::emergencyStopReceived()
@@ -71,9 +71,9 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    data["forwardSpeed"] = forwardSpeed;
-    data["angularSpeed"] = angularSpeed;
-    data["speedUpDown"] = speedUpDown;
+    addData("forwardSpeed", forwardSpeed);
+    addData("angularSpeed", angularSpeed);
+    addData("speedUpDown", speedUpDown);
 
     sendNewControls();
 
@@ -88,15 +88,15 @@ void Module_HandControl::sendNewControls()
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    int forwardSpeed = data["forwardSpeed"].toInt();
-    int angularSpeed = data["angularSpeed"].toInt();
-    int speedUpDown = data["speedUpDown"].toInt();
+    int forwardSpeed = getDataValue("forwardSpeed").toInt();
+    int angularSpeed = getDataValue("angularSpeed").toInt();
+    int speedUpDown = getDataValue("speedUpDown").toInt();
 
-    float divFw = settings.value("divFw").toFloat();
-    float divLR = settings.value("divLR").toFloat();
-    float divUD = settings.value("divUD").toFloat();
+    float divFw = getSettingsValue("divFw").toFloat();
+    float divLR = getSettingsValue("divLR").toFloat();
+    float divUD = getSettingsValue("divUD").toFloat();
 
-    if (settings.value("receiver").toString()=="thruster") {
+    if (getSettingsValue("receiver").toString()=="thruster") {
         controlLoop->setEnabled(false);
 
         float left = forwardSpeed/divFw+angularSpeed/divLR;

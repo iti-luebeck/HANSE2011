@@ -6,7 +6,7 @@
 #include <qextserialenumerator.h>
 
 Module_UID::Module_UID(QString moduleId)
-    :RobotModule_MT(moduleId)
+    :RobotModule(moduleId)
 {
 
     portSettings = new PortSettings();
@@ -45,7 +45,7 @@ void Module_UID::reset()
 
     RobotModule::reset();
 
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
     if (uid != NULL) {
@@ -55,8 +55,8 @@ void Module_UID::reset()
 
     }
     uid = findUIDPort();
-    data["revision"] = this->UID_Revision();
-    data["identity"] = this->UID_Identify();
+    addData("revision", this->UID_Revision());
+    addData("identity" , this->UID_Identify());
 }
 
 QList<RobotModule*> Module_UID::getDependencies()
@@ -78,7 +78,7 @@ QextSerialPort* Module_UID::findUIDPort()
 {
     QMutexLocker l(&this->moduleMutex);
 
-    QString Id = settings.value("uidId").toString();
+    QString Id = getSettingsValue("uidId").toString();
 
     QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
 
@@ -299,10 +299,10 @@ void Module_UID::doHealthCheck()
 {
     QMutexLocker l(&this->moduleMutex);
     logger->trace("doHealthCheck");
-    if (!getSettings().value("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool())
         return;
 
-    QString Id = settings.value("uidId").toString();
+    QString Id = getSettingsValue("uidId").toString();
 
     if ( uid == NULL ) {
         setHealthToSick("No uid open.");

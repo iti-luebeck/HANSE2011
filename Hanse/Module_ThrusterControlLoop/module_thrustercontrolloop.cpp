@@ -96,7 +96,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         float error = depth-setvalueDepth;
 
 
-        data["depth_error"] = error; // for logging
+        addData("depth_error", error); // for logging
 
         // control-loop step:
         if (fabs(error) > maxDepthError) {
@@ -119,7 +119,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (speed>maxSpU) { speed=maxSpU; }
         if (speed<maxSpD) { speed=maxSpD; }
 
-        if (abs(error)>settings.value("forceUnpauseError").toFloat())
+        if (abs(error)>getSettingsValue("forceUnpauseError").toFloat())
             paused = false;
 
         if (paused)
@@ -195,7 +195,7 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
     if (angularSpeed> 1.0) { angularSpeed= 1.0; }
     if (angularSpeed<-1.0) { angularSpeed=-1.0; }
     actualAngularSpeed=angularSpeed;    
-    data["actualAngularSpeed"] = actualAngularSpeed;
+    addData("actualAngularSpeed", actualAngularSpeed);
 
     updateHorizontalThrustersNow();
     emit dataChanged(this);
@@ -209,7 +209,7 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
     if (speed> 1.0) { speed= 1.0; }
     if (speed<-1.0) { speed=-1.0; }
     actualForwardSpeed=speed;
-    data["actualForwardSpeed"] = actualForwardSpeed;  // for logging
+    addData("actualForwardSpeed", actualForwardSpeed);  // for logging
 
     updateHorizontalThrustersNow();
     emit dataChanged(this);
@@ -225,7 +225,7 @@ void Module_ThrusterControlLoop::setDepth(float depth)
     if (depth<0)
         depth = 0;
 
-    data["depthSoll"] = depth;
+    addData("depthSoll", depth);
 
     setvalueDepth=depth;
 }
@@ -247,17 +247,17 @@ QList<RobotModule*> Module_ThrusterControlLoop::getDependencies()
 
 float Module_ThrusterControlLoop::getDepth()
 {
-    return data["depthSoll"].toFloat();
+    return getDataValue("depthSoll").toFloat();
 }
 
 float Module_ThrusterControlLoop::getForwardSpeed()
 {
-    return data["actualForwardSpeed"].toFloat();
+    return getDataValue("actualForwardSpeed").toFloat();
 }
 
 float Module_ThrusterControlLoop::getAngularSpeed()
 {
-    return data["actualAngularSpeed"].toFloat();
+    return getDataValue("actualAngularSpeed").toFloat();
 }
 
 void Module_ThrusterControlLoop::pauseModule()
@@ -280,5 +280,5 @@ void Module_ThrusterControlLoop::unpauseModule()
 
 float Module_ThrusterControlLoop::getDepthError()
 {
-    return data["depth_error"].toFloat();
+    return getDataValue("depth_error").toFloat();
 }

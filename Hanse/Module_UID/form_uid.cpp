@@ -8,7 +8,7 @@ FormUID::FormUID(Module_UID* module, QWidget *parent) :
     ui->setupUi(this);
     this->module = module;
 
-    ui->uidId->setText(module->getSettings().value("uidId").toString());
+    ui->uidId->setText(module->getSettingsValue("uidId").toString());
 }
 
 FormUID::~FormUID()
@@ -30,7 +30,7 @@ void FormUID::changeEvent(QEvent *e)
 
 void FormUID::on_save_clicked()
 {
-    module->getSettings().setValue("uidId", ui->uidId->text());
+    module->setSettingsValue("uidId", ui->uidId->text());
 }
 
 void FormUID::on_scan_clicked()

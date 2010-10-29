@@ -431,6 +431,22 @@
     <string>Framerate</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>310</y>
+     <width>491</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>WARNING! 
+Please check camera settings. Automatic camera control have to be deactivated. 
+Otherwise there will be a problem with the running time. Grabbing a frame could 
+take up to 300ms in dark enviroments.</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

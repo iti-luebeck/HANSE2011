@@ -92,19 +92,19 @@ void HandControl_Form::dataChanged(RobotModule *m)
 
 void HandControl_Form::on_sliderFw_valueChanged(int value)
 {
-    module->data["forwardSpeed"] = value;
+    module->addData("forwardSpeed", value);
     module->sendNewControls();
 }
 
 
 void HandControl_Form::on_sliderLR_valueChanged(int value)
 {
-    module->data["angularSpeed"] = value;
+    module->addData("angularSpeed", value);
     module->sendNewControls();
 }
 
 void HandControl_Form::on_sliderUD_valueChanged(int value)
 {
-    module->data["speedUpDown"] = value;
+    module->addData("speedUpDown", value);
     module->sendNewControls();
 }

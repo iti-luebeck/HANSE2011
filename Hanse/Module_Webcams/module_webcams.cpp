@@ -72,13 +72,18 @@ void Module_Webcams::grabBottom( IplImage *bottom )
 
 void Module_Webcams::grabBottom( cv::Mat &bottom )
 {
+    QTime blub;
     qDebug() << "cam thread id";
     qDebug() << QThread::currentThreadId();
     if ( bottomConnected )//&& VI.isFrameNew(bottomID))
     {
         mutex.lock();
+        blub.restart();
         assert( bottom.cols == WEBCAM_WIDTH && bottom.rows == WEBCAM_HEIGHT );
+        addData("run assert",blub.elapsed());
+        blub.restart();
         VI.getPixels( bottomID, (unsigned char *)bottom.data, true, true );
+        addData("run getPix",blub.elapsed());
         mutex.unlock();
     }
 }

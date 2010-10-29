@@ -22,7 +22,7 @@
 #define PRESSURE_MAX 3000
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     thread.start();
 
@@ -107,7 +107,7 @@ void Module_PressureSensor::readPressure()
 //    data["pressure"] =  pressure;
 
     // 100 mBar == ca. 1m wassersäule - druck an der luft
-    addData("depth",((float)pressure-getSettings().value("airPressure").toFloat())/100);
+    addData("depth",((float)pressure-getSettingsValue("airPressure").toFloat())/100);
 //    data["depth"] =  ((float)pressure-getSettings().value("airPressure").toFloat())/100;
 
     if (pressure < PRESSURE_MIN || pressure > PRESSURE_MAX) {

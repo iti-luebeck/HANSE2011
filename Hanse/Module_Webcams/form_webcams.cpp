@@ -11,9 +11,9 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     ui->setupUi(this);
     this->cams = cams;
 
-    ui->leftConnectCheckBox->setChecked(cams->getSettings().value("leftEnabled",true).toBool());
-    ui->rightConnectCheckBox->setChecked(cams->getSettings().value("rightEnabled",true).toBool());
-    ui->bottomConnectCheckBox->setChecked(cams->getSettings().value("bottomEnabled",true).toBool());
+    ui->leftConnectCheckBox->setChecked(cams->getSettingsValue("leftEnabled",true).toBool());
+    ui->rightConnectCheckBox->setChecked(cams->getSettingsValue("rightEnabled",true).toBool());
+    ui->bottomConnectCheckBox->setChecked(cams->getSettingsValue("bottomEnabled",true).toBool());
 
     int pos = cams->getSettingsValue("leftFramerate",5).toInt();
     ui->leftFrameRateSlider->setValue(pos/5);

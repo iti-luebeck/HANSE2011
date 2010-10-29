@@ -10,7 +10,7 @@
 //using namespace cv;
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam) :
-        RobotBehaviour_MT(id)
+        RobotBehaviour(id)
 {
     qDebug() << "pipe thread id";
     qDebug() << QThread::currentThreadId();
@@ -77,7 +77,7 @@ void Behaviour_PipeFollowing::terminate()
 {
 //    timer.stop();
     emit timerStop();
-    RobotBehaviour_MT::terminate();
+    RobotBehaviour::terminate();
 }
 
 void Behaviour_PipeFollowing::reset()
@@ -110,9 +110,12 @@ void Behaviour_PipeFollowing::timerSlot()
     qDebug() << "pipe thread id";
     qDebug() << QThread::currentThreadId();
     QTime run;
+    QTime blub;
     run.restart();
 //    Mat binaryFrame;
+    blub.restart();
     cam->grabBottom( frame );
+    addData("run grab",blub.elapsed());
 
     if(!frame.empty())
     {
@@ -138,7 +141,7 @@ void Behaviour_PipeFollowing::timerSlot()
 
 void Behaviour_PipeFollowing::initPictureFolder()
 {
-    QDir dir( this->getSettings().value("videoFilePath").toString());
+    QDir dir( this->getSettingsValue("videoFilePath").toString());
     dir.setFilter( QDir::Files );
     QStringList filters;
     filters << "*.jpg";
@@ -152,7 +155,8 @@ void Behaviour_PipeFollowing::initPictureFolder()
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
    float ctrAngleSpeed = 0.0;
-
+    QTime blub;
+    blub.restart();
 //   logger->debug( "pipe angle" +QString::number(curAngle) + "°");
 //   logger->debug( "pipe distance " +QString::number( distanceY ));
    addData("pipe_angle",curAngle);
@@ -181,6 +185,7 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 //   data["forward_speed"] = this->constFWSpeed;
 //   data["intersect_y"] = potentialY;
 
+   addData("run p-contr",blub.elapsed());
    emit dataChanged( this );
 }
 
@@ -255,11 +260,11 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
         Mat threshImg;
 //        IplImage *iplDisp = new IplImage( displayFrame );
 //        cvCLAdaptEqualize( iplDisp, iplDisp, 8, 8, 255, 12, CV_CLAHE_RANGE_FULL );
-        int thresh = settings.value( "threshold", 100 ).toInt();
+        int thresh = getSettingsValue( "threshold", 100 ).toInt();
         threshold( displayFrame, threshImg, thresh, 255, THRESH_BINARY);
 //        medianBlur( displayFrame, displayFrame, 5 );
-        double width = settings.value( "camWidth", 100 ).toDouble();
-        double height = settings.value( "camHeight", 100 ).toDouble();
+        double width = getSettingsValue( "camWidth", 100 ).toDouble();
+        double height = getSettingsValue( "camHeight", 100 ).toDouble();
         Canny( threshImg, binaryFrame, width, height, 3, true );
 //        binaryFrame.copyTo( displayFrame );
         /*debug */
@@ -391,7 +396,7 @@ void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
         if(counterClass1 == 0 && counterClass2 == 0)
         {
             this->noPipeCnt++;
-            if(noPipeCnt > this->getSettings().value("badFrames").toInt())
+            if(noPipeCnt > this->getSettingsValue("badFrames").toInt())
             {
                 this->setHealthToSick("20 frames without pipe");
                 //TODO 180 drehen?
@@ -722,16 +727,24 @@ void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 void Behaviour_PipeFollowing::moments( Mat &frame)
 {
     QTime runningTime;
+    QTime blub;
+
 //    runningTime.start();
     runningTime.restart();
 Mat gray;
+blub.restart();
 convertColor(frame,gray);
+addData("run clr",blub.elapsed());
     //    equalizeHist(gray,gray);
+blub.restart();
 threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
+addData("run seg",blub.elapsed());
 //    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
 //imshow("blub",gray);
+blub.restart();
     int sum;
     this->countPixel(gray,sum);
+addData("run countPix",blub.elapsed());
 
     if( sum > 10000 )
     {
@@ -741,6 +754,7 @@ threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
 
 //        emit dataChanged( this );
 //        imshow("Dummy",gray);
+        blub.restart();
         IplImage *ipl = new IplImage(gray);
         CvMoments M;
         cvMoments( ipl, &M, 1 );
@@ -765,13 +779,16 @@ threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
             theta += CV_PI;
 
 
-
+        addData("run moments",blub.elapsed());
+        blub.restart();
         Point pt1 = Point(m10,m01);
         Point pt2 = Point(m10 + cos(theta)*200, m01 + sin(theta)*200);
         /* Ideallinie zeichnen */
         line( frame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(255,0,0), 3, 8 );
         line(frame,Point(m10,m01),Point(m10 + cos(theta)*200, m01 + sin(theta)*200),Scalar(255,0,0),4,CV_FILLED);
         circle(frame,robCenter,3,Scalar(255,0,255),3,8);
+
+        addData("run paint",blub.restart());
 
         curAngle = ((theta * 180.0) / CV_PI);
         if(curAngle > 90)
@@ -796,7 +813,7 @@ threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
         Behaviour_PipeFollowing::compIntersect(pt1,pt2);
 
         int nMilliseconds = runningTime.elapsed();
-        addData("runningTime",nMilliseconds);
+        addData("run bv",nMilliseconds);
 //        data["runningTime"] = nMilliseconds;
         Behaviour_PipeFollowing::updateData();
 //        emit printFrameOnUi(frame);
@@ -804,20 +821,24 @@ threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
     else
     {
         noPipeCnt++;
+        blub.restart();
         emit forwardSpeed(this->constFWSpeed / 2);
         emit angularSpeed(0.0);
+        addData("run tcl badFrame",blub.elapsed());
 //        tcl->setForwardSpeed( this->getSettings().value("fwSpeed").toFloat() / 2 );
 //        tcl->setAngularSpeed( .0 ); // wegen anschließendem drehen / Ballverfolgen !!!
-        if(noPipeCnt > this->getSettings().value("badFrames").toInt())
+        if(noPipeCnt > this->getSettingsValue("badFrames").toInt())
         {
             this->stop();
             this->setHealthToSick("no pipe");
         }
 //        emit printFrameOnUi(frame);
     }
+    blub.restart();
     dataLockerMutex.lock();
     frame.copyTo(displayFrame);
     dataLockerMutex.unlock();
+    addData("run framecpy",blub.elapsed());
 }
 
 void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)

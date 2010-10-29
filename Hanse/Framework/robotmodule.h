@@ -54,24 +54,24 @@ public:
     bool isEnabled();
 
     /**
-      * The settings of this module
+      * A copy of the settings of this module using dataLockerMutex (thread safe)
       */
 //    QSettings& getSettings();
     const QMap<QString,QVariant> getSettingsCopy();
 
     /**
-      * The setting keys of this module
+      * The setting keys of this module using dataLockerMutex (thread safe)
       */
     QStringList getSettingKeys();
 
     /**
-      * returns value for given key from local settings map using settingsMutex
+      * returns value for given key from local settings map using dataLockerMutex (thread safe)
       */
     const QVariant getSettingsValue(const QString key, const QVariant defaultValue);
     const QVariant getSettingsValue(const QString key);
 
     /**
-      * adds given value for given key in settings map using settingsMutex
+      * adds given value for given key in settings map using dataLockerMutex (thread safe)
       */
     void setSettingsValue(QString key, const QVariant value);
 
@@ -87,6 +87,11 @@ public:
       * returns value for given key from data map using dataLockerMutex (thread safe)
       */
     const QVariant getDataValue(QString key);
+
+    /**
+     * adds given value for given key in data map using dataLockerMutex (thread safe)
+     */
+    void addData(QString key, const QVariant value);
 
 
     /**
@@ -146,10 +151,6 @@ public slots:
     virtual void terminate();
 
 protected:
-    /**
-      * All persistent configuration of the module is stored in here
-      */
-    QSettings settings;
 
     /**
       * general purpose module. not used by RobotModule itself. may be freely used by sub classes
@@ -157,14 +158,9 @@ protected:
     QMutex moduleMutex;
 
     /**
-      * mutex to lock if acces data or settings map
+      * mutex to lock access to data or settings map
       */
     QMutex dataLockerMutex;
-    /**
-      * Central data store for this module. Everything stored in this Map is
-      * automatically displayed in the GUI, and will also be recorded to file.
-      */
-    QMap<QString,QVariant> data;
 
     /**
       * Logger instance for this module
@@ -213,14 +209,21 @@ private:
     };
 
     /**
+      * All persistent configuration of the module is stored in here
+      */
+    QSettings settings;
+
+    /**
+      * Central data store for this module. Everything stored in this Map is
+      * automatically displayed in the GUI, and will also be recorded to file.
+      */
+    QMap<QString,QVariant> data;
+
+
+    /**
       * ID of the module. must be unique across all robot instances. won't change at runtime.
       */
     const QString id;
-
-    /**
-     * adds given value for given key in data map using dataLockerMutex (thread safe)
-     */
-    void addData(QString key, const QVariant value);
 
     /**
       * Current health status

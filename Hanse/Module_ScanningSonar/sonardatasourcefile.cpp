@@ -22,7 +22,7 @@ SonarDataSourceFile::SonarDataSourceFile(Module_ScanningSonar& parent, QString p
 
 const SonarReturnData SonarDataSourceFile::getNextPacket()
 {
-    QDateTime startTime = parent.settings.value("startTime").toDateTime();
+    QDateTime startTime = parent.getSettingsValue("startTime").toDateTime();
 
     // skip until we are at the startTime
     SonarReturnData p = readPacket();

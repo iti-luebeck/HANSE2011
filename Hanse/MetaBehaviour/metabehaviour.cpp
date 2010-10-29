@@ -28,7 +28,7 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     }
 
     // states: dive; pipe; surface
-    data["state"]="off";
+    addData("state","off");
 
     emit dataChanged(this);
 
@@ -51,7 +51,7 @@ void MetaBehaviour::emergencyStop()
     }
     tcl->reset();
 
-    data["state"]="off";
+    addData("state","off");
     timeoutTimer.stop();
 
 }
@@ -93,33 +93,33 @@ void MetaBehaviour::startHandControl()
 
 void MetaBehaviour::depthChanged(float depth)
 {
-    if (data["state"]=="dive" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
-        data["state"] = "pipe";
+    if (getDataValue("state")=="dive" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
+        addData("state", "pipe");
         emit dataChanged(this);
         QTimer::singleShot(0, pipe, SLOT(start()));
         timeoutTimer.stop();
-        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+        timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
-    if (data["state"]=="diveSimple" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
-        data["state"] = "forward";
-        tcl->setForwardSpeed(settings.value("forwardSpeed").toFloat());
+    if (getDataValue("state")=="diveSimple" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
+        addData("state", "forward");
+        tcl->setForwardSpeed(getSettingsValue("forwardSpeed").toFloat());
         tcl->setAngularSpeed(-0.05);
         timeoutTimer.stop();
-        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+        timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
-    if (data["state"]=="diveForPipe" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
-        data["state"] = "pipeFirstPart";
+    if (getDataValue("state")=="diveForPipe" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
+        addData("state", "pipeFirstPart");
         QTimer::singleShot(0, pipe, SLOT(start()));
         timeoutTimer.stop();
-        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+        timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
-    if (data["state"]=="surface" && fabs(tcl->getDepthError())<settings.value("depthErrorVariance").toFloat()) {
-        data["state"] = "off";
+    if (getDataValue("state")=="surface" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
+        addData("state", "off");
         emit dataChanged(this);
         timeoutTimer.stop();
     }
     if (depth>3) {
-        data["state"]="surface";
+        addData("state","surface");
         emit dataChanged(this);
         timeoutTimer.stop();
         tcl->setDepth(0);
@@ -128,25 +128,25 @@ void MetaBehaviour::depthChanged(float depth)
 
 void MetaBehaviour::testPipe()
 {
-    data["state"] = "pipe";
+    addData("state", "pipe");
     emit dataChanged(this);
     QTimer::singleShot(0, pipe, SLOT(start()));
     timeoutTimer.stop();
-    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
 void MetaBehaviour::finishedTurn(RobotBehaviour *, bool success) {
-    if (data["state"]=="turn") {
-        data["state"]="pipeSecondPart";
+    if (getDataValue("state")=="turn") {
+        addData("state","pipeSecondPart");
         emit dataChanged(this);
         QTimer::singleShot(0, pipe, SLOT(start()));
-        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+        timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
 }
 
 void MetaBehaviour::stateTimeout()
 {
-    data["state"]="timeoutFail";
+    addData("state","timeoutFail");
     emit dataChanged(this);
     emergencyStop();
     tcl->setDepth(0);
@@ -157,7 +157,7 @@ void MetaBehaviour::stateTimeout()
 void MetaBehaviour::badHealth(RobotModule *m)
 {
     if (m==pressure) {
-        data["state"]="fail";
+        addData("state","fail");
         emit dataChanged(this);
         foreach (RobotBehaviour* b, behaviours) {
             b->stop();
@@ -172,20 +172,20 @@ void MetaBehaviour::pipeFollowForward()
 {
     emergencyStop();
 
-    data["state"]="dive";
+    addData("state","dive");
     emit dataChanged(this);
-    tcl->setDepth(settings.value("targetDepth").toFloat());
-    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
+    timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
 void MetaBehaviour::simpleForward()
 {
     emergencyStop();
 
-    data["state"]="diveSimple";
+    addData("state","diveSimple");
     emit dataChanged(this);
-    tcl->setDepth(settings.value("targetDepth").toFloat());
-    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
+    timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
 void MetaBehaviour::simple180deg()
@@ -196,9 +196,9 @@ void MetaBehaviour::simple180deg()
         QTimer::singleShot(0, o80, SLOT(initialHeadingUpdate()));
         msleep(10000);
 
-    data["state"]="180simple";
+    addData("state","180simple");
     emit dataChanged(this);
-    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 
     QTimer::singleShot(0, o80, SLOT(start()));
 }
@@ -206,32 +206,32 @@ void MetaBehaviour::simple180deg()
 void MetaBehaviour::fullProgram()
 {
     emergencyStop();
-    data["reachedVG"] = false;
+    addData("reachedVG", false);
 
     QTimer::singleShot(0, o80, SLOT(initialHeadingUpdate()));
 
-    data["state"]="diveForPipe";
+    addData("state","diveForPipe");
     emit dataChanged(this);
-    tcl->setDepth(settings.value("targetDepth").toFloat());
-    timeoutTimer.start(settings.value("timeout").toInt()*1000);
+    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
+    timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
 void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
-    if (data["state"]=="pipe") {
-        data["state"]="surface";
+    if (getDataValue("state")=="pipe") {
+        addData("state","surface");
         emit dataChanged(this);
         tcl->setDepth(0);
         timeoutTimer.stop();
     }
-    if (data["state"]=="pipeFirstPart") {
-        data["state"]="turn";
-        data["reachedVG"] = true;
+    if (getDataValue("state")=="pipeFirstPart") {
+        addData("state","turn");
+        addData("reachedVG", true);
         emit dataChanged(this);
         QTimer::singleShot(0, o80, SLOT(start()));
-        timeoutTimer.start(settings.value("timeout").toInt()*1000);
+        timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
-    if (data["state"]=="pipeSecondPart") {
-        data["state"]="ball";
+    if (getDataValue("state")=="pipeSecondPart") {
+        addData("state","ball");
         emit dataChanged(this);
         tcl->setDepth(1.5);
         QTimer::singleShot(0, ball, SLOT(start()));

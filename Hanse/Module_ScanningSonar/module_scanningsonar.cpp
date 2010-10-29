@@ -93,8 +93,8 @@ bool Module_ScanningSonar::doNextScan()
 
     if (d.isPacketValid()) {
         setHealthToOk();
-        data["currentHeading"] = d.getHeadPosition();
-        data["range"] = d.getRange();
+        addData("currentHeading", d.getHeadPosition());
+        addData("range", d.getRange());
         emit newSonarData(d);
         emit dataChanged(this);
         return true;
@@ -129,8 +129,8 @@ void Module_ScanningSonar::reset()
     if (!isEnabled())
         return;
 
-    if (settings.value("enableRecording").toBool()) {
-        if (settings.value("formatCSV").toBool())
+    if (getSettingsValue("enableRecording").toBool()) {
+        if (getSettingsValue("formatCSV").toBool())
             recorder = new SonarDataCSVRecorder(*this);
         else
             recorder = new SonarData852Recorder(*this);
@@ -138,8 +138,8 @@ void Module_ScanningSonar::reset()
         recorder->start();
     }
 
-    if (settings.value("readFromFile").toBool())
-        source = new SonarDataSourceFile(*this, settings.value("filename").toString());
+    if (getSettingsValue("readFromFile").toBool())
+        source = new SonarDataSourceFile(*this, getSettingsValue("filename").toString());
     else
         source = new SonarDataSourceSerial(*this);
 
