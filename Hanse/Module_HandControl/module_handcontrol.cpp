@@ -96,6 +96,8 @@ void Module_HandControl::sendNewControls()
     float divLR = getSettingsValue("divLR").toFloat();
     float divUD = getSettingsValue("divUD").toFloat();
 
+    moduleMutex.lock();
+    
     if (getSettingsValue("receiver").toString()=="thruster") {
         controlLoop->setEnabled(false);
 
@@ -117,6 +119,8 @@ void Module_HandControl::sendNewControls()
         float dVal = speedUpDown/divUD;
         controlLoop->setDepth(currentSollTiefe + dVal);
     }
+    
+    moduleMutex.unlock();
 
 }
 

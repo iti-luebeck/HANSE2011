@@ -88,7 +88,7 @@
 #define ADIS_REGISTER_STATUS_LO 0x3C
 
 Module_IMU::Module_IMU(QString id, Module_UID *uid)
-    : RobotModule(id)
+    : RobotModule_MT(id)
 {
     thread.start();
     this->uid=uid;
@@ -223,6 +223,7 @@ QWidget* Module_IMU::createView(QWidget* parent)
 
 void Module_IMU::doHealthCheck()
 {
+//    QMutexLocker l(&moduleMutex);
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -241,7 +242,7 @@ void Module_IMU::doHealthCheck()
     short status_reg = readRegister(ADIS_REGISTER_STATUS_LO);
     status_reg &= 0xFFFE; // clear out undervoltage warning. we're aware of it.
 
-    QMutexLocker l(&moduleMutex);
+//    QMutexLocker l(&moduleMutex);
 
     addData("statusReg", status_reg);
     if (status_reg != 0x0000) {
@@ -270,6 +271,7 @@ void Module_IMU::doSelfTest()
 
 int Module_IMU::readDataRegister(uint8_t reg, int bits)
 {
+    QMutexLocker l(&moduleMutex);
         unsigned int data = readRegister(reg);
 
 // We check for health independently anyway.
@@ -378,6 +380,7 @@ unsigned short Module_IMU::toShort(uint8_t high, uint8_t low)
 
 unsigned short Module_IMU::readRegister(uint8_t address)
 {
+    QMutexLocker l(&moduleMutex);
     char buf_recv[] = {0x00, 0x00};
     char buf_send[] = {address, 0x00};
 
@@ -392,6 +395,7 @@ unsigned short Module_IMU::readRegister(uint8_t address)
 
 void Module_IMU::writeFullRegister(uint8_t address_lower, unsigned short data)
 {
+    QMutexLocker l(&moduleMutex);
         // write upper register first, since the SENS/AVG register should
         // be programmed in this order
         writeRegister(address_lower+1, data>>8);
@@ -400,6 +404,7 @@ void Module_IMU::writeFullRegister(uint8_t address_lower, unsigned short data)
 
 void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 {
+    QMutexLocker l(&moduleMutex);
     char buf_recv[] = {0x00, 0x00};
     char buf_send[] = {address, data};
 

@@ -1,12 +1,12 @@
 #ifndef MODULE_THRUSTERCONTROLLOOP_H
 #define MODULE_THRUSTERCONTROLLOOP_H
 
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 
 class Module_PressureSensor;
 class Module_Thruster;
 
-class Module_ThrusterControlLoop : public RobotModule {
+class Module_ThrusterControlLoop : public RobotModule_MT {
     Q_OBJECT
 
     friend class TCL_Form;
@@ -24,6 +24,34 @@ public:
       */
     void updateConstantsFromInitNow();
 
+    /**
+      * Return forward speed
+      *
+      * range of speed: -1.0 to 1.0
+      */
+    float getForwardSpeed();
+
+    /**
+      * Return current angular speed.
+      *
+      * positive angular speed implies a clockwise rotation;
+      * negative angular speed implies a counterclockwise rotation.
+      * (both rotations as seem from above the robot)
+      *
+      * range: -1.0 to 1.0
+      */
+    float getAngularSpeed();
+
+    /**
+      * Return "Soll-Tiefe"
+      *
+      * depth: meters below the surface
+      *        range: 0 to infinity
+      */
+    float getDepth();
+
+    float getDepthError();
+
 public slots:
 
     /**
@@ -35,12 +63,6 @@ public slots:
 
     void terminate();
 
-    /**
-      * Return forward speed
-      *
-      * range of speed: -1.0 to 1.0
-      */
-    float getForwardSpeed();
 
     /**
       * Set forward speed and hold it until told otherwise.
@@ -61,33 +83,12 @@ public slots:
     void setAngularSpeed(float angularSpeed);
 
     /**
-      * Return current angular speed.
-      *
-      * positive angular speed implies a clockwise rotation;
-      * negative angular speed implies a counterclockwise rotation.
-      * (both rotations as seem from above the robot)
-      *
-      * range: -1.0 to 1.0
-      */
-    float getAngularSpeed();
-
-    /**
       * Dive to "depth" and stay there.
       *
       * depth: meters below the surface
       *        range: 0 to infinity
       */
     void setDepth(float depth);
-
-    /**
-      * Return "Soll-Tiefe"
-      *
-      * depth: meters below the surface
-      *        range: 0 to infinity
-      */
-    float getDepth();
-
-    float getDepthError();
 
 private:
 

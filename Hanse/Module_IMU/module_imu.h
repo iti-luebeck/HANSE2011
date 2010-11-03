@@ -2,12 +2,12 @@
 #define MODULE_IMU_H
 
 #include <QtCore>
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 #include "inttypes.h"
 
 class Module_UID;
 
-class Module_IMU : public RobotModule {
+class Module_IMU : public RobotModule_MT {
     Q_OBJECT
 
     friend class IMU_Form;

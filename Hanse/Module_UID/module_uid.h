@@ -1,13 +1,13 @@
 #ifndef MODULE_UID_H
 #define MODULE_UID_H
 
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 
 class QextSerialPort;
 class QextPortInfo;
 class PortSettings;
 
-class Module_UID : public RobotModule {
+class Module_UID : public RobotModule_MT {
     Q_OBJECT
 public:
 

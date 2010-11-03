@@ -4,7 +4,8 @@
 RobotModule::RobotModule(QString newId)
     : settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
       moduleMutex(QMutex::Recursive),
-      id(newId)
+      id(newId),
+      healthCheckTimer(this)
 {
     settings.beginGroup(id);
 
@@ -14,7 +15,7 @@ RobotModule::RobotModule(QString newId)
     logger = Log4Qt::Logger::logger(id);
 
     // perform a health check once a second
-    connect(&healthCheckTimer, SIGNAL(timeout()), this, SLOT(doHealthCheck()));
+    connect(&healthCheckTimer, SIGNAL(timeout()), this, SLOT(doHealthCheck()),Qt::DirectConnection);
     healthCheckTimer.start(1000);
 
     recorder = new DataRecorder(*this);

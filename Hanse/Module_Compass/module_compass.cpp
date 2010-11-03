@@ -26,9 +26,8 @@
 #define COMPASS_CMD_EEPROM_WRITE	0xF1
 
 Module_Compass::Module_Compass(QString id, Module_UID *uid)
-    : RobotModule(id)
+    : RobotModule_MT(id), timer(this)
 {
-    thread.start();
 
     this->uid=uid;
 
@@ -41,10 +40,7 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     setDefaultValue("sampleRate",5);
     setDefaultValue("debug",1);
 
-    //timer.moveToThread(&thread);
-    thread.start();
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
-            Qt::DirectConnection);
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
 }
@@ -135,6 +131,9 @@ void Module_Compass::configure()
 
 void Module_Compass::refreshData()
 {
+    qDebug() << "comp ref THREAD ID";
+    qDebug() << QThread::currentThreadId();
+
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -164,9 +163,13 @@ QWidget* Module_Compass::createView(QWidget* parent)
 
 void Module_Compass::doHealthCheck()
 {
+    qDebug() << "comp health THREAD ID";
+    qDebug() << QThread::currentThreadId();
+
     if (!getSettingsValue("enabled").toBool())
         return;
 
+//    QMutexLocker l(&moduleMutex);
     uint8_t sw_version;
     if (!eepromRead(0x02,sw_version)) {
         setHealthToSick(uid->getLastError());
@@ -271,6 +274,7 @@ void Module_Compass::printEEPROM()
 
 bool Module_Compass::eepromRead(uint8_t addr, uint8_t &data)
 {
+//    QMutexLocker l(&moduleMutex);
         char recv_buffer[1];
         char send_buffer[2];
         send_buffer[0] = COMPASS_CMD_EEPROM_READ;
@@ -282,6 +286,7 @@ bool Module_Compass::eepromRead(uint8_t addr, uint8_t &data)
 
 bool Module_Compass::eepromWrite(uint8_t addr, uint8_t data)
 {
+//    QMutexLocker l(&moduleMutex);
     logger->debug("Setting eeprom address 0x"+QString::number(addr,16)+" to 0x"+QString::number(data,16));
     uint8_t current_value;
     if (!eepromRead(addr,current_value))
@@ -363,13 +368,17 @@ void Module_Compass::resetDevice()
 bool Module_Compass::readWriteDelay(char *send_buf, int send_size,
                                     char *recv_buf, int recv_size, int delay)
 {
+//    QMutexLocker l(&moduleMutex);
     char address = getSettingsValue("i2cAddress").toInt();
 
     if (!uid->I2C_Write(address, send_buf, send_size)) {
         setHealthToSick(uid->getLastError());
         return false;
     }
+    QTime blub;
+    blub.restart();
     msleep(delay);
+    addData("run compass delay",blub.elapsed());
     if (recv_size>0 && !uid->I2C_Read(address, recv_size, recv_buf)) {
         setHealthToSick(uid->getLastError());
         return false;

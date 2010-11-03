@@ -2,12 +2,12 @@
 #define MODULE_COMPASS_H
 
 #include <QtCore>
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 #include "inttypes.h"
 
 class Module_UID;
 
-class Module_Compass : public RobotModule {
+class Module_Compass : public RobotModule_MT {
     Q_OBJECT
 
 public:
@@ -48,7 +48,6 @@ private slots:
 
 private:
     Module_UID *uid;
-    QThread thread;
     QTimer timer;
 
     unsigned short toShort(uint8_t high, uint8_t low);

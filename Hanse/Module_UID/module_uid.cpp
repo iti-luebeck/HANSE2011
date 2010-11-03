@@ -6,7 +6,7 @@
 #include <qextserialenumerator.h>
 
 Module_UID::Module_UID(QString moduleId)
-    :RobotModule(moduleId)
+    :RobotModule_MT(moduleId)
 {
 
     portSettings = new PortSettings();
@@ -297,7 +297,7 @@ bool Module_UID::UID_Available()
 
 void Module_UID::doHealthCheck()
 {
-    QMutexLocker l(&this->moduleMutex);
+//    QMutexLocker l(&this->moduleMutex);
     logger->trace("doHealthCheck");
     if (!getSettingsValue("enabled").toBool())
         return;

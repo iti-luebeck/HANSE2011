@@ -188,7 +188,7 @@ protected:
     /**
       * sleep for the given amount of milliseconds
       */
-    void msleep(int millies);
+    virtual void msleep(int millies);
 
 protected slots:
     /**

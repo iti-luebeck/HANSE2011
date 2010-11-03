@@ -22,20 +22,15 @@
 #define PRESSURE_MAX 3000
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
-    : RobotModule(id)
+    : RobotModule_MT(id), timer(this)
 {
-    thread.start();
 
     this->uid=uid;
 
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
 
-    thread.start();
-    //timer.moveToThread(&thread);
-
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
-            Qt::DirectConnection);
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
 }
@@ -159,6 +154,9 @@ QWidget* Module_PressureSensor::createView(QWidget* parent)
 
 void Module_PressureSensor::doHealthCheck()
 {
+//    qDebug() << "pressure health THREAD ID";
+//    qDebug() << QThread::currentThreadId();
+
     if (!isEnabled())
         return;
 
@@ -181,7 +179,7 @@ void Module_PressureSensor::doHealthCheck()
         return;
     }
 
-    QMutexLocker l(&this->moduleMutex);
+//    QMutexLocker l(&this->moduleMutex);
 
     addData("counter",(unsigned char)readBuffer[0]);
 //    data["counter"] = (unsigned char)readBuffer[0];
@@ -198,6 +196,7 @@ void Module_PressureSensor::doHealthCheck()
 
 bool Module_PressureSensor::readRegister(unsigned char reg, int size, char *ret_buf)
 {
+    QMutexLocker l(&moduleMutex);
     unsigned char address = getSettingsValue("i2cAddress").toInt();
 
     if (!uid->I2C_ReadRegisters(address, reg, size, ret_buf)) {

@@ -10,7 +10,7 @@
 //using namespace cv;
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam) :
-        RobotBehaviour(id)
+        RobotBehaviour_MT(id)
 {
     qDebug() << "pipe thread id";
     qDebug() << QThread::currentThreadId();
@@ -77,7 +77,7 @@ void Behaviour_PipeFollowing::terminate()
 {
 //    timer.stop();
     emit timerStop();
-    RobotBehaviour::terminate();
+    RobotBehaviour_MT::terminate();
 }
 
 void Behaviour_PipeFollowing::reset()
@@ -132,7 +132,10 @@ void Behaviour_PipeFollowing::timerSlot()
 
     addData("run",run.elapsed());
     if(getDataValue("run").toInt() > timerTime)
-        this->setHealthToSick("to slow " + QString::number(getDataValue("run").toInt()) + " / " + QString::number(timerTime));
+    {
+        this->setHealthToSick("to slow " + QString::number(getDataValue("run grab").toInt()) + "(" + QString::number(getDataValue("run").toInt()) + ") / " + QString::number(timerTime));
+        emit stop();
+    }
 
 //    data["run"] = run.elapsed();
 //    if(data["run"].toInt() > timerTime)
