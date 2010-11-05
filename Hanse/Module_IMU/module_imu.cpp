@@ -90,7 +90,6 @@
 Module_IMU::Module_IMU(QString id, Module_UID *uid)
     : RobotModule_MT(id)
 {
-    thread.start();
     this->uid=uid;
 
     setDefaultValue("frequency", 10);
@@ -104,11 +103,8 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
     setDefaultValue("filterTaps",2);
     setDefaultValue("gyroSens","300");
 
-    thread.start();
-   // timer.moveToThread(&thread);
 
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()),
-            Qt::DirectConnection);
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
 }
@@ -150,14 +146,16 @@ void Module_IMU::reset()
     updateBiasFields();
     printRegisters();
 
-    QMutexLocker l(&moduleMutex);
-
     addData("flashCounter", readRegister(ADIS_REGISTER_ENDURANCE));
 
 }
 
 void Module_IMU::refreshData()
 {
+
+//    qDebug() << "adis ref THREAD ID";
+//    qDebug() << QThread::currentThreadId();
+
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -185,7 +183,6 @@ void Module_IMU::refreshData()
 
     unsigned short voltage_raw = readRegister(ADIS_REGISTER_POWER);
     double voltage = (voltage_raw & 0x0FFF) *1.8315; // mV
-    QMutexLocker l(&moduleMutex);
     addData("voltage", voltage/1000);
 
     if (getHealthStatus().isHealthOk()) {
@@ -223,6 +220,10 @@ QWidget* Module_IMU::createView(QWidget* parent)
 
 void Module_IMU::doHealthCheck()
 {
+
+//    qDebug() << "adis health THREAD ID";
+//    qDebug() << QThread::currentThreadId();
+
 //    QMutexLocker l(&moduleMutex);
     if (!getSettingsValue("enabled").toBool())
         return;
@@ -271,7 +272,6 @@ void Module_IMU::doSelfTest()
 
 int Module_IMU::readDataRegister(uint8_t reg, int bits)
 {
-    QMutexLocker l(&moduleMutex);
         unsigned int data = readRegister(reg);
 
 // We check for health independently anyway.
@@ -380,7 +380,6 @@ unsigned short Module_IMU::toShort(uint8_t high, uint8_t low)
 
 unsigned short Module_IMU::readRegister(uint8_t address)
 {
-    QMutexLocker l(&moduleMutex);
     char buf_recv[] = {0x00, 0x00};
     char buf_send[] = {address, 0x00};
 
@@ -395,7 +394,6 @@ unsigned short Module_IMU::readRegister(uint8_t address)
 
 void Module_IMU::writeFullRegister(uint8_t address_lower, unsigned short data)
 {
-    QMutexLocker l(&moduleMutex);
         // write upper register first, since the SENS/AVG register should
         // be programmed in this order
         writeRegister(address_lower+1, data>>8);
@@ -404,7 +402,6 @@ void Module_IMU::writeFullRegister(uint8_t address_lower, unsigned short data)
 
 void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 {
-    QMutexLocker l(&moduleMutex);
     char buf_recv[] = {0x00, 0x00};
     char buf_send[] = {address, data};
 
@@ -421,37 +418,31 @@ void Module_IMU::writeRegister(uint8_t address, uint8_t data)
 
 float Module_IMU::getGyroX(void)
 {
-    QMutexLocker l(&moduleMutex);
     return getDataValue("gyroX").toFloat();
 }
 
 float Module_IMU::getGyroY(void)
 {
-    QMutexLocker l(&moduleMutex);
     return getDataValue("gyroY").toFloat();
 }
 
 float Module_IMU::getGyroZ(void)
 {
-    QMutexLocker l(&moduleMutex);
     return getDataValue("gyroZ").toFloat();
 }
 
 float Module_IMU::getAccelX(void)
 {
-    QMutexLocker l(&moduleMutex);
     return getDataValue("accelX").toFloat();
 }
 
 float Module_IMU::getAccelY(void)
 {
-    QMutexLocker l(&moduleMutex);
     return getDataValue("accelY").toFloat();
 }
 
 float Module_IMU::getAccelZ(void)
 {
-    QMutexLocker l(&moduleMutex);
     return getDataValue("accelZ").toFloat();
 }
 
@@ -467,7 +458,6 @@ void Module_IMU::doPrecisionCalib()
 
 void Module_IMU::updateBiasFields()
 {
-    QMutexLocker l(&moduleMutex);
     addData("biasGyroX", readDataRegister(ADIS_REGISTER_XGYRO_OFF_LO, 12));
     addData("biasGyroY", readDataRegister(ADIS_REGISTER_YGYRO_OFF_LO, 12));
     addData("biasGyroZ", readDataRegister(ADIS_REGISTER_ZGYRO_OFF_LO, 12));

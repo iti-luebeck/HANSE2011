@@ -133,8 +133,9 @@ void Behaviour_PipeFollowing::timerSlot()
     addData("run",run.elapsed());
     if(getDataValue("run").toInt() > timerTime)
     {
-        this->setHealthToSick("to slow " + QString::number(getDataValue("run grab").toInt()) + "(" + QString::number(getDataValue("run").toInt()) + ") / " + QString::number(timerTime));
-        emit stop();
+        logger->error("error pipefollow to slow");
+//        this->setHealthToSick("to slow " + QString::number(getDataValue("run grab").toInt()) + "(" + QString::number(getDataValue("run").toInt()) + ") / " + QString::number(timerTime));
+//        emit stop();
     }
 
 //    data["run"] = run.elapsed();

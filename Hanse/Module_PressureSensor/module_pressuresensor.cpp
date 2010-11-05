@@ -72,6 +72,10 @@ void Module_PressureSensor::reset()
 
 void Module_PressureSensor::refreshData()
 {
+
+//    qDebug() << "press ref THREAD ID";
+//    qDebug() << QThread::currentThreadId();
+
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -96,10 +100,7 @@ void Module_PressureSensor::readPressure()
     // this is the pressure in mBar
     uint16_t pressure = (int)readBuffer[0] << 8 | (int)readBuffer[1];
 
-    QMutexLocker l(&this->moduleMutex);
-
     addData("pressure",pressure);
-//    data["pressure"] =  pressure;
 
     // 100 mBar == ca. 1m wassersäule - druck an der luft
     addData("depth",((float)pressure-getSettingsValue("airPressure").toFloat())/100);
@@ -122,21 +123,17 @@ void Module_PressureSensor::readTemperature()
     // this is the temperature in 10/degree celsius
     uint16_t temp = (int)readBuffer[0] << 8 | (int)readBuffer[1];
 
-    QMutexLocker l(&this->moduleMutex);
-
     addData("temperatureHW",((float)temp)/10);
 //    data["temperatureHW"] = ((float)temp)/10;
 }
 
 float Module_PressureSensor::getDepth()
 {
-    QMutexLocker l(&this->moduleMutex);
     return getDataValue("depth").toFloat();
 }
 
 float Module_PressureSensor::getTemperature()
 {
-    QMutexLocker l(&this->moduleMutex);
     return getDataValue("temperature").toFloat()/10.0;
 }
 
@@ -196,7 +193,6 @@ void Module_PressureSensor::doHealthCheck()
 
 bool Module_PressureSensor::readRegister(unsigned char reg, int size, char *ret_buf)
 {
-    QMutexLocker l(&moduleMutex);
     unsigned char address = getSettingsValue("i2cAddress").toInt();
 
     if (!uid->I2C_ReadRegisters(address, reg, size, ret_buf)) {
