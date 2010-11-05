@@ -25,6 +25,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
     displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
+    toSlowCnt = 0;
 
     setEnabled(false);
     Behaviour_PipeFollowing::noPipeCnt = 0;
@@ -134,6 +135,8 @@ void Behaviour_PipeFollowing::timerSlot()
     if(getDataValue("run").toInt() > timerTime)
     {
         logger->error("error pipefollow to slow");
+        toSlowCnt++;
+        addData("ERR toSlow",toSlowCnt);
 //        this->setHealthToSick("to slow " + QString::number(getDataValue("run grab").toInt()) + "(" + QString::number(getDataValue("run").toInt()) + ") / " + QString::number(timerTime));
 //        emit stop();
     }

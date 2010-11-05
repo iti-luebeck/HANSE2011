@@ -4,6 +4,7 @@
 RobotModule::RobotModule(QString newId)
     : settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
       moduleMutex(QMutex::Recursive),
+      dataLockerMutex(QMutex::Recursive),
       id(newId),
       healthCheckTimer(this)
 {

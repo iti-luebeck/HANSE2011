@@ -131,6 +131,7 @@ private:
     int firstRun;
     /* sonstige */
     int noPipeCnt;
+    int toSlowCnt;
 
 private slots:
     void timerSlot();
