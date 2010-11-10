@@ -80,14 +80,16 @@ void MetaBehaviour::reset()
 
 void MetaBehaviour::startHandControl()
 {
-    RobotBehaviour* thisB = this->handControl;
-    if (thisB) {
-        logger->info("Starting module "+thisB->getId());
+    RobotBehaviour* thisB = dynamic_cast<RobotBehaviour*>(this->handControl);
+    RobotBehaviour_MT* thisB1 = this->handControl;
+    logger->debug("will jetz hctr starten");
+    if (thisB1) {
+        logger->info("Starting module "+thisB1->getId());
         foreach (RobotBehaviour* b, behaviours) {
-            if (b != thisB)
+            if (b != dynamic_cast<RobotBehaviour*>(thisB1))
                 b->stop();
         }
-        thisB->start();
+        thisB1->start();
     }
 }
 

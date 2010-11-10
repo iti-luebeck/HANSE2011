@@ -82,6 +82,7 @@ public slots:
       */
     void setAngularSpeed(float angularSpeed);
 
+
     /**
       * Dive to "depth" and stay there.
       *

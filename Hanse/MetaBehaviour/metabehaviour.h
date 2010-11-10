@@ -3,6 +3,8 @@
 
 #include <Framework/robotmodule.h>
 #include <Framework/robotbehaviour.h>
+#include <Framework/robotmodule_mt.h>
+#include <Framework/robotbehaviour_mt.h>
 
 class Module_ThrusterControlLoop;
 class Behaviour_PipeFollowing;

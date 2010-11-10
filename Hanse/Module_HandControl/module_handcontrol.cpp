@@ -5,7 +5,7 @@
 #include "server.h"
 
 Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster *thrusterDownFront)
-    : RobotBehaviour(id)
+    : RobotBehaviour_MT(id)
 {
     this->controlLoop = tcl,
     this->thrusterDown = thrusterDown;
@@ -25,6 +25,16 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     connect(server, SIGNAL(healthProblem(QString)), this, SLOT(serverReportedError(QString)));
     connect(server, SIGNAL(emergencyStop()), this, SLOT(emergencyStopReceived()));
     connect(server, SIGNAL(startHandControl()), this, SLOT(startHandControlReceived()));
+
+    connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+    connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
+
+    connect(this,SIGNAL(setUpDownSpeed(float)),thrusterDown,SLOT(setSpeed(float)));
+    connect(this,SIGNAL(setUpDownSpeed(float)),thrusterDownFront,SLOT(setSpeed(float)));
+    connect(this,SIGNAL(setRightSpeed(float)),thrusterRight,SLOT(setSpeed(float)));
+    connect(this,SIGNAL(setLeftSpeed(float)),thrusterLeft,SLOT(setSpeed(float)));
+
 
     reset();
 }
@@ -46,14 +56,14 @@ QWidget* Module_HandControl::createView(QWidget* parent)
 
 void Module_HandControl::terminate()
 {
-    RobotBehaviour::terminate();
+    RobotBehaviour_MT::terminate();
     newMessage(0,0,0);
     server->close();
 }
 
 void Module_HandControl::reset()
 {
-    RobotBehaviour::reset();
+    RobotBehaviour_MT::reset();
 
     newMessage(0,0,0);
 
@@ -101,6 +111,7 @@ void Module_HandControl::sendNewControls()
     if (getSettingsValue("receiver").toString()=="thruster") {
         controlLoop->setEnabled(false);
 
+        logger->debug("set thruster direct");
         float left = forwardSpeed/divFw+angularSpeed/divLR;
         float right = forwardSpeed/divFw-angularSpeed/divLR;
         float updown = (float)speedUpDown / divUD;
@@ -113,11 +124,15 @@ void Module_HandControl::sendNewControls()
         if (!controlLoop->isEnabled())
             controlLoop->setEnabled(true);
 
-        controlLoop->setAngularSpeed(angularSpeed/divLR);
-        controlLoop->setForwardSpeed(forwardSpeed/divFw);
+        logger->debug("emit signal to tcl");
+        emit setAngularSpeed(angularSpeed/divLR);
+        emit setForwardSpeed(forwardSpeed/divFw);
+//        controlLoop->setAngularSpeed(angularSpeed/divLR);
+//        controlLoop->setForwardSpeed(forwardSpeed/divFw);
         float currentSollTiefe = controlLoop->getDepth();
         float dVal = speedUpDown/divUD;
-        controlLoop->setDepth(currentSollTiefe + dVal);
+//        controlLoop->setDepth(currentSollTief8e + dVal);
+        emit setDepth(currentSollTiefe + dVal);
     }
     
     moduleMutex.unlock();

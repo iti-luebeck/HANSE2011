@@ -1,14 +1,14 @@
 #ifndef MODULE_HANDCONTROL_H
 #define MODULE_HANDCONTROL_H
 
-#include <Framework/robotbehaviour.h>
+#include <Framework/robotbehaviour_mt.h>
 
 class Server;
 class Module_Thruster;
 class Module_ThrusterControlLoop;
 class HandControl_Form;
 
-class Module_HandControl : public RobotBehaviour {
+class Module_HandControl : public RobotBehaviour_MT {
     Q_OBJECT
     friend class HandControl_Form;
 
@@ -29,6 +29,13 @@ public:
 signals:
     void emergencyStop();
     void startHandControl();
+    void setForwardSpeed(float forwardSpeed);
+    void setAngularSpeed(float angularSpeed);
+    void setDepth(float depth);
+    void setUpDownSpeed(float upDownSpeed);
+    void setLeftSpeed(float leftSpeed);
+    void setRightSpeed(float rightSpeed);
+
 private:
 
     Module_Thruster* thrusterLeft;
