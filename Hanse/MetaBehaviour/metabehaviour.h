@@ -38,6 +38,7 @@ private:
     Behaviour_BallFollowing* ball;
     Behaviour_TurnOneEighty* o80;
     QList<RobotBehaviour*> behaviours;
+    QList<RobotBehaviour_MT*> behavioursMT;
     QTimer depthWaitTimer;
     QTimer timeoutTimer;
     bool reachedEOP;
@@ -58,6 +59,24 @@ public slots:
     void simpleForward();
     void simple180deg();
     void fullProgram();
+
+signals:
+//    void emergencyStopp();
+    void setDepth(float depth);
+    void setForwardSpeed(float forwardSpeed);
+    void setAngularSpeed(float angularSpeed);
+    /* define a start/stop signal for every behaviour */
+    void stopAllBehaviours();
+    void resetTCL();
+    void startPipeFollow();
+    void stopPipeFollow();
+    void startTurnO80();
+    void stopTurnO80();
+    void startBallFollow();
+    void stopBallFollow();
+    void startHandCtr();
+    void stopHandCtr();
+
 };
 
 

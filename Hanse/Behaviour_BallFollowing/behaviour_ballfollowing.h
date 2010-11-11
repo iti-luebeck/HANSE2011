@@ -25,10 +25,6 @@ public:
 
     QWidget* createView(QWidget *parent);
 
-    /** starts GoalFollow Behaviour */
-    void start();
-    /** stops GoalFollow Behaviour */
-    void stop();
 
     void reset();
     /** returns true if Behaviour is active
@@ -51,13 +47,22 @@ private:
     void ctrBallFollowing();
 
 public slots:
-    void newData();
-    void timerSlot();
     void testBehaviour( QString path );
     void compassUpdate( RobotModule * );
+    /** starts GoalFollow Behaviour */
+    void start();
+    /** stops GoalFollow Behaviour */
+    void stop();
+
+private slots:
+    void newData();
+    void timerSlot();
+
 
 signals:
     void printFrame(IplImage *frame);
+    void setForwardSpeed(float forwardSpeed);
+    void setAngularSpeed(float angularSpeed);
 };
 
 

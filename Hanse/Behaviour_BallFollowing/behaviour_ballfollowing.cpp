@@ -19,6 +19,8 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     connect(&updateTimer,SIGNAL(timeout()),this,SLOT(newData()));
     connect(&timerNoBall,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
+    connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+    connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     setEnabled(false);
     state = STATE_IDLE;
 
@@ -46,7 +48,8 @@ void Behaviour_BallFollowing::start()
     {
         targetHeading += 360;
     }
-    tcl->setAngularSpeed( -0.4 );
+    emit setAngularSpeed(-0.4);
+//    tcl->setAngularSpeed( -0.4 );
 
     updateTimer.start( 100 );
 }
@@ -68,8 +71,10 @@ void Behaviour_BallFollowing::compassUpdate( RobotModule * )
         if ( diffHeading < 5 )
         {
             state = STATE_TRACK_BALL;
-            tcl->setAngularSpeed( .0 );
-            tcl->setForwardSpeed( .0 );
+            emit setAngularSpeed(0.0);
+            emit setForwardSpeed(0.0);
+//            tcl->setAngularSpeed( .0 );
+//            tcl->setForwardSpeed( .0 );
         }
     }
 }
@@ -80,8 +85,10 @@ void Behaviour_BallFollowing::stop()
     if (isEnabled()) {
         state = STATE_IDLE;
         updateTimer.stop();
-        this->tcl->setForwardSpeed(0.0);
-        this->tcl->setAngularSpeed(0.0);
+        emit setForwardSpeed(0.0);
+        emit setAngularSpeed(0.0);
+//        this->tcl->setForwardSpeed(0.0);
+//        this->tcl->setAngularSpeed(0.0);
         setEnabled(false);
         emit finished(this,false);
    }
@@ -91,8 +98,10 @@ void Behaviour_BallFollowing::reset()
 {
     logger->debug( "Behaviour reset" );
     RobotBehaviour::reset();
-    this->tcl->setForwardSpeed(0.0);
-    this->tcl->setAngularSpeed(0.0);
+    emit setForwardSpeed(0.0);
+    emit setAngularSpeed(0.0);
+//    this->tcl->setForwardSpeed(0.0);
+//    this->tcl->setAngularSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_BallFollowing::getDependencies()
@@ -227,8 +236,10 @@ void Behaviour_BallFollowing::ctrBallFollowing()
         {
             angleSpeed = this->getSettingsValue("kpBall").toFloat() * ((robCenterX - x)/this->getSettingsValue("maxDistance").toFloat());
         }
-        tcl->setAngularSpeed(angleSpeed);
-        tcl->setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+        emit setAngularSpeed(angleSpeed);
+        emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+//        tcl->setAngularSpeed(angleSpeed);
+//        tcl->setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
 
         addData("ball_area", maxArea);
         addData("ball_x", x);
@@ -240,8 +251,10 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     }
     else
     {
-        tcl->setAngularSpeed( .0 );
-        tcl->setForwardSpeed( .6 );
+        emit setAngularSpeed(0.0);
+        emit setForwardSpeed(0.6);
+//        tcl->setAngularSpeed( .0 );
+//        tcl->setForwardSpeed( .6 );
     }
 
     cvReleaseImage( &left );

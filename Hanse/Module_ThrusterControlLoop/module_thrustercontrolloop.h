@@ -141,6 +141,11 @@ public slots:
 
     void pauseModule();
     void unpauseModule();
+signals:
+    void setLeftThruster(float speed);
+    void setRightThruster(float speed);
+    void setUpDownThrusterBack(float speed);
+    void setUpDownThrusterFront(float speed);
 };
 
 #endif // MODULE_THRUSTERCONTROLLOOP_H

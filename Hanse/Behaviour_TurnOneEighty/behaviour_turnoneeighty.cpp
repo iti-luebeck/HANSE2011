@@ -4,12 +4,13 @@
 #include <Behaviour_TurnOneEighty/form_turnoneeighty.h>
 
 Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass ) :
-        RobotBehaviour( id )
+        RobotBehaviour_MT( id )
 {
     this->tcl = tcl;
     this->compass = compass;
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( compassUpdate(RobotModule*) ) );
+    connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 }
 
 QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()
@@ -41,7 +42,8 @@ void Behaviour_TurnOneEighty::stop()
     if ( isActive() )
     {
         logger->debug( "Behaviour stopped" );
-       tcl->setAngularSpeed(0.0);
+        emit setAngularSpeed(0.0);
+//       tcl->setAngularSpeed(0.0);
        setEnabled( false );
        emit finished( this, true );
    }
@@ -54,8 +56,11 @@ bool Behaviour_TurnOneEighty::isActive()
 
 void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
 {
+//    qDebug() << "turn compass thread id";
+//    qDebug() << QThread::currentThreadId();
     if ( isActive() )
     {
+        this->dataLockerMutex.lock();
         double currentHeading = compass->getHeading();
         double targetHeading = initialHeading + 180;
         if ( targetHeading > 360 )
@@ -86,17 +91,23 @@ void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
         {
             diffHeading /= 180;
             double angularSpeed = getSettingsValue( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
-            tcl->setAngularSpeed( angularSpeed );
+            emit setAngularSpeed(angularSpeed);
+//            tcl->setAngularSpeed( angularSpeed );
         }
 
         dataChanged( this );
+        this->dataLockerMutex.unlock();
     }
 }
 
 void Behaviour_TurnOneEighty::initialHeadingUpdate()
 {
+//    qDebug() << "turn thread id";
+//    qDebug() << QThread::currentThreadId();
+    this->dataLockerMutex.lock();
     initialHeading = compass->getHeading();
     logger->debug( "initial heading set to %f°", initialHeading );
     addData("initial_heading", initialHeading);
     dataChanged( this );
+    this->dataLockerMutex.unlock();
 }

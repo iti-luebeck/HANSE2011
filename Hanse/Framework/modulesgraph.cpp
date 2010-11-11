@@ -79,9 +79,9 @@ void ModulesGraph::build()
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams);
     this->modules.append(behavPipe);
 
-    logger->debug("Creating Behaviour_GoalFollowing");
-    Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
-    this->modules.append(behavGoal);
+//    logger->debug("Creating Behaviour_GoalFollowing");
+//    Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
+//    this->modules.append(behavGoal);
 
     logger->debug("Creating Behaviour_BallFollowing");
     Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, compass);
@@ -97,6 +97,15 @@ void ModulesGraph::build()
     this->modules.append(metaBehaviour);
 
     logger->info("Loading all Modules... Done");
+
+    /* connect every modul to healtCheckTimer */
+//    connect(&healthTimer,SIGNAL(timeout()),controlLoop,SLOT(doHealthCheck()));
+    foreach (RobotModule* b, modules)
+    {
+        connect(&healthTimer,SIGNAL(timeout()),b,SLOT(doHealthCheck()));
+    }
+    healthTimer.setInterval(1000);
+    QTimer::singleShot(0,&healthTimer,SLOT(start()));
 }
 
 QList<RobotModule*> ModulesGraph::getModules()

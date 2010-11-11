@@ -16,25 +16,27 @@ RobotModule::RobotModule(QString newId)
     logger = Log4Qt::Logger::logger(id);
 
     // perform a health check once a second
-    connect(&healthCheckTimer, SIGNAL(timeout()), this, SLOT(doHealthCheck()),Qt::DirectConnection);
-    healthCheckTimer.start(1000);
+//    connect(&healthCheckTimer, SIGNAL(timeout()), this, SLOT(doHealthCheck()),Qt::DirectConnection);
+//    healthCheckTimer.start(1000);
 
     recorder = new DataRecorder(*this);
 }
 
 void RobotModule::setEnabled(bool value)
 {
-    settings.setValue("enabled", value);
+    setSettingsValue("enabled",value);
+//    settings.setValue("enabled", value);
 
     if (value)
         reset();
 
-    emit enabled(settings.value("enabled").toBool());
+    emit enabled(getSettingsValue("enabled").toBool());
+//    emit enabled(settings.value("enabled").toBool());
 }
 
 bool RobotModule::isEnabled()
 {
-    return settings.value("enabled").toBool();
+    return getSettingsValue("enabled").toBool();
 }
 
 QString RobotModule::getTabName()

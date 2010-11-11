@@ -5,7 +5,7 @@
 #include "server.h"
 
 Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster *thrusterDownFront)
-    : RobotBehaviour_MT(id)
+    : RobotBehaviour(id)
 {
     this->controlLoop = tcl,
     this->thrusterDown = thrusterDown;
@@ -56,14 +56,14 @@ QWidget* Module_HandControl::createView(QWidget* parent)
 
 void Module_HandControl::terminate()
 {
-    RobotBehaviour_MT::terminate();
+    RobotBehaviour::terminate();
     newMessage(0,0,0);
     server->close();
 }
 
 void Module_HandControl::reset()
 {
-    RobotBehaviour_MT::reset();
+    RobotBehaviour::reset();
 
     newMessage(0,0,0);
 
@@ -115,10 +115,14 @@ void Module_HandControl::sendNewControls()
         float left = forwardSpeed/divFw+angularSpeed/divLR;
         float right = forwardSpeed/divFw-angularSpeed/divLR;
         float updown = (float)speedUpDown / divUD;
-        thrusterDown->setSpeed(updown);
-        thrusterDownFront->setSpeed(updown);
-        thrusterLeft->setSpeed(left);
-        thrusterRight->setSpeed(right);
+
+        emit setUpDownSpeed(updown);
+        emit setRightSpeed(right);
+        emit setLeftSpeed(left);
+//        thrusterDown->setSpeed(updown);
+//        thrusterDownFront->setSpeed(updown);
+//        thrusterLeft->setSpeed(left);
+//        thrusterRight->setSpeed(right);
 
     } else {
         if (!controlLoop->isEnabled())

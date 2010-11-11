@@ -34,6 +34,10 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     connect(pressure, SIGNAL(newDepthData(float)), this, SLOT(newDepthData(float)));
     connect(pressure, SIGNAL(healthStatusChanged(HealthStatus)), this, SLOT(healthStatusChanged(HealthStatus)));
     //healthStatusChanged
+    connect(this,SIGNAL(setLeftThruster(float)),thrusterLeft,SLOT(setSpeed(float)));
+    connect(this,SIGNAL(setRightThruster(float)),thrusterRight,SLOT(setSpeed(float)));
+    connect(this,SIGNAL(setUpDownThrusterFront(float)),thrusterDownFront,SLOT(setSpeed(float)));
+    connect(this,SIGNAL(setUpDownThrusterBack(float)),thrusterDown,SLOT(setSpeed(float)));
 }
 
 void Module_ThrusterControlLoop::terminate()
@@ -53,10 +57,14 @@ void Module_ThrusterControlLoop::reset()
 
     control_loop_enabled = false;
 
-    thrusterLeft->setSpeed( 0 );
-    thrusterRight->setSpeed(0 );
-    thrusterDown->setSpeed( 0 );
-    thrusterDownFront->setSpeed( 0 );
+    emit setLeftThruster(0);
+    emit setRightThruster(0);
+    emit setUpDownThrusterFront(0);
+    emit setUpDownThrusterBack(0);
+//    thrusterLeft->setSpeed( 0 );
+//    thrusterRight->setSpeed(0 );
+//    thrusterDown->setSpeed( 0 );
+//    thrusterDownFront->setSpeed( 0 );
 }
 
 void Module_ThrusterControlLoop::updateConstantsFromInitNow()
@@ -129,8 +137,10 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (paused)
             return;
 
-        thrusterDown->setSpeed(speed);
-        thrusterDownFront->setSpeed(speed);
+        emit setUpDownThrusterFront(speed);
+        emit setUpDownThrusterBack(speed);
+//        thrusterDown->setSpeed(speed);
+//        thrusterDownFront->setSpeed(speed);
         historyThrustCmd[now] = speed;
 
         if (historyThrustCmd.size()>maxHist) {
@@ -186,9 +196,10 @@ void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
         }
     }
 
-
-    thrusterLeft->setSpeed( speedL);
-    thrusterRight->setSpeed(speedR);
+    emit setLeftThruster(speedL);
+    emit setRightThruster(speedR);
+//    thrusterLeft->setSpeed( speedL);
+//    thrusterRight->setSpeed(speedR);
 
 }
 

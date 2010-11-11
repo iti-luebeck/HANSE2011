@@ -24,8 +24,22 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     foreach(RobotModule* m, graph->getModules()) {
         RobotBehaviour* b = dynamic_cast<RobotBehaviour*>(m);
         if (b)
+        {
+            logger->debug("Modul ID "+b->getId());
             this->behaviours.append(b);
+        }
+        RobotBehaviour_MT* bmt = dynamic_cast<RobotBehaviour_MT*>(m);
+        if(bmt)
+        {
+            logger->debug("ModulMT ID "+bmt->getId());
+            this->behavioursMT.append(bmt);
+        }
+
     }
+
+    logger->debug("#Behaviours " +QString::number(this->behaviours.length()));
+    logger->debug("#BehavioursMT " +QString::number(this->behavioursMT.length()));
+
 
     // states: dive; pipe; surface
     addData("state","off");
@@ -42,14 +56,36 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
 
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));
     connect(handControl, SIGNAL(startHandControl()), this, SLOT(startHandControl()));
+    /* connect to tcl via signal/slot */
+    connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
+    connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+
+    /* connect ermegencyStop Signal to all Behaviours */
+    connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
+    connect(this,SIGNAL(stopAllBehaviours()),pipe,SLOT(stop()));
+    connect(this,SIGNAL(stopAllBehaviours()),o80,SLOT(stop()));
+    connect(this,SIGNAL(stopAllBehaviours()),ball,SLOT(stop()));
+    connect(this,SIGNAL(stopAllBehaviours()),handControl,SLOT(stop()));
+    /* connect all behaviours via signals slots*/
+    connect(this,SIGNAL(startPipeFollow()),pipe,SLOT(start()));
+    connect(this,SIGNAL(stopPipeFollow()),pipe,SLOT(stop()));
+    connect(this,SIGNAL(startBallFollow()),ball,SLOT(start()));
+    connect(this,SIGNAL(stopBallFollow()),ball,SLOT(stop()));
+    connect(this,SIGNAL(startTurnO80()),o80,SLOT(start()));
+    connect(this,SIGNAL(stopTurnO80()),o80,SLOT(stop()));
+    connect(this,SIGNAL(startHandCtr()),handControl,SLOT(start()));
+    connect(this,SIGNAL(stopHandCtr()),handControl,SLOT(stop()));
 }
 
 void MetaBehaviour::emergencyStop()
 {
-    foreach (RobotBehaviour* b, behaviours) {
-        b->stop();
-    }
-    tcl->reset();
+//    foreach (RobotBehaviour* b, behaviours) {
+//        b->stop();
+//    }
+    emit stopAllBehaviours();
+    emit resetTCL();
+//    tcl->reset();
 
     addData("state","off");
     timeoutTimer.stop();
@@ -64,6 +100,8 @@ QList<RobotModule*> MetaBehaviour::getDependencies()
     ret.append(pressure);
     RobotModule* m;
     foreach(m,behaviours)
+        ret.append(m);
+    foreach(m,behavioursMT)
         ret.append(m);
     return ret;
 }
@@ -80,17 +118,30 @@ void MetaBehaviour::reset()
 
 void MetaBehaviour::startHandControl()
 {
-    RobotBehaviour* thisB = dynamic_cast<RobotBehaviour*>(this->handControl);
-    RobotBehaviour_MT* thisB1 = this->handControl;
-    logger->debug("will jetz hctr starten");
-    if (thisB1) {
-        logger->info("Starting module "+thisB1->getId());
-        foreach (RobotBehaviour* b, behaviours) {
-            if (b != dynamic_cast<RobotBehaviour*>(thisB1))
-                b->stop();
-        }
-        thisB1->start();
+//    RobotBehaviour* thisB = dynamic_cast<RobotBehaviour*>(this->handControl);
+//    RobotBehaviour_MT* thisB = dynamic_cast<RobotBehaviour_MT*>(this->handControl);
+//    RobotBehaviour_MT* thisB1 = this->handControl;
+//    logger->debug("will jetz hctr starten");
+//    if (thisB) {
+//        logger->info("Starting module "+thisB->getId());
+//        foreach (RobotBehaviour* b, behaviours) {
+//            if (b != dynamic_cast<RobotBehaviour*>(thisB))
+//                b->stop();
+//        }
+//        emit stopAllBehaviours();
+
+//        thisB->start();
+//        emit startHandCtr();
+//    }
+    RobotModule* thisB = dynamic_cast<RobotModule*>(this->handControl);
+    logger->info("Try to start HandCtr");
+    if(thisB)
+    {
+        logger->info("HandCtr ist available");
     }
+    emit stopAllBehaviours();
+    emit startHandCtr();
+    logger->info("Signal emitted");
 }
 
 void MetaBehaviour::depthChanged(float depth)
@@ -98,20 +149,24 @@ void MetaBehaviour::depthChanged(float depth)
     if (getDataValue("state")=="dive" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
         addData("state", "pipe");
         emit dataChanged(this);
-        QTimer::singleShot(0, pipe, SLOT(start()));
+        emit startPipeFollow();
+//        QTimer::singleShot(0, pipe, SLOT(start()));
         timeoutTimer.stop();
         timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
     if (getDataValue("state")=="diveSimple" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
         addData("state", "forward");
-        tcl->setForwardSpeed(getSettingsValue("forwardSpeed").toFloat());
-        tcl->setAngularSpeed(-0.05);
+        emit setForwardSpeed(getSettingsValue("forwardSpeed").toFloat());
+        emit setAngularSpeed(-0.5);
+//        tcl->setForwardSpeed(getSettingsValue("forwardSpeed").toFloat());
+//        tcl->setAngularSpeed(-0.05);
         timeoutTimer.stop();
         timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
     if (getDataValue("state")=="diveForPipe" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
         addData("state", "pipeFirstPart");
-        QTimer::singleShot(0, pipe, SLOT(start()));
+        emit startPipeFollow();
+//        QTimer::singleShot(0, pipe, SLOT(start()));
         timeoutTimer.stop();
         timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
@@ -124,7 +179,8 @@ void MetaBehaviour::depthChanged(float depth)
         addData("state","surface");
         emit dataChanged(this);
         timeoutTimer.stop();
-        tcl->setDepth(0);
+        emit setDepth(0);
+//        tcl->setDepth(0);
     }
 }
 
@@ -132,7 +188,8 @@ void MetaBehaviour::testPipe()
 {
     addData("state", "pipe");
     emit dataChanged(this);
-    QTimer::singleShot(0, pipe, SLOT(start()));
+    emit startPipeFollow();
+//    QTimer::singleShot(0, pipe, SLOT(start()));
     timeoutTimer.stop();
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
@@ -141,7 +198,8 @@ void MetaBehaviour::finishedTurn(RobotBehaviour *, bool success) {
     if (getDataValue("state")=="turn") {
         addData("state","pipeSecondPart");
         emit dataChanged(this);
-        QTimer::singleShot(0, pipe, SLOT(start()));
+        emit startPipeFollow();
+//        QTimer::singleShot(0, pipe, SLOT(start()));
         timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
 }
@@ -151,9 +209,12 @@ void MetaBehaviour::stateTimeout()
     addData("state","timeoutFail");
     emit dataChanged(this);
     emergencyStop();
-    tcl->setDepth(0);
-    tcl->setForwardSpeed(0);
-    tcl->setAngularSpeed(0);
+    emit setDepth(0);
+    emit setForwardSpeed(0);
+    emit setAngularSpeed(0);
+//    tcl->setDepth(0);
+//    tcl->setForwardSpeed(0);
+//    tcl->setAngularSpeed(0);
 }
 
 void MetaBehaviour::badHealth(RobotModule *m)
@@ -161,10 +222,12 @@ void MetaBehaviour::badHealth(RobotModule *m)
     if (m==pressure) {
         addData("state","fail");
         emit dataChanged(this);
-        foreach (RobotBehaviour* b, behaviours) {
-            b->stop();
-        }
-        tcl->setDepth(0);
+//        foreach (RobotBehaviour* b, behaviours) {
+//            b->stop();
+//        }
+        emit stopAllBehaviours();
+        emit setDepth(0);
+//        tcl->setDepth(0);
         timeoutTimer.stop();
     }
 }
@@ -176,7 +239,8 @@ void MetaBehaviour::pipeFollowForward()
 
     addData("state","dive");
     emit dataChanged(this);
-    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
+    emit setDepth(getSettingsValue("targetDepth").toFloat());
+//    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
@@ -186,7 +250,8 @@ void MetaBehaviour::simpleForward()
 
     addData("state","diveSimple");
     emit dataChanged(this);
-    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
+    emit setDepth(getSettingsValue("targetDepth").toFloat());
+//    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
@@ -202,7 +267,8 @@ void MetaBehaviour::simple180deg()
     emit dataChanged(this);
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 
-    QTimer::singleShot(0, o80, SLOT(start()));
+//    QTimer::singleShot(0, o80, SLOT(start()));
+    emit startTurnO80();
 }
 
 void MetaBehaviour::fullProgram()
@@ -214,7 +280,8 @@ void MetaBehaviour::fullProgram()
 
     addData("state","diveForPipe");
     emit dataChanged(this);
-    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
+    emit setDepth(getSettingsValue("targetDepth").toFloat());
+//    tcl->setDepth(getSettingsValue("targetDepth").toFloat());
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
@@ -222,21 +289,25 @@ void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
     if (getDataValue("state")=="pipe") {
         addData("state","surface");
         emit dataChanged(this);
-        tcl->setDepth(0);
+        emit setDepth(0);
+//        tcl->setDepth(0);
         timeoutTimer.stop();
     }
     if (getDataValue("state")=="pipeFirstPart") {
         addData("state","turn");
         addData("reachedVG", true);
         emit dataChanged(this);
-        QTimer::singleShot(0, o80, SLOT(start()));
+        emit startTurnO80();
+//        QTimer::singleShot(0, o80, SLOT(start()));
         timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     }
     if (getDataValue("state")=="pipeSecondPart") {
         addData("state","ball");
         emit dataChanged(this);
-        tcl->setDepth(1.5);
-        QTimer::singleShot(0, ball, SLOT(start()));
+        emit setDepth(1.5);
+//        tcl->setDepth(1.5);
+        emit startBallFollow();
+//        QTimer::singleShot(0, ball, SLOT(start()));
         timeoutTimer.start(5*60*1000);
     }
 }

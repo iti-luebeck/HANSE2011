@@ -14,7 +14,7 @@
 #define MAGIC_SWREV 10
 
 Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
-    : RobotModule(id)
+    : RobotModule_MT(id)
 {
     this->uid=uid;
 
@@ -63,6 +63,7 @@ void Module_Thruster::reset()
 
 void Module_Thruster::setSpeed(float speed)
 {
+    this->dataLockerMutex.lock();
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -92,7 +93,7 @@ void Module_Thruster::setSpeed(float speed)
         setHealthToOk();
         emit dataChanged(this);
     }
-
+    this->dataLockerMutex.unlock();
 }
 
 QList<RobotModule*> Module_Thruster::getDependencies()

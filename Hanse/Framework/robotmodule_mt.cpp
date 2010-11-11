@@ -4,6 +4,7 @@
 RobotModule_MT::RobotModule_MT(QString id)
     : RobotModule(id)
 {
+    logger->debug(id);
     moduleThread.start(QThread::NormalPriority);
     this->moveToThread(&moduleThread);
 }
@@ -24,5 +25,12 @@ void RobotModule_MT::MyModuleThread::run()
     qDebug() << QThread::currentThreadId();
     QThread::exec();
 
+}
+
+void RobotModule_MT::MyModuleThread::printID(QString id)
+{
+    qDebug() << id;
+    qDebug() << "ausm THREAD ID";
+    qDebug() << QThread::currentThreadId();
 }
 

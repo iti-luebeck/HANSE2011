@@ -32,6 +32,7 @@ private:
     public:
         static void msleep(int millies);
         void run();
+        void printID(QString id);
 //        int getID();
     };
 
