@@ -67,13 +67,13 @@ void ModulesGraph::build()
     Module_Webcams *cams = new Module_Webcams( "cams" );
     this->modules.append( cams );
 
-    logger->debug("Creating Module_VisualSLAM");
-    Module_VisualSLAM* visualLoc = new Module_VisualSLAM( "visualSLAM", sonarLoc, cams );
-    this->modules.append(visualLoc);
-
-    logger->debug("Creating Module_Navigation");
-    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, visualLoc, controlLoop, pressure, compass );
-    this->modules.append(navi);
+//    logger->debug("Creating Module_VisualSLAM");
+//    Module_VisualSLAM* visualLoc = new Module_VisualSLAM( "visualSLAM", sonarLoc, cams );
+//    this->modules.append(visualLoc);
+//
+//    logger->debug("Creating Module_Navigation");
+//    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, visualLoc, controlLoop, pressure, compass );
+//    this->modules.append(navi);
 
     logger->debug("Creating Behaviour_PipeFollowing");
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams);

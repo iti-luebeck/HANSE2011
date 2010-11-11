@@ -11,7 +11,7 @@
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 
 MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80)
-    : RobotModule(id)
+    : RobotModule_MT(id)
 {
     this->tcl = tcl;
     this->handControl = handControl;
@@ -61,7 +61,7 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 
-    /* connect ermegencyStop Signal to all Behaviours */
+    /* connect stopAllBehaviours Signal to all Behaviours */
     connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
     connect(this,SIGNAL(stopAllBehaviours()),pipe,SLOT(stop()));
     connect(this,SIGNAL(stopAllBehaviours()),o80,SLOT(stop()));

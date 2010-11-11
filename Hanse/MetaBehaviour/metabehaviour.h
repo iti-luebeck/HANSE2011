@@ -16,7 +16,7 @@ class Behaviour_BallFollowing;
 class Behaviour_TurnOneEighty;
 class MetaBehaviourForm;
 
-class MetaBehaviour : public RobotModule
+class MetaBehaviour : public RobotModule_MT
 {
     friend class MetaBehaviourForm;
     Q_OBJECT

@@ -52,6 +52,7 @@ void Behaviour_BallFollowing::start()
 //    tcl->setAngularSpeed( -0.4 );
 
     updateTimer.start( 100 );
+    emit started(this);
 }
 
 void Behaviour_BallFollowing::newData()
