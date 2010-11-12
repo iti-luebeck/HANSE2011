@@ -25,8 +25,6 @@ public:
 
     QList<RobotModule*> getDependencies();
 
-    void reset();
-
     QWidget* createView(QWidget *parent);
 
 
@@ -52,6 +50,7 @@ private slots:
     void finishedTurn(RobotBehaviour *, bool success);
 
 public slots:
+    void reset();
     void emergencyStop();
     void startHandControl();
     void testPipe();

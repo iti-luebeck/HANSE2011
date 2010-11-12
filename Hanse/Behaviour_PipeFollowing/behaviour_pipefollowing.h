@@ -139,11 +139,8 @@ private slots:
 public slots:
     /** updates local variables */
     void updateFromSettings();
-    /** starts PipeFollow Behaviour */
     void start();
-    /** stops PipeFollow Behaviour */
     void stop();
-
     void reset();
     void terminate();
 

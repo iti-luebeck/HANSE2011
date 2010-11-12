@@ -18,13 +18,6 @@ public:
     QList<RobotModule*> getDependencies();
 
     /**
-      * Copy control-loop-constants from Init-File (see form)
-      * to the internal variables.
-      *
-      */
-    void updateConstantsFromInitNow();
-
-    /**
       * Return forward speed
       *
       * range of speed: -1.0 to 1.0
@@ -63,6 +56,13 @@ public slots:
 
     void terminate();
 
+
+    /**
+      * Copy control-loop-constants from Init-File (see form)
+      * to the internal variables.
+      *
+      */
+    void updateConstantsFromInitNow();
 
     /**
       * Set forward speed and hold it until told otherwise.

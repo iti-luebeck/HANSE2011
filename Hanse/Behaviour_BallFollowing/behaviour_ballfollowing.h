@@ -25,8 +25,6 @@ public:
 
     QWidget* createView(QWidget *parent);
 
-
-    void reset();
     /** returns true if Behaviour is active
         return false if the Behaviour is not active
     */
@@ -49,10 +47,9 @@ private:
 public slots:
     void testBehaviour( QString path );
     void compassUpdate( RobotModule * );
-    /** starts GoalFollow Behaviour */
     void start();
-    /** stops GoalFollow Behaviour */
     void stop();
+    void reset();
 
 private slots:
     void newData();

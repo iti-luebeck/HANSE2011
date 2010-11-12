@@ -141,6 +141,7 @@ void MetaBehaviour::startHandControl()
     }
     emit stopAllBehaviours();
     emit startHandCtr();
+//    QTimer::singleShot(0,handControl,SLOT(start()));
     logger->info("Signal emitted");
 }
 

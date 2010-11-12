@@ -26,15 +26,6 @@ public:
 
     QWidget* createView(QWidget *parent);
 
-    /** starts GoalFollow Behaviour */
-    void start();
-    /** stops GoalFollow Behaviour */
-    void stop();
-
-    void reset();
-    /** returns true if Behaviour is active
-        return false if the Behaviour is not active
-    */
     bool isActive();
 
 
@@ -50,9 +41,13 @@ private:
 
 public slots:
     void newData(int classNr);
+    void start();
+    void stop();
+    void reset();
 
 private slots:
     void timerSlot();
+
 
 };
 

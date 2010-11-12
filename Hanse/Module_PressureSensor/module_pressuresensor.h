@@ -33,8 +33,6 @@ public:
     float getTemperature();
 
 public slots:
-//    void getDepth(float depth);
-//    void getTemperature(float temp);
     void reset();
     void terminate();
 
@@ -48,7 +46,7 @@ signals:
       */
     void newDepthData(float depth);
 
-protected:
+protected slots:
     virtual void doHealthCheck();
 
 private slots:

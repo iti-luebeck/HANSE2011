@@ -43,12 +43,10 @@ public slots:
     void reset();
     void terminate();
 
-
-
 signals:
     void healthStatusChanged(HealthStatus data);
 
-protected:
+protected slots:
     virtual void doHealthCheck();
 
 private slots:

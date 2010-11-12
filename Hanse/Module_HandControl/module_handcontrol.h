@@ -19,14 +19,14 @@ public:
 
     QList<RobotModule*> getDependencies();
 
-    void reset();
-    void terminate();
-
     bool isActive();
 
 public slots:
     void start();
     void stop();
+    void reset();
+    void terminate();
+
 
 signals:
     void emergencyStop();

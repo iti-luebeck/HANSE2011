@@ -238,9 +238,8 @@ public:
       */
     bool isSlaveProblem();
 public slots:
-    // inherited from RobotModule
+
     void reset();
-    // inherited from RobotModule
     void terminate();
 
 private:
