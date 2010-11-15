@@ -195,7 +195,7 @@ void MetaBehaviour::testPipe()
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
-void MetaBehaviour::finishedTurn(RobotBehaviour *, bool success) {
+void MetaBehaviour::finishedTurn(RobotBehaviour_MT *, bool success) {
     if (getDataValue("state")=="turn") {
         addData("state","pipeSecondPart");
         emit dataChanged(this);
@@ -286,7 +286,7 @@ void MetaBehaviour::fullProgram()
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
-void MetaBehaviour::finishedPipe(RobotBehaviour *, bool success) {
+void MetaBehaviour::finishedPipe(RobotBehaviour_MT *, bool success) {
     if (getDataValue("state")=="pipe") {
         addData("state","surface");
         emit dataChanged(this);

@@ -122,8 +122,8 @@ void ModulesGraph::HastaLaVista()
     for (int i = modules.size()-1; i>=0; i--) {
         logger->info("Terminating "+modules[i]->getId());
 //        RobotModule* m = modules[i];
-//        modules[i]->terminate();
-        QTimer::singleShot(0,modules[i],SLOT(terminate()));
+        modules[i]->terminate();
+//        QTimer::singleShot(0,modules[i],SLOT(terminate()));
     }
     logger->info("All modules terminated.");
 }

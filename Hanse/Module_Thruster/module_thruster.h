@@ -45,6 +45,8 @@ private:
     Module_UID *uid;
 
     void initController();
+private slots:
+    void resetSpeed();
 };
 
 #endif // MODULE_THRUSTER_H

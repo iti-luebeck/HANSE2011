@@ -42,12 +42,12 @@ private:
     bool reachedEOP;
 
 private slots:
-    void finishedPipe(RobotBehaviour*,bool);
+    void finishedPipe(RobotBehaviour_MT*,bool);
     void depthChanged(float);
     void stateTimeout();
 
     void badHealth(RobotModule* m);
-    void finishedTurn(RobotBehaviour *, bool success);
+    void finishedTurn(RobotBehaviour_MT *, bool success);
 
 public slots:
     void reset();
