@@ -55,6 +55,12 @@ void Behaviour_BallFollowing::start()
     emit started(this);
 }
 
+void Behaviour_BallFollowing::terminate()
+{
+    RobotModule::terminate();
+    QTimer::singleShot(0,this,SLOT(stop()));
+}
+
 void Behaviour_BallFollowing::newData()
 {
     if( this->isEnabled() && state == STATE_TRACK_BALL )

@@ -116,6 +116,12 @@ void MetaBehaviour::reset()
 
 }
 
+void MetaBehaviour::terminate()
+{
+    RobotModule::terminate();
+    QTimer::singleShot(0,this,SLOT(emergencyStop()));
+}
+
 void MetaBehaviour::startHandControl()
 {
 //    RobotBehaviour* thisB = dynamic_cast<RobotBehaviour*>(this->handControl);

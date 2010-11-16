@@ -21,6 +21,7 @@ public:
 public slots:
     void reset();
     void terminate();
+    void stop();
 
     /**
       * Set speed on thruster. Value ranges between -1 and 1.
@@ -45,8 +46,7 @@ private:
     Module_UID *uid;
 
     void initController();
-private slots:
-    void resetSpeed();
+
 };
 
 #endif // MODULE_THRUSTER_H

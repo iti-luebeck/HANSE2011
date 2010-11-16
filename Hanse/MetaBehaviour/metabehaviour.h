@@ -50,6 +50,7 @@ private slots:
     void finishedTurn(RobotBehaviour_MT *, bool success);
 
 public slots:
+    void terminate();
     void reset();
     void emergencyStop();
     void startHandControl();

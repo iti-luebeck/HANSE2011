@@ -50,6 +50,7 @@ public slots:
     void start();
     void stop();
     void reset();
+    void terminate();
 
 private slots:
     void newData();

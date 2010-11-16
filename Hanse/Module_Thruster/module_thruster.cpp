@@ -50,7 +50,7 @@ void Module_Thruster::terminate()
 {
     RobotModule::terminate();
 //    setSpeed(0);
-    QTimer::singleShot(0,this,SLOT(resetSpeed()));
+    QTimer::singleShot(0,this,SLOT(stop()));
 }
 
 void Module_Thruster::reset()
@@ -62,7 +62,7 @@ void Module_Thruster::reset()
     setSpeed(0);
 }
 
-void Module_Thruster::resetSpeed()
+void Module_Thruster::stop()
 {
     setSpeed(0);
 }

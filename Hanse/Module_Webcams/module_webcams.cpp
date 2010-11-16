@@ -145,6 +145,7 @@ void Module_Webcams::reset()
 
 void Module_Webcams::terminate()
 {
+    RobotModule::terminate();
     stopWebcams();
 }
 

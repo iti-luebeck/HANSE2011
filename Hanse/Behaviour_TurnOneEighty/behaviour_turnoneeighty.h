@@ -24,6 +24,7 @@ public slots:
     void stop();
     void compassUpdate( RobotModule * );
     void initialHeadingUpdate();
+    void terminate();
 
 private:
     Module_ThrusterControlLoop* tcl;
