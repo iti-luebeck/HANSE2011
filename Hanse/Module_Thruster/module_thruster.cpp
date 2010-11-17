@@ -48,9 +48,9 @@ Module_Thruster::~Module_Thruster()
 
 void Module_Thruster::terminate()
 {
-    RobotModule::terminate();
-//    setSpeed(0);
-    QTimer::singleShot(0,this,SLOT(stop()));
+    setSpeed(0);
+//    QTimer::singleShot(0,this,SLOT(stop()));
+    RobotModule_MT::terminate();
 }
 
 void Module_Thruster::reset()

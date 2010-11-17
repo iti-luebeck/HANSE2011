@@ -16,7 +16,11 @@ public:
       */
     RobotModule_MT(QString id);
 
+    virtual bool waitForThreadToStop(unsigned long timeout);
+    virtual bool waitForThreadToStop();
 
+public slots:
+    virtual void terminate();
 protected:
 
     /**

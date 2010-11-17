@@ -118,8 +118,9 @@ void MetaBehaviour::reset()
 
 void MetaBehaviour::terminate()
 {
-    RobotModule::terminate();
+    logger->debug("BLUBBLUB");
     QTimer::singleShot(0,this,SLOT(emergencyStop()));
+    RobotModule_MT::terminate();
 }
 
 void MetaBehaviour::startHandControl()

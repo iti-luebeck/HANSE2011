@@ -9,9 +9,25 @@ RobotModule_MT::RobotModule_MT(QString id)
     this->moveToThread(&moduleThread);
 }
 
+bool RobotModule_MT::waitForThreadToStop(unsigned long timeout)
+{
+   return this->moduleThread.wait(timeout);
+}
+
+bool RobotModule_MT::waitForThreadToStop()
+{
+    return this->moduleThread.wait();
+}
+
 void RobotModule_MT::msleep(int millies)
 {
     MyModuleThread::msleep(millies);
+}
+
+void RobotModule_MT::terminate()
+{
+    RobotModule::terminate();
+    moduleThread.exit(0);
 }
 
 void RobotModule_MT::MyModuleThread::msleep(int millies)

@@ -77,8 +77,9 @@ void Behaviour_PipeFollowing::stop()
 void Behaviour_PipeFollowing::terminate()
 {
 //    timer.stop();
-    RobotModule::terminate();
     emit timerStop();
+    RobotModule_MT::terminate();
+
 }
 
 void Behaviour_PipeFollowing::reset()

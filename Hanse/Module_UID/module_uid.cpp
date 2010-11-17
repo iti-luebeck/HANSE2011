@@ -71,7 +71,7 @@ QWidget* Module_UID::createView(QWidget* parent)
 
 void Module_UID::terminate()
 {
-    RobotModule::terminate();
+    RobotModule_MT::terminate();
 }
 
 QextSerialPort* Module_UID::findUIDPort()

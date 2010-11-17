@@ -175,6 +175,11 @@ void RobotModule::terminate()
     recorder->close();
 }
 
+bool RobotModule::waitForThreadToStop()
+{
+    return true;
+}
+
 void RobotModule::reset()
 {
     data.clear();

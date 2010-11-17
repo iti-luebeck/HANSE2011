@@ -115,8 +115,8 @@ Module_IMU::~Module_IMU()
 
 void Module_IMU::terminate()
 {
-    RobotModule::terminate();
     QTimer::singleShot(0, &timer, SLOT(stop()));
+    RobotModule_MT::terminate();
 }
 
 void Module_IMU::reset()

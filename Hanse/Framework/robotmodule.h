@@ -99,6 +99,8 @@ public:
       */
     HealthStatus getHealthStatus();
 
+    virtual bool waitForThreadToStop();
+
 signals:
     /**
       * Sends a signal when this module gets activated/deactivated

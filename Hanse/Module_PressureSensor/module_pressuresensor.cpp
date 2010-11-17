@@ -41,8 +41,8 @@ Module_PressureSensor::~Module_PressureSensor()
 
 void Module_PressureSensor::terminate()
 {
-    RobotModule::terminate();
     QTimer::singleShot(0, &timer, SLOT(stop()));
+    RobotModule_MT::terminate();
 }
 
 void Module_PressureSensor::reset()

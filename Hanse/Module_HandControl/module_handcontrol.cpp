@@ -56,9 +56,9 @@ QWidget* Module_HandControl::createView(QWidget* parent)
 
 void Module_HandControl::terminate()
 {
-    RobotBehaviour::terminate();
     newMessage(0,0,0);
     server->close();
+    RobotModule::terminate();
 }
 
 void Module_HandControl::reset()
