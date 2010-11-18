@@ -57,7 +57,8 @@ void Behaviour_BallFollowing::start()
 
 void Behaviour_BallFollowing::terminate()
 {
-    QTimer::singleShot(0,this,SLOT(stop()));
+//    QTimer::singleShot(0,this,SLOT(stop()));
+    stop();
     RobotModule::terminate();
 }
 

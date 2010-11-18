@@ -51,7 +51,8 @@ void Behaviour_TurnOneEighty::stop()
 
 void Behaviour_TurnOneEighty::terminate()
 {
-    QTimer::singleShot(0,this,SLOT(stop()));
+//    QTimer::singleShot(0,this,SLOT(stop()));
+    this->stop();
     RobotModule_MT::terminate();
 }
 

@@ -4,6 +4,7 @@
 
 #include <QTcpSocket>
 #include <QDataStream>
+#include <QTCore>
 
 class QTcpServer;
 
@@ -12,9 +13,12 @@ class Server : public QObject {
 
 public:
     Server();
-    void close();
+//    void close();
     bool isConnected();
     void open(int port);
+
+public slots:
+    void close();
 
 signals:
     void newMessage(int forwardSpeed, int angularSpeed, int speedUpDown);
@@ -32,6 +36,7 @@ private:
     QTcpServer *tcpServer;
     QTcpSocket *tcpSocket;
     QDataStream *stream;
+    QMutex modulMutex;
 
 };
 

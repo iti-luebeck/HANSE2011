@@ -18,10 +18,11 @@ Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
 {
     this->uid=uid;
 
+    qDebug() << "lock1";
     setDefaultValue("i2cAddress", 0x01);
     setDefaultValue("channel", 1);
     setDefaultValue("multiplicator", 127);
-
+qDebug() << "unlock1";
     connect(this,SIGNAL(enabled(bool)), this, SLOT(gotEnabled(bool)));
 
     initController();
@@ -33,8 +34,9 @@ void Module_Thruster::initController()
         return;
 
     char sendValue[] = { 0x01 };
+    qDebug() << "lock2";
     unsigned char address = getSettingsValue("i2cAddress").toInt();
-
+qDebug() << "unlock2";
     bool ret = uid->I2C_WriteRegister(address,REG_MODE,sendValue,0x01);
     if (!ret)
         setHealthToSick(uid->getLastError());
@@ -69,9 +71,16 @@ void Module_Thruster::stop()
 
 void Module_Thruster::setSpeed(float speed)
 {
-    this->dataLockerMutex.lock();
+//        qDebug() << "press ref THREAD ID";
+//        qDebug() << QThread::currentThreadId();
+
+    qDebug() << "lock3";
+
     if (!getSettingsValue("enabled").toBool())
         return;
+this->dataLockerMutex.lock();
+
+//    this->dataLockerMutex.lock();
 
     if (speed > 1)
         speed = 1;
@@ -81,11 +90,16 @@ void Module_Thruster::setSpeed(float speed)
 
 
     int speedRaw = (int)(speed * getSettingsValue("multiplicator").toInt());
+qDebug() << "lock3_1";
     addData("speed", speedRaw);
-
+qDebug() << "unlock3_1";
     char sendValue[] = { speedRaw };
+    qDebug() << "lock3_2";
     unsigned char address = getSettingsValue("i2cAddress").toInt();
+    qDebug() << "unlock3_2";
+    qDebug() << "lock3_3";
     unsigned char channel = getSettingsValue("channel").toInt();
+    qDebug() << "unlock3_3";
 
     if (channel != 1 && channel != 2) {
         setHealthToSick("thruster configured to an illegal channel.");
@@ -93,13 +107,14 @@ void Module_Thruster::setSpeed(float speed)
     }
 
     bool ret = uid->I2C_WriteRegister(address,channel,sendValue,0x01);
+    this->dataLockerMutex.unlock();
+    qDebug() << "unlock3";
     if (!ret)
         setHealthToSick(uid->getLastError());
     else {
         setHealthToOk();
         emit dataChanged(this);
     }
-    this->dataLockerMutex.unlock();
 }
 
 QList<RobotModule*> Module_Thruster::getDependencies()
@@ -116,10 +131,13 @@ QWidget* Module_Thruster::createView(QWidget* parent)
 
 void Module_Thruster::doHealthCheck()
 {
+
     if (!getSettingsValue("enabled").toBool())
         return;
 
+qDebug() << "lock4";
     int address = getSettingsValue("i2cAddress").toInt();
+    qDebug() << "unlock4";
     char data[1];
     bool ret = uid->I2C_ReadRegisters(address,REG_SWREV,1,data);
     if (!ret)

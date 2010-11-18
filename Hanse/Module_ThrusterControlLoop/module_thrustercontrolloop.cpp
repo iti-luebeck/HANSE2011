@@ -82,20 +82,21 @@ void Module_ThrusterControlLoop::updateConstantsFromInitNow()
 }
 
 void Module_ThrusterControlLoop::healthStatusChanged(HealthStatus pressureSensorHealth) {
-    QMutexLocker l(&dataLockerMutex);
+
     if (!getSettingsValue("enabled").toBool())
         return;
-
+QMutexLocker l(&dataLockerMutex);
     this->pressureSensor_isHealthOK = pressureSensorHealth.isHealthOk();
 
 }
 
 void Module_ThrusterControlLoop::newDepthData(float depth)
 {
-    QMutexLocker l(&dataLockerMutex);
+
     if (!getSettingsValue("enabled").toBool())
         return;
 
+    dataLockerMutex.lock();
     if (control_loop_enabled) {
 
         QDateTime now = QDateTime::currentDateTime();
@@ -134,9 +135,11 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (abs(error)>getSettingsValue("forceUnpauseError").toFloat())
             paused = false;
 
+        dataLockerMutex.unlock();
         if (paused)
             return;
 
+        dataLockerMutex.lock();
         emit setUpDownThrusterFront(speed);
         emit setUpDownThrusterBack(speed);
 //        thrusterDown->setSpeed(speed);
@@ -149,6 +152,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
             historyIst.remove(historyIst.keys().first());
         }
 
+        dataLockerMutex.unlock();
         emit dataChanged(this);
     }
 }
@@ -205,10 +209,11 @@ void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
 
 void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 {
-    QMutexLocker l(&dataLockerMutex);
+
     if (!getSettingsValue("enabled").toBool() || paused)
         return;
 
+    QMutexLocker l(&dataLockerMutex);
     if (angularSpeed> 1.0) { angularSpeed= 1.0; }
     if (angularSpeed<-1.0) { angularSpeed=-1.0; }
     actualAngularSpeed=angularSpeed;    
@@ -220,13 +225,14 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 
 void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 {
-    QMutexLocker l(&dataLockerMutex);
+
     qDebug() << "tcl THREAD ID";
     qDebug() << QThread::currentThreadId();
 
     if (!getSettingsValue("enabled").toBool() || paused)
         return;
 
+    QMutexLocker l(&dataLockerMutex);
     if (speed> 1.0) { speed= 1.0; }
     if (speed<-1.0) { speed=-1.0; }
     actualForwardSpeed=speed;
@@ -238,10 +244,11 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 
 void Module_ThrusterControlLoop::setDepth(float depth)
 {
-    QMutexLocker l(&dataLockerMutex);
+
     if (!getSettingsValue("enabled").toBool() || paused)
         return;
 
+    QMutexLocker l(&dataLockerMutex);
     control_loop_enabled=true;
 
     if (depth<0)

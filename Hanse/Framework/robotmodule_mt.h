@@ -40,7 +40,7 @@ private:
 //        int getID();
     };
 
-
+protected:
     MyModuleThread moduleThread;
 
 

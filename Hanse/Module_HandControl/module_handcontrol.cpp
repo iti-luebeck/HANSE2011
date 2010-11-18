@@ -21,10 +21,15 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     setDefaultValue("divUD",50);
 
     server = new Server();
+
+//    server->moveToThread(&this->moduleThread);
+
     connect(server,SIGNAL(newMessage(int,int,int)), this, SLOT(newMessage(int,int,int)));
     connect(server, SIGNAL(healthProblem(QString)), this, SLOT(serverReportedError(QString)));
     connect(server, SIGNAL(emergencyStop()), this, SLOT(emergencyStopReceived()));
     connect(server, SIGNAL(startHandControl()), this, SLOT(startHandControlReceived()));
+
+    connect(this,SIGNAL(stopServer()),server,SLOT(close()));
 
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
@@ -58,16 +63,23 @@ void Module_HandControl::terminate()
 {
     newMessage(0,0,0);
     server->close();
+//    emit stopServer();
     RobotModule::terminate();
 }
 
 void Module_HandControl::reset()
 {
-    RobotBehaviour::reset();
+    qDebug() << "hctrl res THREAD ID";
+    qDebug() << QThread::currentThreadId();
+
+    RobotModule::reset();
 
     newMessage(0,0,0);
-
+//    msleep(100);
+//    emit stopServer();
     server->close();
+    msleep(100);
+
     server->open(getSettingsValue("port").toInt());
 }
 
@@ -106,7 +118,7 @@ void Module_HandControl::sendNewControls()
     float divLR = getSettingsValue("divLR").toFloat();
     float divUD = getSettingsValue("divUD").toFloat();
 
-    moduleMutex.lock();
+    dataLockerMutex.lock();
     
     if (getSettingsValue("receiver").toString()=="thruster") {
         controlLoop->setEnabled(false);
@@ -139,7 +151,7 @@ void Module_HandControl::sendNewControls()
         emit setDepth(currentSollTiefe + dVal);
     }
     
-    moduleMutex.unlock();
+    dataLockerMutex.unlock();
 
 }
 

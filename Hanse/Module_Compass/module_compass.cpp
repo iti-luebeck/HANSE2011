@@ -51,7 +51,8 @@ Module_Compass::~Module_Compass()
 
 void Module_Compass::terminate()
 {
-    QTimer::singleShot(0, &timer, SLOT(stop()));
+//    QTimer::singleShot(0, &timer, SLOT(stop()));
+    timer.stop();
     RobotModule_MT::terminate();
 }
 
@@ -201,7 +202,7 @@ void Module_Compass::updateHeadingData()
     if (!readWriteDelay(send_buffer, 1, recv_buffer, 6, 1)) {
         logger->error("Could not read heading data!");
     } else {
-        QMutexLocker l(&moduleMutex);
+//        QMutexLocker l(&moduleMutex);
         addData("heading", toShort(recv_buffer[0], recv_buffer[1])/10.0);
         addData("pitch", (signed short)toShort(recv_buffer[2], recv_buffer[3])/10.0);
         addData("roll", (signed short)toShort(recv_buffer[4], recv_buffer[5])/10.0);

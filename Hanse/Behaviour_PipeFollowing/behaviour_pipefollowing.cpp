@@ -77,7 +77,8 @@ void Behaviour_PipeFollowing::stop()
 void Behaviour_PipeFollowing::terminate()
 {
 //    timer.stop();
-    emit timerStop();
+//    emit timerStop();
+    this->stop();
     RobotModule_MT::terminate();
 
 }
@@ -583,7 +584,7 @@ void Behaviour_PipeFollowing::updateData()
 void Behaviour_PipeFollowing::updateFromSettings()
 {
     qDebug() << "update Settings pipefollow";
-    this->moduleMutex.lock();
+    this->dataLockerMutex.lock();
     this->firstRun = 1;
     this->timerTime = this->getSettingsValue("timer",0).toInt();
     this->threshSegmentation = this->getSettingsValue("threshold",188).toInt();
@@ -595,7 +596,7 @@ void Behaviour_PipeFollowing::updateFromSettings()
     this->constFWSpeed = this->getSettingsValue("fwSpeed",0.8).toFloat();
     this->robCenter = Point(this->getSettingsValue("robCenterX",320).toDouble(),this->getSettingsValue("robCenterY",240).toDouble());
     this->maxDistance = this->getSettingsValue("maxDistance",320).toFloat();
-    this->moduleMutex.unlock();
+    this->dataLockerMutex.unlock();
 
 //    this->timerTime = this->getSettings().value("timer",0).toInt();
 //    this->threshSegmentation = this->getSettings().value("threshold",188).toInt();

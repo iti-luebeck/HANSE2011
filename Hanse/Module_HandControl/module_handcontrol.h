@@ -37,6 +37,7 @@ signals:
     void setUpDownSpeed(float upDownSpeed);
     void setLeftSpeed(float leftSpeed);
     void setRightSpeed(float rightSpeed);
+    void stopServer();
 
 private:
 

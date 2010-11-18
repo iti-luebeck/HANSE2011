@@ -12,6 +12,10 @@ Server::Server() {
 
 void Server::open(int port)
 {
+    qDebug() << "server THREAD ID";
+    qDebug() << QThread::currentThreadId();
+
+    QMutexLocker l(&modulMutex);
     if (!tcpServer->listen(QHostAddress::Any,port)) {
         emit healthProblem("Could not bind to port.");
         tcpServer->close();
@@ -54,6 +58,10 @@ void Server::receiveMessage() {
 }
 
 void Server::close() {
+    qDebug() << "serverCL THREAD ID";
+    qDebug() << QThread::currentThreadId();
+
+    QMutexLocker l(&modulMutex);
     tcpServer->close();
 }
 

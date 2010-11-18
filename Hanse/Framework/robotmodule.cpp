@@ -182,7 +182,9 @@ bool RobotModule::waitForThreadToStop()
 
 void RobotModule::reset()
 {
+    dataLockerMutex.lock();
     data.clear();
+    dataLockerMutex.unlock();
     QMutexLocker l(&healthStatusMutex);
     healthStatus.errorCount=0;
     healthStatus.lastError="";
