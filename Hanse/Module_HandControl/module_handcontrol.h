@@ -56,7 +56,6 @@ private slots:
     void serverReportedError(QString error);
     void emergencyStopReceived();
     void startHandControlReceived();
-
 };
 
 #endif // MODULE_HANDCONTROL_H
