@@ -42,6 +42,13 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
 
 
     reset();
+//    QTimer::singleShot(500,this,SLOT(createServer()));
+}
+
+void Module_HandControl::createServer()
+{
+    server = new Server();
+    server->open(getSettingsValue("port").toInt());
 }
 
 QList<RobotModule*> Module_HandControl::getDependencies()
