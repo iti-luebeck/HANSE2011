@@ -1,12 +1,12 @@
 #ifndef MODULE_THRUSTERCONTROLLOOP_H
 #define MODULE_THRUSTERCONTROLLOOP_H
 
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 
 class Module_PressureSensor;
 class Module_Thruster;
 
-class Module_ThrusterControlLoop : public RobotModule {
+class Module_ThrusterControlLoop : public RobotModule_MT {
     Q_OBJECT
 
     friend class TCL_Form;
@@ -27,7 +27,7 @@ public:
     /**
       * Return current angular speed.
       *
-      * positive angular speed implies a clockwise rotation;
+      * positive angular speed implies a clockwise rotation.
       * negative angular speed implies a counterclockwise rotation.
       * (both rotations as seem from above the robot)
       *
