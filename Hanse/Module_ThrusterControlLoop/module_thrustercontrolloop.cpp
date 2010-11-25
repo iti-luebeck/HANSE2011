@@ -5,7 +5,7 @@
 #include <Framework/healthstatus.h>
 
 Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_PressureSensor *pressure, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster* thrusterDownFront)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     this->thrusterDown = thrusterDown;
     this->thrusterLeft = thrusterLeft;
@@ -43,7 +43,8 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
 void Module_ThrusterControlLoop::terminate()
 {
     reset();
-    RobotModule_MT::terminate();
+//    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 void Module_ThrusterControlLoop::reset()
@@ -92,7 +93,6 @@ QMutexLocker l(&dataLockerMutex);
 
 void Module_ThrusterControlLoop::newDepthData(float depth)
 {
-
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -139,11 +139,12 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         if (paused)
             return;
 
-        dataLockerMutex.lock();
+
         emit setUpDownThrusterFront(speed);
         emit setUpDownThrusterBack(speed);
 //        thrusterDown->setSpeed(speed);
 //        thrusterDownFront->setSpeed(speed);
+        dataLockerMutex.lock();
         historyThrustCmd[now] = speed;
 
         if (historyThrustCmd.size()>maxHist) {

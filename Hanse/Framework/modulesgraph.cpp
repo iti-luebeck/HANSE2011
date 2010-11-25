@@ -51,17 +51,17 @@ void ModulesGraph::build()
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);
 
-    logger->debug("Creating Module_ScanningSonar");
-    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
-    this->modules.append(sonar);
+//    logger->debug("Creating Module_ScanningSonar");
+//    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
+//    this->modules.append(sonar);
 
     logger->debug("Creating Module_HandControl");
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);
     this->modules.append(handControl);
 
-    logger->debug("Creating Module_SonarLocalization");
-    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, pressure);
-    this->modules.append(sonarLoc);
+//    logger->debug("Creating Module_SonarLocalization");
+//    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, pressure);
+//    this->modules.append(sonarLoc);
 
     logger->debug("Creating Module_Webcams");
     Module_Webcams *cams = new Module_Webcams( "cams" );
