@@ -28,6 +28,8 @@ signals:
     void startBehaviour();
     void stopBehaviour();
 private slots:
+    void on_setHeading_clicked();
+    void on_apply_clicked();
     void on_stopButton_clicked();
     void on_startButton_clicked();
 };

@@ -25,7 +25,9 @@ public:
 private:
         Module_Compass* compass;
         Module_ThrusterControlLoop* tcl;
-        QTimer timer;
+        QTimer *timer;
+        QTimer turnTimer;
+        bool turning;
 public slots:
         void start();
         void stop();
@@ -33,6 +35,13 @@ public slots:
 
 private slots:
         void controlLoop();
+        void turnNinety();
+
+signals:
+        void newAngularSpeed(float angspeed);
+        void newForwardSpeed(float ffspeed);
+        void startControlTimer();
+        void startTurnTimer();
 };
 
 
