@@ -17,6 +17,8 @@ CompassFollowingForm::CompassFollowingForm(QWidget *parent, Behaviour_CompassFol
     QObject::connect(this,SIGNAL(startBehaviour()),comp,SLOT(start()));
     QObject::connect(this,SIGNAL(stopBehaviour()),comp,SLOT(stop()));
 
+    QObject::connect(this,SIGNAL(refreshHeading()),comp,SLOT(refreshHeading()));
+
  }
 
 CompassFollowingForm::~CompassFollowingForm()
@@ -57,5 +59,5 @@ void CompassFollowingForm::on_apply_clicked()
 
 void CompassFollowingForm::on_setHeading_clicked()
 {
-
+    emit refreshHeading();
 }

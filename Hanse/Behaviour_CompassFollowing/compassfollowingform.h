@@ -27,6 +27,7 @@ private:
 signals:
     void startBehaviour();
     void stopBehaviour();
+    void refreshHeading();
 private slots:
     void on_setHeading_clicked();
     void on_apply_clicked();

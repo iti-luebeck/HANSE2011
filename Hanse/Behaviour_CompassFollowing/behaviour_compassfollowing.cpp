@@ -27,33 +27,34 @@ bool Behaviour_CompassFollowing::isActive()
 void Behaviour_CompassFollowing::start()
 {
     timer = new QTimer();
-   connect(timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
+    turnTimer = new QTimer();
+    connect(timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
+    connect(turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
     logger->info("starting Compass Following");
     this->setEnabled(true);
     addData("ctrHeading",compass->getHeading());
     turning = false;
     emit dataChanged(this);
-//    emit startControlTimer();
     timer->start(100);
-//    turnTimer.start(getSettingsValue("driveTime").toInt());
+    turnTimer->start(getSettingsValue("driveTime").toInt());
 }
 
 void Behaviour_CompassFollowing::stop()
 {
     this->setEnabled(false);
-//    timer.stop();
-//    turnTimer.stop();
+    timer->stop();
+    turnTimer->stop();
 }
 
 void Behaviour_CompassFollowing::reset()
 {
-//    timer.stop();
-//    turnTimer.stop();
+    timer->stop();
+    turnTimer->stop();
     addData("ctrHeading",compass->getHeading());
     emit dataChanged(this);
     turning = false;
-//    timer.start();
-//    turnTimer.stop();
+    timer->start();
+    turnTimer->stop();
 }
 
 void Behaviour_CompassFollowing::controlLoop()
@@ -63,9 +64,9 @@ void Behaviour_CompassFollowing::controlLoop()
     float curHeading = compass->getHeading();
     float curDelta = fabs(ctrAngle - curHeading);
     float ctrAngleSpeed = 0.0;
-    if(curDelta > getDataValue("delta").toFloat())
+    if(curDelta > getSettingsValue("delta").toFloat())
     {
-        ctrAngleSpeed = getDataValue("kp").toFloat() * curHeading / ctrAngle;
+        ctrAngleSpeed = getSettingsValue("kp").toFloat() * curHeading / ctrAngle;
     }
     addData("angularSpeed",ctrAngleSpeed);
     emit dataChanged(this);
@@ -90,6 +91,11 @@ void Behaviour_CompassFollowing::turnNinety()
            newHeading =360-newHeading;
     }
     addData("ctrHeading",newHeading);
+}
+
+void Behaviour_CompassFollowing::refreshHeading()
+{
+    addData("ctrHeading",compass->getHeading());
 }
 
 QList<RobotModule*> Behaviour_CompassFollowing::getDependencies()
