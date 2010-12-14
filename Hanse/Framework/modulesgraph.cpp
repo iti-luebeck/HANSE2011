@@ -17,6 +17,7 @@
 #include <Module_Webcams/module_webcams.h>
 #include <MetaBehaviour/metabehaviour.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
+#include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -90,6 +91,10 @@ void ModulesGraph::build()
     logger->debug("Creating Behaviour_TurnOneEighty");
     Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
     this->modules.append(behavTurn);
+
+    logger->debug("Creating Behaviour_CompassFollowing");
+    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
+    this->modules.append(behavComp);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
     logger->debug("Creating MetaBehaviour");

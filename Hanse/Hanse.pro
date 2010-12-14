@@ -112,7 +112,9 @@ HEADERS += Framework/healthstatus.h \
     Module_Simulation/simulation_form.h \
     Module_Simulation/module_simulation.h \
     Behaviour_TestMT/testmtform.h \
-    Behaviour_TestMT/behaviour_testmt.h
+    Behaviour_TestMT/behaviour_testmt.h \
+    Behaviour_CompassFollowing/compassfollowingform.h \
+    Behaviour_CompassFollowing/behaviour_compassfollowing.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -207,7 +209,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_Simulation/simulation_form.cpp \
     Module_Simulation/module_simulation.cpp \
     Behaviour_TestMT/testmtform.cpp \
-    Behaviour_TestMT/behaviour_testmt.cpp
+    Behaviour_TestMT/behaviour_testmt.cpp \
+    Behaviour_CompassFollowing/compassfollowingform.cpp \
+    Behaviour_CompassFollowing/behaviour_compassfollowing.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -232,5 +236,6 @@ FORMS += Framework/mainwindow.ui \
     Module_Webcams/form_webcams.ui \
     Behaviour_TurnOneEighty/form_turnoneeighty.ui \
     Module_Simulation/simulation_form.ui \
-    Behaviour_TestMT/testmtform.ui
+    Behaviour_TestMT/testmtform.ui \
+    Behaviour_CompassFollowing/compassfollowingform.ui
 OTHER_FILES += bin/log4qt.properties
