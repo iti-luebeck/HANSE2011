@@ -18,6 +18,7 @@
 #include <MetaBehaviour/metabehaviour.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
+#include <Module_ADC/module_adc.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -51,6 +52,12 @@ void ModulesGraph::build()
 
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);
+
+//    Module_ADC* adc0 = new Module_ADC("adc0",uid);
+//    this->modules.append(adc0);
+
+//    Module_ADC* adc1 = new Module_ADC("adc1",uid);
+//    this->modules.append(adc1);
 
 //    logger->debug("Creating Module_ScanningSonar");
 //    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);

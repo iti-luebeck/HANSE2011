@@ -28,6 +28,7 @@ private:
         QTimer *timer;
         QTimer *turnTimer;
         bool turning;
+        void stopOnCompassError();
 public slots:
         void start();
         void stop();

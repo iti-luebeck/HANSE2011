@@ -31,7 +31,7 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
 
     this->uid=uid;
 
-    setDefaultValue("i2cAddress", 0x19);
+    setDefaultValue("i2cAddress", 50); //default shall be 50. 0x19
     setDefaultValue("frequency", 1);
     setDefaultValue("orientation","level");
     setDefaultValue("devAngle",0);

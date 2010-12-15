@@ -44,23 +44,43 @@ void Behaviour_CompassFollowing::stop()
     this->setEnabled(false);
     timer->stop();
     turnTimer->stop();
+    setEnabled(false);
+    emit newAngularSpeed(0.0);
+    emit newForwardSpeed(0.0);
+    emit finished(this,true);
 }
 
 void Behaviour_CompassFollowing::reset()
 {
-    timer->stop();
-    turnTimer->stop();
-    addData("ctrHeading",compass->getHeading());
-    emit dataChanged(this);
-    turning = false;
-    timer->start();
-    turnTimer->stop();
+//    timer->stop();
+//    turnTimer->stop();
+    emit newAngularSpeed(0.0);
+    emit newForwardSpeed(0.0);
+    RobotModule::reset();
+    if(compass->getHealthStatus().isHealthOk())
+    {
+        addData("ctrHeading",compass->getHeading());
+        emit dataChanged(this);
+        turning = false;
+        this->setHealthToOk();
+//        timer->start();
+//        turnTimer->start();
+    }
+    else
+    {
+        this->stopOnCompassError();
+    }
 }
 
 void Behaviour_CompassFollowing::controlLoop()
 {
     logger->info("control compass");
     float ctrAngle = getDataValue("ctrHeading").toFloat();
+    if(!compass->getHealthStatus().isHealthOk())
+    {
+        this->stopOnCompassError();
+        return;
+    }
     float curHeading = compass->getHeading();
     float curDelta = fabs(ctrAngle - curHeading);
     float ctrAngleSpeed = 0.0;
@@ -95,7 +115,22 @@ void Behaviour_CompassFollowing::turnNinety()
 
 void Behaviour_CompassFollowing::refreshHeading()
 {
-    addData("ctrHeading",compass->getHeading());
+    if(compass->getHealthStatus().isHealthOk())
+        addData("ctrHeading",compass->getHeading());
+    else
+        this->stopOnCompassError();
+}
+
+void Behaviour_CompassFollowing::stopOnCompassError()
+{
+    this->setEnabled(false);
+    timer->stop();
+    turnTimer->stop();
+    setHealthToSick("compass error");
+    setEnabled(false);
+    emit newAngularSpeed(0.0);
+    emit newForwardSpeed(0.0);
+    emit finished(this,false);
 }
 
 QList<RobotModule*> Behaviour_CompassFollowing::getDependencies()

@@ -50,11 +50,11 @@ void CompassFollowingForm::on_stopButton_clicked()
 
 void CompassFollowingForm::on_apply_clicked()
 {
-    comp->setSettingsValue("driveTime",this->ui->driveTime->text());
-    comp->setSettingsValue("ffSpeed",ui->ffSpeed->text());
+    comp->setSettingsValue("driveTime",this->ui->driveTime->text().toInt());
+    comp->setSettingsValue("ffSpeed",ui->ffSpeed->text().toFloat());
     comp->setSettingsValue("turnClockwise",this->ui->turnClockwise->isChecked());
-    comp->setSettingsValue("kp",ui->kp->text());
-    comp->setSettingsValue("delta",ui->delta->text());
+    comp->setSettingsValue("kp",ui->kp->text().toFloat());
+    comp->setSettingsValue("delta",ui->delta->text().toFloat());
 }
 
 void CompassFollowingForm::on_setHeading_clicked()
