@@ -22,8 +22,8 @@ IMU_Form::IMU_Form(Module_IMU *module, QWidget *parent) :
     QObject::connect(this,SIGNAL(doPrecisionCalib()),module,SLOT(doPrecisionCalib()));
     QObject::connect(this,SIGNAL(doNullCalib()),module,SLOT(doNullCalib()));
     QObject::connect(this,SIGNAL(reset()),module,SLOT(reset()));
-    QObject::connect(this,SIGNAL(newDataValue(QString,QVariant)),module,SLOT(addData(QString,QVariant)));
-    QObject::connect(this,SIGNAL(newSettingsValue(QString,QVariant)),module,SLOT(setSettingsValue(QString,QVariant)));
+//    QObject::connect(this,SIGNAL(newDataValue(QString,QVariant)),module,SLOT(addData(QString,QVariant)));
+//    QObject::connect(this,SIGNAL(newSettingsValue(QString,QVariant)),module,SLOT(setSettingsValue(QString,QVariant)));
     // big hack: wait until data is read.
     timer.singleShot(1000,this, SLOT(updateBiasFields()));
 }
@@ -47,24 +47,24 @@ void IMU_Form::changeEvent(QEvent *e)
 
 void IMU_Form::on_save_clicked()
 {
-    emit newSettingsValue("frequency",ui->frequency->text().toInt());
-    emit newSettingsValue("ssLine",ui->ssLine->text().toInt());
-    emit newSettingsValue("spiSpeed",ui->spiSpeed->value());
-    emit newSettingsValue("biasComp", ui->biasComp->isChecked());
-    emit newSettingsValue("originAllign", ui->originAllign->isChecked());
-    emit newSettingsValue("smplTimeBase", ui->smplTimeBase->text());
-    emit newSettingsValue("smplTimeMult", ui->smplTimeMult->text());
-    emit newSettingsValue("filterTaps", ui->filterTaps->text());
-    emit newSettingsValue("gyroSens", ui->gyroSens->currentText());
-//    module->setSettingsValue("frequency",ui->frequency->text().toInt());
-//    module->setSettingsValue("ssLine",ui->ssLine->text().toInt());
-//    module->setSettingsValue("spiSpeed",ui->spiSpeed->value());
-//    module->setSettingsValue("biasComp", ui->biasComp->isChecked());
-//    module->setSettingsValue("originAllign", ui->originAllign->isChecked());
-//    module->setSettingsValue("smplTimeBase", ui->smplTimeBase->text());
-//    module->setSettingsValue("smplTimeMult", ui->smplTimeMult->text());
-//    module->setSettingsValue("filterTaps", ui->filterTaps->text());
-//    module->setSettingsValue("gyroSens", ui->gyroSens->currentText());
+//    emit newSettingsValue("frequency",ui->frequency->text().toInt());
+//    emit newSettingsValue("ssLine",ui->ssLine->text().toInt());
+//    emit newSettingsValue("spiSpeed",ui->spiSpeed->value());
+//    emit newSettingsValue("biasComp", ui->biasComp->isChecked());
+//    emit newSettingsValue("originAllign", ui->originAllign->isChecked());
+//    emit newSettingsValue("smplTimeBase", ui->smplTimeBase->text());
+//    emit newSettingsValue("smplTimeMult", ui->smplTimeMult->text());
+//    emit newSettingsValue("filterTaps", ui->filterTaps->text());
+//    emit newSettingsValue("gyroSens", ui->gyroSens->currentText());
+    module->setSettingsValue("frequency",ui->frequency->text().toInt());
+    module->setSettingsValue("ssLine",ui->ssLine->text().toInt());
+    module->setSettingsValue("spiSpeed",ui->spiSpeed->value());
+    module->setSettingsValue("biasComp", ui->biasComp->isChecked());
+    module->setSettingsValue("originAllign", ui->originAllign->isChecked());
+    module->setSettingsValue("smplTimeBase", ui->smplTimeBase->text());
+    module->setSettingsValue("smplTimeMult", ui->smplTimeMult->text());
+    module->setSettingsValue("filterTaps", ui->filterTaps->text());
+    module->setSettingsValue("gyroSens", ui->gyroSens->currentText());
 //    module->reset();
     emit reset();
 }

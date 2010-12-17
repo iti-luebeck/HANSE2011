@@ -54,7 +54,7 @@ private slots:
 
 private:
     Module_UID *uid;
-    QTimer timer;
+    QTimer *timer;
     unsigned int counter;
 
     void readPressure();

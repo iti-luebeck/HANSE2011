@@ -22,7 +22,8 @@
 #define PRESSURE_MAX 3000
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
-    : RobotModule_MT(id), timer(this)
+    : RobotModule_MT(id) //,
+//    timer(this)
 {
 
     this->uid=uid;
@@ -30,7 +31,9 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
 
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+    timer = new QTimer();
+//    timer->moveToThread(&this->moduleThread);
+    connect(timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
 }
@@ -42,7 +45,7 @@ Module_PressureSensor::~Module_PressureSensor()
 void Module_PressureSensor::terminate()
 {
 //    QTimer::singleShot(0, &timer, SLOT(stop()));
-    timer.stop();
+    timer->stop();
     RobotModule_MT::terminate();
 }
 
@@ -52,10 +55,10 @@ void Module_PressureSensor::reset()
 
     int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
-        timer.setInterval(freq);
-        QTimer::singleShot(0, &timer, SLOT(start()));
+        timer->setInterval(freq);
+        QTimer::singleShot(0, timer, SLOT(start()));
     } else {
-        QTimer::singleShot(0, &timer, SLOT(stop()));
+        QTimer::singleShot(0, timer, SLOT(stop()));
     }
 
     if (!getSettingsValue("enabled").toBool())

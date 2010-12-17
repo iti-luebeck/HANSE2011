@@ -48,7 +48,7 @@ private slots:
 
 private:
     Module_UID *uid;
-    QTimer timer;
+    QTimer *timer;
 
     unsigned short toShort(uint8_t high, uint8_t low);
 

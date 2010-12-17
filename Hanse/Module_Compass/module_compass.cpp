@@ -26,7 +26,7 @@
 #define COMPASS_CMD_EEPROM_WRITE	0xF1
 
 Module_Compass::Module_Compass(QString id, Module_UID *uid)
-    : RobotModule_MT(id), timer(this)
+    : RobotModule_MT(id) //, timer(this)
 {
 
     this->uid=uid;
@@ -40,7 +40,9 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     setDefaultValue("sampleRate",5);
     setDefaultValue("debug",1);
 
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+    timer = new QTimer();
+//    timer->moveToThread(&this->moduleThread);
+    connect(timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     reset();
 }
@@ -52,7 +54,7 @@ Module_Compass::~Module_Compass()
 void Module_Compass::terminate()
 {
 //    QTimer::singleShot(0, &timer, SLOT(stop()));
-    timer.stop();
+    timer->stop();
     RobotModule_MT::terminate();
 }
 
@@ -65,10 +67,10 @@ void Module_Compass::reset()
 
     int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
-        timer.setInterval(freq);
-        QTimer::singleShot(0, &timer, SLOT(start()));
+        timer->setInterval(freq);
+        QTimer::singleShot(0, timer, SLOT(start()));
     } else {
-        QTimer::singleShot(0, &timer, SLOT(stop()));
+        QTimer::singleShot(0, timer, SLOT(stop()));
     }
     configure();
     resetDevice();

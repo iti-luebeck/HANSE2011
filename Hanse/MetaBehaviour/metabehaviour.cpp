@@ -50,8 +50,8 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     connect(&timeoutTimer, SIGNAL(timeout()), this, SLOT(stateTimeout()));
 
     connect(pressure, SIGNAL(newDepthData(float)), this, SLOT(depthChanged(float)));
-    connect(pipe, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedPipe(RobotBehaviour*,bool)));
-    connect(o80, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedTurn(RobotBehaviour*,bool)));
+    connect(pipe, SIGNAL(finished(RobotBehaviour_MT*,bool)), this, SLOT(finishedPipe(RobotBehaviour_MT*,bool)));
+    connect(o80, SIGNAL(finished(RobotBehaviour_MT*,bool)), this, SLOT(finishedTurn(RobotBehaviour_MT*,bool)));
     connect(pressure, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(badHealth(RobotModule*)));
 
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));

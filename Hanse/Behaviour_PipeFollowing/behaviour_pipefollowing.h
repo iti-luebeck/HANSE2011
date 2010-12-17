@@ -98,7 +98,7 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cam;
-    QTimer timer;
+    QTimer *timer;
     EventThread updateThread;
     QStringList files;
     int fileIndex;

@@ -46,7 +46,7 @@ private slots:
     void depthChanged(float);
     void stateTimeout();
 
-    void badHealth(RobotModule* m);
+    void badHealth(RobotModule *m);
     void finishedTurn(RobotBehaviour_MT *, bool success);
 
 public slots:

@@ -112,7 +112,7 @@ signals:
       *
       * this signals indicated that the HealthStatus has changed in any way.
       */
-    void healthStatusChanged(RobotModule *module);
+    virtual void healthStatusChanged(RobotModule *module);
 
     /**
       * Signals a change in the "data" map.

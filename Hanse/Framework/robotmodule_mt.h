@@ -43,9 +43,6 @@ private:
 protected:
     MyModuleThread moduleThread;
 
-
-
-
 };
 
 #endif // RobotModule_MT_H

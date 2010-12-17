@@ -16,9 +16,10 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     qDebug() << QThread::currentThreadId();
     this->tcl = tcl;
     this->cam = cam;
-    connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
-    connect (this,SIGNAL(timerStart(int)),&timer,SLOT(start(int)));
-    connect(this, SIGNAL(timerStop()),&timer,SLOT(stop()));
+    timer = NULL;
+//    connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
+//    connect (this,SIGNAL(timerStart(int)),&timer,SLOT(start(int)));
+//    connect(this, SIGNAL(timerStop()),&timer,SLOT(stop()));
 
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -43,13 +44,19 @@ void Behaviour_PipeFollowing::start()
 {
     if( !isEnabled() )
     {
+        if(timer == NULL)
+        {
+            timer = new QTimer();
+            connect(timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
+        }
         this->reset();
         logger->info("Behaviour started" );
         Behaviour_PipeFollowing::updateFromSettings();
         this->setHealthToOk();
         setEnabled(true);
 //        timer.start(250);
-        emit timerStart(timerTime);
+//        emit timerStart(timerTime);
+        timer->start(timerTime);
 
     }
 }
@@ -60,10 +67,13 @@ void Behaviour_PipeFollowing::stop()
     emit angularSpeed(0.0);
 //    this->tcl->setForwardSpeed(0.0);
 //    this->tcl->setAngularSpeed(0.0);
+    if(timer != NULL)
+        timer->stop();
     if (this->isActive())
     {
 //        timer.stop();
-        emit timerStop();
+//        emit timerStop();
+        timer->stop();
         logger->info( "Behaviour stopped" );
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);

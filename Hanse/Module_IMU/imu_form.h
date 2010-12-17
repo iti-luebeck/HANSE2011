@@ -31,8 +31,8 @@ signals:
     void doPrecisionCalib();
     void doNullCalib();
     void reset();
-    void newDataValue(QString key, const QVariant data);
-    void newSettingsValue(QString key, const QVariant value);
+//    void newDataValue(QString key, const QVariant data);
+//    void newSettingsValue(QString key, const QVariant value);
 };
 
 #endif // IMU_FORM_H
