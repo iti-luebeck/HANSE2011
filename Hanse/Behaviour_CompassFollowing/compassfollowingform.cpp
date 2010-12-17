@@ -17,7 +17,7 @@ CompassFollowingForm::CompassFollowingForm(QWidget *parent, Behaviour_CompassFol
     QObject::connect(this,SIGNAL(startBehaviour()),comp,SLOT(start()));
     QObject::connect(this,SIGNAL(stopBehaviour()),comp,SLOT(stop()));
 
-    QObject::connect(this,SIGNAL(refresh()),comp,SLOT(refreshHeading()));
+    QObject::connect(this,SIGNAL(refreshHeading()),comp,SLOT(refreshHeading()));
 
  }
 
@@ -55,6 +55,7 @@ void CompassFollowingForm::on_apply_clicked()
     comp->setSettingsValue("turnClockwise",this->ui->turnClockwise->isChecked());
     comp->setSettingsValue("kp",ui->kp->text().toFloat());
     comp->setSettingsValue("delta",ui->delta->text().toFloat());
+
 }
 
 void CompassFollowingForm::on_setHeading_clicked()

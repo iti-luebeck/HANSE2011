@@ -5,18 +5,21 @@
 #include "server.h"
 
 Server::Server() {
-    tcpServer = new QTcpServer(this);
-    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(openSocket()));
     stream = NULL;
+    tcpServer = NULL;
 }
 
-void Server::open(int port)
+void Server::open()
 {
     qDebug() << "server THREAD ID";
     qDebug() << QThread::currentThreadId();
-
+    if(tcpServer == NULL)
+    {
+        tcpServer = new QTcpServer(this);
+        connect(tcpServer, SIGNAL(newConnection()), this, SLOT(openSocket()));
+    }
     QMutexLocker l(&modulMutex);
-    if (!tcpServer->listen(QHostAddress::Any,port)) {
+    if (!tcpServer->listen(QHostAddress::Any,1234)) {
         emit healthProblem("Could not bind to port.");
         tcpServer->close();
     }
@@ -62,7 +65,8 @@ void Server::close() {
     qDebug() << QThread::currentThreadId();
 
     QMutexLocker l(&modulMutex);
-    tcpServer->close();
+    if(tcpServer != NULL)
+        tcpServer->close();
 }
 
 bool Server::isConnected()

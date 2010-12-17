@@ -5,7 +5,7 @@
 #include "server.h"
 
 Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster *thrusterDownFront)
-    : RobotBehaviour(id)
+    : RobotBehaviour_MT(id)
 {
     this->controlLoop = tcl,
     this->thrusterDown = thrusterDown;
@@ -21,8 +21,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     setDefaultValue("divUD",50);
 
     server = new Server();
-
-//    server->moveToThread(&this->moduleThread);
+    server->moveToThread(&this->moduleThread);
 
     connect(server,SIGNAL(newMessage(int,int,int)), this, SLOT(newMessage(int,int,int)));
     connect(server, SIGNAL(healthProblem(QString)), this, SLOT(serverReportedError(QString)));
@@ -30,6 +29,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     connect(server, SIGNAL(startHandControl()), this, SLOT(startHandControlReceived()));
 
     connect(this,SIGNAL(stopServer()),server,SLOT(close()));
+    connect(this,SIGNAL(startServer()),server,SLOT(open()));
 
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
@@ -47,8 +47,8 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
 
 void Module_HandControl::createServer()
 {
-    server = new Server();
-    server->open(getSettingsValue("port").toInt());
+//    server = new ServerMT();
+//    server->open(getSettingsValue("port").toInt());
 }
 
 QList<RobotModule*> Module_HandControl::getDependencies()
@@ -69,9 +69,9 @@ QWidget* Module_HandControl::createView(QWidget* parent)
 void Module_HandControl::terminate()
 {
     newMessage(0,0,0);
-    server->close();
-//    emit stopServer();
-    RobotModule::terminate();
+//    server->close();
+    emit stopServer();
+    RobotModule_MT::terminate();
 }
 
 void Module_HandControl::reset()
@@ -82,21 +82,25 @@ void Module_HandControl::reset()
     RobotModule::reset();
 
     newMessage(0,0,0);
-//    msleep(100);
-//    emit stopServer();
-    server->close();
+//server->close();
+    emit stopServer();
     msleep(100);
 
-    server->open(getSettingsValue("port").toInt());
+//    server->setPort(getSettingsValue("port").toInt());
+    emit startServer();
+//    server->open();
+//    server->open(getSettingsValue("port").toInt());
 }
 
 void Module_HandControl::emergencyStopReceived()
 {
+    logger->debug("emergency handctr");
     emit emergencyStop();
 }
 
 void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int speedUpDown)
 {
+    logger->debug("new Message handctr");
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -188,5 +192,6 @@ bool Module_HandControl::isActive()
 
 void Module_HandControl::startHandControlReceived()
 {
+    logger->debug("start handctr");
     emit startHandControl();
 }

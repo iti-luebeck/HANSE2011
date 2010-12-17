@@ -15,9 +15,10 @@ public:
     Server();
 //    void close();
     bool isConnected();
-    void open(int port);
+
 
 public slots:
+    void open();
     void close();
 
 signals:

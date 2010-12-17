@@ -23,7 +23,7 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
     ui->sliderFw->setMinimum(-ui->divFw->text().toInt());
     ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
 
-    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
+//    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
     connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
 }
 
@@ -71,11 +71,11 @@ void HandControl_Form::on_save_clicked()
 
 void HandControl_Form::connectionStatusChanged()
 {
-    if (module->server->isConnected()) {
-        ui->connectionStatus->setText("Connected.");
-    } else {
-        ui->connectionStatus->setText("Not connected.");
-    }
+//    if (module->server->isConnected()) {
+//        ui->connectionStatus->setText("Connected.");
+//    } else {
+//        ui->connectionStatus->setText("Not connected.");
+//    }
 }
 
 void HandControl_Form::dataChanged(RobotModule *m)

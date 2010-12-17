@@ -7,6 +7,8 @@ Behaviour_CompassFollowing::Behaviour_CompassFollowing(QString id, Module_Thrust
 {
     this->compass = compass;
     this->tcl = tcl;
+    timer = NULL;
+    turnTimer = NULL;
     setEnabled(false);
     turning = false;
 //    connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
@@ -36,7 +38,7 @@ void Behaviour_CompassFollowing::start()
     turning = false;
     emit dataChanged(this);
     timer->start(100);
-    turnTimer->start(getSettingsValue("driveTime").toInt());
+//    turnTimer->start(getSettingsValue("driveTime").toInt());
 }
 
 void Behaviour_CompassFollowing::stop()
@@ -52,8 +54,11 @@ void Behaviour_CompassFollowing::stop()
 
 void Behaviour_CompassFollowing::reset()
 {
-//    timer->stop();
-//    turnTimer->stop();
+    if(timer != NULL)
+    {
+        timer->stop();
+        turnTimer->stop();
+    }
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
     RobotModule::reset();
@@ -63,8 +68,11 @@ void Behaviour_CompassFollowing::reset()
         emit dataChanged(this);
         turning = false;
         this->setHealthToOk();
-//        timer->start();
-//        turnTimer->start();
+        if(timer != NULL)
+        {
+            timer->start();
+            turnTimer->start();
+        }
     }
     else
     {
@@ -84,11 +92,15 @@ void Behaviour_CompassFollowing::controlLoop()
     float curHeading = compass->getHeading();
     float curDelta = fabs(ctrAngle - curHeading);
     float ctrAngleSpeed = 0.0;
+    float faktor = 1.0;
+    if(ctrAngle-curHeading < 0)
+        faktor = -1.0;
     if(curDelta > getSettingsValue("delta").toFloat())
     {
-        ctrAngleSpeed = getSettingsValue("kp").toFloat() * curHeading / ctrAngle;
+        ctrAngleSpeed = getSettingsValue("kp").toFloat()* faktor * curHeading / ctrAngle;
     }
     addData("angularSpeed",ctrAngleSpeed);
+    addData("current HEading",curHeading);
     emit dataChanged(this);
     emit newAngularSpeed(ctrAngleSpeed);
     emit newForwardSpeed(getSettingsValue("ffSpeed").toFloat());

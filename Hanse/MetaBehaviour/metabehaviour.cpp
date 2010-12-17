@@ -166,7 +166,7 @@ void MetaBehaviour::depthChanged(float depth)
     if (getDataValue("state")=="diveSimple" && fabs(tcl->getDepthError())<getSettingsValue("depthErrorVariance").toFloat()) {
         addData("state", "forward");
         emit setForwardSpeed(getSettingsValue("forwardSpeed").toFloat());
-        emit setAngularSpeed(-0.5);
+//        emit setAngularSpeed(-0.5);
 //        tcl->setForwardSpeed(getSettingsValue("forwardSpeed").toFloat());
 //        tcl->setAngularSpeed(-0.05);
         timeoutTimer.stop();
