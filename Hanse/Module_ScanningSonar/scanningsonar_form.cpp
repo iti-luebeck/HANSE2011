@@ -3,7 +3,7 @@
 #include "sonarreturndata.h"
 #include <Framework/dataloghelper.h>
 
-ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *parent) :
+ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar,QWidget *parent) :
         QWidget(parent),
         ui(new Ui::ScanningSonarForm),
         scene()
@@ -49,8 +49,6 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar, QWidget *paren
     ui->formatCSV->setChecked(sonar->getSettingsValue("formatCSV").toBool());
     ui->format852->setChecked(!sonar->getSettingsValue("formatCSV").toBool());
     ui->startTime->setDateTime(sonar->getSettingsValue("startTime").toDateTime());
-    ui->scanPeriod->setText(sonar->getSettingsValue("scanPeriod").toString());
-    ui->scanPeriodMaxScans->setText(sonar->getSettingsValue("scanPeriodMaxScans").toString());
 
     ui->recorderFilename->setText(DataLogHelper::getLogDir()+"sonarlog.XXX");
 }
@@ -95,8 +93,11 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 
     float newHeading = data.getHeadPosition();
 
-    if (ui->checkBox->isChecked() && !isnan(oldHeading)
-        && (fabs(newHeading - oldHeading)<20 || fabs(newHeading - oldHeading)>340)) {
+    bool isnumber = std::isalnum(oldHeading);
+    /* doe not work any more: !std::isnan(oldHeading)
+       replaced bz isnumer */
+    if(ui->checkBox->isChecked() && !isnumber && (fabs(newHeading - oldHeading)<20 || fabs(newHeading - oldHeading)>340))
+    {
 
         QPolygonF polygon;
 
@@ -157,8 +158,6 @@ void ScanningSonarForm::on_fileCfgApply_clicked()
     sonar->setSettingsValue("enableRecording", ui->enableRecording->isChecked());
     sonar->setSettingsValue("formatCSV", ui->formatCSV->isChecked());
     sonar->setSettingsValue("startTime", ui->startTime->dateTime());
-    sonar->setSettingsValue("scanPeriodMaxScans", ui->scanPeriodMaxScans->text());
-    sonar->setSettingsValue("scanPeriod", ui->scanPeriod->text());
 
 
     sonar->reset();

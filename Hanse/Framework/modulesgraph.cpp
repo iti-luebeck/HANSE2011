@@ -59,9 +59,9 @@ void ModulesGraph::build()
 //    Module_ADC* adc1 = new Module_ADC("adc1",uid);
 //    this->modules.append(adc1);
 
-//    logger->debug("Creating Module_ScanningSonar");
-//    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
-//    this->modules.append(sonar);
+    logger->debug("Creating Module_ScanningSonar");
+    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
+    this->modules.append(sonar);
 
     logger->debug("Creating Module_HandControl");
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);

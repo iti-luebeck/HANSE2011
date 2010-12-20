@@ -1,7 +1,7 @@
 #ifndef MODULE_SCANNINGSONAR_H
 #define MODULE_SCANNINGSONAR_H
 
-#include "Framework/robotmodule.h"
+#include "Framework/robotmodule_mt.h"
 #include "sonarreturndata.h"
 #include <QtCore>
 
@@ -10,8 +10,9 @@ class QextSerialPort;
 class SonarDataSource;
 class SonarDataRecorder;
 class Module_ThrusterControlLoop;
+class Module_Simulation;
 
-class Module_ScanningSonar : public RobotModule {
+class Module_ScanningSonar : public RobotModule_MT {
     Q_OBJECT
 
     friend class SonarDataSourceFile;
@@ -29,17 +30,17 @@ class Module_ScanningSonar : public RobotModule {
         Module_ScanningSonar* m;
         QTextStream* fileStream;
         bool running; // XXX: volatile
-
-
     };
 
 public:
-    Module_ScanningSonar(QString id,Module_ThrusterControlLoop* tcl);
+    Module_ScanningSonar(QString id,Module_ThrusterControlLoop *tcl);
     ~Module_ScanningSonar();
 
     QWidget* createView(QWidget* parent);
 
     QList<RobotModule*> getDependencies();
+
+    void emitSonarSignal();
 
 public slots:
     bool doNextScan();
@@ -53,11 +54,9 @@ private slots:
 
 signals:
     void newSonarData(const SonarReturnData data);
-
 private:
-    Module_ThrusterControlLoop* tcl;
     ThreadedReader reader;
-    QTimer timer;
+    QTimer *timer;
     SonarDataSource* source;
     SonarDataRecorder* recorder;
 };

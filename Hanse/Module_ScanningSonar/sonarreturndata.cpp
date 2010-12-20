@@ -83,7 +83,7 @@ bool SonarReturnData::isPacketValid() const
 {
     if (packet.size()<8)
         return false;
-    
+
     // ID Bytes
     if (packet[0] != 'I' || packet[2] != 'X')
         return false;
