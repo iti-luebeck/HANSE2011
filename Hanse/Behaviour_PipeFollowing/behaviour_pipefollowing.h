@@ -14,12 +14,13 @@ using namespace cv;
 
 class Module_ThrusterControlLoop;
 class PipeFollowingForm;
+class Module_Simulation;
 
 class Behaviour_PipeFollowing : public RobotBehaviour_MT
 {
     Q_OBJECT
 public:
-    Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cam );
+    Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cam, Module_Simulation *sim );
     QList<RobotModule*> getDependencies();
 
     QWidget* createView(QWidget *parent);
@@ -89,6 +90,8 @@ private:
     */
     void convertColor(Mat &frame, Mat &convFrame);
 
+    /** computation */
+    void timerSlotExecute();
 
 //    double m10;
 //    double m01;
@@ -98,6 +101,7 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cam;
+    Module_Simulation *sim;
     QTimer *timer;
     EventThread updateThread;
     QStringList files;
@@ -143,6 +147,7 @@ public slots:
     void stop();
     void reset();
     void terminate();
+    void simFrame(cv::Mat simFrame);
 
 signals:
 //    void printFrameOnUi(cv::Mat &frame);
@@ -151,6 +156,7 @@ signals:
 
     void forwardSpeed(float fwSpeed);
     void angularSpeed(float anSpeed);
+    void requestBottomFrame();
 
 };
 

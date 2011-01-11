@@ -33,7 +33,7 @@ class Module_ScanningSonar : public RobotModule_MT {
     };
 
 public:
-    Module_ScanningSonar(QString id,Module_ThrusterControlLoop *tcl);
+    Module_ScanningSonar(QString id,Module_ThrusterControlLoop *tcl,Module_Simulation *sim);
     ~Module_ScanningSonar();
 
     QWidget* createView(QWidget* parent);
@@ -51,10 +51,14 @@ public slots:
 
 private slots:
     void gotEnabledChanged(bool);
+    void refreshSimData(SonarReturnData data);
 
 signals:
     void newSonarData(const SonarReturnData data);
+    void requestSonarSignal();
+
 private:
+    Module_Simulation *sim;
     ThreadedReader reader;
     QTimer *timer;
     SonarDataSource* source;

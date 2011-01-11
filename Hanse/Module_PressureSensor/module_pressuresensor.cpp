@@ -1,6 +1,7 @@
 #include "module_pressuresensor.h"
 #include "pressure_form.h"
 #include <Module_UID/module_uid.h>
+#include <Module_Simulation/module_simulation.h>
 
 #define REGISTER_CALIB 00 // 8 bytes
 #define REGISTER_PRESSURE_RAW 8
@@ -21,12 +22,13 @@
 #define PRESSURE_MIN 900
 #define PRESSURE_MAX 3000
 
-Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
+Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid, Module_Simulation *sim)
     : RobotModule_MT(id) //,
 //    timer(this)
 {
 
     this->uid=uid;
+    this->sim=sim;
 
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
@@ -34,6 +36,11 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid)
     timer = new QTimer();
 //    timer->moveToThread(&this->moduleThread);
     connect(timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+
+    /* connect simulation */
+    connect(sim,SIGNAL(newDepthData(float)),this,SLOT(refreshSimData(float)));
+    connect(this,SIGNAL(requestDepth(int)),sim,SLOT(requestDepthWithNoiseSlot(int)));
+    connect(this,SIGNAL(requestTemp(int)),sim,SLOT(requestTempWithNoiseSlot(int)));
 
     reset();
 }
@@ -64,6 +71,9 @@ void Module_PressureSensor::reset()
     if (!getSettingsValue("enabled").toBool())
         return;
 
+    if(sim->isEnabled())
+        return;
+
     unsigned char address = getSettingsValue("i2cAddress").toInt();
     char reg = REQUEST_NEW_CALIB_VALUES;
 
@@ -83,10 +93,28 @@ void Module_PressureSensor::refreshData()
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    readPressure();
-    readTemperature();
+    if(sim->isEnabled())
+    {
+        emit requestDepth(1);
+        emit requestTemp(1);
+    }
+    else
+    {
+        readPressure();
+        readTemperature();
 
-    if (getHealthStatus().isHealthOk()) {
+        if (getHealthStatus().isHealthOk()) {
+            emit dataChanged(this);
+            emit newDepthData(getDepth());
+        }
+    }
+}
+
+void Module_PressureSensor::refreshSimData(float depth)
+{
+    addData("depth",depth);
+    if(getHealthStatus().isHealthOk())
+    {
         emit dataChanged(this);
         emit newDepthData(getDepth());
     }
@@ -145,6 +173,7 @@ QList<RobotModule*> Module_PressureSensor::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append(uid);
+    ret.append(sim);
     return ret;
 }
 
@@ -159,6 +188,9 @@ void Module_PressureSensor::doHealthCheck()
 //    qDebug() << QThread::currentThreadId();
 
     if (!isEnabled())
+        return;
+
+    if(sim->isEnabled())
         return;
 
     char readBuffer[1];

@@ -1,7 +1,7 @@
 #include "module_thruster.h"
 #include "thruster_form.h"
 #include <Module_UID/module_uid.h>
-
+#include <Module_Simulation/module_simulation.h>
 /* see http://www.robot-electronics.co.uk/htm/md22tech.htm for details */
 #define REG_MODE 0x00
 #define REG_CHAN1 0x01
@@ -13,15 +13,19 @@
 // expected value from the "software revision" register
 #define MAGIC_SWREV 10
 
-Module_Thruster::Module_Thruster(QString id, Module_UID *uid)
+Module_Thruster::Module_Thruster(QString id, Module_UID *uid, Module_Simulation *sim)
     : RobotModule_MT(id)
 {
     this->uid=uid;
+    this->sim=sim;
 
     setDefaultValue("i2cAddress", 0x01);
     setDefaultValue("channel", 1);
     setDefaultValue("multiplicator", 127);
     connect(this,SIGNAL(enabled(bool)), this, SLOT(gotEnabled(bool)));
+
+    /* connect simulation */
+    connect(this,SIGNAL(requestThrusterSpeed(QString,int)),sim,SLOT(requestThrusterSpeedSlot(QString,int)));
 
     initController();
 }
@@ -81,6 +85,17 @@ void Module_Thruster::setSpeed(float speed)
 
     int speedRaw = (int)(speed * getSettingsValue("multiplicator").toInt());
     addData("speed", speedRaw);
+
+    if(sim->isEnabled())
+    {
+        QVariant tmp(speedRaw);
+        emit requestThrusterSpeed(this->getId(),speedRaw);
+        setHealthToOk();
+        emit dataChanged(this);
+       this->dataLockerMutex.unlock();
+       return;
+    }
+
     char sendValue[] = { speedRaw };
     unsigned char address = getSettingsValue("i2cAddress").toInt();
     unsigned char channel = getSettingsValue("channel").toInt();
@@ -104,6 +119,7 @@ QList<RobotModule*> Module_Thruster::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append(uid);
+    ret.append(sim);
     return ret;
 }
 
@@ -115,6 +131,9 @@ QWidget* Module_Thruster::createView(QWidget* parent)
 void Module_Thruster::doHealthCheck()
 {
     if (!getSettingsValue("enabled").toBool())
+        return;
+
+    if(sim->isEnabled())
         return;
 
     int address = getSettingsValue("i2cAddress").toInt();

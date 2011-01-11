@@ -6,16 +6,17 @@
 //#include <OpenCV/include/opencv/cv.h>
 #include <opencv/cxcore.h>
 #include <Module_VisualSLAM/capture/clahe.h>
-
+#include <Module_Simulation/module_simulation.h>
 //using namespace cv;
 
-Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam) :
+Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam, Module_Simulation *sim) :
         RobotBehaviour_MT(id)
 {
     qDebug() << "pipe thread id";
     qDebug() << QThread::currentThreadId();
     this->tcl = tcl;
     this->cam = cam;
+    this->sim = sim;
     timer = NULL;
 //    connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 //    connect (this,SIGNAL(timerStart(int)),&timer,SLOT(start(int)));
@@ -33,6 +34,9 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
     this->updateFromSettings();
 //    this->getId();
+    /* connect simulation */
+    connect(this,SIGNAL(requestBottomFrame()),sim,SLOT(requestImageSlot()));
+    connect(sim,SIGNAL(newImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
  }
 
 bool Behaviour_PipeFollowing::isActive()
@@ -110,6 +114,7 @@ QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
     QList<RobotModule*> ret;
     ret.append(tcl);
     ret.append(cam);
+    ret.append(sim);
     return ret;
 }
 
@@ -118,28 +123,53 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
     return new PipeFollowingForm( parent, this);
 }
 
+void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
+{
+    QMutexLocker l(&this->dataLockerMutex);
+    simFrame.copyTo(frame);
+    timerSlotExecute();
+}
+
 void Behaviour_PipeFollowing::timerSlot()
+{
+    if(sim->isEnabled())
+        emit requestBottomFrame();
+    else
+    {
+        cam->grabBottom(frame);
+        QTime blub;
+        blub.restart();
+        cam->grabBottom( frame );
+        addData("run grab",blub.elapsed());
+
+        timerSlotExecute();
+    }
+}
+
+void Behaviour_PipeFollowing::timerSlotExecute()
 {
     qDebug() << "pipe thread id";
     qDebug() << QThread::currentThreadId();
-    QTime run;
-    QTime blub;
+    QTime run,run2;
     run.restart();
-//    Mat binaryFrame;
-    blub.restart();
-    cam->grabBottom( frame );
-    addData("run grab",blub.elapsed());
 
+//    Mat binaryFrame;
     if(!frame.empty())
     {
         this->setHealthToOk();
 //        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
 //        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
+        run2.restart();
         Behaviour_PipeFollowing::moments(frame);
+        addData("run moments",run2.elapsed());
 //        binaryFrame.release();
 //        Behaviour_PipeFollowing::updateData();
         if(isEnabled() && this->getHealthStatus().isHealthOk())
-        Behaviour_PipeFollowing::controlPipeFollow();
+        {
+            run2.restart();
+            Behaviour_PipeFollowing::controlPipeFollow();
+            addData("run p-contr",run2.elapsed());
+        }
     }
     else this->setHealthToSick("empty frame");
 
@@ -152,10 +182,6 @@ void Behaviour_PipeFollowing::timerSlot()
 //        this->setHealthToSick("to slow " + QString::number(getDataValue("run grab").toInt()) + "(" + QString::number(getDataValue("run").toInt()) + ") / " + QString::number(timerTime));
 //        emit stop();
     }
-
-//    data["run"] = run.elapsed();
-//    if(data["run"].toInt() > timerTime)
-//        this->setHealthToSick("to slow " + QString::number(data["run"].toInt()) + " / " + QString::number(timerTime));
 }
 
 void Behaviour_PipeFollowing::initPictureFolder()
@@ -174,14 +200,10 @@ void Behaviour_PipeFollowing::initPictureFolder()
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
    float ctrAngleSpeed = 0.0;
-    QTime blub;
-    blub.restart();
 //   logger->debug( "pipe angle" +QString::number(curAngle) + "°");
 //   logger->debug( "pipe distance " +QString::number( distanceY ));
    addData("pipe_angle",curAngle);
    addData("pipe_distance",distanceY);
-//   data["pipe_angle"] = curAngle;
-//   data["pipe_distance"]= distanceY;
 
    if(fabs(Behaviour_PipeFollowing::curAngle) > Behaviour_PipeFollowing::deltaAngPipe)
    {
@@ -198,13 +220,7 @@ void Behaviour_PipeFollowing::controlPipeFollow()
    addData("angular_speed",ctrAngleSpeed);
    addData("forward_speed",this->constFWSpeed);
    addData("intersect_y",potentialY);
-//   tcl->setAngularSpeed(ctrAngleSpeed);
-//   tcl->setForwardSpeed(this->constFWSpeed);
-//   data["angular_speed"] = ctrAngleSpeed;
-//   data["forward_speed"] = this->constFWSpeed;
-//   data["intersect_y"] = potentialY;
 
-   addData("run p-contr",blub.elapsed());
    emit dataChanged( this );
 }
 
@@ -577,18 +593,7 @@ void Behaviour_PipeFollowing::updateData()
     addData("robCenter.y",this->robCenter.y);
     addData("potential Vector",this->potentialVec);
 
-//    data["current Angle"] = this->curAngle;
-//    data["intersect.x"] = this->intersect.x;
-//    data["intersect.y"] = this->intersect.y;
-//    data["distanceY"] = this->distanceY;
-//    data["deltaDistPipe"] = this->deltaDistPipe;
-//    data["deltaAnglePipe"] = this->deltaAngPipe;
-//    data["kpAngle"] = this->kpAngle;
-//    data["kpDist"] = this->kpDist;
-//    data["robCenter.x"] = this->robCenter.x;
-//    data["robCenter.y"] = this->robCenter.y;
-//    data["potential Vector"] = this->potentialVec;
-       emit dataChanged( this );
+    emit dataChanged( this );
 }
 
 void Behaviour_PipeFollowing::updateFromSettings()
@@ -607,17 +612,6 @@ void Behaviour_PipeFollowing::updateFromSettings()
     this->robCenter = Point(this->getSettingsValue("robCenterX",320).toDouble(),this->getSettingsValue("robCenterY",240).toDouble());
     this->maxDistance = this->getSettingsValue("maxDistance",320).toFloat();
     this->dataLockerMutex.unlock();
-
-//    this->timerTime = this->getSettings().value("timer",0).toInt();
-//    this->threshSegmentation = this->getSettings().value("threshold",188).toInt();
-//    this->debug = this->getSettings().value("debug",0).toInt();
-//    this->deltaAngPipe = this->getSettings().value("deltaAngle",11).toFloat();
-//    this->deltaDistPipe = this->getSettings().value("deltaDist",100).toFloat();
-//    this->kpAngle = this->getSettings().value("kpDist",1).toFloat();
-//    this->kpDist = this->getSettings().value("kpAngle",1).toFloat();
-//    this->constFWSpeed = this->getSettings().value("fwSpeed",0.8).toFloat();
-//    this->robCenter = Point(this->getSettings().value("robCenterX",320).toDouble(),this->getSettings().value("robCenterY",240).toDouble());
-//    this->maxDistance = this->getSettings().value("maxDistance",320).toFloat();
 }
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
@@ -687,7 +681,6 @@ void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 {
     int farbraum =  this->getSettingsValue("convColor").toInt();
     addData("farbraum",farbraum);
-//    data["farbraum"] = this->getSettings().value("convColor");
     if(farbraum == 4)
     {
         convFrame.create(frame.rows,frame.cols,CV_8UC3);
@@ -745,34 +738,24 @@ void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 
 void Behaviour_PipeFollowing::moments( Mat &frame)
 {
-    QTime runningTime;
     QTime blub;
-
-//    runningTime.start();
-    runningTime.restart();
-Mat gray;
-blub.restart();
-convertColor(frame,gray);
-addData("run clr",blub.elapsed());
+    Mat gray;
+    blub.restart();
+    convertColor(frame,gray);
+    addData("run cnvt clr",blub.elapsed());
     //    equalizeHist(gray,gray);
-blub.restart();
-threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
-addData("run seg",blub.elapsed());
-//    threshold(gray,gray,this->getSettings().value("threshold").toInt(),255,THRESH_BINARY);
-//imshow("blub",gray);
-blub.restart();
+    blub.restart();
+    threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
+    addData("run seg",blub.elapsed());
+    blub.restart();
     int sum;
     this->countPixel(gray,sum);
-addData("run countPix",blub.elapsed());
+    addData("run countPix",blub.elapsed());
 
     if( sum > 10000 )
     {
         noPipeCnt = 0;
         addData("pipe_area",sum);
-//        data["pipe_area"] = sum;
-
-//        emit dataChanged( this );
-//        imshow("Dummy",gray);
         blub.restart();
         IplImage *ipl = new IplImage(gray);
         CvMoments M;
@@ -786,7 +769,6 @@ addData("run countPix",blub.elapsed());
         double mu02 = cvGetCentralMoment( &M, 0, 2 ) / m00;
         // moments( binary, m10, m01, mu11, mu02, mu20 );
         double theta = 0.5 * atan2( 2 * mu11 , ( mu20 - mu02 ) );
-//        data["rohrTheta"] = theta;
         if(theta < CV_PI/2)
             theta += CV_PI;
         else if(theta > CV_PI/2)
@@ -796,8 +778,7 @@ addData("run countPix",blub.elapsed());
             theta -= CV_PI;
         else if(theta < -CV_PI/2)
             theta += CV_PI;
-
-
+        //        data["rohrTheta"] = theta;
         addData("run moments",blub.elapsed());
         blub.restart();
         Point pt1 = Point(m10,m01);
@@ -806,7 +787,6 @@ addData("run countPix",blub.elapsed());
         line( frame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(255,0,0), 3, 8 );
         line(frame,Point(m10,m01),Point(m10 + cos(theta)*200, m01 + sin(theta)*200),Scalar(255,0,0),4,CV_FILLED);
         circle(frame,robCenter,3,Scalar(255,0,255),3,8);
-
         addData("run paint",blub.restart());
 
         curAngle = ((theta * 180.0) / CV_PI);
@@ -824,18 +804,8 @@ addData("run countPix",blub.elapsed());
 
         theta = (curAngle * CV_PI) / 180.0;
 //        data["rohrThetaMod"] = theta;
-
-
-
-        //    imshow("image",frame);
-
         Behaviour_PipeFollowing::compIntersect(pt1,pt2);
-
-        int nMilliseconds = runningTime.elapsed();
-        addData("run bv",nMilliseconds);
-//        data["runningTime"] = nMilliseconds;
         Behaviour_PipeFollowing::updateData();
-//        emit printFrameOnUi(frame);
     }
     else
     {
@@ -844,14 +814,11 @@ addData("run countPix",blub.elapsed());
         emit forwardSpeed(this->constFWSpeed / 2);
         emit angularSpeed(0.0);
         addData("run tcl badFrame",blub.elapsed());
-//        tcl->setForwardSpeed( this->getSettings().value("fwSpeed").toFloat() / 2 );
-//        tcl->setAngularSpeed( .0 ); // wegen anschließendem drehen / Ballverfolgen !!!
         if(noPipeCnt > this->getSettingsValue("badFrames").toInt())
         {
             this->stop();
             this->setHealthToSick("no pipe");
         }
-//        emit printFrameOnUi(frame);
     }
     blub.restart();
     dataLockerMutex.lock();

@@ -19,6 +19,7 @@
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 #include <Module_ADC/module_adc.h>
+#include <Module_Simulation/module_simulation.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -29,25 +30,30 @@ void ModulesGraph::build()
 {
     logger->info("Loading all Modules...");
 
+    logger->debug("Starting Simulation");
+    Module_Simulation* sim = new Module_Simulation("simulation");
+    this->modules.append(sim);
+
+
     Module_UID* uid = new Module_UID("uid");
     this->modules.append(uid);
     
-    Module_Thruster* thrusterRight = new Module_Thruster("thrusterRight",uid);
+    Module_Thruster* thrusterRight = new Module_Thruster("thrusterRight",uid,sim);
     this->modules.append(thrusterRight);
-    Module_Thruster* thrusterLeft = new Module_Thruster("thrusterLeft",uid);
+    Module_Thruster* thrusterLeft = new Module_Thruster("thrusterLeft",uid,sim);
     this->modules.append(thrusterLeft);
-    Module_Thruster* thrusterDown = new Module_Thruster("thrusterDown",uid);
+    Module_Thruster* thrusterDown = new Module_Thruster("thrusterDown",uid,sim);
     this->modules.append(thrusterDown);
-    Module_Thruster* thrusterDownF = new Module_Thruster("thrusterDownFront",uid);
+    Module_Thruster* thrusterDownF = new Module_Thruster("thrusterDownFront",uid,sim);
     this->modules.append(thrusterDownF);
 
-    Module_PressureSensor* pressure = new Module_PressureSensor("pressure",uid);
+    Module_PressureSensor* pressure = new Module_PressureSensor("pressure",uid,sim);
     this->modules.append(pressure);
 
-    Module_IMU* imu = new Module_IMU("adis",uid);
+    Module_IMU* imu = new Module_IMU("adis",uid,sim);
     this->modules.append(imu);
 
-    Module_Compass *compass = new Module_Compass("compass", uid);
+    Module_Compass *compass = new Module_Compass("compass", uid,sim);
     this->modules.append(compass);
 
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
@@ -60,7 +66,7 @@ void ModulesGraph::build()
 //    this->modules.append(adc1);
 
     logger->debug("Creating Module_ScanningSonar");
-    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop);
+    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop,sim);
     this->modules.append(sonar);
 
     logger->debug("Creating Module_HandControl");
@@ -84,7 +90,7 @@ void ModulesGraph::build()
 //    this->modules.append(navi);
 
     logger->debug("Creating Behaviour_PipeFollowing");
-    Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams);
+    Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams,sim);
     this->modules.append(behavPipe);
 
 //    logger->debug("Creating Behaviour_GoalFollowing");
@@ -107,6 +113,7 @@ void ModulesGraph::build()
     logger->debug("Creating MetaBehaviour");
     MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn);
     this->modules.append(metaBehaviour);
+
 
     logger->info("Loading all Modules... Done");
 

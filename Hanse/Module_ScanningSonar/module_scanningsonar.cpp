@@ -8,9 +8,11 @@
 #include "sonardatacsvrecorder.h"
 #include "sonardata852recorder.h"
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
-Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop *tcl)
+#include <Module_Simulation/module_simulation.h>
+Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim)
     : RobotModule_MT(id), reader(this)
 {
+    this->sim = sim;
     setDefaultValue("serialPort", "COM1");
 
     setDefaultValue("range", 50);
@@ -30,8 +32,11 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoo
     timer = new QTimer();
     connect(timer,SIGNAL(timeout()), this, SLOT(doNextScan()));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
-    /*connect(sim,SIGNAL(newSonarData(SonarReturnData)), this, SLOT(refreshSimData(SonarReturnData)),
-            Qt::DirectConnection);*/
+
+    /* connect simulation */
+    connect(sim,SIGNAL(newSonarData(SonarReturnData)), this, SLOT(refreshSimData(SonarReturnData)));
+    connect(this,SIGNAL(requestSonarSignal()),sim,SLOT(requestSonarSlot()));
+
     recorder = NULL;
     source = NULL;
 
@@ -87,9 +92,24 @@ void Module_ScanningSonar::ThreadedReader::run(void)
     }
 }
 
+void Module_ScanningSonar::refreshSimData(SonarReturnData data)
+{
+    addData("currentHeading",data.getHeadPosition());
+    addData("range",data.getRange());
+    emit newSonarData(data);
+    emit dataChanged(this);
+}
+
 bool Module_ScanningSonar::doNextScan()
 {
 
+    if(sim->isEnabled())
+    {
+        emit requestSonarSignal();
+        return true;
+    }
+    else
+    {
         const SonarReturnData d = source->getNextPacket();
 
         if (!source || !source->isOpen())
@@ -106,6 +126,7 @@ bool Module_ScanningSonar::doNextScan()
             setHealthToSick("Received bullshit. Dropping packet.");
             return false;
         }
+    }
 }
 
 
@@ -133,8 +154,6 @@ void Module_ScanningSonar::reset()
     if (!isEnabled())
         return;
 
-    //if (sim->isEnabled())
-    //    return;
 
     if (getSettingsValue("enableRecording").toBool()) {
         if (getSettingsValue("formatCSV").toBool())
@@ -146,6 +165,9 @@ void Module_ScanningSonar::reset()
     }
 
 //    reader.start();
+
+    if (sim->isEnabled())
+        return;
 
     if (getSettingsValue("readFromFile").toBool())
     {
@@ -176,6 +198,7 @@ void Module_ScanningSonar::reset()
 QList<RobotModule*> Module_ScanningSonar::getDependencies()
 {
     QList<RobotModule*> ret;
+    ret.append(sim);
     return ret;
 }
 

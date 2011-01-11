@@ -6,6 +6,7 @@
 #include "inttypes.h"
 
 class Module_UID;
+class Module_Simulation;
 
 class Module_IMU : public RobotModule_MT {
     Q_OBJECT
@@ -13,7 +14,7 @@ class Module_IMU : public RobotModule_MT {
     friend class IMU_Form;
 
 public:
-    Module_IMU(QString id, Module_UID *uid);
+    Module_IMU(QString id, Module_UID *uid, Module_Simulation *sim);
     ~Module_IMU();
 
     QWidget* createView(QWidget* parent);
@@ -45,6 +46,7 @@ public slots:
 
 signals:
     void healthStatusChanged(HealthStatus data);
+    void requestIMU();
 
 protected slots:
     virtual void doHealthCheck();
@@ -56,9 +58,11 @@ private slots:
     void doSelfTest();
     void doNullCalib();
     void updateBiasFields();
+    void refreshSimData(float accl_x, float accl_y, float accl_z, float angvel_x,float angvel_y, float angvel_z);
 
 private:
     Module_UID *uid;
+    Module_Simulation *sim;
     QTimer timer;
 
     bool readRegister(unsigned char reg, int size, unsigned char *ret_buf);

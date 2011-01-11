@@ -5,12 +5,13 @@
 #include <Framework/robotmodule_mt.h>
 
 class Module_UID;
+class Module_Simulation;
 
 class Module_Thruster : public RobotModule_MT {
     Q_OBJECT
 
 public:
-    Module_Thruster(QString id, Module_UID *uid);
+    Module_Thruster(QString id, Module_UID *uid, Module_Simulation *sim);
     ~Module_Thruster();
 
     QWidget* createView(QWidget* parent);
@@ -41,10 +42,11 @@ protected slots:
 
 signals:
     void healthStatusChanged(HealthStatus data);
+    void requestThrusterSpeed(QString id, int speed);
 
 private:
     Module_UID *uid;
-
+    Module_Simulation *sim;
     void initController();
 
 };

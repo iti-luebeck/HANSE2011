@@ -6,12 +6,13 @@
 #include "inttypes.h"
 
 class Module_UID;
+class Module_Simulation;
 
 class Module_Compass : public RobotModule_MT {
     Q_OBJECT
 
 public:
-    Module_Compass(QString id, Module_UID *uid);
+    Module_Compass(QString id, Module_UID *uid,Module_Simulation *sim);
     ~Module_Compass();
 
     QWidget* createView(QWidget* parent);
@@ -39,15 +40,18 @@ public slots:
 
 signals:
     void healthStatusChanged(HealthStatus data);
+    void requestAngles();
 
 protected slots:
     virtual void doHealthCheck();
 
 private slots:
     void refreshData();
+    void refreshSimData(float angle_yaw, float angle_pitch, float angle_roll);
 
 private:
     Module_UID *uid;
+    Module_Simulation *sim;
     QTimer *timer;
 
     unsigned short toShort(uint8_t high, uint8_t low);

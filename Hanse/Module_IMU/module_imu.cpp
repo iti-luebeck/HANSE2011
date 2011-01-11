@@ -1,6 +1,7 @@
 #include "module_imu.h"
 #include "imu_form.h"
 #include <Module_UID/module_uid.h>
+#include <Module_Simulation/module_simulation.h>
 
 #define ADIS_REGISTER_POWER  0x02
 #define ADIS_REGISTER_GYRO_X 0x04
@@ -87,10 +88,11 @@
 #define ADIS_REGISTER_STATUS_HI 0x3D
 #define ADIS_REGISTER_STATUS_LO 0x3C
 
-Module_IMU::Module_IMU(QString id, Module_UID *uid)
+Module_IMU::Module_IMU(QString id, Module_UID *uid, Module_Simulation *sim)
     : RobotModule_MT(id)
 {
     this->uid=uid;
+    this->sim=sim;
 
     setDefaultValue("frequency", 10);
     setDefaultValue("ssLine", 1);
@@ -105,6 +107,10 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid)
 
 
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+
+    /* connect sim */
+    connect(sim,SIGNAL(newIMUData(float,float,float,float,float,float)),this,SLOT(refreshSimData(float,float,float,float,float,float)));
+    connect(this,SIGNAL(requestIMU()),sim,SLOT(requestIMUSlot()));
 
     reset();
 }
@@ -125,6 +131,9 @@ void Module_IMU::reset()
     RobotModule::reset();
 
     if (!getSettingsValue("enabled").toBool())
+        return;
+
+    if(sim->isEnabled())
         return;
 
     int freq = 1000/getSettingsValue("frequency").toInt();
@@ -160,6 +169,12 @@ void Module_IMU::refreshData()
     if (!getSettingsValue("enabled").toBool())
         return;
 
+    if(sim->isEnabled())
+    {
+        emit requestIMU();
+    }
+    else
+    {
     configureSPI();
 
     int currentGyroX;
@@ -204,13 +219,32 @@ void Module_IMU::refreshData()
 
     }
 
-    
+    }
+}
+
+void Module_IMU::refreshSimData(float accl_x, float accl_y, float accl_z, float angvel_x, float angvel_y, float angvel_z)
+{
+    addData("gyroX",angvel_x);
+    addData("gyroY",angvel_y);
+    addData("gyroZ",angvel_z);
+
+    addData("accelX",accl_x);
+    addData("accelY",accl_y);
+    addData("accelZ",accl_z);
+
+    addData("gyroTempX",0);
+    addData("gyroTempY",0);
+    addData("gyroTempZ",0);
+
+    if(getHealthStatus().isHealthOk())
+        emit dataChanged(this);
 }
 
 QList<RobotModule*> Module_IMU::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append(uid);
+    ret.append(sim);
     return ret;
 }
 
@@ -225,8 +259,10 @@ void Module_IMU::doHealthCheck()
 //    qDebug() << "adis health THREAD ID";
 //    qDebug() << QThread::currentThreadId();
 
-//    QMutexLocker l(&moduleMutex);
     if (!getSettingsValue("enabled").toBool())
+        return;
+
+    if(sim->isEnabled())
         return;
 
     // we don't check for voltage. we just want to see if the device returns
@@ -243,8 +279,6 @@ void Module_IMU::doHealthCheck()
 
     short status_reg = readRegister(ADIS_REGISTER_STATUS_LO);
     status_reg &= 0xFFFE; // clear out undervoltage warning. we're aware of it.
-
-//    QMutexLocker l(&moduleMutex);
 
     addData("statusReg", status_reg);
     if (status_reg != 0x0000) {

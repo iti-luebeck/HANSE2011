@@ -1,6 +1,7 @@
 #include "module_compass.h"
 #include "compass_form.h"
 #include <Module_UID/module_uid.h>
+#include <Module_Simulation/module_simulation.h>
 
 #define COMPASS_CMD_ACCEL_DATA		0x40
 #define COMPASS_CMD_MAG_DATA		0x45
@@ -25,11 +26,12 @@
 #define COMPASS_CMD_EEPROM_READ		0xE1
 #define COMPASS_CMD_EEPROM_WRITE	0xF1
 
-Module_Compass::Module_Compass(QString id, Module_UID *uid)
+Module_Compass::Module_Compass(QString id, Module_UID *uid, Module_Simulation *sim)
     : RobotModule_MT(id) //, timer(this)
 {
 
     this->uid=uid;
+    this->sim=sim;
 
     setDefaultValue("i2cAddress", 50); //default shall be 50. 0x19
     setDefaultValue("frequency", 1);
@@ -43,6 +45,10 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid)
     timer = new QTimer();
 //    timer->moveToThread(&this->moduleThread);
     connect(timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+
+    /* for simulation */
+   connect(sim,SIGNAL(newAngleData(float,float,float)),this,SLOT(refreshSimData(float,float,float)));
+   connect(this,SIGNAL(requestAngles()),sim,SLOT(requestAnglesSlot()));
 
     reset();
 }
@@ -63,6 +69,9 @@ void Module_Compass::reset()
     RobotModule::reset();
 
     if (!getSettingsValue("enabled").toBool())
+        return;
+
+    if(sim->isEnabled())
         return;
 
     int freq = 1000/getSettingsValue("frequency").toInt();
@@ -140,22 +149,40 @@ void Module_Compass::refreshData()
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    updateHeadingData();
-    if (getSettingsValue("debug").toBool()) {
-        updateAccelData();
-        updateMagData();
-        updateStatusRegister();
+    if(sim->isEnabled())
+    {
+        emit requestAngles();
     }
+    else
+    {
 
-    if (getHealthStatus().isHealthOk()) {
-        emit dataChanged(this);
+        updateHeadingData();
+        if (getSettingsValue("debug").toBool()) {
+            updateAccelData();
+            updateMagData();
+            updateStatusRegister();
+        }
+
+        if (getHealthStatus().isHealthOk()) {
+            emit dataChanged(this);
+        }
     }
+}
+
+void Module_Compass::refreshSimData(float angle_yaw, float angle_pitch, float angle_roll)
+{
+    addData("heading",angle_yaw);
+    addData("pitch",angle_pitch);
+    addData("roll",angle_roll);
+    if(getHealthStatus().isHealthOk())
+        emit dataChanged(this);
 }
 
 QList<RobotModule*> Module_Compass::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append(uid);
+    ret.append(sim);
     return ret;
 }
 
@@ -170,6 +197,9 @@ void Module_Compass::doHealthCheck()
 //    qDebug() << QThread::currentThreadId();
 
     if (!getSettingsValue("enabled").toBool())
+        return;
+
+    if(sim->isEnabled())
         return;
 
 //    QMutexLocker l(&moduleMutex);
