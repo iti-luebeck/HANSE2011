@@ -60,9 +60,7 @@ protected:
     virtual void doHealthCheck();
 
 private slots:
-    /**
-     * This are the slots...
-     */
+    void start();
 
 private:
     bool client_running;
@@ -73,7 +71,7 @@ private:
     QTcpSocket *tcpSocket;
 
     void parse_input(QString input);
-    void start();
+//    void start();
     void connectToServer();
 
     void requestDepth();
