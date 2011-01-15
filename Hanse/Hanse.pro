@@ -116,9 +116,7 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_CompassFollowing/compassfollowingform.h \
     Behaviour_CompassFollowing/behaviour_compassfollowing.h \
     Module_ADC/module_adc.h \
-    Module_ADC/adc_form.h \
-    Module_HandControl/serverthread.h \
-    Module_HandControl/servermt.h
+    Module_ADC/adc_form.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -217,9 +215,7 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_CompassFollowing/compassfollowingform.cpp \
     Behaviour_CompassFollowing/behaviour_compassfollowing.cpp \
     Module_ADC/module_adc.cpp \
-    Module_ADC/adc_form.cpp \
-    Module_HandControl/serverthread.cpp \
-    Module_HandControl/servermt.cpp
+    Module_ADC/adc_form.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
