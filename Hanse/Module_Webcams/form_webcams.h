@@ -16,9 +16,13 @@ class Form_Webcams : public QWidget {
 public:
     Form_Webcams( Module_Webcams *cams, QWidget *parent = 0 );
     ~Form_Webcams();
-    void showOnLeftLabel( IplImage *left );
-    void showOnRightLabel( IplImage *right );
-    void showOnBottomLabel( IplImage *bottom );
+//    void showOnLeftLabel( cv::Mat &left );
+//    void showOnRightLabel( cv::Mat &right );
+//    void showOnBottomLabel( cv::Mat &bottom );
+
+//    void showOnLeftLabel( IplImage *left );
+//    void showOnRightLabel( IplImage *right );
+//    void showOnBottomLabel( IplImage *bottom );
 
 protected:
     void changeEvent(QEvent *e);
@@ -32,9 +36,9 @@ private:
     Module_Webcams *cams;
     QTimer captureTimer;
 
-    IplImage *leftFrame;
-    IplImage *rightFrame;
-    IplImage *bottomFrame;
+    cv::Mat leftFrame;
+    cv::Mat rightFrame;
+    cv::Mat bottomFrame;
     int count;
 
 private slots:

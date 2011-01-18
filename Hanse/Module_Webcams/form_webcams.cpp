@@ -28,9 +28,13 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     ui->bottomFramerateLabel->setText("Framerate: " +QString::number(pos)
                                       +" ("+QString::number(pos)+")");
 
-    leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    leftFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+    rightFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+    bottomFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+
+//    leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+//    rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+//    bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
 
     refreshLists();
 
@@ -65,9 +69,12 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
 Form_Webcams::~Form_Webcams()
 {
     delete ui;
-    cvReleaseImage( &leftFrame );
-    cvReleaseImage( &rightFrame );
-    cvReleaseImage( &bottomFrame );
+    leftFrame.release();
+    rightFrame.release();
+    bottomFrame.release();
+//    cvReleaseImage( &leftFrame );
+//    cvReleaseImage( &rightFrame );
+//    cvReleaseImage( &bottomFrame );
 }
 
 void Form_Webcams::captureWebcams()
@@ -86,19 +93,22 @@ void Form_Webcams::captureWebcams()
     {
         char leftName[100];
         sprintf( leftName, d.absolutePath().append( "/left%04d.jpg" ).toStdString().c_str(), count );
-        cvSaveImage( leftName, leftFrame );
+        IplImage* lefty = new IplImage(leftFrame);
+        cvSaveImage( leftName, lefty );
     }
     if(this->cams->getSettingsValue("rightEnabled").toBool())
     {
         char rightName[100];
         sprintf( rightName, d.absolutePath().append( "/right%04d.jpg" ).toStdString().c_str(), count );
-        cvSaveImage( rightName, rightFrame );
+        IplImage* righty = new IplImage(rightFrame);
+        cvSaveImage( rightName, righty );
     }
     if(this->cams->getSettingsValue("bottomEnabled").toBool())
     {
         char bottomName[100];
         sprintf( bottomName, d.absolutePath().append( "/bottom%04d.jpg" ).toStdString().c_str(), count );
-        cvSaveImage( bottomName, bottomFrame );
+        IplImage* bottomy = new IplImage(bottomFrame);
+        cvSaveImage( bottomName, bottomy );
     }
     count++;
 }
@@ -121,12 +131,12 @@ void Form_Webcams::refreshLists()
     ui->rightBox->clear();
     ui->bottomBox->clear();
 
-    videoInput VI;
-    int numCameras = VI.listDevices( true );
+//    videoInput VI;
+    int numCameras = 3; // VI.listDevices( true );
     for ( int i = 0; i < numCameras; i++ )
     {
         QString boxName = QString( "(%1) " ).arg( i );
-        boxName.append( VI.getDeviceName( i ) );
+//        boxName.append( VI.getDeviceName( i ) );
         ui->leftBox->addItem( boxName );
         ui->rightBox->addItem( boxName );
         ui->bottomBox->addItem( boxName );
@@ -179,19 +189,18 @@ void Form_Webcams::refreshFrames()
     cams->grabRight( rightFrame );
     cams->grabBottom( bottomFrame);
 
-    QImage imageLeft( (unsigned char*)leftFrame->imageData, leftFrame->width, leftFrame->height,
-                      QImage::Format_RGB888 );
-    imageLeft = imageLeft.rgbSwapped();
+    QImage imageLeft((unsigned char*)leftFrame.data, leftFrame.cols, leftFrame.rows, QImage::Format_RGB888);
+//    imageLeft = imageLeft.rgbSwapped();
     ui->leftLabel->setPixmap( QPixmap::fromImage( imageLeft ) );
 
-    QImage imageRight( (unsigned char*)rightFrame->imageData, rightFrame->width, rightFrame->height,
-                      QImage::Format_RGB888 );
-    imageRight = imageRight.rgbSwapped();
+       QImage imageRight((unsigned char*)rightFrame.data, rightFrame.cols, rightFrame.rows, QImage::Format_RGB888);
+//       imageRight = imageRight.rgbSwapped();
     ui->rightLabel->setPixmap( QPixmap::fromImage( imageRight ) );
 
-    QImage imageBottom( (unsigned char*)bottomFrame->imageData, bottomFrame->width, bottomFrame->height,
-                      QImage::Format_RGB888 );
-    imageBottom = imageBottom.rgbSwapped();
+//    QImage imageBottom( (unsigned char*)bottomFrame->imageData, bottomFrame->width, bottomFrame->height,
+//                      QImage::Format_RGB888 );
+       QImage imageBottom((unsigned char*)bottomFrame.data, bottomFrame.cols, bottomFrame.rows, QImage::Format_RGB888);
+//    imageBottom = imageBottom.rgbSwapped();
     ui->bottomLabel->setPixmap( QPixmap::fromImage( imageBottom ) );
 }
 
