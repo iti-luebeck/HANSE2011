@@ -370,7 +370,9 @@ void StereoCapture::grab( bool saveImages, bool noSLAM )
     {
         captureMutex.lock();
 
-        cams->grabLeft( frame1 );
+        // TODO von cm::Mat in IplImage convertieren
+//        cams->grabLeft( frame1 );
+
         cvCvtColor( frame1, frame1_gray, CV_RGB2GRAY );
 //        cvCLAdaptEqualize( frame1_gray, frame1_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
 
@@ -452,11 +454,13 @@ void StereoCapture::grab( bool saveImages, bool noSLAM )
     {
         captureMutex.lock();
 
-        cams->grabLeft( frame1 );
+        // TODO von cm::Mat in IplImage convertieren
+//        cams->grabLeft( frame1 );
         cvCvtColor( frame1, frame1_gray, CV_RGB2GRAY );
         cvCLAdaptEqualize( frame1_gray, frame1_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
 
-        cams->grabRight( frame2 );
+        // TODO von cm::Mat in IplImage convertieren
+//        cams->grabRight( frame2 );
         cvCvtColor( frame2, frame2_gray, CV_RGB2GRAY );
         cvCLAdaptEqualize( frame2_gray, frame2_gray, 8, 8, 256, 15, CV_CLAHE_RANGE_FULL );
 

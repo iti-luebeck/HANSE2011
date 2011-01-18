@@ -4,7 +4,7 @@
 
 #include <QTcpSocket>
 #include <QDataStream>
-#include <QTCore>
+#include <QtCore>
 
 class QTcpServer;
 

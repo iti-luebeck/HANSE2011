@@ -5,7 +5,7 @@
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
-#include <videoInput.h>
+//#include <videoInput.h>
 #include <Module_Webcams/module_webcams.h>
 #include <Framework/eventthread.h>
 #include <Behaviour_PipeFollowing/pipefollowingform.h>

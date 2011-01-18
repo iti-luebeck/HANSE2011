@@ -15,6 +15,10 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     ui->rightConnectCheckBox->setChecked(cams->getSettingsValue("rightEnabled",true).toBool());
     ui->bottomConnectCheckBox->setChecked(cams->getSettingsValue("bottomEnabled",true).toBool());
 
+    ui->leftCamID->setText(cams->getSettingsValue("leftID").toString());
+    ui->rightCamID->setText(cams->getSettingsValue("rightID").toString());
+    ui->bottomCamID->setText(cams->getSettingsValue("bottomID").toString());
+
     int pos = cams->getSettingsValue("leftFramerate",5).toInt();
     ui->leftFrameRateSlider->setValue(pos/5);
     ui->leftFramerateLabel->setText("Framerate: " +QString::number(pos)
@@ -132,11 +136,12 @@ void Form_Webcams::refreshLists()
     ui->bottomBox->clear();
 
 //    videoInput VI;
-    int numCameras = 3; // VI.listDevices( true );
+    int numCameras = 3;//this->cams->numOfCams(); // VI.listDevices( true );
     for ( int i = 0; i < numCameras; i++ )
     {
         QString boxName = QString( "(%1) " ).arg( i );
 //        boxName.append( VI.getDeviceName( i ) );
+        boxName.append("Camera");
         ui->leftBox->addItem( boxName );
         ui->rightBox->addItem( boxName );
         ui->bottomBox->addItem( boxName );
@@ -151,9 +156,12 @@ void Form_Webcams::refreshLists()
 void Form_Webcams::on_applyButtn_clicked()
 {
 //    QSettings& settings = cams->getSettings();
-    cams->setSettingsValue( "leftID", ui->leftBox->currentIndex() );
-    cams->setSettingsValue("rightID", ui->rightBox->currentIndex() );
-    cams->setSettingsValue("bottomID", ui->bottomBox->currentIndex() );
+//    cams->setSettingsValue( "leftID", ui->leftBox->currentIndex() );
+//    cams->setSettingsValue("rightID", ui->rightBox->currentIndex() );
+//    cams->setSettingsValue("bottomID", ui->bottomBox->currentIndex() );
+    cams->setSettingsValue( "leftID", ui->leftCamID->text() );
+    cams->setSettingsValue("rightID", ui->rightCamID->text() );
+    cams->setSettingsValue("bottomID", ui->bottomCamID->text() );
 
     cams->setSettingsValue("leftEnabled",ui->leftConnectCheckBox->isChecked());
     cams->setSettingsValue("rightEnabled",ui->rightConnectCheckBox->isChecked());
@@ -241,6 +249,7 @@ void Form_Webcams::on_leftConnectCheckBox_clicked()
 {
     cams->setSettingsValue("leftEnabled",ui->leftConnectCheckBox->isChecked());
     cams->setSettingsValue("leftFramerate",ui->leftFrameRateSlider->value());
+    cams->setSettingsValue("leftID",ui->leftCamID->text());
     emit changedSettings();
 }
 
@@ -248,6 +257,7 @@ void Form_Webcams::on_rightConnectCheckBox_clicked()
 {
     cams->setSettingsValue("rightEnabled",ui->rightConnectCheckBox->isChecked());
     cams->setSettingsValue("rightFramerate",ui->rightFrameRateSlider->value());
+    cams->setSettingsValue("rightID",ui->rightCamID->text());
     emit changedSettings();
 }
 
@@ -255,6 +265,7 @@ void Form_Webcams::on_bottomConnectCheckBox_clicked()
 {
     cams->setSettingsValue("bottomEnabled",ui->bottomConnectCheckBox->isChecked());
     cams->setSettingsValue("bottomFramerate",ui->bottomFrameRateSlider->value());
+    cams->setSettingsValue("bottomID",ui->bottomCamID->text());
     emit changedSettings();
 }
 

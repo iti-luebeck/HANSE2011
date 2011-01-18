@@ -199,7 +199,8 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     IplImage *hsv = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     cvMerge( thresh, thresh, thresh, NULL, disp );
     IplImage *left = cvCreateImage( cvSize(WEBCAM_WIDTH,WEBCAM_HEIGHT), IPL_DEPTH_8U, 3 );
-    cams->grabLeft( left );
+    // TODO von cm::Mat in IplImage convertieren
+//    cams->grabLeft( left );
 
     // Apply threshold.
     cvCvtColor( left, gray, CV_RGB2GRAY );

@@ -6,7 +6,7 @@
 #include <QMutex>
 #include <opencv/cxcore.h>
 #include <vector>
-#include "videoInput.h"
+//#include "videoInput.h"
 #include <Module_VisualSLAM/feature/feature.h>
 
 #define GOAL_LABEL  1

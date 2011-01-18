@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 
     qsrand(42);
 
-    HanseApp a(argc,argv);
+    QApplication a(argc,argv);
 
     MainWindow w;
     w.show();

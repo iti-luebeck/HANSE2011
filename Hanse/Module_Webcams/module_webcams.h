@@ -21,12 +21,13 @@ public:
     QList<RobotModule*> getDependencies();
 
 
-    void grabLeft( IplImage *left );
-    void grabRight( IplImage *right );
-    void grabBottom( IplImage *bottom );
+//    void grabLeft( IplImage *left );
+//    void grabRight( IplImage *right );
+//    void grabBottom( IplImage *bottom );
     void grabLeft( cv::Mat &left );
     void grabRight( cv::Mat &right );
     void grabBottom( cv::Mat &bottom );
+    int numOfCams();
 
 private:
     void stopWebcams();
@@ -42,13 +43,13 @@ public slots:
 private:
 //    videoInput VI;
 
-    cv::VideoCapture leftCap;
-    cv::VideoCapture rightCap;
-    cv::VideoCapture bottomCap;
+//    cv::VideoCapture* leftCap;
+//    cv::VideoCapture* rightCap;
+//    cv::VideoCapture* bottomCap;
 
-//    CvCapture* leftCam;
-//    CvCapture* rightCam;
-//    CvCapture* bottomCam;
+    CvCapture* leftCap;
+    CvCapture* rightCap;
+    CvCapture* bottomCap;
 
     int nCams;
     int leftID;

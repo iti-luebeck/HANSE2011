@@ -1,4 +1,4 @@
-#include "behaviour_TestMT.h"
+#include "behaviour_testmt.h"
 #include <QtGui>
 #include <Behaviour_TestMT/testmtform.h>
 

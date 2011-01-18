@@ -18,12 +18,13 @@ Form_VisualSLAM::Form_VisualSLAM( Module_VisualSLAM *visualSlam, QWidget *parent
     ui->translationEdit->setText( QString("%1").arg( visualSlam->getTranslationVariance() ) );
     ui->rotationEdit->setText( QString("%1").arg( visualSlam->getRotationVariance() ) );
 
-    videoInput VI;
-    int numCameras = VI.listDevices( true );
+    //videoInput VI;
+    //int numCameras = VI.listDevices( true );
+    int numCameras = 3;
     for ( int i = 0; i < numCameras; i++ )
     {
         QString boxName = QString( "(%1) " ).arg( i );
-        boxName.append( VI.getDeviceName( i ) );
+//        boxName.append( VI.getDeviceName( i ) );
         ui->leftCameraBox->addItem( boxName );
         ui->rightCameraBox->addItem( boxName );
     }

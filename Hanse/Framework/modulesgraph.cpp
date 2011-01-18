@@ -30,7 +30,7 @@ void ModulesGraph::build()
 {
     logger->info("Loading all Modules...");
 
-    logger->debug("Starting Simulation");
+//    logger->debug("Starting Simulation");
     Module_Simulation* sim = new Module_Simulation("simulation");
     this->modules.append(sim);
 
@@ -97,22 +97,22 @@ void ModulesGraph::build()
 //    Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
 //    this->modules.append(behavGoal);
 
-    logger->debug("Creating Behaviour_BallFollowing");
-    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, compass);
-    this->modules.append(behavBall);
+//    logger->debug("Creating Behaviour_BallFollowing");
+//    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, compass);
+//    this->modules.append(behavBall);
 
-    logger->debug("Creating Behaviour_TurnOneEighty");
-    Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
-    this->modules.append(behavTurn);
+//    logger->debug("Creating Behaviour_TurnOneEighty");
+//    Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
+//    this->modules.append(behavTurn);
 
-    logger->debug("Creating Behaviour_CompassFollowing");
-    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
-    this->modules.append(behavComp);
+//    logger->debug("Creating Behaviour_CompassFollowing");
+//    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
+//    this->modules.append(behavComp);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
-    logger->debug("Creating MetaBehaviour");
-    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn);
-    this->modules.append(metaBehaviour);
+//    logger->debug("Creating MetaBehaviour");
+//    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn);
+//    this->modules.append(metaBehaviour);
 
 
     logger->info("Loading all Modules... Done");
