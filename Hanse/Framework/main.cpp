@@ -12,6 +12,8 @@ int main(int argc, char *argv[])
     qsrand(42);
 
     QApplication a(argc,argv);
+    a.setApplicationName("Hanse");
+    a.setOrganizationName("ITI");
 
     MainWindow w;
     w.show();
