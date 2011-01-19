@@ -207,9 +207,11 @@ void Module_Webcams::reset()
     {
         if ( 0 <= bottomID && bottomID < nCams && bottomEnabled )
         {
+            logger->debug("Trying to Connect bottom Cam with ID "+QString::number(bottomID));
             bottomCap = cvCaptureFromCAM(bottomID);
             if(bottomCap)
             {
+                logger->debug("...ok");
                 cvSetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_HEIGHT,480);
                 cvSetCaptureProperty(bottomCap,CV_CAP_PROP_GAIN,0);
@@ -218,6 +220,7 @@ void Module_Webcams::reset()
             }
             else
             {
+                logger->debug("...fail");
                 delete bottomCap;
                 bottomCap = NULL;
             }
@@ -229,18 +232,26 @@ void Module_Webcams::reset()
 
         if ( 0 <= leftID && leftID < nCams && leftEnabled )
         {
+            logger->debug("Trying to Connect left Cam with ID "+QString::number(leftID));
             leftCap = cvCaptureFromCAM(leftID);
             if(leftCap)
             {
+                double value = 100;
+                logger->debug("...ok");
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_HEIGHT,480);
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_GAIN,0);
+                cvSetCaptureProperty(leftCap,CV_CAP_PROP_GAIN,value);
+                cvSetCaptureProperty(leftCap,CV_CAP_PROP_SATURATION,value);
+                cvSetCaptureProperty(leftCap,CV_CAP_PROP_CONTRAST,value);
+                cvSetCaptureProperty(leftCap,CV_CAP_PROP_HUE,value);
+                cvSetCaptureProperty(leftCap,CV_CAP_PROP_BRIGHTNESS,value);
 //                qDebug() << QString::number(leftCap->get(CV_CAP_PROP_FRAME_HEIGHT));
 //                qDebug() << QString::number(leftCap->get(CV_CAP_PROP_FRAME_WIDTH));
 
             }
             else
             {
+                logger->debug("...fail");
                 delete leftCap;
                 leftCap = NULL;
             }
@@ -248,10 +259,12 @@ void Module_Webcams::reset()
         }
         if ( 0 <= rightID && rightID < nCams && rightEnabled )
         {
+            logger->debug("Trying to Connect right Cam with ID "+QString::number(rightID));
 //            rightCap = new cv::VideoCapture(3);
             rightCap = cvCaptureFromCAM(rightID);
             if(rightCap)
             {
+                logger->debug("...ok");
                 cvSetCaptureProperty(rightCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(rightCap,CV_CAP_PROP_FRAME_HEIGHT,480);
                 cvSetCaptureProperty(rightCap,CV_CAP_PROP_GAIN,0);
@@ -261,6 +274,7 @@ void Module_Webcams::reset()
             }
             else
             {
+                logger->debug("...fail");
                 delete rightCap;
                 rightCap = NULL;
             }
