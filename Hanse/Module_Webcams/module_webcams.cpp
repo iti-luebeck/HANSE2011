@@ -45,17 +45,19 @@ void Module_Webcams::stopWebcams()
 {
     if ( leftCap != NULL )
     {
-        delete leftCap;
+        cvReleaseCapture(&leftCap);
+//        delete leftCap;
         leftCap = NULL;
     }
     if ( rightCap != NULL )
     {
-        delete rightCap;
+        cvReleaseCapture(&rightCap);
         rightCap = NULL;
     }
     if ( bottomCap != NULL  )
     {
-        delete bottomCap;
+        cvReleaseCapture(&bottomCap);
+//        delete bottomCap;
         bottomCap = NULL;
     }
 
