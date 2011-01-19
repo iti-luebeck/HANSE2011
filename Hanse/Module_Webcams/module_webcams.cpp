@@ -212,6 +212,7 @@ void Module_Webcams::reset()
             {
                 cvSetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_HEIGHT,480);
+                cvSetCaptureProperty(bottomCap,CV_CAP_PROP_GAIN,0);
                 qDebug() << QString::number(cvGetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_WIDTH));
                 qDebug() << QString::number(cvGetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_HEIGHT));
             }
@@ -233,6 +234,7 @@ void Module_Webcams::reset()
             {
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_HEIGHT,480);
+                cvSetCaptureProperty(leftCap,CV_CAP_PROP_GAIN,0);
 //                qDebug() << QString::number(leftCap->get(CV_CAP_PROP_FRAME_HEIGHT));
 //                qDebug() << QString::number(leftCap->get(CV_CAP_PROP_FRAME_WIDTH));
 
@@ -252,6 +254,7 @@ void Module_Webcams::reset()
             {
                 cvSetCaptureProperty(rightCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(rightCap,CV_CAP_PROP_FRAME_HEIGHT,480);
+                cvSetCaptureProperty(rightCap,CV_CAP_PROP_GAIN,0);
 
 //                qDebug() << QString::number(rightCap->get(CV_CAP_PROP_FRAME_HEIGHT));
 //                qDebug() << QString::number(rightCap->get(CV_CAP_PROP_FRAME_WIDTH));
