@@ -33,5 +33,5 @@ void Simulation_Form::on_save_clicked()
 {
     module->setSettingsValue("server_ip_adress", ui->server_ip_adress->text());
     module->setSettingsValue("server_port", ui->server_port->text().toInt());
-    module->setSettingsValue("auv_id", ui->server_ip_adress->text());
+    module->setSettingsValue("auv_id", ui->auv_id->text());
 }
