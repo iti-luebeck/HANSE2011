@@ -25,6 +25,7 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
 
 //    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
     connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
+    connect(this,SIGNAL(updateControls()),module,SLOT(sendNewControls()));
 }
 
 HandControl_Form::~HandControl_Form()
@@ -93,18 +94,21 @@ void HandControl_Form::dataChanged(RobotModule *m)
 void HandControl_Form::on_sliderFw_valueChanged(int value)
 {
     module->addData("forwardSpeed", value);
-    module->sendNewControls();
+//    module->sendNewControls();
+    emit updateControls();
 }
 
 
 void HandControl_Form::on_sliderLR_valueChanged(int value)
 {
     module->addData("angularSpeed", value);
-    module->sendNewControls();
+    emit updateControls();
+//    module->sendNewControls();
 }
 
 void HandControl_Form::on_sliderUD_valueChanged(int value)
 {
     module->addData("speedUpDown", value);
-    module->sendNewControls();
+    emit updateControls();
+//    module->sendNewControls();
 }

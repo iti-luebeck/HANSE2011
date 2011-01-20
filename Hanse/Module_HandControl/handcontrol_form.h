@@ -30,6 +30,8 @@ private slots:
     void connectionStatusChanged();
     void dataChanged(RobotModule* m);
 
+signals:
+    void updateControls();
 };
 
 #endif // HANDCONTROL_FORM_H

@@ -49,9 +49,9 @@ private:
 
     Server* server;
 //    ServerMT* server;
-    void sendNewControls();
 
 private slots:
+    void sendNewControls();
     void newMessage(int forwardSpeed, int angularSpeed, int speedUpDown);
     void serverReportedError(QString error);
     void emergencyStopReceived();
