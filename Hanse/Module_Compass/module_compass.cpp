@@ -71,9 +71,6 @@ void Module_Compass::reset()
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    if(sim->isEnabled())
-        return;
-
     int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
         timer->setInterval(freq);
@@ -81,6 +78,10 @@ void Module_Compass::reset()
     } else {
         QTimer::singleShot(0, timer, SLOT(stop()));
     }
+
+    if(sim->isEnabled())
+        return;
+
     configure();
     resetDevice();
     printEEPROM();
@@ -151,6 +152,7 @@ void Module_Compass::refreshData()
 
     if(sim->isEnabled())
     {
+        logger->debug("request sim");
         emit requestAngles();
     }
     else
@@ -171,6 +173,7 @@ void Module_Compass::refreshData()
 
 void Module_Compass::refreshSimData(float angle_yaw, float angle_pitch, float angle_roll)
 {
+    logger->debug("new compass data");
     addData("heading",angle_yaw);
     addData("pitch",angle_pitch);
     addData("roll",angle_roll);

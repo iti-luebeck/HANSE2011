@@ -246,6 +246,7 @@ private:
     QextSerialPort* uid;
     PortSettings* portSettings;
     int lastError;
+    QList<int> mutexWaitTime;
 
     QextSerialPort* findUIDPort();
     QextSerialPort* tryOpenPort(QString id, QextPortInfo* port);

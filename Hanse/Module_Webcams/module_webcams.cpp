@@ -46,7 +46,6 @@ void Module_Webcams::stopWebcams()
     if ( leftCap != NULL )
     {
         cvReleaseCapture(&leftCap);
-//        delete leftCap;
         leftCap = NULL;
     }
     if ( rightCap != NULL )
@@ -57,11 +56,8 @@ void Module_Webcams::stopWebcams()
     if ( bottomCap != NULL  )
     {
         cvReleaseCapture(&bottomCap);
-//        delete bottomCap;
         bottomCap = NULL;
     }
-
-    //cvReleaseCapture(&bottomCam);//VI.stopDevice( bottomID );
 }
 
 //void Module_Webcams::grabLeft( IplImage *left )
@@ -242,11 +238,11 @@ void Module_Webcams::reset()
                 logger->debug("...ok");
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_HEIGHT,480);
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_GAIN,value);
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_SATURATION,value);
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_CONTRAST,value);
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_HUE,value);
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_BRIGHTNESS,value);
+//                cvSetCaptureProperty(leftCap,CV_CAP_PROP_GAIN,value);
+//                cvSetCaptureProperty(leftCap,CV_CAP_PROP_SATURATION,value);
+//                cvSetCaptureProperty(leftCap,CV_CAP_PROP_CONTRAST,value);
+//                cvSetCaptureProperty(leftCap,CV_CAP_PROP_HUE,value);
+//                cvSetCaptureProperty(leftCap,CV_CAP_PROP_BRIGHTNESS,value);
 //                qDebug() << QString::number(leftCap->get(CV_CAP_PROP_FRAME_HEIGHT));
 //                qDebug() << QString::number(leftCap->get(CV_CAP_PROP_FRAME_WIDTH));
 

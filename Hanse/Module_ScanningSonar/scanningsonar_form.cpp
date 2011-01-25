@@ -92,8 +92,9 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
     // TODO: if any of the parameters have changed; reset the scene
 
     float newHeading = data.getHeadPosition();
-
-    bool isnumber = std::isalnum(oldHeading);
+    int bla = oldHeading;
+    bool isnumber = bla != 0;
+//    bool isnumber = std::isalnum(oldHeading);
     /* doe not work any more: !std::isnan(oldHeading)
        replaced bz isnumer */
     if(ui->checkBox->isChecked() && !isnumber && (fabs(newHeading - oldHeading)<20 || fabs(newHeading - oldHeading)>340))

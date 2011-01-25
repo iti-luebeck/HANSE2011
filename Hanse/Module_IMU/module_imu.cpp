@@ -133,8 +133,7 @@ void Module_IMU::reset()
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    if(sim->isEnabled())
-        return;
+
 
     int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
@@ -144,6 +143,9 @@ void Module_IMU::reset()
         QTimer::singleShot(0, &timer, SLOT(stop()));
     }
     setHealthToOk();
+
+    if(sim->isEnabled())
+        return;
 
     // soft reset
     writeRegister(ADIS_REGISTER_COMMAND_LO, ADIS_COMMAND_SOFTWARE_RESET);
@@ -171,6 +173,7 @@ void Module_IMU::refreshData()
 
     if(sim->isEnabled())
     {
+        logger->debug("request sim");
         emit requestIMU();
     }
     else
@@ -224,6 +227,7 @@ void Module_IMU::refreshData()
 
 void Module_IMU::refreshSimData(float accl_x, float accl_y, float accl_z, float angvel_x, float angvel_y, float angvel_z)
 {
+    logger->debug("new sim data");
     addData("gyroX",angvel_x);
     addData("gyroY",angvel_y);
     addData("gyroZ",angvel_z);

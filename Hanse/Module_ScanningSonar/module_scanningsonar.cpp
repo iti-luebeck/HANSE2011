@@ -167,7 +167,10 @@ void Module_ScanningSonar::reset()
 //    reader.start();
 
     if (sim->isEnabled())
+    {
+        QTimer::singleShot(0, timer, SLOT(start()));
         return;
+    }
 
     if (getSettingsValue("readFromFile").toBool())
     {
