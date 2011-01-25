@@ -20,6 +20,7 @@
 #include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 #include <Module_ADC/module_adc.h>
 #include <Module_Simulation/module_simulation.h>
+#include <Module_EchoSounder/module_echosounder.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -68,6 +69,11 @@ void ModulesGraph::build()
     logger->debug("Creating Module_ScanningSonar");
     Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop,sim);
     this->modules.append(sonar);
+
+    logger->debug("Creating Module_EchoSounder");
+    Module_EchoSounder* echo = new Module_EchoSounder("echo",sim);
+    this->modules.append(echo);
+
 
     logger->debug("Creating Module_HandControl");
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);

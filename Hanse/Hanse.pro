@@ -116,7 +116,17 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_CompassFollowing/compassfollowingform.h \
     Behaviour_CompassFollowing/behaviour_compassfollowing.h \
     Module_ADC/module_adc.h \
-    Module_ADC/adc_form.h
+    Module_ADC/adc_form.h \
+    Module_EchoSounder/module_echosounder.h \
+    Module_EchoSounder/echoswitchcommand.h \
+    Module_EchoSounder/echosounderform.h \
+    Module_EchoSounder/echoreturndata.h \
+    Module_EchoSounder/echodatasourceserial.h \
+    Module_EchoSounder/echodatasourcefile.h \
+    Module_EchoSounder/echodatasource.h \
+    Module_EchoSounder/echodatarecorder.h \
+    Module_EchoSounder/echodatacsvrecorder.h \
+    Module_EchoSounder/echodata852recorder.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -215,7 +225,17 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_CompassFollowing/compassfollowingform.cpp \
     Behaviour_CompassFollowing/behaviour_compassfollowing.cpp \
     Module_ADC/module_adc.cpp \
-    Module_ADC/adc_form.cpp
+    Module_ADC/adc_form.cpp \
+    Module_EchoSounder/module_echosounder.cpp \
+    Module_EchoSounder/echoswitchcommand.cpp \
+    Module_EchoSounder/echosounderform.cpp \
+    Module_EchoSounder/echoreturndata.cpp \
+    Module_EchoSounder/echodatasourceserial.cpp \
+    Module_EchoSounder/echodatasourcefile.cpp \
+    Module_EchoSounder/echodatasource.cpp \
+    Module_EchoSounder/echodatarecorder.cpp \
+    Module_EchoSounder/echodatacsvrecorder.cpp \
+    Module_EchoSounder/echodata852recorder.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -242,5 +262,6 @@ FORMS += Framework/mainwindow.ui \
     Module_Simulation/simulation_form.ui \
     Behaviour_TestMT/testmtform.ui \
     Behaviour_CompassFollowing/compassfollowingform.ui \
-    Module_ADC/adc_form.ui
+    Module_ADC/adc_form.ui \
+    Module_EchoSounder/echosounderform.ui
 OTHER_FILES += bin/log4qt.properties
