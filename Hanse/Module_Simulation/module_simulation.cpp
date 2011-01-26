@@ -156,6 +156,15 @@ void Module_Simulation::requestSonar()
     }
 }
 
+void Module_Simulation::requestSonarGround()
+{
+    if(client_running){
+        QString request = QString("SonarGround\n");
+        tcpSocket->write(request.toAscii().data(), request.length());
+        tcpSocket->flush();
+    }
+}
+
 void Module_Simulation::requestIMU()
 {
     if(client_running){
@@ -180,6 +189,10 @@ void Module_Simulation::requestImageSlot(){
 
 void Module_Simulation::requestSonarSlot(){
     requestSonar();
+}
+
+void Module_Simulation::requestSonarGroundSlot(){
+    requestSonarGround();
 }
 
 void Module_Simulation::requestDepthSlot(){
@@ -300,6 +313,32 @@ void Module_Simulation::parse_input(QString input){
         SonarReturnData* sondat = new SonarReturnData(cmd,inputdata);
 
         emit newSonarData(*sondat);
+
+    }else if(input.startsWith("SonarGround"))
+    {
+        QByteArray inputdata;
+        input_stream2 >> inputdata;
+
+        SonarSwitchCommand cmd;
+        cmd.range = 50;
+        cmd.startGain = 1;
+        cmd.stepSize = 1;
+        cmd.dataPoints = 25;
+        /*
+        cmd.range = parent.getSettings().value("range").toInt();
+        cmd.startGain = parent.getSettings().value("gain").toInt();
+        cmd.trainAngle = parent.getSettings().value("trainAngle").toInt();
+        cmd.sectorWidth = parent.getSettings().value("sectorWidth").toInt();
+        cmd.stepSize = parent.getSettings().value("stepSize").toInt();
+        cmd.pulseLength = parent.getSettings().value("pulseLength").toInt();
+        cmd.dataPoints = parent.getSettings().value("dataPoints").toInt();
+        cmd.switchDelay = parent.getSettings().value("switchDelay").toInt();
+        cmd.frequency = parent.getSettings().value("frequency").toInt();
+        */
+
+        SonarReturnData* sondat = new SonarReturnData(cmd,inputdata);
+
+        emit newSonarGroundData(*sondat);
 
     }
     else if(input.startsWith("IMU"))

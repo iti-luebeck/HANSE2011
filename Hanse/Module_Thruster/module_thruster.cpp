@@ -92,8 +92,8 @@ void Module_Thruster::setSpeed(float speed)
         emit requestThrusterSpeed(this->getId(),speedRaw);
         setHealthToOk();
         emit dataChanged(this);
-       this->dataLockerMutex.unlock();
-       return;
+        this->dataLockerMutex.unlock();
+        return;
     }
 
     char sendValue[] = { speedRaw };
