@@ -395,6 +395,10 @@ void Module_Simulation::parse_input(QString input){
         client_running = true;
         logger->debug("Allow sending of normal requests...");
     }
+    else if(input.startsWith("AUV_NOT_EXIST"))
+    {
+        logger->debug(QString("The AUV_ID doesnt exist..."));
+    }
 }
 
 void Module_Simulation::readResponse()
