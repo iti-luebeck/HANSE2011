@@ -10,7 +10,7 @@
 using namespace cv;
 
 Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_PressureSensor* pressure)
-    : RobotModule(id)
+    : RobotModule_MT(id)
 {
     this->sonar = sonar;
     this->pressure = pressure;
@@ -38,7 +38,7 @@ void Module_SonarLocalization::reset()
 
 void Module_SonarLocalization::terminate()
 {
-    RobotModule::terminate();
+    RobotModule_MT::terminate();
 }
 
 QList<RobotModule*> Module_SonarLocalization::getDependencies()

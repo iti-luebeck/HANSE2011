@@ -73,7 +73,6 @@ void ScanningSonarForm::changeEvent(QEvent *e)
 void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 {
     float n = data.getEchoData().length();
-
     float range = data.getRange();
 
     if (oldStepSize != data.switchCommand.stepSize) {
@@ -93,11 +92,9 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 
     float newHeading = data.getHeadPosition();
     int bla = oldHeading;
-    bool isnumber = bla != 0;
-//    bool isnumber = std::isalnum(oldHeading);
-    /* doe not work any more: !std::isnan(oldHeading)
-       replaced bz isnumer */
-    if(ui->checkBox->isChecked() && !isnumber && (fabs(newHeading - oldHeading)<20 || fabs(newHeading - oldHeading)>340))
+    bool isnumber = (bla != 0);
+
+    if(ui->checkBox->isChecked() && isnumber && (fabs(newHeading - oldHeading)<20 || fabs(newHeading - oldHeading)>340))
     {
 
         QPolygonF polygon;

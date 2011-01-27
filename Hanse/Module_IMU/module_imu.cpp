@@ -133,6 +133,12 @@ void Module_IMU::reset()
     if (!getSettingsValue("enabled").toBool())
         return;
 
+    if(sim->isEnabled())
+    {
+        timer.setInterval(250);
+        QTimer::singleShot(0,&timer,SLOT(start()));
+        return;
+    }
 
 
     int freq = 1000/getSettingsValue("frequency").toInt();
@@ -144,8 +150,6 @@ void Module_IMU::reset()
     }
     setHealthToOk();
 
-    if(sim->isEnabled())
-        return;
 
     // soft reset
     writeRegister(ADIS_REGISTER_COMMAND_LO, ADIS_COMMAND_SOFTWARE_RESET);

@@ -1,7 +1,7 @@
 #ifndef MODULE_SONARLOCALIZATION_H
 #define MODULE_SONARLOCALIZATION_H
 
-#include <Framework/robotmodule.h>
+#include <Framework/robotmodule_mt.h>
 #include <Framework/position.h>
 #include <Module_ScanningSonar/sonarreturndata.h>
 #include <opencv/cv.h>
@@ -11,7 +11,7 @@ class SonarEchoFilter;
 class SonarParticleFilter;
 class Module_PressureSensor;
 
-class Module_SonarLocalization : public RobotModule {
+class Module_SonarLocalization : public RobotModule_MT {
     Q_OBJECT
 
     friend class Form_SonarLocalization;

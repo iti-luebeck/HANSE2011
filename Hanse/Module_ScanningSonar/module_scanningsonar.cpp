@@ -168,6 +168,7 @@ void Module_ScanningSonar::reset()
 
     if (sim->isEnabled())
     {
+        timer->setInterval(500);
         QTimer::singleShot(0, timer, SLOT(start()));
         return;
     }
