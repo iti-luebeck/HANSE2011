@@ -1,17 +1,17 @@
 #ifndef TestMTBEHAVIOUR_H
 #define TestMTBEHAVIOUR_H
 
-#include <Framework/robotbehaviour_mt.h>
+#include <Framework/robotbehaviour.h>
 
 #include <Behaviour_TestMT/testmtform.h>
 #include <Module_Compass/module_compass.h>
 #include <Module_IMU/module_imu.h>
 #include <Module_PressureSensor/module_pressuresensor.h>
-//#include <Framework/robotmodule_mt.h>
+//#include <Framework/robotmodule.h>
 
 class TestMTForm;
 
-class Behaviour_TestMT : public RobotBehaviour_MT
+class Behaviour_TestMT : public RobotBehaviour
 {
     Q_OBJECT
 public:

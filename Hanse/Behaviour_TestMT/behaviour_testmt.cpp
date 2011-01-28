@@ -3,7 +3,7 @@
 #include <Behaviour_TestMT/testmtform.h>
 
 Behaviour_TestMT::Behaviour_TestMT(QString id, Module_Compass *compass, Module_IMU *adis, Module_PressureSensor *pressure)
-    : RobotBehaviour_MT(id)
+    : RobotBehaviour(id)
 {
     this->compass = compass;
     this->adis = adis;

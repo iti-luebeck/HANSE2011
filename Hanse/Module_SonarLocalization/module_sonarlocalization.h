@@ -1,7 +1,7 @@
 #ifndef MODULE_SONARLOCALIZATION_H
 #define MODULE_SONARLOCALIZATION_H
 
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 #include <Framework/position.h>
 #include <Module_ScanningSonar/sonarreturndata.h>
 #include <opencv/cv.h>
@@ -11,7 +11,7 @@ class SonarEchoFilter;
 class SonarParticleFilter;
 class Module_PressureSensor;
 
-class Module_SonarLocalization : public RobotModule_MT {
+class Module_SonarLocalization : public RobotModule {
     Q_OBJECT
 
     friend class Form_SonarLocalization;
@@ -70,6 +70,8 @@ private:
     SonarEchoFilter* filter;
     SonarParticleFilter* pf;
     QThread pfThread;
+
+    void init();
 
 private slots:
     void newPositionEst(QVector3D p);

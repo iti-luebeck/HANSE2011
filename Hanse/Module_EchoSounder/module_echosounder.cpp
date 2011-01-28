@@ -11,12 +11,13 @@
 #include <Module_Simulation/module_simulation.h>
 
 Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
-    : RobotModule_MT(id), reader(this, sim)
+    : RobotModule(id), reader(this, sim)
 {
     setDefaultValue("serialPort", "COM9"); // Welcher COM-Port?
-    this->setSettingsValue("serialPort","/dev/ttyUSB0");
+    this->setSettingsValue("serialPort","/dev/ttyUSB2");
     setDefaultValue("range", 50);
     setDefaultValue("gain", 20);
+
     setDefaultValue("pulseLength", 127);
     setDefaultValue("profileMinRange", 0); // 0.0 richtig?
     setDefaultValue("dataPoints", 25);
@@ -30,16 +31,20 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
 
     this->sim = sim;
-    connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
-    connect(sim,SIGNAL(newEchoData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
-    connect(this,SIGNAL(requestEchoSignal()), sim, SLOT(requestEchoSlot()));
 
     recorder = NULL;
     source = NULL;
-
-    reset();
 }
 Module_EchoSounder::~Module_EchoSounder(){
+}
+
+void Module_EchoSounder::init()
+{
+    timer.moveToThread(this);
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
+    connect(sim,SIGNAL(newEchoData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
+    connect(this,SIGNAL(requestEchoSignal()), sim, SLOT(requestEchoSlot()));
+    reset();
 }
 
 Module_EchoSounder::ThreadedReader::ThreadedReader(Module_EchoSounder *m, Module_Simulation *sim)
@@ -71,7 +76,7 @@ void Module_EchoSounder::terminate(){
         delete recorder;
         recorder = NULL;
     }
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 void Module_EchoSounder::ThreadedReader::run(void){

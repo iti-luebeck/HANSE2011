@@ -11,7 +11,7 @@
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 
 MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     this->tcl = tcl;
     this->handControl = handControl;
@@ -28,17 +28,17 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
             logger->debug("Modul ID "+b->getId());
             this->behaviours.append(b);
         }
-        RobotBehaviour_MT* bmt = dynamic_cast<RobotBehaviour_MT*>(m);
-        if(bmt)
-        {
-            logger->debug("ModulMT ID "+bmt->getId());
-            this->behavioursMT.append(bmt);
-        }
+//        RobotBehaviour_MT* bmt = dynamic_cast<RobotBehaviour_MT*>(m);
+//        if(bmt)
+//        {
+//            logger->debug("ModulMT ID "+bmt->getId());
+//            this->behavioursMT.append(bmt);
+//        }
 
     }
 
     logger->debug("#Behaviours " +QString::number(this->behaviours.length()));
-    logger->debug("#BehavioursMT " +QString::number(this->behavioursMT.length()));
+//    logger->debug("#BehavioursMT " +QString::number(this->behavioursMT.length()));
 
 
     // states: dive; pipe; surface
@@ -101,8 +101,6 @@ QList<RobotModule*> MetaBehaviour::getDependencies()
     RobotModule* m;
     foreach(m,behaviours)
         ret.append(m);
-    foreach(m,behavioursMT)
-        ret.append(m);
     return ret;
 }
 
@@ -121,7 +119,7 @@ void MetaBehaviour::terminate()
     logger->debug("BLUBBLUB");
 //    QTimer::singleShot(0,this,SLOT(emergencyStop()));
     this->emergencyStop();
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 void MetaBehaviour::startHandControl()
@@ -203,7 +201,7 @@ void MetaBehaviour::testPipe()
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
-void MetaBehaviour::finishedTurn(RobotBehaviour_MT *, bool success) {
+void MetaBehaviour::finishedTurn(RobotBehaviour*, bool success) {
     if (getDataValue("state")=="turn") {
         addData("state","pipeSecondPart");
         emit dataChanged(this);
@@ -294,7 +292,7 @@ void MetaBehaviour::fullProgram()
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
 }
 
-void MetaBehaviour::finishedPipe(RobotBehaviour_MT *, bool success) {
+void MetaBehaviour::finishedPipe(RobotBehaviour*, bool success) {
     if (getDataValue("state")=="pipe") {
         addData("state","surface");
         emit dataChanged(this);

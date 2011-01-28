@@ -89,7 +89,7 @@
 #define ADIS_REGISTER_STATUS_LO 0x3C
 
 Module_IMU::Module_IMU(QString id, Module_UID *uid, Module_Simulation *sim)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     this->uid=uid;
     this->sim=sim;
@@ -104,15 +104,6 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid, Module_Simulation *sim)
     setDefaultValue("smplTimeMult",1);
     setDefaultValue("filterTaps",2);
     setDefaultValue("gyroSens","300");
-
-
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
-
-    /* connect sim */
-    connect(sim,SIGNAL(newIMUData(float,float,float,float,float,float)),this,SLOT(refreshSimData(float,float,float,float,float,float)));
-    connect(this,SIGNAL(requestIMU()),sim,SLOT(requestIMUSlot()));
-
-    reset();
 }
 
 Module_IMU::~Module_IMU()
@@ -123,7 +114,19 @@ void Module_IMU::terminate()
 {
 //    QTimer::singleShot(0, &timer, SLOT(stop()));
     timer.stop();
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
+}
+
+void Module_IMU::init()
+{
+    timer.moveToThread(this);
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+
+    /* connect sim */
+    connect(sim,SIGNAL(newIMUData(float,float,float,float,float,float)),this,SLOT(refreshSimData(float,float,float,float,float,float)));
+    connect(this,SIGNAL(requestIMU()),sim,SLOT(requestIMUSlot()));
+
+    reset();
 }
 
 void Module_IMU::reset()

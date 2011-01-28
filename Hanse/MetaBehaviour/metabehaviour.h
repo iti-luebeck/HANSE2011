@@ -3,8 +3,6 @@
 
 #include <Framework/robotmodule.h>
 #include <Framework/robotbehaviour.h>
-#include <Framework/robotmodule_mt.h>
-#include <Framework/robotbehaviour_mt.h>
 
 class Module_ThrusterControlLoop;
 class Behaviour_PipeFollowing;
@@ -16,7 +14,7 @@ class Behaviour_BallFollowing;
 class Behaviour_TurnOneEighty;
 class MetaBehaviourForm;
 
-class MetaBehaviour : public RobotModule_MT
+class MetaBehaviour : public RobotModule
 {
     friend class MetaBehaviourForm;
     Q_OBJECT
@@ -36,18 +34,17 @@ private:
     Behaviour_BallFollowing* ball;
     Behaviour_TurnOneEighty* o80;
     QList<RobotBehaviour*> behaviours;
-    QList<RobotBehaviour_MT*> behavioursMT;
     QTimer depthWaitTimer;
     QTimer timeoutTimer;
     bool reachedEOP;
 
 private slots:
-    void finishedPipe(RobotBehaviour_MT*,bool);
+    void finishedPipe(RobotBehaviour*,bool);
     void depthChanged(float);
     void stateTimeout();
 
     void badHealth(RobotModule *m);
-    void finishedTurn(RobotBehaviour_MT *, bool success);
+    void finishedTurn(RobotBehaviour*, bool success);
 
 public slots:
     void terminate();

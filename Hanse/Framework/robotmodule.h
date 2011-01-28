@@ -13,7 +13,7 @@ class DataRecorder;
   *
   * This class is meant to be subclassed.
   */
-class RobotModule : public QObject
+class RobotModule : public QThread
 {
     Q_OBJECT
 
@@ -23,6 +23,12 @@ public:
       * Create a new Robot Module with the given id.
       */
     RobotModule(QString id);
+
+    /**
+      * Overwrite run
+      *
+      */
+    void run();
 
     /**
       * id of the instance. is unique under all instances of all loaded modules
@@ -99,6 +105,9 @@ public:
       */
     HealthStatus getHealthStatus();
 
+    /**
+      * waits until the module has been terminated
+      */
     virtual bool waitForThreadToStop();
 
 signals:
@@ -112,7 +121,7 @@ signals:
       *
       * this signals indicated that the HealthStatus has changed in any way.
       */
-    virtual void healthStatusChanged(RobotModule *module);
+     void healthStatusChanged(RobotModule *module);
 
     /**
       * Signals a change in the "data" map.
@@ -209,6 +218,12 @@ private:
     public:
         static void msleep(int millies);
     };
+
+    /**
+      * init module components. called by run.
+      *
+      */
+    virtual void init();
 
     /**
       * All persistent configuration of the module is stored in here

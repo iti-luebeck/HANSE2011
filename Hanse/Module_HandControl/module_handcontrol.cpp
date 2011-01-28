@@ -5,7 +5,7 @@
 #include "server.h"
 
 Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster *thrusterDownFront)
-    : RobotBehaviour_MT(id)
+    : RobotBehaviour(id)
 {
     this->controlLoop = tcl,
     this->thrusterDown = thrusterDown;
@@ -20,8 +20,13 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     setDefaultValue("divFw",127);
     setDefaultValue("divUD",50);
 
+
+}
+
+void Module_HandControl::init()
+{
     server = new Server();
-    server->moveToThread(&this->moduleThread);
+    server->moveToThread(this);
 
     connect(server,SIGNAL(newMessage(int,int,int)), this, SLOT(newMessage(int,int,int)));
     connect(server, SIGNAL(healthProblem(QString)), this, SLOT(serverReportedError(QString)));
@@ -31,18 +36,17 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     connect(this,SIGNAL(stopServer()),server,SLOT(close()));
     connect(this,SIGNAL(startServer()),server,SLOT(open()));
 
-    connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
-    connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
-    connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
+    connect(this,SIGNAL(setAngularSpeed(float)),controlLoop,SLOT(setAngularSpeed(float)));
+    connect(this,SIGNAL(setForwardSpeed(float)),controlLoop,SLOT(setForwardSpeed(float)));
+    connect(this,SIGNAL(setDepth(float)),controlLoop,SLOT(setDepth(float)));
 
     connect(this,SIGNAL(setUpDownSpeed(float)),thrusterDown,SLOT(setSpeed(float)));
     connect(this,SIGNAL(setUpDownSpeed(float)),thrusterDownFront,SLOT(setSpeed(float)));
     connect(this,SIGNAL(setRightSpeed(float)),thrusterRight,SLOT(setSpeed(float)));
     connect(this,SIGNAL(setLeftSpeed(float)),thrusterLeft,SLOT(setSpeed(float)));
 
-
     reset();
-//    QTimer::singleShot(500,this,SLOT(createServer()));
+
 }
 
 void Module_HandControl::createServer()
@@ -71,7 +75,7 @@ void Module_HandControl::terminate()
     newMessage(0,0,0);
 //    server->close();
     emit stopServer();
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 void Module_HandControl::reset()

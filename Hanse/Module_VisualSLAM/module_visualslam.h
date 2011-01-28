@@ -117,6 +117,7 @@ private:
     NaiveSLAM slam;
     bool enabled;
 
+    void init();
     QTimer testTimer;
 };
 

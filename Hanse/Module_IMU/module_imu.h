@@ -2,13 +2,13 @@
 #define MODULE_IMU_H
 
 #include <QtCore>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 #include "inttypes.h"
 
 class Module_UID;
 class Module_Simulation;
 
-class Module_IMU : public RobotModule_MT {
+class Module_IMU : public RobotModule {
     Q_OBJECT
 
     friend class IMU_Form;
@@ -84,6 +84,7 @@ private:
 
     int readDataRegister(uint8_t reg, int bits);
 
+    void init();
     /**
      * Read out new data from the sensors.
      */

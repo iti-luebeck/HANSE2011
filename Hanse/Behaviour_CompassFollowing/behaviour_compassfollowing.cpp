@@ -3,7 +3,7 @@
 #include <Behaviour_CompassFollowing/compassfollowingform.h>
 
 Behaviour_CompassFollowing::Behaviour_CompassFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Compass *compass)
-    : RobotBehaviour_MT(id)
+    : RobotBehaviour(id)
 {
     this->compass = compass;
     this->tcl = tcl;

@@ -4,7 +4,7 @@
 #include "Module_ADC/adc_form.h"
 
 Module_ADC::Module_ADC(QString id, Module_UID *uid)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
 
     this->uid=uid;
@@ -14,11 +14,7 @@ Module_ADC::Module_ADC(QString id, Module_UID *uid)
     setDefaultValue("Vagnd", 0);
     setDefaultValue("Vref", 5);
     setDefaultValue("waterFilter",5);
-
-
-    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
-
-    reset();
+    setDefaultValue("filtersize",5);
 }
 
 Module_ADC::~Module_ADC()
@@ -28,7 +24,15 @@ Module_ADC::~Module_ADC()
 void Module_ADC::terminate()
 {
     QTimer::singleShot(0, &timer, SLOT(stop()));
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
+}
+
+void Module_ADC::init()
+{
+    timer.moveToThread(this);
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+    reset();
+
 }
 
 void Module_ADC::reset()
@@ -38,9 +42,11 @@ void Module_ADC::reset()
     int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
         timer.setInterval(freq);
-        QTimer::singleShot(0, &timer, SLOT(start()));
+//        QTimer::singleShot(0, &timer, SLOT(start()));
+        timer.start();
     } else {
-        QTimer::singleShot(0, &timer, SLOT(stop()));
+        timer.stop();
+//        QTimer::singleShot(0, &timer, SLOT(stop()));
     }
 
     if (!getSettingsValue("enabled").toBool())

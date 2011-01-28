@@ -4,7 +4,7 @@
 #define INITAL_BLOCK_SIZE 4
 
 #include <QtCore>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 #include "inttypes.h"
 #include <QtNetwork>
 #include <iostream>
@@ -13,7 +13,7 @@
 #include "Module_ScanningSonar/sonarreturndata.h"
 #include "Module_ScanningSonar/sonarswitchcommand.h"
 
-class Module_Simulation : public RobotModule_MT {
+class Module_Simulation : public RobotModule {
     Q_OBJECT
 
 public:
@@ -72,6 +72,7 @@ private:
     int     read_ret;
     QTcpSocket *tcpSocket;
 
+    void init();
     void parse_input(QString input);
 //    void start();
     void connectToServer();

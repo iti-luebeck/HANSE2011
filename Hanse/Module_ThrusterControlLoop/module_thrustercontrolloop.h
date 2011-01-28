@@ -1,12 +1,12 @@
 #ifndef MODULE_THRUSTERCONTROLLOOP_H
 #define MODULE_THRUSTERCONTROLLOOP_H
 
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 
 class Module_PressureSensor;
 class Module_Thruster;
 
-class Module_ThrusterControlLoop : public RobotModule_MT {
+class Module_ThrusterControlLoop : public RobotModule {
     Q_OBJECT
 
     friend class TCL_Form;
@@ -94,6 +94,7 @@ public slots:
 private:
 
     void updateHorizontalThrustersNow();
+    void init();
 
     Module_PressureSensor* pressure;
     Module_Thruster* thrusterLeft;

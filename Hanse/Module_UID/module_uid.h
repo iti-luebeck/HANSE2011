@@ -1,13 +1,13 @@
 #ifndef MODULE_UID_H
 #define MODULE_UID_H
 
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 
 class QextSerialPort;
 class QextPortInfo;
 class PortSettings;
 
-class Module_UID : public RobotModule_MT {
+class Module_UID : public RobotModule {
     Q_OBJECT
 public:
 
@@ -237,6 +237,9 @@ public:
       * returns true if the last problem is a slave problem, i.e. its not a fault of the uid.
       */
     bool isSlaveProblem();
+
+    void init();
+
 public slots:
 
     void reset();

@@ -8,19 +8,32 @@ RobotModule::RobotModule(QString newId)
       id(newId),
       healthCheckTimer(this)
 {
-    settings.beginGroup(id);
-
+    moveToThread(this);
     setDefaultValue("enabled", true);
     setDefaultValue("enableLogging", true);
 
+    settings.beginGroup(id);
     logger = Log4Qt::Logger::logger(id);
+    recorder = new DataRecorder(*this);
 
     // perform a health check once a second
     // now there is a single healthchecktimer for all modules in modulsgraph
 //    connect(&healthCheckTimer, SIGNAL(timeout()), this, SLOT(doHealthCheck()),Qt::DirectConnection);
 //    healthCheckTimer.start(1000);
 
-    recorder = new DataRecorder(*this);
+
+}
+
+void RobotModule::run()
+{
+    this->init();
+    this->exec();
+}
+
+
+void RobotModule::init()
+{
+    //needs to be reimplemented
 }
 
 void RobotModule::setEnabled(bool value)
@@ -171,11 +184,12 @@ void RobotModule::addData(QString key, QVariant value)
 void RobotModule::terminate()
 {
     recorder->close();
+    this->exit(0);
 }
 
 bool RobotModule::waitForThreadToStop()
 {
-    return true;
+    this->wait();
 }
 
 void RobotModule::reset()

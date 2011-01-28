@@ -1,7 +1,7 @@
 #ifndef BEHAVIOUR_TURNONEEIGHTY_H
 #define BEHAVIOUR_TURNONEEIGHTY_H
 
-#include <Framework/robotbehaviour_mt.h>
+#include <Framework/robotbehaviour.h>
 
 #define TURN_DEFAULT_P          0.4
 #define TURN_DEFAULT_HYSTERESIS 10
@@ -9,7 +9,7 @@
 class Module_ThrusterControlLoop;
 class Module_Compass;
 
-class Behaviour_TurnOneEighty : public RobotBehaviour_MT
+class Behaviour_TurnOneEighty : public RobotBehaviour
 {
     Q_OBJECT
 public:

@@ -10,7 +10,7 @@
 //using namespace cv;
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam, Module_Simulation *sim) :
-        RobotBehaviour_MT(id)
+        RobotBehaviour(id)
 {
     qDebug() << "pipe thread id";
     qDebug() << QThread::currentThreadId();
@@ -93,7 +93,7 @@ void Behaviour_PipeFollowing::terminate()
 //    timer.stop();
 //    emit timerStop();
     this->stop();
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 
 }
 

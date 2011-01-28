@@ -6,7 +6,7 @@
 #include <qextserialenumerator.h>
 
 Module_UID::Module_UID(QString moduleId)
-    :RobotModule_MT(moduleId)
+    :RobotModule(moduleId)
 {
 
     portSettings = new PortSettings();
@@ -26,7 +26,6 @@ Module_UID::Module_UID(QString moduleId)
     lastError = 0;
 
     uid = NULL;
-    reset();
 
 }
 
@@ -37,6 +36,11 @@ Module_UID::~Module_UID()
         delete uid;
         uid = NULL;
     }
+}
+
+void Module_UID::init()
+{
+    reset();
 }
 
 void Module_UID::reset()
@@ -71,7 +75,7 @@ QWidget* Module_UID::createView(QWidget* parent)
 
 void Module_UID::terminate()
 {
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 QextSerialPort* Module_UID::findUIDPort()
@@ -336,7 +340,7 @@ void Module_UID::doHealthCheck()
     sum = sum / size;
     if(sum > 50)
     {
-        setHealthToSick("High Usage of about " +sum);
+        setHealthToSick("High Usage of about "+QString::number(sum));
         return;
     }
 

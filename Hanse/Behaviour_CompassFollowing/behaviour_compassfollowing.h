@@ -1,7 +1,7 @@
 #ifndef CompassFollowingBEHAVIOUR_H
 #define CompassFollowingBEHAVIOUR_H
 
-#include <Framework/robotbehaviour_mt.h>
+#include <Framework/robotbehaviour.h>
 
 #include <Behaviour_CompassFollowing/compassfollowingform.h>
 #include <Module_Compass/module_compass.h>
@@ -9,7 +9,7 @@
 
 class CompassFollwingForm;
 
-class Behaviour_CompassFollowing : public RobotBehaviour_MT
+class Behaviour_CompassFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:

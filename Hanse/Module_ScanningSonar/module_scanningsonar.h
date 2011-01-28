@@ -1,7 +1,7 @@
 #ifndef MODULE_SCANNINGSONAR_H
 #define MODULE_SCANNINGSONAR_H
 
-#include "Framework/robotmodule_mt.h"
+#include "Framework/robotmodule.h"
 #include "sonarreturndata.h"
 #include <QtCore>
 
@@ -12,7 +12,7 @@ class SonarDataRecorder;
 class Module_ThrusterControlLoop;
 class Module_Simulation;
 
-class Module_ScanningSonar : public RobotModule_MT {
+class Module_ScanningSonar : public RobotModule {
     Q_OBJECT
 
     friend class SonarDataSourceFile;
@@ -60,9 +60,10 @@ signals:
 private:
     Module_Simulation *sim;
     ThreadedReader reader;
-    QTimer *timer;
+    QTimer timer;
     SonarDataSource* source;
     SonarDataRecorder* recorder;
+    void init();
 };
 
 #endif // MODULE_SCANNINGSONAR_H

@@ -23,7 +23,7 @@
 #define PRESSURE_MAX 3000
 
 Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid, Module_Simulation *sim)
-    : RobotModule_MT(id) //,
+    : RobotModule(id) //,
 //    timer(this)
 {
 
@@ -32,10 +32,16 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid, Module
 
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
+}
 
-    timer = new QTimer();
-//    timer->moveToThread(&this->moduleThread);
-    connect(timer,SIGNAL(timeout()), this, SLOT(refreshData()));
+Module_PressureSensor::~Module_PressureSensor()
+{
+}
+
+void Module_PressureSensor::init()
+{
+    timer.moveToThread(this);
+    connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     /* connect simulation */
     connect(sim,SIGNAL(newDepthData(float)),this,SLOT(refreshSimData(float)));
@@ -43,17 +49,13 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid, Module
     connect(this,SIGNAL(requestTemp(int)),sim,SLOT(requestTempWithNoiseSlot(int)));
 
     reset();
-}
 
-Module_PressureSensor::~Module_PressureSensor()
-{
 }
 
 void Module_PressureSensor::terminate()
 {
-//    QTimer::singleShot(0, &timer, SLOT(stop()));
-    timer->stop();
-    RobotModule_MT::terminate();
+    QTimer::singleShot(0, &timer, SLOT(stop()));
+    RobotModule::terminate();
 }
 
 void Module_PressureSensor::reset()
@@ -62,10 +64,12 @@ void Module_PressureSensor::reset()
 
     int freq = 1000/getSettingsValue("frequency").toInt();
     if (freq>0) {
-        timer->setInterval(freq);
-        QTimer::singleShot(0, timer, SLOT(start()));
+        timer.setInterval(freq);
+        timer.start();
+//        QTimer::singleShot(0, timer, SLOT(start()));
     } else {
-        QTimer::singleShot(0, timer, SLOT(stop()));
+//        QTimer::singleShot(0, timer, SLOT(stop()));
+        timer.stop();
     }
 
     if (!getSettingsValue("enabled").toBool())

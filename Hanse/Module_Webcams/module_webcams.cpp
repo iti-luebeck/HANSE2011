@@ -3,7 +3,7 @@
 #include <assert.h>
 
 Module_Webcams::Module_Webcams( QString id ) :
-        RobotModule_MT( id )
+        RobotModule( id )
 {
 //    VI.setUseCallback( true );
 //    leftConnected = false;
@@ -17,20 +17,9 @@ Module_Webcams::Module_Webcams( QString id ) :
     rightCap = NULL;
     bottomCap = NULL;
 
-
-    nCams = this->numOfCams();
-
     leftID = 1;
     rightID = 0;
     bottomID = 2;
-
-    settingsChanged();
-
-
-
-    leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
 }
 
 Module_Webcams::~Module_Webcams()
@@ -39,6 +28,16 @@ Module_Webcams::~Module_Webcams()
     cvReleaseImage( &leftFrame );
     cvReleaseImage( &rightFrame );
     cvReleaseImage( &bottomFrame );
+}
+
+void Module_Webcams::init()
+{
+    nCams = this->numOfCams();
+    settingsChanged();
+    leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+
 }
 
 void Module_Webcams::stopWebcams()
@@ -311,7 +310,7 @@ int Module_Webcams::numOfCams()
 void Module_Webcams::terminate()
 {
     stopWebcams();
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 

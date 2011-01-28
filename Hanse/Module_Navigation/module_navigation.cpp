@@ -22,6 +22,11 @@ Module_Navigation::Module_Navigation( QString id,
     this->pressure = pressure;
     this->compass = compass;
 
+
+}
+
+void Module_Navigation::init()
+{
     // Connect to signals from the sensors.
     QObject::connect( pressure, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( depthUpdate(RobotModule*) ) );
@@ -34,6 +39,7 @@ Module_Navigation::Module_Navigation( QString id,
 
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
+
 }
 
 void Module_Navigation::reset()

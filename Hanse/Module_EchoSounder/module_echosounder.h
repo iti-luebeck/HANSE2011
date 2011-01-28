@@ -1,7 +1,7 @@
 #ifndef MODULE_ECHOSOUNDER_H
 #define MODULE_ECHOSOUNDER_H
 
-#include "Framework/robotmodule_mt.h"
+#include "Framework/robotmodule.h"
 #include "echoreturndata.h"
 #include <Module_Simulation/module_simulation.h>
 #include <QtCore>
@@ -12,7 +12,7 @@ class EchoDataRecorder;
 class Module_ThrusterControlLoop;
 class Module_Simulation;
 
-class Module_EchoSounder : public RobotModule_MT{
+class Module_EchoSounder : public RobotModule{
     Q_OBJECT
 
     friend class EchoDataSourceFile;
@@ -62,6 +62,7 @@ private:
     EchoDataSource* source;
     EchoDataRecorder* recorder;
 
+    void init();
 };
 
 #endif // MODULE_ECHOSOUNDER_H

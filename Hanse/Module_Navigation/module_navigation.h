@@ -104,6 +104,7 @@ public:
 private:
     void saveWaypoints( QTextStream &ts );
     void loadWaypoints( QTextStream &ts );
+    void init();
 
 public slots:
 

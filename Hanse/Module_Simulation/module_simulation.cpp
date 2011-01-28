@@ -2,7 +2,7 @@
 #include "simulation_form.h"
 
 Module_Simulation::Module_Simulation(QString id)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     client_running = false;
 //    thread.start();
@@ -11,29 +11,28 @@ Module_Simulation::Module_Simulation(QString id)
     setDefaultValue("server_port", 80);
     setDefaultValue("auv_id", "hanse");
     blockSize = 0;
-
-//    thread.start();
-    //timer.moveToThread(&thread);
-
-    reset();
-
-//    this->start();
-    QTimer::singleShot(0,this,SLOT(start()));
 }
 
 Module_Simulation::~Module_Simulation()
 {
 }
 
+void Module_Simulation::init()
+{
+    reset();
+    timer.moveToThread(this);
+}
+
 void Module_Simulation::terminate()
 {
 
     QTimer::singleShot(0, &timer, SLOT(stop()));
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 void Module_Simulation::reset()
 {
+    timer.start();
     RobotModule::reset();
 }
 

@@ -79,9 +79,9 @@ void ModulesGraph::build()
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);
     this->modules.append(handControl);
 
-    logger->debug("Creating Module_SonarLocalization");
-    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, pressure);
-    this->modules.append(sonarLoc);
+//    logger->debug("Creating Module_SonarLocalization");
+//    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, pressure);
+//    this->modules.append(sonarLoc);
 
     logger->debug("Creating Module_Webcams");
     Module_Webcams *cams = new Module_Webcams( "cams" );
@@ -128,6 +128,7 @@ void ModulesGraph::build()
     foreach (RobotModule* b, modules)
     {
         connect(&healthTimer,SIGNAL(timeout()),b,SLOT(doHealthCheck()));
+        b->start();
     }
     healthTimer.setInterval(1000);
 //    QTimer::singleShot(0,&healthTimer,SLOT(start()));

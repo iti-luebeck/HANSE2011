@@ -2,12 +2,12 @@
 #define MODULE_ADC_H
 
 #include <QtCore>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 #include "inttypes.h"
 
 class Module_UID;
 
-class Module_ADC : public RobotModule_MT {
+class Module_ADC : public RobotModule {
     Q_OBJECT
 
 public:
@@ -43,6 +43,7 @@ private:
 
     bool readChannel(int channel, float *value);
     void initFilter();
+    void init();
 
 };
 

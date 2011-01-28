@@ -14,7 +14,7 @@
 #define MAGIC_SWREV 10
 
 Module_Thruster::Module_Thruster(QString id, Module_UID *uid, Module_Simulation *sim)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     this->uid=uid;
     this->sim=sim;
@@ -22,12 +22,6 @@ Module_Thruster::Module_Thruster(QString id, Module_UID *uid, Module_Simulation 
     setDefaultValue("i2cAddress", 0x01);
     setDefaultValue("channel", 1);
     setDefaultValue("multiplicator", 127);
-    connect(this,SIGNAL(enabled(bool)), this, SLOT(gotEnabled(bool)));
-
-    /* connect simulation */
-    connect(this,SIGNAL(requestThrusterSpeed(QString,int)),sim,SLOT(requestThrusterSpeedSlot(QString,int)));
-
-    initController();
 }
 
 void Module_Thruster::initController()
@@ -48,11 +42,21 @@ Module_Thruster::~Module_Thruster()
 {
 }
 
+void Module_Thruster::init()
+{
+    connect(this,SIGNAL(enabled(bool)), this, SLOT(gotEnabled(bool)));
+
+    /* connect simulation */
+    connect(this,SIGNAL(requestThrusterSpeed(QString,int)),sim,SLOT(requestThrusterSpeedSlot(QString,int)));
+
+    initController();
+}
+
 void Module_Thruster::terminate()
 {
     setSpeed(0);
 //    QTimer::singleShot(0,this,SLOT(stop()));
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 void Module_Thruster::reset()

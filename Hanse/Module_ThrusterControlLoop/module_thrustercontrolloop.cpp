@@ -5,7 +5,7 @@
 #include <Framework/healthstatus.h>
 
 Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_PressureSensor *pressure, Module_Thruster *thrusterLeft, Module_Thruster *thrusterRight, Module_Thruster *thrusterDown, Module_Thruster* thrusterDownFront)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     this->thrusterDown = thrusterDown;
     this->thrusterLeft = thrusterLeft;
@@ -27,7 +27,16 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
 
     setDefaultValue("horizSpM_exp", false);
     setDefaultValue("ignoreHealth", false);
+}
 
+void Module_ThrusterControlLoop::terminate()
+{
+    reset();
+    RobotModule::terminate();
+}
+
+void Module_ThrusterControlLoop::init()
+{
     updateConstantsFromInitNow();
 
     reset();
@@ -39,12 +48,7 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     connect(this,SIGNAL(setRightThruster(float)),thrusterRight,SLOT(setSpeed(float)));
     connect(this,SIGNAL(setUpDownThrusterFront(float)),thrusterDownFront,SLOT(setSpeed(float)));
     connect(this,SIGNAL(setUpDownThrusterBack(float)),thrusterDown,SLOT(setSpeed(float)));
-}
 
-void Module_ThrusterControlLoop::terminate()
-{
-    reset();
-    RobotModule_MT::terminate();
 }
 
 void Module_ThrusterControlLoop::reset()

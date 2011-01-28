@@ -2,13 +2,13 @@
 #define MODULE_PRESSURESENSOR_H
 
 #include <QtCore>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 #include "inttypes.h"
 
 class Module_UID;
 class Module_Simulation;
 
-class Module_PressureSensor : public RobotModule_MT {
+class Module_PressureSensor : public RobotModule {
     Q_OBJECT
 
 public:
@@ -60,9 +60,10 @@ private slots:
 private:
     Module_UID *uid;
     Module_Simulation *sim;
-    QTimer *timer;
+    QTimer timer;
     unsigned int counter;
 
+    void init();
     void readPressure();
     void readTemperature();
 

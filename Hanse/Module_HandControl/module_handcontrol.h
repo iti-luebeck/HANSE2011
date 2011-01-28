@@ -1,14 +1,14 @@
 #ifndef MODULE_HANDCONTROL_H
 #define MODULE_HANDCONTROL_H
 
-#include <Framework/robotbehaviour_mt.h>
+#include <Framework/robotbehaviour.h>
 
 class Server;
 class Module_Thruster;
 class Module_ThrusterControlLoop;
 class HandControl_Form;
 
-class Module_HandControl : public RobotBehaviour_MT {
+class Module_HandControl : public RobotBehaviour {
     Q_OBJECT
     friend class HandControl_Form;
 
@@ -48,7 +48,7 @@ private:
     Module_ThrusterControlLoop *controlLoop;
 
     Server* server;
-//    ServerMT* server;
+    void init();
 
 private slots:
     void sendNewControls();

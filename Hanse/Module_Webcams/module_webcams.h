@@ -3,7 +3,7 @@
 
 #include <QtGui>
 #include <QtCore>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 //#include <videoInput.h>
 #include <opencv/cxcore.h>
 #include <opencv/highgui.h>
@@ -11,7 +11,7 @@
 #define WEBCAM_WIDTH    640
 #define WEBCAM_HEIGHT   480
 
-class Module_Webcams : public RobotModule_MT
+class Module_Webcams : public RobotModule
 {
     Q_OBJECT
 public:
@@ -31,6 +31,7 @@ public:
 
 private:
     void stopWebcams();
+    void init();
 
 public slots:
 

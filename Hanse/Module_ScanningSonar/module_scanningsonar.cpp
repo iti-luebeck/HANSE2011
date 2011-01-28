@@ -10,7 +10,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_Simulation/module_simulation.h>
 Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim)
-    : RobotModule_MT(id), reader(this)
+    : RobotModule(id), reader(this)
 {
     this->sim = sim;
     setDefaultValue("serialPort", "COM1");
@@ -29,22 +29,25 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoo
     setDefaultValue("fileReaderDelay", 100);
 
     qRegisterMetaType<SonarReturnData>("SonarReturnData");
-    timer = new QTimer();
-    connect(timer,SIGNAL(timeout()), this, SLOT(doNextScan()));
+    recorder = NULL;
+    source = NULL;
+}
+
+Module_ScanningSonar::~Module_ScanningSonar()
+{
+}
+
+void Module_ScanningSonar::init()
+{
+    timer.moveToThread(this);
+    connect(&timer,SIGNAL(timeout()), this, SLOT(doNextScan()));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
 
     /* connect simulation */
     connect(sim,SIGNAL(newSonarData(SonarReturnData)), this, SLOT(refreshSimData(SonarReturnData)));
     connect(this,SIGNAL(requestSonarSignal()),sim,SLOT(requestSonarSlot()));
-
-    recorder = NULL;
-    source = NULL;
-
     reset();
-}
 
-Module_ScanningSonar::~Module_ScanningSonar()
-{
 }
 
 Module_ScanningSonar::ThreadedReader::ThreadedReader(Module_ScanningSonar* m)
@@ -61,7 +64,7 @@ void Module_ScanningSonar::ThreadedReader::pleaseStop()
 void Module_ScanningSonar::terminate()
 {
 //    RobotModule::terminate();
-    timer->stop();
+    QTimer::singleShot(0,&timer,SLOT(stop()));
     logger->debug("Asking Sonar Reading Thread to stop.");
     reader.pleaseStop();
     logger->debug("Waiting for Sonar Reading Thread to terminate.");
@@ -77,7 +80,7 @@ void Module_ScanningSonar::terminate()
         delete recorder;
         recorder = NULL;
     }
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 void Module_ScanningSonar::ThreadedReader::run(void)
@@ -168,8 +171,8 @@ void Module_ScanningSonar::reset()
 
     if (sim->isEnabled())
     {
-        timer->setInterval(500);
-        QTimer::singleShot(0, timer, SLOT(start()));
+        timer.setInterval(500);
+        timer.start();
         return;
     }
 
@@ -186,10 +189,11 @@ void Module_ScanningSonar::reset()
         source = new SonarDataSourceSerial(*this);
 
     logger->debug("Restarting reader.");
-    timer->setInterval(500);
+    timer.setInterval(500);
     if(source != NULL)
     {
-       QTimer::singleShot(0, timer, SLOT(start()));
+//       QTimer::singleShot(0, timer, SLOT(start()));
+        timer.start();
        setHealthToOk();
    }
     else

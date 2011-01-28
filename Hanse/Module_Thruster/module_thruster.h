@@ -2,12 +2,12 @@
 #define MODULE_THRUSTER_H
 
 #include <Framework/healthstatus.h>
-#include <Framework/robotmodule_mt.h>
+#include <Framework/robotmodule.h>
 
 class Module_UID;
 class Module_Simulation;
 
-class Module_Thruster : public RobotModule_MT {
+class Module_Thruster : public RobotModule {
     Q_OBJECT
 
 public:
@@ -48,6 +48,7 @@ private:
     Module_UID *uid;
     Module_Simulation *sim;
     void initController();
+    void init();
 
 };
 

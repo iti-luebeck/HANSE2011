@@ -17,6 +17,16 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
     this->sonarLocalization = sonarLocalization;
     this->cams = cams;
 
+//    QObject::connect( &testTimer, SIGNAL(timeout()), this, SLOT(test()) );
+//    testTimer.start(100);
+}
+
+Module_VisualSLAM::~Module_VisualSLAM()
+{
+}
+
+void Module_VisualSLAM::init()
+{
     QObject::connect( &updateThread.timer, SIGNAL( timeout() ), SLOT( startGrab() ),
                       Qt::DirectConnection );
     QObject::connect( &cap, SIGNAL( grabFinished() ), SLOT( startUpdate() ) );
@@ -38,12 +48,6 @@ Module_VisualSLAM::Module_VisualSLAM( QString id, Module_SonarLocalization *sona
         start();
     }
 
-//    QObject::connect( &testTimer, SIGNAL(timeout()), this, SLOT(test()) );
-//    testTimer.start(100);
-}
-
-Module_VisualSLAM::~Module_VisualSLAM()
-{
 }
 
 void Module_VisualSLAM::setEnabled( bool value )

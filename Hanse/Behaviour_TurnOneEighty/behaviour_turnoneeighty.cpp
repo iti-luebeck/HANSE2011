@@ -4,7 +4,7 @@
 #include <Behaviour_TurnOneEighty/form_turnoneeighty.h>
 
 Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass ) :
-        RobotBehaviour_MT( id )
+        RobotBehaviour( id )
 {
     this->tcl = tcl;
     this->compass = compass;
@@ -53,7 +53,7 @@ void Behaviour_TurnOneEighty::terminate()
 {
 //    QTimer::singleShot(0,this,SLOT(stop()));
     this->stop();
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 bool Behaviour_TurnOneEighty::isActive()

@@ -10,11 +10,14 @@
 using namespace cv;
 
 Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_PressureSensor* pressure)
-    : RobotModule_MT(id)
+    : RobotModule(id)
 {
     this->sonar = sonar;
     this->pressure = pressure;
+}
 
+void Module_SonarLocalization::init()
+{
     this->filter = new SonarEchoFilter(this);
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), filter, SLOT(newSonarData(SonarReturnData)));
 
@@ -38,7 +41,7 @@ void Module_SonarLocalization::reset()
 
 void Module_SonarLocalization::terminate()
 {
-    RobotModule_MT::terminate();
+    RobotModule::terminate();
 }
 
 QList<RobotModule*> Module_SonarLocalization::getDependencies()

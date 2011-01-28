@@ -107,8 +107,6 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_BallFollowing/blobs/blob.h \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.h \
     Behaviour_TurnOneEighty/form_turnoneeighty.h \
-    Framework/robotmodule_mt.h \
-    Framework/robotbehaviour_mt.h \
     Module_Simulation/simulation_form.h \
     Module_Simulation/module_simulation.h \
     Behaviour_TestMT/testmtform.h \
@@ -216,8 +214,6 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_BallFollowing/blobs/blob.cpp \
     Behaviour_TurnOneEighty/behaviour_turnoneeighty.cpp \
     Behaviour_TurnOneEighty/form_turnoneeighty.cpp \
-    Framework/robotmodule_mt.cpp \
-    Framework/robotbehaviour_mt.cpp \
     Module_Simulation/simulation_form.cpp \
     Module_Simulation/module_simulation.cpp \
     Behaviour_TestMT/testmtform.cpp \

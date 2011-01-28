@@ -1,7 +1,7 @@
 #ifndef PIPEBEHAVIOUR_H
 #define PIPEBEHAVIOUR_H
 
-#include <Framework/robotbehaviour_mt.h>
+#include <Framework/robotbehaviour.h>
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
@@ -16,7 +16,7 @@ class Module_ThrusterControlLoop;
 class PipeFollowingForm;
 class Module_Simulation;
 
-class Behaviour_PipeFollowing : public RobotBehaviour_MT
+class Behaviour_PipeFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
