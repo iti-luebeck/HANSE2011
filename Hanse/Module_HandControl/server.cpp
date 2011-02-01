@@ -56,8 +56,8 @@ void Server::receiveMessage() {
 
     if (emergencyButton)
         emit emergencyStop();
-
-    emit newMessage(forwardSpeed,angularSpeed,upDownSpeed);
+    else
+        emit newMessage(forwardSpeed,angularSpeed,upDownSpeed);
 }
 
 void Server::close() {

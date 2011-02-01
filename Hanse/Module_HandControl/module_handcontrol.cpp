@@ -99,6 +99,11 @@ void Module_HandControl::reset()
 void Module_HandControl::emergencyStopReceived()
 {
     logger->debug("emergency handctr");
+
+     if (getSettingsValue("receiver").toString()=="thruster")
+        emit setUpDownSpeed(100.0);
+     else
+         emit setDepth(0.0);
     emit emergencyStop();
 }
 
@@ -161,7 +166,12 @@ void Module_HandControl::sendNewControls()
 //        controlLoop->setAngularSpeed(angularSpeed/divLR);
 //        controlLoop->setForwardSpeed(forwardSpeed/divFw);
         float currentSollTiefe = controlLoop->getDepth();
-        float dVal = speedUpDown/divUD;
+//        float dVal = speedUpDown/divUD;
+        float dVal = 0.0;
+        if(speedUpDown > 0)
+            dVal = divUD;
+        else
+            dVal = -divUD;
 //        controlLoop->setDepth(currentSollTief8e + dVal);
         emit setDepth(currentSollTiefe + dVal);
     }
