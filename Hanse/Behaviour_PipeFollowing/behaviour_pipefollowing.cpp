@@ -17,26 +17,14 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->tcl = tcl;
     this->cam = cam;
     this->sim = sim;
-    timer = NULL;
 //    connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
 //    connect (this,SIGNAL(timerStart(int)),&timer,SLOT(start(int)));
 //    connect(this, SIGNAL(timerStop()),&timer,SLOT(stop()));
 
-    connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
-    connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 
-    frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-    displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
-    toSlowCnt = 0;
 
     setEnabled(false);
-    Behaviour_PipeFollowing::noPipeCnt = 0;
 
-    this->updateFromSettings();
-//    this->getId();
-    /* connect simulation */
-    connect(this,SIGNAL(requestBottomFrame()),sim,SLOT(requestImageSlot()));
-    connect(sim,SIGNAL(newImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
  }
 
 bool Behaviour_PipeFollowing::isActive()
@@ -44,45 +32,46 @@ bool Behaviour_PipeFollowing::isActive()
     return isEnabled();
 }
 
+void Behaviour_PipeFollowing::init()
+{
+    logger->debug("pipe init");
+    timer.moveToThread(this);
+    connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+
+    frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+    displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
+    toSlowCnt = 0;
+    this->noPipeCnt = 0;
+
+    this->updateFromSettings();
+    connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
+    /* connect simulation */
+    connect(this,SIGNAL(requestBottomFrame()),sim,SLOT(requestImageSlot()));
+    connect(sim,SIGNAL(newImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
+
+}
+
 void Behaviour_PipeFollowing::start()
 {
-    if( !isEnabled() )
-    {
-        if(timer == NULL)
-        {
-            timer = new QTimer();
-            connect(timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
-        }
         this->reset();
         logger->info("Behaviour started" );
         Behaviour_PipeFollowing::updateFromSettings();
         this->setHealthToOk();
         setEnabled(true);
-//        timer.start(250);
-//        emit timerStart(timerTime);
-        timer->start(timerTime);
-
-    }
+        timer.start(timerTime);
 }
 
 void Behaviour_PipeFollowing::stop()
 {
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
-//    this->tcl->setForwardSpeed(0.0);
-//    this->tcl->setAngularSpeed(0.0);
-    if(timer != NULL)
-        timer->stop();
+    timer.stop();
     if (this->isActive())
     {
-//        timer.stop();
-//        emit timerStop();
-        timer->stop();
         logger->info( "Behaviour stopped" );
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);
-//        this->tcl->setForwardSpeed(0.0);
-//        this->tcl->setAngularSpeed(0.0);
         setEnabled(false);
         emit finished(this,false);
    }
@@ -90,8 +79,6 @@ void Behaviour_PipeFollowing::stop()
 
 void Behaviour_PipeFollowing::terminate()
 {
-//    timer.stop();
-//    emit timerStop();
     this->stop();
     RobotModule::terminate();
 
@@ -125,6 +112,7 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 {
+    logger->debug("pipe new frame");
     QMutexLocker l(&this->dataLockerMutex);
     simFrame.copyTo(frame);
     imshow("blub",frame);
@@ -134,7 +122,10 @@ void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 void Behaviour_PipeFollowing::timerSlot()
 {
     if(sim->isEnabled())
+    {
+        logger->debug("req frame");
         emit requestBottomFrame();
+    }
     else
     {
         cam->grabBottom(frame);

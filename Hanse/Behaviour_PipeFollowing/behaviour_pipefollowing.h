@@ -39,6 +39,7 @@ public:
     void grabFrame(cv::Mat &frame);
 
 private:
+    void init();
 
     /** Such ein Rohr in einem Frame und berechnet zugehoerige Parameter */
     void findPipe(Mat &frame, Mat &binaryFrame);
@@ -102,7 +103,7 @@ private:
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cam;
     Module_Simulation *sim;
-    QTimer *timer;
+    QTimer timer;
     EventThread updateThread;
     QStringList files;
     int fileIndex;
