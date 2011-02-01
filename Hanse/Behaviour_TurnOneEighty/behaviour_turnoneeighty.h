@@ -30,6 +30,7 @@ private:
     Module_ThrusterControlLoop* tcl;
     Module_Compass *compass;
     double initialHeading;
+    void init();
 
 signals:
     void setAngularSpeed(float angularSpeed);

@@ -19,27 +19,22 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     this->pipe = pipe;
     this->o80 = o80;
     this->ball = ball;
+    this->craph = graph;
+}
 
+void MetaBehaviour::init()
+{
     // find all behaviours
-    foreach(RobotModule* m, graph->getModules()) {
+    foreach(RobotModule* m, craph->getModules()) {
         RobotBehaviour* b = dynamic_cast<RobotBehaviour*>(m);
         if (b)
         {
             logger->debug("Modul ID "+b->getId());
             this->behaviours.append(b);
         }
-//        RobotBehaviour_MT* bmt = dynamic_cast<RobotBehaviour_MT*>(m);
-//        if(bmt)
-//        {
-//            logger->debug("ModulMT ID "+bmt->getId());
-//            this->behavioursMT.append(bmt);
-//        }
 
     }
-
     logger->debug("#Behaviours " +QString::number(this->behaviours.length()));
-//    logger->debug("#BehavioursMT " +QString::number(this->behavioursMT.length()));
-
 
     // states: dive; pipe; surface
     addData("state","off");
@@ -50,8 +45,8 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     connect(&timeoutTimer, SIGNAL(timeout()), this, SLOT(stateTimeout()));
 
     connect(pressure, SIGNAL(newDepthData(float)), this, SLOT(depthChanged(float)));
-    connect(pipe, SIGNAL(finished(RobotBehaviour_MT*,bool)), this, SLOT(finishedPipe(RobotBehaviour_MT*,bool)));
-    connect(o80, SIGNAL(finished(RobotBehaviour_MT*,bool)), this, SLOT(finishedTurn(RobotBehaviour_MT*,bool)));
+    connect(pipe, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedPipe(RobotBehaviour*,bool)));
+    connect(o80, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedTurn(RobotBehaviour*,bool)));
     connect(pressure, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(badHealth(RobotModule*)));
 
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));

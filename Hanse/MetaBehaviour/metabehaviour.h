@@ -33,10 +33,12 @@ private:
     Behaviour_PipeFollowing* pipe;
     Behaviour_BallFollowing* ball;
     Behaviour_TurnOneEighty* o80;
+    ModulesGraph* craph;
     QList<RobotBehaviour*> behaviours;
     QTimer depthWaitTimer;
     QTimer timeoutTimer;
     bool reachedEOP;
+    void init();
 
 private slots:
     void finishedPipe(RobotBehaviour*,bool);

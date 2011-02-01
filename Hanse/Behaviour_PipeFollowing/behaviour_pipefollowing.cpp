@@ -112,7 +112,6 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 {
-    logger->debug("pipe new frame");
     QMutexLocker l(&this->dataLockerMutex);
     simFrame.copyTo(frame);
     imshow("blub",frame);
@@ -123,7 +122,6 @@ void Behaviour_PipeFollowing::timerSlot()
 {
     if(sim->isEnabled())
     {
-        logger->debug("req frame");
         emit requestBottomFrame();
     }
     else

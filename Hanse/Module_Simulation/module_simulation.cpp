@@ -11,6 +11,8 @@ Module_Simulation::Module_Simulation(QString id)
     setDefaultValue("server_port", 80);
     setDefaultValue("auv_id", "hanse");
     blockSize = 0;
+
+    qRegisterMetaType<cv::Mat>("cv::Mat");
 }
 
 Module_Simulation::~Module_Simulation()
@@ -261,7 +263,6 @@ void Module_Simulation::parse_input(QString input){
         cv::Mat img_yuv2;
         cv::cvtColor(*mat,img_yuv,CV_RGBA2RGB);
         cv::flip(img_yuv,img_yuv2,1);
-
         emit newImageData(img_yuv2);
 
     }

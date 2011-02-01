@@ -13,6 +13,11 @@ Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterCon
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 }
 
+void Behaviour_TurnOneEighty::init()
+{
+    logger->debug("init");
+}
+
 QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()
 {
     QList<RobotModule*> ret;
