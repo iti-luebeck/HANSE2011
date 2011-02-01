@@ -32,7 +32,7 @@ void Module_Simulation::terminate()
 
 void Module_Simulation::reset()
 {
-    timer.start();
+    this->start();
     RobotModule::reset();
 }
 

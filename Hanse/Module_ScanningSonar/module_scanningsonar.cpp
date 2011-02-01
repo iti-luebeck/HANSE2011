@@ -113,10 +113,11 @@ bool Module_ScanningSonar::doNextScan()
     }
     else
     {
-        const SonarReturnData d = source->getNextPacket();
 
         if (!source || !source->isOpen())
             return false;
+
+        const SonarReturnData d = source->getNextPacket();
 
         if (d.isPacketValid()) {
             setHealthToOk();

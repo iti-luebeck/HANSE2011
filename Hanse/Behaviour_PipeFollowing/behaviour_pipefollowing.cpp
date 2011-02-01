@@ -127,6 +127,7 @@ void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 {
     QMutexLocker l(&this->dataLockerMutex);
     simFrame.copyTo(frame);
+    imshow("blub",frame);
     timerSlotExecute();
 }
 
