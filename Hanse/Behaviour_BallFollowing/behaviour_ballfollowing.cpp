@@ -16,13 +16,18 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     this->cams = cams;
     this->compass = compass;
 
+    setEnabled(false);
+    state = STATE_IDLE;
+
+}
+
+void Behaviour_BallFollowing::init()
+{
     connect(&updateTimer,SIGNAL(timeout()),this,SLOT(newData()));
     connect(&timerNoBall,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
-    setEnabled(false);
-    state = STATE_IDLE;
 
     targetHeading = compass->getHeading() - 45;
     if ( targetHeading < 0 )

@@ -8,14 +8,14 @@ Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterCon
 {
     this->tcl = tcl;
     this->compass = compass;
-    QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( compassUpdate(RobotModule*) ) );
-    connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+
 }
 
 void Behaviour_TurnOneEighty::init()
 {
-    logger->debug("init");
+    QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
+                      this, SLOT( compassUpdate(RobotModule*) ) );
+    connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 }
 
 QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()

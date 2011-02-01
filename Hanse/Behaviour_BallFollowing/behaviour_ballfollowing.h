@@ -43,6 +43,7 @@ private:
     double targetHeading;
 
     void ctrBallFollowing();
+    void init();
 
 public slots:
     void testBehaviour( QString path );
