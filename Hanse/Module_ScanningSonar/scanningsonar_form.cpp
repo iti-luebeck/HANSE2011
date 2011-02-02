@@ -31,7 +31,7 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar,QWidget *parent
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(updateSonarView(SonarReturnData)));
 
     ui->serialPort->setText(sonar->getSettingsValue("serialPort").toString());
-    ui->frequency->setText(sonar->getSettingsValue("frequency").toString());
+    ui->frequency->setCurrentIndex(sonar->getSettingsValue("frequency").toInt());
     ui->gain->setValue(sonar->getSettingsValue("gain").toInt());
     ui->pulseLength->setValue(sonar->getSettingsValue("pulseLength").toInt());
     ui->range->setValue(sonar->getSettingsValue("range").toInt());
@@ -131,7 +131,7 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 void ScanningSonarForm::on_save_clicked()
 {
     sonar->setSettingsValue("serialPort", ui->serialPort->text());
-    sonar->setSettingsValue("frequency", ui->frequency->text().toInt());
+    sonar->setSettingsValue("frequency", ui->frequency->currentIndex());
     sonar->setSettingsValue("gain", ui->gain->value());
     sonar->setSettingsValue("pulseLength", ui->pulseLength->value());
     sonar->setSettingsValue("range", ui->range->value());
