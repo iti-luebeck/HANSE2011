@@ -14,7 +14,7 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     : RobotModule(id), reader(this, sim)
 {
     setDefaultValue("serialPort", "COM9"); // Welcher COM-Port?
-    this->setSettingsValue("serialPort","/dev/ttyUSB2");
+    this->setSettingsValue("serialPort","/dev/ttyUSB1");
     setDefaultValue("range", 50);
     setDefaultValue("gain", 20);
 

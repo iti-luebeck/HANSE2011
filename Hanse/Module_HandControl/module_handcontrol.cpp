@@ -109,7 +109,6 @@ void Module_HandControl::emergencyStopReceived()
 
 void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int speedUpDown)
 {
-    logger->debug("new Message handctr");
     if (!getSettingsValue("enabled").toBool())
         return;
 
@@ -160,20 +159,22 @@ void Module_HandControl::sendNewControls()
         if (!controlLoop->isEnabled())
             controlLoop->setEnabled(true);
 
-        logger->debug("emit signal to tcl");
+
         emit setAngularSpeed(angularSpeed/divLR);
         emit setForwardSpeed(forwardSpeed/divFw);
 //        controlLoop->setAngularSpeed(angularSpeed/divLR);
 //        controlLoop->setForwardSpeed(forwardSpeed/divFw);
-        float currentSollTiefe = controlLoop->getDepth();
+//        float currentSollTiefe = controlLoop->getDepth();
 //        float dVal = speedUpDown/divUD;
         float dVal = 0.0;
         if(speedUpDown > 0)
             dVal = divUD;
-        else
+        else if(speedUpDown < 0)
             dVal = -divUD;
 //        controlLoop->setDepth(currentSollTief8e + dVal);
-        emit setDepth(currentSollTiefe + dVal);
+        float depth = dVal + controlLoop->getDepth();
+        logger->debug("emit signal to tcl containing depth: "+QString::number(depth));
+        emit setDepth(depth);
     }
     
     dataLockerMutex.unlock();
