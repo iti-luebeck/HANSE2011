@@ -21,9 +21,9 @@ public:
     QList<RobotModule*> getDependencies();
 
 
-//    void grabLeft( IplImage *left );
-//    void grabRight( IplImage *right );
-//    void grabBottom( IplImage *bottom );
+    void grabLeft( IplImage *left );
+    void grabRight( IplImage *right );
+    void grabBottom( IplImage *bottom );
     void grabLeft( cv::Mat &left );
     void grabRight( cv::Mat &right );
     void grabBottom( cv::Mat &bottom );

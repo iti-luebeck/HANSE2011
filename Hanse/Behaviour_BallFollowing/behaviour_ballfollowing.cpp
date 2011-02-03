@@ -62,7 +62,6 @@ void Behaviour_BallFollowing::startBehaviour()
 
 void Behaviour_BallFollowing::terminate()
 {
-//    QTimer::singleShot(0,this,SLOT(stop()));
     stop();
     RobotModule::terminate();
 }
@@ -86,8 +85,6 @@ void Behaviour_BallFollowing::compassUpdate( RobotModule * )
             state = STATE_TRACK_BALL;
             emit setAngularSpeed(0.0);
             emit setForwardSpeed(0.0);
-//            tcl->setAngularSpeed( .0 );
-//            tcl->setForwardSpeed( .0 );
         }
     }
 }
@@ -100,8 +97,6 @@ void Behaviour_BallFollowing::stop()
         updateTimer.stop();
         emit setForwardSpeed(0.0);
         emit setAngularSpeed(0.0);
-//        this->tcl->setForwardSpeed(0.0);
-//        this->tcl->setAngularSpeed(0.0);
         setEnabled(false);
         emit finished(this,false);
    }
@@ -204,8 +199,7 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     IplImage *hsv = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     cvMerge( thresh, thresh, thresh, NULL, disp );
     IplImage *left = cvCreateImage( cvSize(WEBCAM_WIDTH,WEBCAM_HEIGHT), IPL_DEPTH_8U, 3 );
-    // TODO von cm::Mat in IplImage convertieren
-//    cams->grabLeft( left );
+    cams->grabLeft( left );
 
     // Apply threshold.
     cvCvtColor( left, gray, CV_RGB2GRAY );

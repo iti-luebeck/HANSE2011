@@ -177,6 +177,39 @@ void Module_Webcams::grabBottom( cv::Mat &bottom )
         mutex.unlock();
     }
 }
+
+void Module_Webcams::grabLeft(IplImage *left)
+{
+    if(leftCap != NULL)
+    {
+        mutex.lock();
+        assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
+        cvCopy(cvQueryFrame(leftCap),left);
+        mutex.unlock();
+    }
+}
+
+void Module_Webcams::grabRight(IplImage *right)
+{
+    if(leftCap != NULL)
+    {
+        mutex.lock();
+        assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
+        cvCopy(cvQueryFrame(rightCap),right);
+        mutex.unlock();
+    }
+}
+
+void Module_Webcams::grabBottom(IplImage *bottom)
+{
+    if(leftCap != NULL)
+    {
+        mutex.lock();
+        assert( bottom->width == WEBCAM_WIDTH && bottom->height == WEBCAM_HEIGHT );
+        cvCopy(cvQueryFrame(bottomCap),bottom);
+        mutex.unlock();
+    }
+}
 //
 //void Module_Webcams::grabBottom(QImage bottom1)
 //{
