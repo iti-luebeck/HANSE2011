@@ -128,7 +128,12 @@ void ModulesGraph::build()
     foreach (RobotModule* b, modules)
     {
         connect(&healthTimer,SIGNAL(timeout()),b,SLOT(doHealthCheck()));
-        b->start();
+//        RobotBehaviour* c = dynamic_cast<RobotBehaviour*>(b);
+//        if (!c || (c->getId() == "meta"))
+//        {
+            logger->debug("Starting Thread for "+b->getId());
+            b->start();
+//        }
     }
     healthTimer.setInterval(1000);
 //    QTimer::singleShot(0,&healthTimer,SLOT(start()));

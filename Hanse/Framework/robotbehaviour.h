@@ -17,7 +17,7 @@ public slots:
     /**
       * start the behaviour
       */
-    virtual void start() = 0;
+    virtual void startBehaviour() = 0;
 
     /**
       * stop the behaviour

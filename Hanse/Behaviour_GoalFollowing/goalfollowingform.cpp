@@ -38,7 +38,7 @@ void GoalFollowingForm::changeEvent(QEvent *e)
 
 void GoalFollowingForm::on_startGoalFollwoingButton_clicked()
 {
-    goalfollow->start();;
+    goalfollow->startBehaviour();
 }
 
 void GoalFollowingForm::on_stopGoalFollowingButton_clicked()

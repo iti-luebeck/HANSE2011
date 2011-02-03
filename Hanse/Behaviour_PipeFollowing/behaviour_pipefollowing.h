@@ -144,7 +144,7 @@ private slots:
 public slots:
     /** updates local variables */
     void updateFromSettings();
-    void start();
+    void startBehaviour();
     void stop();
     void reset();
     void terminate();

@@ -109,7 +109,7 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
 //    ui->grayRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 4);
 //    ui->hsvRadioButton->setChecked(pipefollow->getSettings().value("convColor").toInt() == 0);
 
-    QObject::connect(this, SIGNAL(startPipeFollow()),pipefollow , SLOT(start()));
+    QObject::connect(this, SIGNAL(startPipeFollow()),pipefollow , SLOT(startBehaviour()));
     QObject::connect(this, SIGNAL(stopPipeFollow()), pipefollow , SLOT(stop()));
  }
 

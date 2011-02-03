@@ -24,6 +24,7 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     }
     ui->readFileox->setChecked(echo->getSettingsValue("readFromFile").toBool());
     ui->updateView->setChecked(false);
+    ui->port->setText(echo->getSettingsValue("serialPort").toString());
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
 
 }
@@ -97,6 +98,7 @@ void EchoSounderForm::on_applyButton_clicked()
     if(ui->readFileox->isChecked())
         this->on_onSelFileClicked_clicked();
     echo->setSettingsValue("filename",ui->fileName->text());
+    echo->setSettingsValue("serialPort",ui->port->text());
     echo->reset();
 
 }

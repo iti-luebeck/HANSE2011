@@ -48,7 +48,7 @@ private:
 public slots:
     void testBehaviour( QString path );
     void compassUpdate( RobotModule * );
-    void start();
+    void startBehaviour();
     void stop();
     void reset();
     void terminate();

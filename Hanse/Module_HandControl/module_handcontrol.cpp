@@ -186,7 +186,7 @@ void Module_HandControl::serverReportedError(QString error)
     setHealthToSick(error);
 }
 
-void Module_HandControl::start()
+void Module_HandControl::startBehaviour()
 {
     setEnabled(true);
     emit started(this);

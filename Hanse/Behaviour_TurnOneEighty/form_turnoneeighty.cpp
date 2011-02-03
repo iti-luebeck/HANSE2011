@@ -40,7 +40,7 @@ void Form_TurnOneEighty::on_applyButton_clicked()
 
 void Form_TurnOneEighty::on_startButton_clicked()
 {
-    behaviour->start();
+    behaviour->startBehaviour();
 }
 
 void Form_TurnOneEighty::on_stopButton_clicked()

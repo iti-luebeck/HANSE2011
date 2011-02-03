@@ -43,7 +43,7 @@ bool Behaviour_BallFollowing::isActive()
     return isEnabled();
 }
 
-void Behaviour_BallFollowing::start()
+void Behaviour_BallFollowing::startBehaviour()
 {
     logger->debug( "Behaviour started" );
     this->setEnabled( true );

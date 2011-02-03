@@ -32,13 +32,14 @@ QWidget* Behaviour_TurnOneEighty::createView(QWidget *parent)
     return form;
 }
 
-void Behaviour_TurnOneEighty::start()
+void Behaviour_TurnOneEighty::startBehaviour()
 {
     if( !isEnabled() )
     {
         logger->debug( "Behaviour started" );
         this->setHealthToOk();
         setEnabled( true );
+        emit started(this);
     }
 }
 

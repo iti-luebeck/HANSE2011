@@ -14,7 +14,7 @@ CompassFollowingForm::CompassFollowingForm(QWidget *parent, Behaviour_CompassFol
     this->ui->kp->setText(comp->getSettingsValue("kp").toString());
     this->ui->delta->setText(comp->getSettingsValue("delta").toString());
 
-    QObject::connect(this,SIGNAL(startBehaviour()),comp,SLOT(start()));
+    QObject::connect(this,SIGNAL(startBehaviour()),comp,SLOT(startBehaviour()));
     QObject::connect(this,SIGNAL(stopBehaviour()),comp,SLOT(stop()));
 
     QObject::connect(this,SIGNAL(refreshHeading()),comp,SLOT(refreshHeading()));

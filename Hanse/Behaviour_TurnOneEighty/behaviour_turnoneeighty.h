@@ -20,7 +20,7 @@ public:
     bool isActive();
 
 public slots:
-    void start();
+    void startBehaviour();
     void stop();
     void compassUpdate( RobotModule * );
     void initialHeadingUpdate();

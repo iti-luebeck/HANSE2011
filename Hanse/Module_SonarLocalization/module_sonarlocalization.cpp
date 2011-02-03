@@ -18,17 +18,17 @@ Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSo
 
 void Module_SonarLocalization::init()
 {
-    this->filter = new SonarEchoFilter(this);
-    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), filter, SLOT(newSonarData(SonarReturnData)));
+//    this->filter = new SonarEchoFilter(this);
+//    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), filter, SLOT(newSonarData(SonarReturnData)));
 
-    // run particle filter in own thread
-    this->pf = new SonarParticleFilter(this, filter);
-    qRegisterMetaType< QList<QVector2D> >("QList<QVector2D>");
-    connect(filter, SIGNAL(newImage(QList<QVector2D>)), pf, SLOT(newImage(QList<QVector2D>)));
-    pfThread.start();
-    pf->moveToThread(&pfThread);
+//    // run particle filter in own thread
+//    this->pf = new SonarParticleFilter(this, filter);
+//    qRegisterMetaType< QList<QVector2D> >("QList<QVector2D>");
+//    connect(filter, SIGNAL(newImage(QList<QVector2D>)), pf, SLOT(newImage(QList<QVector2D>)));
+//    pfThread.start();
+//    pf->moveToThread(&pfThread);
 
-    connect(pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
+//    connect(pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
 
 }
 

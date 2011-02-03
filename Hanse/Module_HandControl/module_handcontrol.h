@@ -22,7 +22,7 @@ public:
     bool isActive();
 
 public slots:
-    void start();
+    void startBehaviour();
     void stop();
     void reset();
     void terminate();

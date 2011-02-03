@@ -35,11 +35,8 @@ private slots:
     void activateModule(QObject *o);
     void moduleStarted(RobotBehaviour* module);
     void moduleFinished(RobotBehaviour* module, bool success);
-
+    void updateSettings();
     void moduleHealthFail(RobotModule* module);
-
-signals:
-    void testPipe();
 
 };
 

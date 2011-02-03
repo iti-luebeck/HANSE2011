@@ -45,7 +45,7 @@ void BallFollowingForm::changeEvent(QEvent *e)
 
 void BallFollowingForm::on_startBallFollwoingButton_clicked()
 {
-    ballfollow->start();;
+    ballfollow->startBehaviour();
 }
 
 void BallFollowingForm::on_stopBallFollowingButton_clicked()

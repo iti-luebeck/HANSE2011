@@ -52,7 +52,7 @@ void Behaviour_PipeFollowing::init()
 
 }
 
-void Behaviour_PipeFollowing::start()
+void Behaviour_PipeFollowing::startBehaviour()
 {
         this->reset();
         logger->info("Behaviour started" );
@@ -60,6 +60,7 @@ void Behaviour_PipeFollowing::start()
         this->setHealthToOk();
         setEnabled(true);
         timer.start(timerTime);
+        emit started(this);
 }
 
 void Behaviour_PipeFollowing::stop()
