@@ -7,6 +7,7 @@
 //#include <videoInput.h>
 #include <opencv/cxcore.h>
 #include <opencv/highgui.h>
+#include <opencv/cv.h>
 
 #define WEBCAM_WIDTH    640
 #define WEBCAM_HEIGHT   480

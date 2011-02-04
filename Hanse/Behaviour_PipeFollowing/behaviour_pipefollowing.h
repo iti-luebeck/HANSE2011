@@ -71,7 +71,7 @@ private:
         Eingabewerte werden gefiltert und mit gefilterten ueberschrieben */
     void medianFilter(float &rho, float &theta);
     /** grabs frame from camera device */
-    void grab(Mat &frame);
+//    void grab(Mat &frame);
     /** use cv moments to compute pipe */
     void moments(Mat &frame);
     /** counts white pixels in frame */
@@ -122,6 +122,7 @@ private:
     float maxDistance;
     cv::Mat frame;
     cv::Mat displayFrame;
+    cv::Mat segmentationFrame;
 
 
     /* dynamische parameter */

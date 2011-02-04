@@ -127,7 +127,9 @@ void Module_Webcams::grabLeft( cv::Mat &left )
         IplImage* img = cvQueryFrame(leftCap);
         if(img)
         {
+            cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
         cv::Mat mtx(img);
+
         left = mtx.clone();
         }
 //        *leftCap >> left;
@@ -143,7 +145,9 @@ void Module_Webcams::grabRight( cv::Mat &right )
         IplImage* img = cvQueryFrame(rightCap);
         if(img)
         {
+            cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
         cv::Mat mat(img);
+
         right = mat.clone();
     }
 //        *rightCap >> right;
@@ -161,8 +165,10 @@ void Module_Webcams::grabBottom( cv::Mat &bottom )
         IplImage* img = cvQueryFrame(bottomCap);
         if(img)
         {
+            cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
         cv::Mat mat(img);
         bottom = mat.clone();
+
         }
 //        assert( bottom.cols == WEBCAM_WIDTH && bottom.rows == WEBCAM_HEIGHT );
 //        if(bottomCap.grab())
@@ -185,28 +191,32 @@ void Module_Webcams::grabLeft(IplImage *left)
         mutex.lock();
         assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(leftCap),left);
+        cvConvertImage(left,left,CV_CVTIMG_SWAP_RB);
         mutex.unlock();
     }
 }
 
 void Module_Webcams::grabRight(IplImage *right)
 {
-    if(leftCap != NULL)
+    if(rightCap != NULL)
     {
         mutex.lock();
         assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(rightCap),right);
+        cvConvertImage(right,right,CV_CVTIMG_SWAP_RB);
         mutex.unlock();
     }
 }
 
 void Module_Webcams::grabBottom(IplImage *bottom)
 {
-    if(leftCap != NULL)
+    if(bottomCap != NULL)
     {
         mutex.lock();
         assert( bottom->width == WEBCAM_WIDTH && bottom->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(bottomCap),bottom);
+        cvShowImage("buhu",bottom);
+        cvConvertImage(bottom,bottom,CV_CVTIMG_SWAP_RB);
         mutex.unlock();
     }
 }

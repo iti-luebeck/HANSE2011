@@ -40,7 +40,8 @@ void Behaviour_PipeFollowing::init()
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-    displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
+    displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+    segmentationFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
     toSlowCnt = 0;
     this->noPipeCnt = 0;
 
@@ -737,6 +738,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     //    equalizeHist(gray,gray);
     blub.restart();
     threshold(gray,gray,this->threshSegmentation,255,THRESH_BINARY);
+
     addData("run seg",blub.elapsed());
     blub.restart();
     int sum;
@@ -814,6 +816,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
     blub.restart();
     dataLockerMutex.lock();
     frame.copyTo(displayFrame);
+    gray.copyTo(segmentationFrame);
     dataLockerMutex.unlock();
     addData("run framecpy",blub.elapsed());
 }
@@ -821,6 +824,13 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
 void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
 {
     dataLockerMutex.lock();
-    displayFrame.copyTo(frame);
+    if(getSettingsValue("frameOutput").toBool())
+        displayFrame.copyTo(frame);
+    else
+    {
+        cv::Mat tmp(WEBCAM_HEIGHT,WEBCAM_WIDTH,CV_8UC3);
+        cvtColor(segmentationFrame,tmp,CV_GRAY2RGB);
+        tmp.copyTo(frame);
+    }
     dataLockerMutex.unlock();
 }

@@ -198,17 +198,14 @@ void Form_Webcams::refreshFrames()
     cams->grabBottom( bottomFrame);
 
     QImage imageLeft((unsigned char*)leftFrame.data, leftFrame.cols, leftFrame.rows, QImage::Format_RGB888);
-//    imageLeft = imageLeft.rgbSwapped();
     ui->leftLabel->setPixmap( QPixmap::fromImage( imageLeft ) );
 
        QImage imageRight((unsigned char*)rightFrame.data, rightFrame.cols, rightFrame.rows, QImage::Format_RGB888);
-//       imageRight = imageRight.rgbSwapped();
     ui->rightLabel->setPixmap( QPixmap::fromImage( imageRight ) );
 
-//    QImage imageBottom( (unsigned char*)bottomFrame->imageData, bottomFrame->width, bottomFrame->height,
+//    QImage imageBottom( (unsigned char*)bottomFrame2->imageData, bottomFrame2->width, bottomFrame2->height,
 //                      QImage::Format_RGB888 );
        QImage imageBottom((unsigned char*)bottomFrame.data, bottomFrame.cols, bottomFrame.rows, QImage::Format_RGB888);
-//    imageBottom = imageBottom.rgbSwapped();
     ui->bottomLabel->setPixmap( QPixmap::fromImage( imageBottom ) );
 }
 
