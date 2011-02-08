@@ -126,7 +126,7 @@ HEADERS += Framework/healthstatus.h \
     Module_EchoSounder/echodatacsvrecorder.h \
     Module_EchoSounder/echodata852recorder.h \
     Behaviour_Groundfollowing/groundfollowingform.h \
-    Behaviour_Groundfollowing/beaviour_groundfollowing.h
+    Behaviour_Groundfollowing/behaviour_groundfollowing.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -235,7 +235,7 @@ SOURCES += Framework/robotmodule.cpp \
     Module_EchoSounder/echodatacsvrecorder.cpp \
     Module_EchoSounder/echodata852recorder.cpp \
     Behaviour_Groundfollowing/groundfollowingform.cpp \
-    Behaviour_Groundfollowing/beaviour_groundfollowing.cpp
+    Behaviour_Groundfollowing/behaviour_groundfollowing.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
