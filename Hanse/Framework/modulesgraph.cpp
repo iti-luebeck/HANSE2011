@@ -14,6 +14,7 @@
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
+#include <Behaviour_Groundfollowing/behaviour_groundfollowing.h>
 #include <Module_Webcams/module_webcams.h>
 #include <MetaBehaviour/metabehaviour.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
@@ -110,6 +111,7 @@ void ModulesGraph::build()
     logger->debug("Creating Behaviour_TurnOneEighty");
     Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
     this->modules.append(behavTurn);
+
 
 //    logger->debug("Creating Behaviour_CompassFollowing");
 //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);

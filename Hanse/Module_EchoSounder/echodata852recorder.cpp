@@ -1,5 +1,6 @@
 #include "echodata852recorder.h"
 #include "echoreturndata.h"
+#include "echodatarecorder.h"
 #include <QtCore>
 #include "module_echosounder.h"
 #include <Framework/dataloghelper.h>
