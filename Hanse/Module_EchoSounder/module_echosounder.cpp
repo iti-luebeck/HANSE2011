@@ -16,7 +16,6 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     setDefaultValue("serialPort", "COM9"); // Welcher COM-Port?
     setDefaultValue("range", 50);
     setDefaultValue("gain", 20);
-
     setDefaultValue("pulseLength", 127);
     setDefaultValue("profileMinRange", 0); // 0.0 richtig?
     setDefaultValue("dataPoints", 25);
@@ -24,7 +23,7 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     setDefaultValue("switchDelay", 0);
     setDefaultValue("frequency", 0);
     setDefaultValue("readFromFile", false);
-    setDefaultValue("recorderFilename", "output.txt");
+    setDefaultValue("recordFile", "output.txt");
     setDefaultValue("fileReaderDelay", 100);
 
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
@@ -33,6 +32,8 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
 
     recorder = NULL;
     source = NULL;
+
+    reset();
 }
 Module_EchoSounder::~Module_EchoSounder(){
 }

@@ -35,9 +35,9 @@ private:
     QQueue<QGraphicsRectItem*> ritQueue;
 
 private slots:
-    void on_readFileox_clicked(bool checked);
+    void on_save_clicked();
     void on_applyButton_clicked();
-    void on_onSelFileClicked_clicked();
+    void on_selFile_clicked();
 };
 
 #endif // ECHOSOUNDERFORM_H

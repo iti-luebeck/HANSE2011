@@ -22,11 +22,18 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
 //        ritQueue.append(rit);
         dataQueue.append(gi);
     }
-    ui->readFileox->setChecked(echo->getSettingsValue("readFromFile").toBool());
-    ui->updateView->setChecked(false);
+     ui->updateView->setChecked(false);
     ui->port->setText(echo->getSettingsValue("serialPort").toString());
+    ui->echoRange->setText(echo->getSettingsValue("range").toString());
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
 
+    ui->sourceFile->setChecked(echo->getSettingsValue("readFromFile").toBool());
+    ui->sourceSerial->setChecked(!echo->getSettingsValue("readFromFile").toBool());
+    ui->fileName->setText(echo->getSettingsValue("filename").toString());
+    ui->enableRecording->setChecked(echo->getSettingsValue("enableRecording").toBool());
+    ui->formatCSV->setChecked(echo->getSettingsValue("formatCSV").toBool());
+    ui->format852->setChecked(!echo->getSettingsValue("formatCSV").toBool());
+    ui->recordFile->setText(DataLogHelper::getLogDir()+"echolog.XXX");
 }
 
 EchoSounderForm::~EchoSounderForm()
@@ -82,28 +89,32 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 
 }
 
-void EchoSounderForm::on_onSelFileClicked_clicked()
+void EchoSounderForm::on_save_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
-         "Open Sonar Recording", ui->fileName->text(), "Recording (*.852)");
+    echo->setSettingsValue("serialPort",ui->port->text());
+    echo->setSettingsValue("range",ui->range->text());
+    echo->reset();
 
-    if (fileName.length()>0)
-        ui->fileName->setText(fileName);
+    // Hier fehlt eigentlich noch ein löschen der view, wenn die range geändert wird.
+
 }
+
 
 void EchoSounderForm::on_applyButton_clicked()
 {
-    echo->setSettingsValue("readFromFile",ui->readFileox->isChecked());
-//    ui->readFileox->setChecked(true);
-    if(ui->readFileox->isChecked())
-        this->on_onSelFileClicked_clicked();
-    echo->setSettingsValue("filename",ui->fileName->text());
-    echo->setSettingsValue("serialPort",ui->port->text());
+    echo->getSettingsValue("readFromFile", ui->sourceFile->isChecked());
+    echo->getSettingsValue("filename", ui->fileName->text());
+    echo->getSettingsValue("enableRecording", ui->enableRecording->isChecked());
+    echo->getSettingsValue("formatCSV", ui->formatCSV->isChecked());
     echo->reset();
 
 }
 
-void EchoSounderForm::on_readFileox_clicked(bool checked)
+void EchoSounderForm::on_selFile_clicked()
 {
-    echo->setSettingsValue("readFromFile",checked);
+    QString fileName = QFileDialog::getOpenFileName(this,
+         "Open Echo Recording", ui->fileName->text(), "Recording (*.852)");
+
+    if (fileName.length()>0)
+        ui->fileName->setText(fileName);
 }

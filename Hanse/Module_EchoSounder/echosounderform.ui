@@ -10,6 +10,9 @@
     <height>522</height>
    </rect>
   </property>
+  <property name="acceptDrops">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -23,11 +26,11 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
-     <string>Tab 1</string>
+     <string>Echo View</string>
     </attribute>
     <widget class="QGraphicsView" name="graphicsView">
      <property name="geometry">
@@ -74,7 +77,7 @@
        <rect>
         <x>10</x>
         <y>23</y>
-        <width>47</width>
+        <width>71</width>
         <height>20</height>
        </rect>
       </property>
@@ -82,12 +85,12 @@
        <string>Start gain:</string>
       </property>
      </widget>
-     <widget class="QLabel" name="range">
+     <widget class="QLabel" name="rangeText">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>49</y>
-        <width>31</width>
+        <width>51</width>
         <height>20</height>
        </rect>
       </property>
@@ -95,12 +98,45 @@
        <string>Range:</string>
       </property>
      </widget>
+     <widget class="QLineEdit" name="startGainText">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>20</y>
+        <width>81</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="port">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>80</y>
+        <width>81</width>
+        <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>80</y>
+        <width>71</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Serial Port:</string>
+      </property>
+     </widget>
      <widget class="QCheckBox" name="updateView">
       <property name="geometry">
        <rect>
-        <x>267</x>
-        <y>23</y>
-        <width>251</width>
+        <x>200</x>
+        <y>20</y>
+        <width>111</width>
         <height>20</height>
        </rect>
       </property>
@@ -111,87 +147,111 @@
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QLineEdit" name="startGainText">
+     <widget class="QLineEdit" name="echoRange">
       <property name="geometry">
        <rect>
-        <x>63</x>
-        <y>23</y>
-        <width>198</width>
-        <height>20</height>
+        <x>80</x>
+        <y>50</y>
+        <width>81</width>
+        <height>22</height>
        </rect>
       </property>
      </widget>
-     <widget class="QLineEdit" name="rangeText">
-      <property name="geometry">
-       <rect>
-        <x>63</x>
-        <y>49</y>
-        <width>198</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="debug">
-      <property name="geometry">
-       <rect>
-        <x>310</x>
-        <y>70</y>
-        <width>46</width>
-        <height>13</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="port">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>70</y>
-        <width>198</width>
-        <height>20</height>
-       </rect>
-      </property>
-     </widget>
+    </widget>
+    <widget class="QWidget" name="widget" native="true">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>200</y>
+       <width>120</width>
+       <height>80</height>
+      </rect>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
-     <string>Tab 2</string>
+     <string>Echo Configuration</string>
     </attribute>
-    <widget class="QPushButton" name="onSelFileClicked">
+    <widget class="QPushButton" name="save">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>20</y>
-       <width>75</width>
+       <x>20</x>
+       <y>120</y>
+       <width>101</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>SelectFile</string>
+      <string>Apply and Save</string>
      </property>
     </widget>
-    <widget class="QLabel" name="fileName">
+    <widget class="QSpinBox" name="range">
      <property name="geometry">
       <rect>
-       <x>120</x>
-       <y>30</y>
-       <width>46</width>
-       <height>13</height>
+       <x>90</x>
+       <y>70</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>5</number>
+     </property>
+     <property name="maximum">
+      <number>50</number>
+     </property>
+     <property name="singleStep">
+      <number>5</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="rangeLabel">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>70</y>
+       <width>53</width>
+       <height>16</height>
       </rect>
      </property>
      <property name="text">
-      <string>buh</string>
+      <string>Range:</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Serial Port:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="serialPort">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>30</y>
+       <width>71</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_3">
+    <attribute name="title">
+     <string>Data Source / Recording</string>
+    </attribute>
     <widget class="QPushButton" name="applyButton">
      <property name="geometry">
       <rect>
-       <x>230</x>
-       <y>130</y>
-       <width>75</width>
+       <x>30</x>
+       <y>440</y>
+       <width>551</width>
        <height>23</height>
       </rect>
      </property>
@@ -199,18 +259,181 @@
       <string>Apply</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="readFileox">
+    <widget class="QGroupBox" name="groupBox_3">
      <property name="geometry">
       <rect>
-       <x>280</x>
-       <y>30</y>
-       <width>70</width>
-       <height>17</height>
+       <x>30</x>
+       <y>20</y>
+       <width>761</width>
+       <height>191</height>
       </rect>
      </property>
-     <property name="text">
-      <string>ReadFile</string>
+     <property name="title">
+      <string>Data Source</string>
      </property>
+     <widget class="QRadioButton" name="sourceFile">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>40</y>
+        <width>95</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>File</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="sourceSerial">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>70</y>
+        <width>151</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Live (Echosounder)</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>81</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Data Source:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>101</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Read from file:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="fileName">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>120</y>
+        <width>191</width>
+        <height>22</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="selFile">
+      <property name="geometry">
+       <rect>
+        <x>310</x>
+        <y>120</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>select</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>240</y>
+       <width>551</width>
+       <height>191</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Recording</string>
+     </property>
+     <widget class="QCheckBox" name="enableRecording">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>141</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Enable recording</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>80</y>
+        <width>81</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Saving to file:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="recordFile">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>80</y>
+        <width>201</width>
+        <height>22</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>110</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>File format:</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="formatCSV">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>110</y>
+        <width>95</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>.CSV</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="format852">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>140</y>
+        <width>95</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>.852</string>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
