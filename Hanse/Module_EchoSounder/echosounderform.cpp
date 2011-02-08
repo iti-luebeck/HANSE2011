@@ -10,7 +10,11 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
 {
     ui->setupUi(this);
     this->echo = echo;
+
+    logger = Log4Qt::Logger::logger("EchoSounderForm");
+
     this->ui->graphicsView->setScene(&scene);
+
 
     QLinearGradient gi(0,0,0,279);
     gi.setColorAt(0,QColor("black"));
@@ -22,10 +26,10 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
 //        ritQueue.append(rit);
         dataQueue.append(gi);
     }
-     ui->updateView->setChecked(false);
+
     ui->port->setText(echo->getSettingsValue("serialPort").toString());
     ui->echoRange->setText(echo->getSettingsValue("range").toString());
-    QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
+
 
     ui->sourceFile->setChecked(echo->getSettingsValue("readFromFile").toBool());
     ui->sourceSerial->setChecked(!echo->getSettingsValue("readFromFile").toBool());
@@ -34,6 +38,8 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->formatCSV->setChecked(echo->getSettingsValue("formatCSV").toBool());
     ui->format852->setChecked(!echo->getSettingsValue("formatCSV").toBool());
     ui->recordFile->setText(DataLogHelper::getLogDir()+"echolog.XXX");
+    ui->updateView->setChecked(false);
+    QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
 }
 
 EchoSounderForm::~EchoSounderForm()
