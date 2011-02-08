@@ -72,7 +72,8 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 //    scene.addLine(-256,280,256,280,QPen(QColor("red")))->setZValue(10);
     for(int i = 1; i < range+1; i++)
     {
-        scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor("red")))->setZValue(10);
+        scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(43,43,43,255)))->setZValue(10);
+
     }
 
     if (ui->updateView->isChecked())
@@ -101,17 +102,17 @@ void EchoSounderForm::on_save_clicked()
     echo->setSettingsValue("range",ui->range->text());
     echo->reset();
 
-    // Hier fehlt eigentlich noch ein löschen der view, wenn die range geändert wird.
+    // Hier fehlt noch ein löschen der view, wenn die range geändert wird.
 
 }
 
 
 void EchoSounderForm::on_applyButton_clicked()
 {
-    echo->getSettingsValue("readFromFile", ui->sourceFile->isChecked());
-    echo->getSettingsValue("filename", ui->fileName->text());
-    echo->getSettingsValue("enableRecording", ui->enableRecording->isChecked());
-    echo->getSettingsValue("formatCSV", ui->formatCSV->isChecked());
+    echo->setSettingsValue("readFromFile", ui->sourceFile->isChecked());
+    echo->setSettingsValue("filename", ui->fileName->text());
+    echo->setSettingsValue("enableRecording", ui->enableRecording->isChecked());
+    echo->setSettingsValue("formatCSV", ui->formatCSV->isChecked());
     echo->reset();
 
 }

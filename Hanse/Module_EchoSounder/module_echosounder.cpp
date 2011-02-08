@@ -13,11 +13,11 @@
 Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     : RobotModule(id), reader(this, sim)
 {
-    setDefaultValue("serialPort", "COM9"); // Welcher COM-Port?
-    setDefaultValue("range", 50);
+    setDefaultValue("serialPort", "COM9");
+    setDefaultValue("range", 5);
     setDefaultValue("gain", 20);
     setDefaultValue("pulseLength", 127);
-    setDefaultValue("profileMinRange", 0); // 0.0 richtig?
+    setDefaultValue("profileMinRange", 0);
     setDefaultValue("dataPoints", 25);
     setDefaultValue("profile", 0);
     setDefaultValue("switchDelay", 0);
