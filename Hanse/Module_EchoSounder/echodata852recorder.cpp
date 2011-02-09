@@ -47,21 +47,24 @@ void EchoData852Recorder::store(const EchoReturnData &edata)
         return;
     }
 
-    *stream << (unsigned char)0x38;
-    *stream << (unsigned char)0x35;
-    *stream << (unsigned char)0x32;
+    // File Header
+    *stream << (unsigned char)0x38; // ASCII '8'
+    *stream << (unsigned char)0x35; // ASCII '5'
+    *stream << (unsigned char)0x32; // ASCII '2'
+
+    // nToReadIndex, Total Bytes and nToRead
     if (edata.getDataBytes()==0) {
-        *stream << (unsigned char)0;
-        *stream << (unsigned short)128;
-        *stream << (unsigned short)13;
+        *stream << (unsigned char)0;    // IPX data
+        *stream << (unsigned short)128; // Data bytes
+        *stream << (unsigned short)13;  // Number of Bytes from the echosounder
     } else if (edata.getDataBytes()==252) {
-        *stream << (unsigned char)2;
-        *stream << (unsigned short)384;
-        *stream << (unsigned short)265;
+        *stream << (unsigned char)2;    // IMX data
+        *stream << (unsigned short)384; // Data bytes
+        *stream << (unsigned short)265; // Number of Bytes from the echosounder
     } else if (edata.getDataBytes()==500) {
-        *stream << (unsigned char)3;
-        *stream << (unsigned short)640;
-        *stream << (unsigned short)513;
+        *stream << (unsigned char)3;    // IGX data
+        *stream << (unsigned short)640; // Data bytes
+        *stream << (unsigned short)513; // Number of Bytes from the echosounder
     } else {
         logger()->error("Bad number of data bytes. cannot write to file: "+QString::number(edata.getDataBytes()));
         return;
@@ -69,50 +72,54 @@ void EchoData852Recorder::store(const EchoReturnData &edata)
 
     QDateTime time = edata.switchCommand.time;
     QLocale l = QLocale(QLocale::English, QLocale::UnitedKingdom);
-    stream->writeRawData(l.toString(time,"dd-MMM-yyyy").toUpper().toAscii(), 12);
-    stream->writeRawData(l.toString(time,"HH:mm:ss").toAscii(), 9);
-    stream->writeRawData(l.toString(time,".z").left(3).toAscii(), 4);
+    stream->writeRawData(l.toString(time,"dd-MMM-yyyy").toUpper().toAscii(), 12); // Date, 12 Bytes
+    stream->writeRawData(l.toString(time,"HH:mm:ss").toAscii(), 9);     // Time, 9 Bytes
+    stream->writeRawData(l.toString(time,".z").left(3).toAscii(), 4);   // Hundredth of Seconds, 4 Bytes
 
-    *stream << (unsigned char)0;
-    *stream << (unsigned char)0;
-    *stream << (unsigned char)0;
-    *stream << (unsigned char)0;
+    *stream << (unsigned char)0;    // Reserved, always 0
+    *stream << (unsigned char)0;    // Reserved, always 0
+    *stream << (unsigned char)0;    // Reserved, always 0
+    *stream << (unsigned char)0;    // Reserved, always 0
 
- //   unsigned char flags = 0;
+    unsigned char flags = 0; // Dir, Xdcr, Mode, Step
 //    if (edata.isCWDirection())
 //        flags |= 0x80;
 //    flags |= 0x08;
 //    if (edata.switchcommand.stepSize==2)
 //      flags |= 0x01;
 
-//    if (data.switchCommand.origFileHeader.length()<38)
-//        logger()->error("data.switchCommand.origFileHeader has length "+QString::number(data.switchCommand.origFileHeader.length()));
-//    else
-//        flags = data.switchCommand.origFileHeader[37];
- //    *stream <<  flags;
+    if (edata.switchCommand.origFileHeader.length()<38){
+       logger()->error("data.switchCommand.origFileHeader has length "+QString::number(edata.switchCommand.origFileHeader.length()));
+    } else {
+       flags = edata.switchCommand.origFileHeader[37];
+    }
+    *stream <<  flags;
 
-    *stream << edata.switchCommand.startGain;
-    *stream << (unsigned char)0;
-    *stream << (unsigned char)20;
-    *stream << (unsigned char)9;
-    *stream << edata.switchCommand.pulseLength;
+    *stream << edata.switchCommand.startGain; // Start Gain
+    *stream << (unsigned char)0;    // Sector Size, Reserved, always 0
+    *stream << (unsigned char)0;    // Train Angle, Reserved, always 0
+    *stream << (unsigned char)0;    // Reserved, always 0
+    *stream << (unsigned char)20;   // Reserved, always 20
+    *stream << (unsigned char)9;    // Reserved, always 9
+    *stream << edata.switchCommand.pulseLength; // Pulse Length
+    // bislang wurden 44 Bytes abgearbeitet.
 
-    stream->writeRawData(QByteArray(42,0), 42);
 
-    *stream << edata.switchCommand.frequency;
+    //*stream << (unsigned char)0;    // Profile, 0=Off
+    stream->writeRawData(QByteArray(42,0), 42); // Bytes 45-86, Zero Fill
+    *stream << edata.switchCommand.frequency; // Operating Frequency
 
-    *stream << (unsigned char)0x10;
-
-    stream->writeRawData(QByteArray(11,0), 11);
+    *stream << (unsigned char)0x11; // Head ID, 0x11 Echosounder
+    stream->writeRawData(QByteArray(11,0), 11); // Bytes 89-99, Zero Fill
 
     stream->writeRawData(edata.packet, edata.packet.length());
 
     if (edata.getDataBytes()==0) {
-        stream->writeRawData(QByteArray(15,0), 15);
+        stream->writeRawData(QByteArray(15,0), 15); // Bytes 113-127, Zero Fill
     } else if (edata.getDataBytes()==252) {
-        stream->writeRawData(QByteArray(19,0), 19);
+        stream->writeRawData(QByteArray(19,0), 19); // Bytes 365-383, Zero Fill
     } else if (edata.getDataBytes()==500) {
-        stream->writeRawData(QByteArray(27,0), 27);
+        stream->writeRawData(QByteArray(27,0), 27); // Bytes 613-639, Zero Fill
     }
 
 }

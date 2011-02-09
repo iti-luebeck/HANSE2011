@@ -29,7 +29,7 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
 
     ui->port->setText(echo->getSettingsValue("serialPort").toString());
     ui->echoRange->setText(echo->getSettingsValue("range").toString());
-
+    ui->serialPort->setText("COM");
 
     ui->sourceFile->setChecked(echo->getSettingsValue("readFromFile").toBool());
     ui->sourceSerial->setChecked(!echo->getSettingsValue("readFromFile").toBool());
@@ -98,11 +98,13 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 
 void EchoSounderForm::on_save_clicked()
 {
-    echo->setSettingsValue("serialPort",ui->port->text());
+    echo->setSettingsValue("serialPort",ui->serialPort->text());
     echo->setSettingsValue("range",ui->range->text());
+    ui->port->setText(echo->getSettingsValue("serialPort").toString());
+    ui->echoRange->setText(echo->getSettingsValue("range").toString());
     echo->reset();
 
-    // Hier fehlt noch ein löschen der view, wenn die range geändert wird.
+    // Hier fehlt ggf. noch ein löschen der view, wenn die range geändert wird.
 
 }
 
