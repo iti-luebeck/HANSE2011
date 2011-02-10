@@ -269,7 +269,7 @@ private:
         ADC_ADC = 0x00,
 
         UID_IDENTIFY = 0x05,
-        UID_REVISION = 0x0C,
+         UID_REVISION = 0x0C,
 
         I2C_ENTERACKMODE = 0x03,
         I2C_LEAVEACKMODE = 0x06,

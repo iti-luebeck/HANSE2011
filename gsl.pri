@@ -1,9 +1,13 @@
-
-win32 {
+win32 { 
     INCLUDEPATH += $$PWD/include
     LIBPATH += $$PWD/lib/gsl
-    LIBS += -lgsl -lgslcblas
+    LIBS += -lgsl \
+        -lgslcblas
 }
 
 # debian/ubuntu: aptitude install libgsl0-dev libblas-dev
-unix:LIBS += -lgsl -lblas
+unix:LIBS += -lgsl \
+    -lblas
+HEADERS += 
+SOURCES += 
+FORMS += 
