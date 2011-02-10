@@ -48,6 +48,7 @@ const EchoReturnData EchoDataSourceSerial::getNextPacket(){
         parent.msleep(5); timeout -= 5;
     }
     if (expectedLength - retData.length()>0) {
+        logger->error("retData.length = "+QString::number(retData.length())+" - expectedLength = "+QString::number(expectedLength));
         logger->error("Received less than expected: "+QString::number(expectedLength - retData.length())+" bytes missing; expected="+QString::number(expectedLength));
     } else {
         logger->debug("received full packet");

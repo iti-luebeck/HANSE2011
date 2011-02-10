@@ -11,7 +11,7 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->setupUi(this);
     this->echo = echo;
 
-    logger = Log4Qt::Logger::logger("EchoSounderForm");
+    //logger = Log4Qt::Logger::logger("EchoSounderForm");
 
     this->ui->graphicsView->setScene(&scene);
 
@@ -29,7 +29,7 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
 
     ui->port->setText(echo->getSettingsValue("serialPort").toString());
     ui->echoRange->setText(echo->getSettingsValue("range").toString());
-    ui->serialPort->setText("COM");
+    ui->serialPort->setText(echo->getSettingsValue("serialPort").toString());
 
     ui->sourceFile->setChecked(echo->getSettingsValue("readFromFile").toBool());
     ui->sourceSerial->setChecked(!echo->getSettingsValue("readFromFile").toBool());
@@ -61,23 +61,30 @@ void EchoSounderForm::changeEvent(QEvent *e)
 
 void EchoSounderForm::updateSounderView(const EchoReturnData data)
 {
+    float range;
+    if(echo->getSettingsValue("readFromFile").toBool() == true){
+        range = data.getRange();
+    }else{
+        range = echo->getSettingsValue("range").toFloat();
+    }
 
     float n = data.getEchoData().length();
-
-    float range = data.getRange();
     scene.clear();
     int height = ui->graphicsView->height()-1;
     int faktor = (height / range);
-
-//    scene.addLine(-256,280,256,280,QPen(QColor("red")))->setZValue(10);
-    for(int i = 1; i < range+1; i++)
-    {
-        scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(43,43,43,255)))->setZValue(10);
-
+    if(range >= 20.0){
+        faktor = faktor * 10;
     }
+//    scene.addLine(-256,280,256,280,QPen(QColor("red")))->setZValue(10);
+
 
     if (ui->updateView->isChecked())
     {
+        for(int i = 1; i < range+1; i++)
+        {
+
+            scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+        }
 
         QLinearGradient gi(0,0,0,279);
         for (int i = 0; i < n; i++) {
@@ -99,10 +106,10 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 void EchoSounderForm::on_save_clicked()
 {
     echo->setSettingsValue("serialPort",ui->serialPort->text());
-    echo->setSettingsValue("range",ui->range->text());
     ui->port->setText(echo->getSettingsValue("serialPort").toString());
+    echo->setSettingsValue("range",ui->range->currentText());
     ui->echoRange->setText(echo->getSettingsValue("range").toString());
-    echo->reset();
+    QTimer::singleShot(0,echo,SLOT(reset()));
 
     // Hier fehlt ggf. noch ein löschen der view, wenn die range geändert wird.
 
@@ -115,8 +122,7 @@ void EchoSounderForm::on_applyButton_clicked()
     echo->setSettingsValue("filename", ui->fileName->text());
     echo->setSettingsValue("enableRecording", ui->enableRecording->isChecked());
     echo->setSettingsValue("formatCSV", ui->formatCSV->isChecked());
-    echo->reset();
-
+    QTimer::singleShot(0,echo,SLOT(reset()));
 }
 
 void EchoSounderForm::on_selFile_clicked()

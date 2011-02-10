@@ -33,7 +33,7 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     recorder = NULL;
     source = NULL;
 
-    reset();
+    //reset();
 }
 Module_EchoSounder::~Module_EchoSounder(){
 }
@@ -129,15 +129,6 @@ bool Module_EchoSounder::doNextScan(){
 //    }
 }
 
-// Klappt das so?!
-//EchoReturnData Module_EchoSounder::getScan(){
-//    if(doNextScan() == true){
-//        return d;
-//    }else{
-//        return NULL;
-//    }
-//}
-
 void Module_EchoSounder::reset(){
     RobotModule::reset();
 
@@ -186,6 +177,15 @@ void Module_EchoSounder::reset(){
     logger->debug("Restarting reader.");
     reader.start();
 }
+
+// Klappt das so?!
+//EchoReturnData Module_EchoSounder::getScan(){
+//    if(doNextScan() == true){
+//        return d;
+//    }else{
+//        return NULL;
+//    }
+//}
 
 QList<RobotModule*> Module_EchoSounder::getDependencies()
 {
