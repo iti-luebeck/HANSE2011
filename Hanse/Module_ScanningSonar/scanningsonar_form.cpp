@@ -140,7 +140,10 @@ void ScanningSonarForm::on_save_clicked()
     sonar->setSettingsValue("switchDelay", ui->switchDelay->text().toInt());
     sonar->setSettingsValue("trainAngle", ui->trainAngle->text().toInt());
     sonar->setSettingsValue("dataPoints", ui->dataPoints->text().toInt());
-    sonar->reset();
+
+    QTimer::singleShot(0,sonar,SLOT(reset()));
+
+
 
     // the scan resolution may have changed, clear the graphics scene
     foreach(QGraphicsItem* g, queue) {
@@ -157,8 +160,9 @@ void ScanningSonarForm::on_fileCfgApply_clicked()
     sonar->setSettingsValue("formatCSV", ui->formatCSV->isChecked());
     sonar->setSettingsValue("startTime", ui->startTime->dateTime());
 
+    // richtiges reset?
+    QTimer::singleShot(0,sonar,SLOT(reset()));
 
-    sonar->reset();
 }
 
 void ScanningSonarForm::on_fileReaderDelay_valueChanged(int )
