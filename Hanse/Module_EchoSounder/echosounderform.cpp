@@ -71,7 +71,7 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
     float n = data.getEchoData().length();
     scene.clear();
     int height = ui->graphicsView->height()-1;
-    int faktor = (height / range);
+    float faktor = (height / range);
     if(range >= 20.0){
         faktor = faktor * 10;
     }
