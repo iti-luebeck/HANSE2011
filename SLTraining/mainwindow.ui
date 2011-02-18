@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1068</width>
+    <height>450</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>20</y>
+      <width>211</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Tab 1</string>
+     </attribute>
+     <widget class="QPushButton" name="loadSVM">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>98</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load SVM</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>100</y>
+        <width>98</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load samples</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="saveSVM">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>70</y>
+        <width>98</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>save SVM</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="loadSonarFile">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>130</y>
+        <width>98</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>open Sonarfile</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="selectSamples">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>160</y>
+        <width>98</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>select samples</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="classify">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>200</y>
+        <width>98</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>classify</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Tab 2</string>
+     </attribute>
+     <widget class="QLineEdit" name="gain">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>90</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>180</y>
+        <width>98</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>UpdateUI</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="range">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="heading">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>150</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QDateTimeEdit" name="time">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>210</y>
+        <width>194</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QGraphicsViewExtended" name="graphicsView">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>60</y>
+      <width>441</width>
+      <height>341</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QGraphicsViewExtended" name="graphicsView_2">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>60</y>
+      <width>200</width>
+      <height>341</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QGraphicsViewExtended</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">qgraphicsviewextended.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
