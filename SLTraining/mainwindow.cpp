@@ -188,10 +188,10 @@ void MainWindow::on_loadSonarFile_clicked()
 //    QString path = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
     QString path = "/home/hanse/Desktop/scanningsonar.852";
 
-    QList<QByteArray> samples;
     QDateTime time = QDateTime::fromString("M2d2y1114:42:59","'M'M'd'd'y'yyhh:mm:ss");
-    SonarDataSourceFile *file = NULL;
+    SonarEchoFilter filter = SonarEchoFilter();
 
+    SonarDataSourceFile *file = NULL;
     file = new SonarDataSourceFile(this,path);
     file->fileReaderDelay = 10;
     file->startTime = time;
@@ -200,14 +200,18 @@ void MainWindow::on_loadSonarFile_clicked()
         qDebug() << "ERR could not open file";
         file = NULL;
     }
+    else
+    {
     SonarReturnData dat = file->getNextPacket();
     while(dat.isPacketValid())
     {
+
         samples.append(dat.getEchoData());
         dat = file->getNextPacket();
     }
     qDebug() << "Samples: " << samples.length();
-  }
+}
+}
 
 
 

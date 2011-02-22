@@ -47,6 +47,9 @@ private:
     int keyPressed;
     SonarEchoFilter *filter;
 
+    //...
+    QList<QByteArray> samples;
+
 
 public slots:
     void updateSonarView(const SonarReturnData data);
