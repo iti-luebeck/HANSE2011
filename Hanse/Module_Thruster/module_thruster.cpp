@@ -97,6 +97,7 @@ void Module_Thruster::setSpeed(float speed)
         setHealthToOk();
         emit dataChanged(this);
         this->dataLockerMutex.unlock();
+        logger->debug("Speed an Sim "+QString::number(speedRaw));
         return;
     }
 
