@@ -79,7 +79,7 @@ SonarReturnData SonarDataSourceFile::readPacket()
     // chop of trailing zero fill
     remainingDataArray.chop(totalBytes - 100 - cmd.nToRead);
 
-    qDebug() << "Read packet with content " << (QString)remainingDataArray.toHex();
+//    qDebug() << "Read packet with content " << (QString)remainingDataArray.toHex();
 
     SonarReturnData d(cmd, remainingDataArray);
     return d;

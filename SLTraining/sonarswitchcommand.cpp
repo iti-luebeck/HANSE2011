@@ -108,10 +108,10 @@ void SonarSwitchCommand::extractHeader(const QByteArray &a)
     if (headID != 0x10)
         qDebug() << "ERR read bad value as head ID. parser error?";
 
-    qDebug() << "totalBytes=" << QString::number(totalBytes);
-    qDebug() << "nToRead=" << QString::number(nToRead);
-    qDebug() << "startGain=" << QString::number(startGain);
-    qDebug() << "DateTime=" << this->time.toString("ddd MMM d yyyy HH:mm:ss.zzz");
+//    qDebug() << "totalBytes=" << QString::number(totalBytes);
+//    qDebug() << "nToRead=" << QString::number(nToRead);
+//    qDebug() << "startGain=" << QString::number(startGain);
+//    qDebug() << "DateTime=" << this->time.toString("ddd MMM d yyyy HH:mm:ss.zzz");
 
     origFileHeader = a;
 }

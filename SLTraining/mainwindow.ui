@@ -69,7 +69,7 @@
        <string>save SVM</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="loadSonarFile">
+     <widget class="QPushButton" name="loadSonarFile3">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -106,6 +106,19 @@
       </property>
       <property name="text">
        <string>classify</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="loadSonarFile">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>151</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load SonarData</string>
       </property>
      </widget>
     </widget>

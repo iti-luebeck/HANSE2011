@@ -59,6 +59,7 @@ private slots:
     void on_loadSVM_clicked();
     void on_saveSVM_clicked();
     void on_loadSamples_clicked();
+
 };
 
 #endif // MAINWINDOW_H
