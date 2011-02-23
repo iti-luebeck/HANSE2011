@@ -9,56 +9,36 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(&svmClassy,SIGNAL(updateUI(SonarReturnData)),this,SLOT(updateSonarView(SonarReturnData)));
-
-
-    oldHeading = NAN;
-    oldStepSize = 0;
-    this->ui->graphicsView->setScene(&scene);
-    scanLine = scene.addLine(0,0,0,50, QPen(QColor("red")));
-    scanLine->setZValue(20);
-
-    scene.addLine(-50,0,50,0,QPen(QColor("white")))->setZValue(10);
-    scene.addLine(0,-50,0,50,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-50,-50,100,100,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-40,-40,80,80,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-30,-30,60,60,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-20,-20,40,40,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-10,-10,20,20,QPen(QColor("white")))->setZValue(10);
-
-    //define QMessageBox for user interaction
-    pos = box.addButton(tr("Positiv"),QMessageBox::ActionRole);
-    neg = box.addButton(tr("Negativ"),QMessageBox::ActionRole);
-    skip = box.addButton(tr("Skip"),QMessageBox::ActionRole);
-    quit = box.addButton(tr("Quit"),QMessageBox::ActionRole);
-
-    pos->setShortcut(Qt::Key_1);
-    neg->setShortcut(Qt::Key_2);
-    skip->setShortcut(Qt::Key_3);
-    quit->setShortcut(Qt::Key_Q);
-
-    box.setInformativeText("How to classify actual EchoData?");
-    box.setEscapeButton(quit);
-    box.setDefaultButton(skip);
-    box.setIcon(QMessageBox::Question);
-
-
-
-
-
+    //define Actions for classification
+    actionPos = new QAction(this);
+    actionPos->setShortcut(Qt::Key_1);
+    connect(actionPos,SIGNAL(triggered()),this,SLOT(positivSample()));
+    actionNeg = new QAction(this);
+    actionNeg->setShortcut(Qt::Key_2);
+    connect(actionNeg,SIGNAL(triggered()),this,SLOT(negativSample()));
+    actionSkip = new QAction(this);
+    actionSkip->setShortcut(Qt::Key_3);
+    connect(actionSkip,SIGNAL(triggered()),this,SLOT(skipSample()));
+    //graphic for polarcoordinates
     this->ui->graphicsView_2->setScene(&scene2);
-
     QLinearGradient gi(0,0,0,279);
     gi.setColorAt(0,QColor("black"));
-    gi.setColorAt(279,QColor("black"));
-    for(int i =0; i<100; i++)
-    {
-//        QGraphicsRectItem *rit = scene.addRect((i*10),1,(i+1)*10,274,(Qt::NoPen));
-//        rit->setBrush(QBrush(gi));
-//        ritQueue.append(rit);
+    gi.setColorAt(1,QColor("black"));
+    simpleViewWidth = 51;
+    selSampleWidth = ui->selSampleWidthSlider->value();
+    scene2.clear();
+    dataQueue.clear();
+    for(int i =0; i<simpleViewWidth; i++)
         dataQueue.append(gi);
-    }
-
+    //init variables
+    viewData.clear();
+    samples.clear();
+    wallCandidates.clear();
+    pSamples.clear();
+    nSamples.clear();
+    range = 0.0;
+    currSample = 0;
+    filter = NULL;
 }
 
 MainWindow::~MainWindow()
@@ -67,126 +47,67 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::on_loadSamples_clicked()
-{
-    QString s = "U";
-//    QString s = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
-
-     svmClassy.loadSamples(s);
-}
-
 void MainWindow::on_saveSVM_clicked()
 {
-    svmClassy.save();
+
 }
 
 void MainWindow::on_loadSVM_clicked()
 {
-    svmClassy.load();
+
 }
 
-void MainWindow::updateSonarView2(const SonarReturnData data)
+void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
 {
-    float range  = data.getRange();
-
-    float n = data.getEchoData().length();
+    float n = curDataSet.first().length();
     scene2.clear();
     int height = ui->graphicsView_2->height()-1;
-    float faktor = (height / range);
-    if(range >= 20.0){
-        faktor = faktor * 10;
-    }
-//    scene.addLine(-256,280,256,280,QPen(QColor("red")))->setZValue(10);
-
-
-    if (ui->checkBox_3->isChecked())
-    {
-        for(int i = 1; i < range+1; i++)
-        {
-
-            scene2.addLine(0,(i*faktor),100,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
-        }
-
-        QLinearGradient gi(0,0,0,279);
-        for (int i = 0; i < n; i++) {
-            char b = data.getEchoData()[i];
-            gi.setColorAt(1.0*i/n,QColor(0,2*b,0));
-        }
-        dataQueue.append(gi);
-        dataQueue.pop_front();
-
-        for(int i =0; i<100; i++)
-        {
-            QGraphicsRectItem *rit = scene2.addRect((i*1),1,(i+1)*1,274,(Qt::NoPen));
-            rit->setBrush(QBrush(dataQueue[i]));
-        }
-    }
-
-}
-
-void MainWindow::updateSonarView(const SonarReturnData data)
-{
-    float n = data.getEchoData().length();
-    float range = data.getRange();
-
-    if (oldStepSize != data.switchCommand.stepSize) {
-        oldStepSize = data.switchCommand.stepSize;
-        foreach (QGraphicsPolygonItem* o, queue) {
-            delete o;
-        }
-        queue.clear();
-    }
-
-
-    ui->time->setDateTime(data.switchCommand.time);
-    ui->heading->setText(QString::number(data.getHeadPosition()));
-    ui->gain->setText(QString::number(data.switchCommand.startGain));
-    ui->range->setText(QString::number(data.getRange()));
-
-    // TODO: if any of the parameters have changed; reset the scene
-
-    float newHeading = data.getHeadPosition();
-    int bla = oldHeading;
-    bool isnumber = (bla != 0);
-
-    if(ui->checkBox_3->isChecked() && isnumber && (fabs(newHeading - oldHeading)<20 || fabs(newHeading - oldHeading)>340))
+    float faktor = (height/range);
+//    if(range > 20.0)
+//        faktor = faktor * 10;
+    if(true)
     {
 
-        QPolygonF polygon;
+        for(int i = 1; i<range+1; i++)
+            scene2.addLine(0,(i*faktor),simpleViewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
 
-        QPointF endPoint1 = QTransform().rotate(oldHeading).map(QPointF(range,0));
-        QPointF endPoint2 = QTransform().rotate(newHeading).map(QPointF(range,0));
+        for(int j=0; j<curDataSet.size(); j++)
+        {
+            QLinearGradient gi(0,0,0,279);
+            for (int i = 0; i < n; i++) {
+                QByteArray data = curDataSet.at(j);
+                char b = data[i];
+//                if(j == (curDataSet.length()/2))
+                int wws = ui->wallwindowsize->text().toInt();
+                if((j == (currSample)))
+                {
+                     if((i >= (wallCandidates.first() - wws)) && (i <= (wallCandidates.first() + wws)))
+                        gi.setColorAt(1.0*i/n,QColor(255*b,0,0));
+                     else
+                         gi.setColorAt(1.0*i/n,QColor(0,0,255*b));
+                }
+                else
+                    gi.setColorAt(1.0*i/n,QColor(0,255*b,0));
+            }
+            dataQueue.append(gi);
+            dataQueue.pop_front();
 
-        polygon << QPointF(0,0) << endPoint1 << endPoint2;
-        QGraphicsPolygonItem *it = scene.addPolygon(polygon,QPen(Qt::NoPen));
-        queue.append(it);
-
-        scanLine->setRotation(newHeading-90);
-
-        QLinearGradient g(QPointF(0, 0), endPoint2);
-        for (int i = 0; i < n; i++) {
-            char b = data.getEchoData()[i];
-            g.setColorAt(1.0*i/n,QColor(0,2*b,0));
         }
-        it->setBrush(QBrush(g));
 
-        // this should ensure that a full circle is conserved even at highest resolution
-        // it may result in overlay, but this doesn't matter since newer items will always
-        // be drawn on top of older ones.
-        // 480: don't ask, it just works :)
-        while (queue.size()>480/(oldStepSize*3+3)) {
-            delete queue.takeFirst();
-        }
+        for(int i =0; i<currSample; i++)
+            scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
+        scene2.addRect(currSample,1,selSampleWidth,274,(Qt::NoPen),QBrush(dataQueue[currSample]));
+        for(int i =currSample+1; i<simpleViewWidth; i++)
+            scene2.addRect(i+selSampleWidth-1,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
 
     }
-
-    oldHeading = newHeading;
 }
 
 void MainWindow::on_loadSonarFile_clicked()
 {
-//    QString path = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
-    QString path = "/home/hanse/Desktop/scanningsonar.852";
+    //    QString path = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
+    //    QString path = "/home/hanse/Desktop/scanningsonar.852";
+    QString path = "/home/kluessi/Downloads/untertrave.852";
 
     QDateTime time = QDateTime::fromString("M2d2y1114:42:59","'M'M'd'd'y'yyhh:mm:ss");
     SonarEchoFilter filter = SonarEchoFilter();
@@ -202,81 +123,144 @@ void MainWindow::on_loadSonarFile_clicked()
     }
     else
     {
-    SonarReturnData dat = file->getNextPacket();
-    while(dat.isPacketValid())
-    {
-
-        samples.append(dat.getEchoData());
-        dat = file->getNextPacket();
+        samples.clear();
+        wallCandidates.clear();
+        SonarReturnData dat = file->getNextPacket();
+        range = dat.getRange();
+        int count = 222;
+        currSample = simpleViewWidth/2;
+        int cntWallCandSkip = 0;
+        QByteArray filteredSample;
+        while(dat.isPacketValid() && count > 0)
+        {
+            cntWallCandSkip++;
+           filteredSample = filter.newSonarData(dat);
+           if(cntWallCandSkip > currSample)
+               wallCandidates.append(filter.findWall(dat,filteredSample));
+//           wallCandidates.append(filter.findWall(dat,dat.getEchoData()));
+            samples.append(filteredSample);
+//           qDebug() << "size" << QString::number(filteredSample.size()) << " " << dat.getEchoData().size();
+//            samples.append(dat.getEchoData());
+            dat = file->getNextPacket();
+            count--;
+        }
+        if(samples.size() != (wallCandidates.size()+currSample))
+            qDebug() << "something terribly went wrong";
+        qDebug() << "Samples: " << samples.length();
     }
-    qDebug() << "Samples: " << samples.length();
 }
-}
-
-
-
 
 void MainWindow::askForClasses()
 {
-//    QString path = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
-    QString path = "/home/hanse/Desktop/scanningsonar.852";
-
-    QList<QByteArray> pSamples;
-    QList<QByteArray> nSamples;
-    SonarDataSourceFile *file = NULL;
-
-    QDateTime time = QDateTime::fromString("M2d2y1114:42:59","'M'M'd'd'y'yyhh:mm:ss");
-    file = new SonarDataSourceFile(this,path);
-    file->fileReaderDelay = 10;
-    file->startTime = time;
-
-//    filter = new SonarEchoFilter();
-
-    SonarEchoFilter filter = SonarEchoFilter();
-
-    if(!file->isOpen())
+    if(samples.size() < 50 )
     {
-        qDebug() << "ERR could not open file";
-        file = NULL;
+        qDebug() << "Need more than 50 samples to classify";
     }
-
-    bool check = false;
-    SonarReturnData dat = file->getNextPacket();
-
-    QByteArray arr = filter.newSonarData(dat);
-    QByteArray tmp = dat.packet;
-    for(int i = 12; i < arr.size()+12; i++)
-        tmp[i] = arr[i-12];
-
-    SonarReturnData data = SonarReturnData(dat.switchCommand,tmp);
-
-    while(data.isPacketValid() && !check)
+    else
     {
-        this->updateSonarView(data);
-        this->updateSonarView2(data);
-
-        if(ui->classify->isChecked())
+        viewData.clear();
+        for(int i=0;i<simpleViewWidth;i++)
         {
-        box.exec();
-        if(box.clickedButton() == quit)
-            check = true;
-        else if(box.clickedButton() == pos)
-            pSamples.append(data.getEchoData());
-        else  if(box.clickedButton() == neg)
-            nSamples.append(data.getEchoData());
-    } else
-        {
+            viewData.append(samples.takeFirst());
+        }
+        qDebug() << "size "+QString::number(viewData.size()) << "current sample " << QString::number(currSample);
+        this->updateSonarView2(viewData);
 
+        this->addAction(actionPos);
+        this->addAction(actionSkip);
+        this->addAction(actionNeg);
     }
-        data = file->getNextPacket();
-    }
-
-
 }
 
+void MainWindow::positivSample()
+{
+    pSamples.append(viewData.at(currSample));
+    skipSample();
+}
+
+void MainWindow::negativSample()
+{
+    pSamples.append(viewData.at(currSample));
+    skipSample();
+}
+
+void MainWindow::skipSample()
+{
+    if(!samples.isEmpty())
+    {
+        viewData.pop_front();
+        viewData.append(samples.takeFirst());
+        wallCandidates.pop_front();
+        this->updateSonarView2(viewData);
+
+    }
+    else
+    {
+     this->clearActions();
+    }
+}
+void MainWindow::clearActions()
+{
+    scene2.clear();
+    this->removeAction(actionPos);
+    this->removeAction(actionSkip);
+    this->removeAction(actionNeg);
+}
 
 
 void MainWindow::on_selectSamples_clicked()
 {
     this->askForClasses();
+}
+
+void MainWindow::on_selSampleWidthSlider_sliderMoved(int position)
+{
+    ui->selSampleLabel->setText("Selected Sample Width ("+QString::number(position)+")");
+    selSampleWidth = position;
+}
+
+void MainWindow::trainSVM()
+{
+    svm = new SVMClassifier();
+    CvMat samples;
+    CvMat classes;
+    cv::Mat clasLab = cv::Mat::ones(1,pSamples.size()+nSamples.size(),CV_8UC1);
+    for(int i=0;i<nSamples.size();i++)
+    {
+        clasLab.at<int>(0,i+pSamples.size()) = -1;
+    }
+
+    svm->train(&samples,&classes);
+
+}
+
+cv::Mat MainWindow::cvtList2Mat()
+{
+
+    QByteArray array;
+    cv::Mat m = cv::Mat::zeros(pSamples.size()+nSamples.size(),pSamples.first().size(),CV_32F);
+
+    for(int j=0;j<pSamples.size();j++)
+    {
+        array = pSamples.at(j);
+        for(int i=0;i<array.size();i++)
+        {
+            m.at<float>(j,i) = array[i];
+        }
+    }
+    for(int j=0;j<nSamples.size();j++)
+    {
+        array = nSamples.at(j);
+        for(int i=0;i<array.size();i++)
+        {
+            m.at<float>(j+pSamples.size(),i) = array[i];
+        }
+    }
+
+    return m;
+}
+
+void MainWindow::on_testSVM_clicked()
+{
+
 }

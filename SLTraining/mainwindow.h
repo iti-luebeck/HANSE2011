@@ -2,8 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <svmclassifier.h>
 #include <sonardatasourcefile.h>
+#include "a.out.h"
+#include "SVMClassifier.h"
 
 class SonarEchoFilter;
 
@@ -22,47 +23,48 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    SVMClassifier svmClassy;
+    SVMClassifier *svm;
 
-    //sonar like view
-    QGraphicsScene scene;
-    QQueue<QGraphicsPolygonItem*> queue;
-    QGraphicsItem* scanLine;
-    float oldHeading;
-    int oldStepSize;
-
-    //simple view
+    //simple sonar view
     QGraphicsScene scene2;
     QQueue<QLinearGradient> dataQueue;
-    QQueue<QGraphicsRectItem*> ritQueue;
+    int simpleViewWidth;
+    int selSampleWidth;
 
+    //for classification
+    QList<QByteArray> viewData;
+    QList<QByteArray> samples;
+    QList<int> wallCandidates;
+    QList<QByteArray> pSamples;
+    QList<QByteArray> nSamples;
+    float range;
+    int currSample;
+    QAction *actionPos;
+    QAction *actionNeg;
+    QAction *actionSkip;
 
     void askForClasses();
-    //buttons
-    QPushButton *pos;
-    QPushButton *neg;
-    QPushButton *skip;
-    QPushButton *quit;
-    QMessageBox box;
-    int keyPressed;
     SonarEchoFilter *filter;
-
-    //...
-    QList<QByteArray> samples;
-
+    void clearActions();
+    cv::Mat cvtList2Mat();
 
 public slots:
-    void updateSonarView(const SonarReturnData data);
-    void updateSonarView2(const SonarReturnData data);
+    void updateSonarView2(const QList<QByteArray> samples);
+    void trainSVM();
 
 private slots:
 
+    void on_testSVM_clicked();
+    void on_selSampleWidthSlider_sliderMoved(int position);
     void on_selectSamples_clicked();
     void on_loadSonarFile_clicked();
     void on_loadSVM_clicked();
     void on_saveSVM_clicked();
-    void on_loadSamples_clicked();
 
+    //classifier slots
+    void positivSample();
+    void negativSample();
+    void skipSample();
 };
 
 #endif // MAINWINDOW_H

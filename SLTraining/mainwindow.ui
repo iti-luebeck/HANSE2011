@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1068</width>
-    <height>450</height>
+    <width>1195</width>
+    <height>705</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>40</x>
       <y>20</y>
-      <width>211</width>
-      <height>271</height>
+      <width>351</width>
+      <height>541</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -28,103 +28,92 @@
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>Tab 1</string>
+      <string>Main</string>
      </attribute>
-     <widget class="QPushButton" name="loadSVM">
+     <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>40</y>
-        <width>98</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>load SVM</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>100</y>
-        <width>98</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>load samples</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="saveSVM">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>70</y>
-        <width>98</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>save SVM</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="loadSonarFile3">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>130</y>
-        <width>98</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>open Sonarfile</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="selectSamples">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>160</y>
-        <width>98</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>select samples</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="classify">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>200</y>
-        <width>98</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>classify</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="loadSonarFile">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
+        <x>0</x>
         <y>10</y>
-        <width>151</width>
-        <height>27</height>
+        <width>291</width>
+        <height>401</height>
        </rect>
       </property>
-      <property name="text">
-       <string>load SonarData</string>
-      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QPushButton" name="loadSonarFile">
+         <property name="text">
+          <string>Load SonarData</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="selectSamples">
+         <property name="text">
+          <string>Select Samples</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="selSampleLabel">
+         <property name="text">
+          <string>Selected Sample Width ():</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSlider" name="selSampleWidthSlider">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>6</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="loadSVM">
+         <property name="text">
+          <string>Load SVM</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QPushButton" name="saveSVM">
+         <property name="text">
+          <string>Save SVM</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QPushButton" name="testSVM">
+         <property name="text">
+          <string>Test SVM</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QCheckBox" name="classify">
+         <property name="text">
+          <string>classify</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>Tab 2</string>
+      <string>UI</string>
      </attribute>
      <widget class="QLineEdit" name="gain">
       <property name="geometry">
@@ -183,24 +172,101 @@
       </property>
      </widget>
     </widget>
-   </widget>
-   <widget class="QGraphicsViewExtended" name="graphicsView">
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>60</y>
-      <width>441</width>
-      <height>341</height>
-     </rect>
-    </property>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Wall Conf</string>
+     </attribute>
+     <widget class="QWidget" name="formLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>30</y>
+        <width>191</width>
+        <height>161</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="Gausslabel">
+         <property name="text">
+          <string>Gauss Factor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="gaussfactor">
+         <property name="text">
+          <string>0.7870</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="VarianceThreshlabel">
+         <property name="text">
+          <string>Variance Thresh</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="varianceThresh">
+         <property name="text">
+          <string>0.04</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="Wallwindowlabel">
+         <property name="text">
+          <string>WallWindow Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="wallwindowsize">
+         <property name="text">
+          <string>3</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="LargePeakTHlabel_2">
+         <property name="text">
+          <string>Large Peak TH</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="largePeakTH">
+         <property name="text">
+          <string>0.5</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="MeanBehindLabel">
+         <property name="text">
+          <string>Mean Behind TH</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="meanBehindTH">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </widget>
    <widget class="QGraphicsViewExtended" name="graphicsView_2">
     <property name="geometry">
      <rect>
-      <x>770</x>
-      <y>60</y>
-      <width>200</width>
-      <height>341</height>
+      <x>610</x>
+      <y>50</y>
+      <width>521</width>
+      <height>621</height>
      </rect>
     </property>
    </widget>

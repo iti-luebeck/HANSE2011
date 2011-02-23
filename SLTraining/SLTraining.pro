@@ -3,19 +3,19 @@ include(../OpenCV.pri)
 
 SOURCES += main.cpp \
     mainwindow.cpp \
-    svmclassifier.cpp \
     sonarechofilter.cpp \
     sonarswitchcommand.cpp \
     sonarreturndata.cpp \
     sonardatasourcefile.cpp \
-    qgraphicsviewextended.cpp
+    qgraphicsviewextended.cpp \
+    SVMClassifier.cpp
 HEADERS += mainwindow.h \
-    svmclassifier.h \
     sonarechofilter.h \
     sonarswitchcommand.h \
     sonarreturndata.h \
     sonardatasourcefile.h \
-    qgraphicsviewextended.h
+    qgraphicsviewextended.h \
+    SVMClassifier.h
 
 FORMS += mainwindow.ui
 DESTDIR = ../build

@@ -12,6 +12,12 @@ SonarEchoFilter::SonarEchoFilter()
 //    this->sloc = parent;
 
     reset();
+
+    gGaussFactor = 0.7870;
+    gVarianceTH = 0.04;
+    gWallWindowSize = 3;
+    gLargePeakTH = 0.5;
+    gMeanBehindTH = 1.0;
 }
 
 /**
@@ -42,9 +48,8 @@ QByteArray SonarEchoFilter::newSonarData(SonarReturnData data)
 
     filteredHistory[data.switchCommand.time] = mat2QVector(echoFiltered);
 
-    int K = findWall(data,echoFiltered);
+//    int K = findWall(data,echoFiltered);
 
-    SonarSwitchCommand cmd = data.switchCommand;
     QByteArray arr = mat2byteArray(echoFiltered);
     return arr;
 
@@ -64,7 +69,7 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
 
         // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
         // changed gaus factor
-        float gF = 0.5;
+        float gF = gGaussFactor;
         echoFiltered.at<float>(0,i) =  window.at<float>(0,0)*(1-gF)/2
                                      + window.at<float>(0,1)*gF
                                      + window.at<float>(0,2)*(1-gF)/2;
@@ -75,9 +80,9 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
         if (data.switchCommand.startGain==15)
             cutOff = (7.0/20)*(i-50)/127;
         else {
-            // a1 times a2
-            cutOff = (0.123*123.45)/127;
-            qDebug() << "Using parameters as gain.";
+            //changed a1 times a2
+            cutOff = (7.0/20)*(i-50)/127;
+//            qDebug() << "Using parameters as gain.";
         }
 
         if (cutOff<0)
@@ -109,12 +114,14 @@ void SonarEchoFilter::addToList(QList<QVector2D>& list, const QVector2D p)
         list.append(p);
 }
 
-int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
+int SonarEchoFilter::findWall(SonarReturnData data,const QByteArray echoBA)
 {
+    const cv::Mat echo = this->byteArray2Mat(echoBA);
+
     // find last maximum
 
     //changed wallwindows size
-    int wSize=12;
+    int wSize= gWallWindowSize;
 
     QVector<double> varHist(N);
     QVector<double> meanHist(N);
@@ -137,7 +144,7 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 
         // TODO: fiddle with TH, or move it a little bit to the left
         //changed
-        bool largePeak = mean[0]>3.2;
+        bool largePeak = mean[0]>gLargePeakTH;
 
         // calc mean in area behind our current pos.
         Mat prev = echo.colRange(j+wSize,echo.cols-1);
@@ -147,8 +154,8 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
         meanHist[j]=meanBehind;
 
         // take first peak found.
-        if (stdDevInWindow > 2.2
-            && meanBehind< 1.0
+        if (stdDevInWindow > gVarianceTH
+            && meanBehind< gMeanBehindTH
             && largePeak && K<0) {
             K=j;
         }

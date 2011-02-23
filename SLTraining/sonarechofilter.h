@@ -24,6 +24,8 @@ public:
     QMap<QDateTime, QVector<double> > meanHistory;
 
     QByteArray newSonarData(SonarReturnData data);
+    int findWall(SonarReturnData data,const QByteArray echoBA);
+
 
 //signals:
 //    void newImage(QList<QVector2D> observations);
@@ -45,10 +47,16 @@ private:
 //    QSettings& s;
 
     cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
-    int findWall(SonarReturnData data,const cv::Mat& echo);
-    cv::Mat byteArray2Mat(QByteArray array);
     QByteArray mat2byteArray(cv::Mat& mat);
     QVector<double> mat2QVector(cv::Mat& mat);
+    cv::Mat byteArray2Mat(QByteArray array);
+
+    //ehemals settings
+    float gGaussFactor;
+    float gVarianceTH;
+    int gWallWindowSize;
+    float gLargePeakTH;
+    float gMeanBehindTH;
 
 };
 
