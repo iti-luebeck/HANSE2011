@@ -41,15 +41,16 @@ void SVMClassifier::train(CvMat *data, CvMat *classes)
 	CvParamGrid gamma_grid = CvSVM::get_default_grid(CvSVM::GAMMA);
 	CvParamGrid nu_grid = CvSVM::get_default_grid(CvSVM::NU);
 
-	svm->train_auto(data, classes,	// Train data, classes
-		NULL, NULL,					// Var index, sample index
-		params, 20,					// Params, K
-		CvParamGrid(),				// C
-		gamma_grid,					// GAMMA
-		CvParamGrid(),				// P
-		nu_grid,					// NU
-		CvParamGrid(),				// COEF
-		CvParamGrid());				// DEGREE
+        svm->train(data,classes,NULL,NULL,params);
+//	svm->train_auto(data, classes,	// Train data, classes
+//		NULL, NULL,					// Var index, sample index
+//		params, 20,					// Params, K
+//		CvParamGrid(),				// C
+//		gamma_grid,					// GAMMA
+//		CvParamGrid(),				// P
+//		nu_grid,					// NU
+//		CvParamGrid(),				// COEF
+//		CvParamGrid());				// DEGREE
 
 	// params = svm->get_params();
 }

@@ -50,10 +50,11 @@ private:
 
 public slots:
     void updateSonarView2(const QList<QByteArray> samples);
-    void trainSVM();
+
 
 private slots:
 
+    void on_trainSVM_clicked();
     void on_testSVM_clicked();
     void on_selSampleWidthSlider_sliderMoved(int position);
     void on_selectSamples_clicked();

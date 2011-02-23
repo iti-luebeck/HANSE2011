@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
     range = 0.0;
     currSample = 0;
     filter = NULL;
+
+    svm = new SVMClassifier();
 }
 
 MainWindow::~MainWindow()
@@ -49,12 +51,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_saveSVM_clicked()
 {
-
+    svm->saveClassifier("SLtrainingSVM");
 }
 
 void MainWindow::on_loadSVM_clicked()
 {
-
+    svm->loadClassifier("SLtrainingSVM");
 }
 
 void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
@@ -147,7 +149,10 @@ void MainWindow::on_loadSonarFile_clicked()
         if(samples.size() != (wallCandidates.size()+currSample))
             qDebug() << "something terribly went wrong";
         qDebug() << "Samples: " << samples.length();
+
     }
+    delete file;
+    file = NULL;
 }
 
 void MainWindow::askForClasses()
@@ -219,20 +224,6 @@ void MainWindow::on_selSampleWidthSlider_sliderMoved(int position)
     selSampleWidth = position;
 }
 
-void MainWindow::trainSVM()
-{
-    svm = new SVMClassifier();
-    CvMat samples;
-    CvMat classes;
-    cv::Mat clasLab = cv::Mat::ones(1,pSamples.size()+nSamples.size(),CV_8UC1);
-    for(int i=0;i<nSamples.size();i++)
-    {
-        clasLab.at<int>(0,i+pSamples.size()) = -1;
-    }
-
-    svm->train(&samples,&classes);
-
-}
 
 cv::Mat MainWindow::cvtList2Mat()
 {
@@ -262,5 +253,49 @@ cv::Mat MainWindow::cvtList2Mat()
 
 void MainWindow::on_testSVM_clicked()
 {
+
+    on_loadSonarFile_clicked();
+
+//    pSamples = samples;
+//    cv::Mat testData = cvtList2Mat();
+//    CvMat test = testData;
+
+    cv::Mat m = cv::Mat(samples.first().size(),1,CV_32FC1);
+    QByteArray array;
+    int j = 12;
+//    for(int j=0;j<samples.size();j++)
+//    {
+        array = samples.at(j);
+        for(int i=0;i<array.size();i++)
+        {
+            m.at<float>(0,i) = array[i];
+        }
+        CvMat test = (CvMat)m;
+        int predClass = 9;
+        predClass = svm->svmClassification(&test);
+        int blub = 34;
+        qDebug() << j << " Class " << predClass;
+
+//    }
+
+
+
+
+}
+
+void MainWindow::on_trainSVM_clicked()
+{
+    CvMat samples;
+    CvMat classes;
+    cv::Mat clasLab = cv::Mat::ones(1,pSamples.size()+nSamples.size(),CV_32S);
+    for(int i=0;i<nSamples.size();i++)
+    {
+        clasLab.at<int>(0,i+pSamples.size()) = -1;
+    }
+
+    samples = cvtList2Mat();
+    classes = clasLab;
+    svm->train(&samples,&classes);
+
 
 }
