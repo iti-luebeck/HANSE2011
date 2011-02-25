@@ -109,7 +109,7 @@ void MainWindow::on_loadSonarFile_clicked()
 {
     //    QString path = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
     //    QString path = "/home/hanse/Desktop/scanningsonar.852";
-    QString path = "/home/kluessi/Downloads/untertrave.852";
+    QString path = "/home/hanse/untertrave.852";
 
     QDateTime time = QDateTime::fromString("M2d2y1114:42:59","'M'M'd'd'y'yyhh:mm:ss");
     SonarEchoFilter filter = SonarEchoFilter();
@@ -185,7 +185,7 @@ void MainWindow::positivSample()
 
 void MainWindow::negativSample()
 {
-    pSamples.append(viewData.at(currSample));
+    nSamples.append(viewData.at(currSample));
     skipSample();
 }
 
@@ -229,7 +229,7 @@ cv::Mat MainWindow::cvtList2Mat()
 {
 
     QByteArray array;
-    cv::Mat m = cv::Mat::zeros(pSamples.size()+nSamples.size(),pSamples.first().size(),CV_32F);
+    cv::Mat m = cv::Mat::zeros(pSamples.size()+nSamples.size(),pSamples.first().size(),CV_32FC1);
 
     for(int j=0;j<pSamples.size();j++)
     {
@@ -248,7 +248,7 @@ cv::Mat MainWindow::cvtList2Mat()
         }
     }
 
-    return m;
+    return m; //m.t();
 }
 
 void MainWindow::on_testSVM_clicked()
@@ -262,21 +262,22 @@ void MainWindow::on_testSVM_clicked()
 
     cv::Mat m = cv::Mat(samples.first().size(),1,CV_32FC1);
     QByteArray array;
-    int j = 12;
-//    for(int j=0;j<samples.size();j++)
-//    {
+//    int j = 12;
+    for(int j=0;j<samples.size();j++)
+    {
         array = samples.at(j);
         for(int i=0;i<array.size();i++)
         {
             m.at<float>(0,i) = array[i];
         }
+
         CvMat test = (CvMat)m;
         int predClass = 9;
         predClass = svm->svmClassification(&test);
         int blub = 34;
         qDebug() << j << " Class " << predClass;
 
-//    }
+    }
 
 
 
@@ -286,16 +287,26 @@ void MainWindow::on_testSVM_clicked()
 void MainWindow::on_trainSVM_clicked()
 {
     CvMat samples;
-    CvMat classes;
     cv::Mat clasLab = cv::Mat::ones(1,pSamples.size()+nSamples.size(),CV_32S);
+    CvMat *classes = cvCreateMat(pSamples.size() + nSamples.size(),1, CV_32S);
+    cvSet(classes, cvScalar(1));
     for(int i=0;i<nSamples.size();i++)
     {
         clasLab.at<int>(0,i+pSamples.size()) = -1;
+        cvSet2D(classes, i + pSamples.size(), 0, cvScalar(0));
     }
+//    clasLab = clasLab.t();
+
+//    for (int i = 0; i < clasLab.cols; i++) {
+//        qDebug("%d", clasLab.at<int>(0,i));
+//    }
 
     samples = cvtList2Mat();
-    classes = clasLab;
-    svm->train(&samples,&classes);
+//    classes = clasLab;
 
+    qDebug() << "Dimension " << samples.rows << " " << samples.cols;
+    qDebug() << "Dimension2 " << classes->rows << " " << classes->cols;
+    svm->train(&samples,classes);
+    cvReleaseMat(&classes);
 
 }

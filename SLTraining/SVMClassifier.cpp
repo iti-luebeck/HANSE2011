@@ -1,5 +1,7 @@
 #include "SVMClassifier.h"
 
+#include <QtCore>
+
 SVMClassifier::SVMClassifier(void)
 {
         svm = new CvSVM();
@@ -15,6 +17,14 @@ void SVMClassifier::train(CvMat *data, CvMat *classes)
 	// Scale training data to an interval from 0 to 1 for all components.
         //calcScale(data);
         //scale(data);
+
+
+    qDebug("SVM TRAIN");
+    for (int i = 0; i < classes->cols; i++) {
+
+        qDebug("%d", (int)cvGet2D(classes, 0, i).val[0]);
+    }
+
 
 	// Set up class weights for two-class classifier (should be equal).
 	CvMat* class_weights = cvCreateMat(1, 2, CV_32FC1);
