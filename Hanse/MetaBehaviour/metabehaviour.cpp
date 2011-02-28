@@ -9,9 +9,8 @@
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
-#include <Behaviour_GroundFollowing/behaviour_groundfollowing.h>
 
-MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_GroundFollowing* ground)
+MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80)
     : RobotModule(id)
 {
     this->tcl = tcl;
@@ -19,7 +18,6 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     this->pressure = pressure;
     this->pipe = pipe;
     this->o80 = o80;
-    this->ground = ground;
     this->ball = ball;
     this->craph = graph;
 
@@ -76,8 +74,6 @@ void MetaBehaviour::init()
     connect(this,SIGNAL(stopTurnO80()),o80,SLOT(stop()));
     connect(this,SIGNAL(startHandCtr()),handControl,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopHandCtr()),handControl,SLOT(stop()));
-    connect(this,SIGNAL(startGroundFollow()),ground,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopGroundFollow()),ground,SLOT(stop()));
 }
 
 void MetaBehaviour::emergencyStop()
@@ -236,10 +232,6 @@ void MetaBehaviour::simple180deg()
     emit dataChanged(this);
     timeoutTimer.start(getSettingsValue("timeout").toInt()*1000);
     emit startTurnO80();
-}
-
-void MetaBehaviour::groundFollow(){
-
 }
 
 void MetaBehaviour::fullProgram()
