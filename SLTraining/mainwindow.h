@@ -54,6 +54,7 @@ public slots:
 
 private slots:
 
+    void on_pushButton_clicked();
     void on_trainSVM_clicked();
     void on_testSVM_clicked();
     void on_selSampleWidthSlider_sliderMoved(int position);

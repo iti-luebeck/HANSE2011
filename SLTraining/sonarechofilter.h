@@ -58,6 +58,9 @@ private:
     float gLargePeakTH;
     float gMeanBehindTH;
 
+    cv::Mat noiseMat;
+    void initNoiseMat();
+
 };
 
 #endif // SONARECHOFILTER_H

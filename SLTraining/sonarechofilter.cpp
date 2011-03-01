@@ -12,7 +12,7 @@ SonarEchoFilter::SonarEchoFilter()
 //    this->sloc = parent;
 
     reset();
-
+    initNoiseMat();
     gGaussFactor = 0.7870;
     gVarianceTH = 0.04;
     gWallWindowSize = 3;
@@ -39,7 +39,7 @@ QByteArray SonarEchoFilter::newSonarData(SonarReturnData data)
     Mat echo = byteArray2Mat(byteEcho);
 
     // normalize
-    echo /= MAX;
+//    echo /= MAX;
 
     // filter out noise etc.
     Mat echoFiltered = filterEcho(data,echo);
@@ -50,55 +50,115 @@ QByteArray SonarEchoFilter::newSonarData(SonarReturnData data)
 
 //    int K = findWall(data,echoFiltered);
 
+
     QByteArray arr = mat2byteArray(echoFiltered);
     return arr;
 
+}
+
+void SonarEchoFilter::initNoiseMat()
+{
+    CvMat* featureMat = (CvMat*)cvLoad("noiseMatrix.xml");
+    noiseMat = cv::Mat(featureMat,true);
+
+    qDebug() << noiseMat.rows << " " << noiseMat.cols;
+    for(int i=0;i<17;i++)
+        for(int j=0;i<250;j++)
+            qDebug() << noiseMat.at<float>(i,j);
+
+    for(int i=0;i<noiseMat.rows;i++)
+    {
+        for(int j=0;j<50;j++)
+        {
+            noiseMat.at<double>(i,j) = 0.1;
+        }
+    }
+    //throws memory exception
+//    double startD=10.0/50.0*250.0;
+//    double factor=3.0;
+//    for(int i=0; i<noiseMat.rows;i++)
+//    {
+//        double max = 0.0;
+//        for(int k=0;k<250;k++)
+//        {
+//            if(noiseMat.at<double>(i,k) > max)
+//                max = noiseMat.at<double>(i,k);
+//        }
+//        if(max > 0.0)
+//        {
+//            double nearNoise = 0.0;
+//            for(int k=0;k<250;k++)
+//            {
+//                double tmpNoise = ((startD - k+1) / (startD*factor));
+//                if(tmpNoise > nearNoise)
+//                    nearNoise = tmpNoise;
+//            }
+//            for(int j=0;j<noiseMat.cols;j++)
+//                if(noiseMat.at<double>(i,j) < nearNoise)
+//                    noiseMat.at<double>(i,j) = nearNoise;
+//        }
+//    }
 }
 
 Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
 {
     Mat echoFiltered = Mat::zeros(1,N,CV_32F);
 
-    QVector<double> thresh;
+    int gain = data.switchCommand.startGain;
+    for(int j=0;j<N;j++)
+    {
+        if(gain < 17)
+        {
+//            qDebug() << echo.at<float>(0,j) << " / " << noiseMat.at<float>(gain,j);
+            float newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain,j);
+//            qDebug() << "VAL " << newVal;
+            if(newVal < 0.0)
+                newVal = 0.0;
+            echoFiltered.at<float>(0,j) = newVal;
+        } else
+        {
 
-    int wSize = 1; // fixed!!!
-
-    // remove noise from signal
-    for(int i=wSize; i<N-wSize; i++) {
-        Mat window = echo.colRange(i-wSize, i+wSize);
-
-        // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
-        // changed gaus factor
-        float gF = gGaussFactor;
-        echoFiltered.at<float>(0,i) =  window.at<float>(0,0)*(1-gF)/2
-                                     + window.at<float>(0,1)*gF
-                                     + window.at<float>(0,2)*(1-gF)/2;
-
-        //GAIN=16: sensorNoiseThresh=max((7/20)*((1:250)-50),0);
-        // TODO: either adapt or settings!
-        float cutOff=0;
-        if (data.switchCommand.startGain==15)
-            cutOff = (7.0/20)*(i-50)/127;
-        else {
-            //changed a1 times a2
-            cutOff = (7.0/20)*(i-50)/127;
-//            qDebug() << "Using parameters as gain.";
+            echoFiltered.at<float>(0,j) = 0.0;
         }
 
-        if (cutOff<0)
-            cutOff = 0;
-
-        thresh.append(cutOff);
-
-        float newVal = echoFiltered.at<float>(0,i) - cutOff;
-        if (newVal<0)
-            newVal = 0;
-
-        // normalize to 1 as maximum
-        echoFiltered.at<float>(0,i) = newVal;
     }
 
-    threshHistory[data.switchCommand.time] = thresh;
+
+    echoFiltered = echo/noiseMat.row(data.switchCommand.startGain);
+
+//    for(int i=0;i<N;i++)
+//        qDebug() << echo.at<float>(0,i) << " vs " << echoFiltered.at<float>(0,i);
+
+//    QVector<double> thresh;
+
+//    int wSize = 1; // fixed!!!
+
+//    // remove noise from signal
+//    for(int i=wSize; i<N-wSize; i++) {
+//        Mat window = echo.colRange(i-wSize, i+wSize);
+
+//        // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
+//        // changed gaus factor
+//        float gF = gGaussFactor;
+//        echoFiltered.at<float>(0,i) =  window.at<float>(0,0)*(1-gF)/2
+//                                     + window.at<float>(0,1)*gF
+//                                     + window.at<float>(0,2)*(1-gF)/2;
+
+
+//        //filter with noiseMatrix (SNR)
+//        float cutOff = noiseMat.at<float>(data.switchCommand.startGain,i);
+//        thresh.append(cutOff);
+
+//        float newVal = 0.0;
+//        if(cutOff != 0)
+//             newVal = echoFiltered.at<float>(0,i)/cutOff;
+//        if (newVal<0)
+//            newVal = 0;
+//        // normalize to 1 as maximum
+//        echoFiltered.at<float>(0,i) = newVal;
+//    }
+
+//    threshHistory[data.switchCommand.time] = thresh;
     return echoFiltered;
 }
 
