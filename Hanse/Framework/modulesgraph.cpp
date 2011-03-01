@@ -21,6 +21,7 @@
 #include <Module_ADC/module_adc.h>
 #include <Module_Simulation/module_simulation.h>
 #include <Module_EchoSounder/module_echosounder.h>
+#include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -111,13 +112,17 @@ void ModulesGraph::build()
     Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
     this->modules.append(behavTurn);
 
+    logger->debug("Creating Behaviour_WallFollowing");
+    Behaviour_WallFollowing* behavWall = new Behaviour_WallFollowing("wall",echo);
+    this->modules.append(behavWall);
+
 //    logger->debug("Creating Behaviour_CompassFollowing");
 //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
 //    this->modules.append(behavComp);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
     logger->debug("Creating MetaBehaviour");
-    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn);
+    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn, behavWall);
     this->modules.append(metaBehaviour);
 
 

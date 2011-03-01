@@ -10,7 +10,7 @@
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 
-MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80)
+MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall)
     : RobotModule(id)
 {
     this->tcl = tcl;
@@ -20,6 +20,7 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     this->o80 = o80;
     this->ball = ball;
     this->craph = graph;
+    this->wall = wall;
 
     setDefaultValue("targetDepth",0.30);
     setDefaultValue("depthErrorVariance",0.05);
