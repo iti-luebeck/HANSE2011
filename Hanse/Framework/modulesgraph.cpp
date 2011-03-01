@@ -14,7 +14,6 @@
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
-#include <Behaviour_GroundFollowing/behaviour_groundfollowing.h>
 #include <Module_Webcams/module_webcams.h>
 #include <MetaBehaviour/metabehaviour.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
@@ -112,19 +111,13 @@ void ModulesGraph::build()
     Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
     this->modules.append(behavTurn);
 
-
-   logger->debug("Creating Behaviour_GroundFollowing");
-    Behaviour_GroundFollowing* behavGround = new Behaviour_GroundFollowing("ground",controlLoop,echo,sim);
-    this->modules.append(behavGround);
-
-
 //    logger->debug("Creating Behaviour_CompassFollowing");
 //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
 //    this->modules.append(behavComp);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
     logger->debug("Creating MetaBehaviour");
-    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn, behavGround);
+    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn);
     this->modules.append(metaBehaviour);
 
 
