@@ -124,9 +124,7 @@ HEADERS += Framework/healthstatus.h \
     Module_EchoSounder/echodatasource.h \
     Module_EchoSounder/echodatarecorder.h \
     Module_EchoSounder/echodatacsvrecorder.h \
-    Module_EchoSounder/echodata852recorder.h \
-    Behaviour_GroundFollowing/behaviour_groundfollowing.h \
-    Behaviour_GroundFollowing/groundfollowingform.h
+    Module_EchoSounder/echodata852recorder.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -233,9 +231,7 @@ SOURCES += Framework/robotmodule.cpp \
     Module_EchoSounder/echodatasource.cpp \
     Module_EchoSounder/echodatarecorder.cpp \
     Module_EchoSounder/echodatacsvrecorder.cpp \
-    Module_EchoSounder/echodata852recorder.cpp \
-    Behaviour_GroundFollowing/behaviour_groundfollowing.cpp \
-    Behaviour_GroundFollowing/groundfollowingform.cpp
+    Module_EchoSounder/echodata852recorder.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -263,6 +259,5 @@ FORMS += Framework/mainwindow.ui \
     Behaviour_TestMT/testmtform.ui \
     Behaviour_CompassFollowing/compassfollowingform.ui \
     Module_ADC/adc_form.ui \
-    Module_EchoSounder/echosounderform.ui \
-    Behaviour_GroundFollowing/groundfollowingform.ui
+    Module_EchoSounder/echosounderform.ui
 OTHER_FILES += bin/log4qt.properties
