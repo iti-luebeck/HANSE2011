@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1195</width>
+    <width>989</width>
     <height>705</height>
    </rect>
   </property>
@@ -98,7 +98,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="9" column="0">
         <widget class="QCheckBox" name="classify">
          <property name="text">
           <string>classify</string>
@@ -115,12 +115,15 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="10" column="0">
         <widget class="QPushButton" name="pushButton">
          <property name="text">
           <string>PushButton</string>
          </property>
         </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QGraphicsViewExtended" name="graphicsView_3"/>
        </item>
       </layout>
      </widget>
@@ -277,8 +280,8 @@
    <widget class="QGraphicsViewExtended" name="graphicsView_2">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>50</y>
+      <x>420</x>
+      <y>40</y>
       <width>521</width>
       <height>621</height>
      </rect>

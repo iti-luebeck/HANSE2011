@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent) :
     actionSkip = new QAction(this);
     actionSkip->setShortcut(Qt::Key_3);
     connect(actionSkip,SIGNAL(triggered()),this,SLOT(skipSample()));
+
+    actionNext = new QAction(this);
+    actionNext->setShortcut(Qt::Key_4);
+    connect(actionNext,SIGNAL(triggered()),this,SLOT(showNext()));
     //graphic for polarcoordinates
     this->ui->graphicsView_2->setScene(&scene2);
     QLinearGradient gi(0,0,0,279);
@@ -30,8 +34,9 @@ MainWindow::MainWindow(QWidget *parent) :
     dataQueue.clear();
     for(int i =0; i<simpleViewWidth; i++)
         dataQueue.append(gi);
-    //init variables
+     //init variables
     viewData.clear();
+    rawData.clear();
     samples.clear();
     wallCandidates.clear();
     pSamples.clear();
@@ -80,16 +85,19 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
                 QByteArray data = curDataSet.at(j);
                 char b = data[i];
 //                if(j == (curDataSet.length()/2))
+
                 int wws = ui->wallwindowsize->text().toInt();
+                int skalarM = 25;
+
                 if((j == (currSample)))
                 {
                      if((i >= (wallCandidates.first() - wws)) && (i <= (wallCandidates.first() + wws)))
-                        gi.setColorAt(1.0*i/n,QColor(2*b,0,0));
+                        gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
                      else
-                         gi.setColorAt(1.0*i/n,QColor(0,0,2*b));
+                         gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
                 }
                 else
-                    gi.setColorAt(1.0*i/n,QColor(0,2*b,0));
+                    gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
             }
             dataQueue.append(gi);
             dataQueue.pop_front();
@@ -128,9 +136,10 @@ void MainWindow::on_loadSonarFile_clicked()
     {
         samples.clear();
         wallCandidates.clear();
+        rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 222;
+        int count = 1000;
         currSample = simpleViewWidth/2;
         int cntWallCandSkip = 0;
         QByteArray filteredSample;
@@ -141,6 +150,7 @@ void MainWindow::on_loadSonarFile_clicked()
            if(cntWallCandSkip > currSample)
                wallCandidates.append(filter.findWall(dat,filteredSample));
 //           wallCandidates.append(filter.findWall(dat,dat.getEchoData()));
+           rawData.append(dat.getEchoData());
             samples.append(filteredSample);
 //           qDebug() << "size" << QString::number(filteredSample.size()) << " " << dat.getEchoData().size();
 //            samples.append(dat.getEchoData());
@@ -167,7 +177,7 @@ void MainWindow::askForClasses()
         viewData.clear();
         for(int i=0;i<simpleViewWidth;i++)
         {
-            viewData.append(samples.takeFirst());
+          viewData.append(samples.takeFirst());
         }
         qDebug() << "size "+QString::number(viewData.size()) << "current sample " << QString::number(currSample);
         this->updateSonarView2(viewData);
@@ -262,6 +272,7 @@ void MainWindow::on_testSVM_clicked()
 //    CvMat test = testData;
 
     cv::Mat m = cv::Mat(samples.first().size(),1,CV_32FC1);
+    classifiedData.clear();
     QByteArray array;
 //    int j = 12;
     for(int j=0;j<samples.size();j++)
@@ -275,18 +286,110 @@ void MainWindow::on_testSVM_clicked()
         CvMat test = (CvMat)m;
         int predClass = 9;
         predClass = svm->svmClassification(&test);
-        int blub = 34;
+        classifiedData.append(predClass);
         qDebug() << j << " Class " << predClass;
 
     }
+
+    if(classifiedData.length() != samples.length())
+        qDebug() << "ERROR not all data classified";
+    else
+        showClassified();
 
 
 
 
 }
 
+void MainWindow::showNext()
+{
+    if(!samples.isEmpty())
+    {
+        viewData.pop_front();
+        viewData.append(samples.takeFirst());
+        classyViewData.pop_front();
+        classyViewData.append(classifiedData.takeFirst());
+
+        this->updateSonarView3(viewData);
+
+    }
+    else
+    {
+        scene2.clear();
+        this->removeAction(actionNext);
+
+    }
+}
+
+void MainWindow::showClassified()
+{
+    if(samples.size() < 50 )
+    {
+        qDebug() << "Need more than 50 samples to classify";
+    }
+    else
+    {
+        viewData.clear();
+        for(int i=0;i<simpleViewWidth;i++)
+        {
+          viewData.append(samples.takeFirst());
+          classyViewData.append(classifiedData.takeFirst());
+        }
+        qDebug() << "size "+QString::number(viewData.size()) << "current sample " << QString::number(currSample);
+        this->updateSonarView3(viewData);
+
+        this->addAction(actionNext);
+    }
+}
+
+
+void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
+{
+    float n = curDataSet.first().length();
+    scene2.clear();
+    int height = ui->graphicsView_2->height()-1;
+    float faktor = (height/range);
+//    if(range > 20.0)
+//        faktor = faktor * 10;
+    if(true)
+    {
+
+        for(int i = 1; i<range+1; i++)
+            scene2.addLine(0,(i*faktor),simpleViewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+
+        for(int j=0; j<curDataSet.size(); j++)
+        {
+            QLinearGradient gi(0,0,0,279);
+            for (int i = 0; i < n; i++) {
+                QByteArray data = curDataSet.at(j);
+                char b = data[i];
+
+
+                int skalarM = 25;
+                int val = classyViewData.at(j);
+                if((val == 1))
+                    gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
+                else
+                    gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
+
+            }
+            dataQueue.append(gi);
+            dataQueue.pop_front();
+
+        }
+
+        for(int i =0; i<currSample; i++)
+            scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
+        scene2.addRect(currSample,1,selSampleWidth,274,(Qt::NoPen),QBrush(dataQueue[currSample]));
+        for(int i =currSample+1; i<simpleViewWidth; i++)
+            scene2.addRect(i+selSampleWidth-1,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
+
+    }
+}
+
 void MainWindow::on_trainSVM_clicked()
 {
+    this->clearActions();
     CvMat samples;
     cv::Mat clasLab = cv::Mat::ones(1,pSamples.size()+nSamples.size(),CV_32S);
     CvMat *classes = cvCreateMat(pSamples.size() + nSamples.size(),1, CV_32S);

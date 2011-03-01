@@ -30,6 +30,7 @@ private:
     QQueue<QLinearGradient> dataQueue;
     int simpleViewWidth;
     int selSampleWidth;
+    QList<QByteArray> rawData;
 
     //for classification
     QList<QByteArray> viewData;
@@ -42,14 +43,19 @@ private:
     QAction *actionPos;
     QAction *actionNeg;
     QAction *actionSkip;
+    QAction *actionNext;
 
     void askForClasses();
     SonarEchoFilter *filter;
     void clearActions();
     cv::Mat cvtList2Mat();
 
+    QList<int> classifiedData;
+    QList<int> classyViewData;
+
 public slots:
     void updateSonarView2(const QList<QByteArray> samples);
+    void updateSonarView3(const QList<QByteArray> samples);
 
 
 private slots:
@@ -62,11 +68,14 @@ private slots:
     void on_loadSonarFile_clicked();
     void on_loadSVM_clicked();
     void on_saveSVM_clicked();
+    void showClassified();
 
     //classifier slots
     void positivSample();
     void negativSample();
     void skipSample();
+    //
+    void showNext();
 };
 
 #endif // MAINWINDOW_H
