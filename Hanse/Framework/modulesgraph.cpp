@@ -112,13 +112,10 @@ void ModulesGraph::build()
     Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
     this->modules.append(behavTurn);
 
-    //logger->debug("Creating Behaviour_GroundFollowing");
-    //Behaviour_GroundFollowing* behavGround = new Behaviour_GroundFollowing("ground",controlLoop,echo,sim);
-    //this->modules.append(behavTurn);
 
-    //logger->debug("Creating Behaviour_GroundFollowing");
-    //Behaviour_GroundFollowing* behavGround = new Behaviour_GroundFollowing("ground",controlLoop,echo,sim);
-    //this->modules.append(behavTurn);
+   logger->debug("Creating Behaviour_GroundFollowing");
+    Behaviour_GroundFollowing* behavGround = new Behaviour_GroundFollowing("ground",controlLoop,echo,sim);
+    this->modules.append(behavGround);
 
 
 //    logger->debug("Creating Behaviour_CompassFollowing");
