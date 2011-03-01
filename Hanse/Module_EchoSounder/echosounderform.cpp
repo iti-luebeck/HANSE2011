@@ -96,7 +96,7 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 
         for(int i =0; i<ui->graphicsView->width()/1; i++)
         {
-            QGraphicsRectItem *rit = scene.addRect((i*1),1,(i+1)*1,274,(Qt::NoPen));
+            QGraphicsRectItem *rit = scene.addRect((i*1),1,(1)*1,274,(Qt::NoPen));
             rit->setBrush(QBrush(dataQueue[i]));
         }
     }
