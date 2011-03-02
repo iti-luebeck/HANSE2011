@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
     wallCandidates.clear();
     pSamples.clear();
     nSamples.clear();
+    pWallCand.clear();
+    nWallCand.clear();
     range = 0.0;
     currSample = 0;
     filter = NULL;
@@ -139,7 +141,7 @@ void MainWindow::on_loadSonarFile_clicked()
         rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 1000;
+        int count = 222;
         currSample = simpleViewWidth/2;
         int cntWallCandSkip = 0;
         QByteArray filteredSample;
@@ -175,6 +177,11 @@ void MainWindow::askForClasses()
     else
     {
         viewData.clear();
+        pSamples.clear();
+        nSamples.clear();
+        pWallCand.clear();
+        nWallCand.clear();
+
         for(int i=0;i<simpleViewWidth;i++)
         {
           viewData.append(samples.takeFirst());
@@ -190,13 +197,21 @@ void MainWindow::askForClasses()
 
 void MainWindow::positivSample()
 {
-    pSamples.append(viewData.at(currSample));
+    if(wallCandidates.first() != -1)
+    {
+        pSamples.append(viewData.at(currSample));
+        pWallCand.append(wallCandidates.first());
+    }
     skipSample();
 }
 
 void MainWindow::negativSample()
 {
-    nSamples.append(viewData.at(currSample));
+    if(wallCandidates.first() != -1)
+    {
+        nSamples.append(viewData.at(currSample));
+        nWallCand.append(wallCandidates.first());
+    }
     skipSample();
 }
 
@@ -240,22 +255,24 @@ cv::Mat MainWindow::cvtList2Mat()
 {
 
     QByteArray array;
-    cv::Mat m = cv::Mat::zeros(pSamples.size()+nSamples.size(),pSamples.first().size(),CV_32FC1);
-
+    cv::Mat m = cv::Mat::zeros(pSamples.size()+nSamples.size(),9,CV_32FC1);
     for(int j=0;j<pSamples.size();j++)
     {
         array = pSamples.at(j);
-        for(int i=0;i<array.size();i++)
+        cv::Mat tmp = filter->byteArray2Mat(array);
+        cv::Mat feat = filter->extractFeatures(pWallCand.at(j),tmp);
+        for(int i=0;i<m.cols;i++)
         {
-            m.at<float>(j,i) = array[i];
+            m.at<float>(j,i) = feat.at<float>(0,i);
         }
     }
     for(int j=0;j<nSamples.size();j++)
     {
         array = nSamples.at(j);
-        for(int i=0;i<array.size();i++)
+        cv::Mat feat = filter->extractFeatures(nWallCand.at(j),array);
+        for(int i=0;i<m.cols;i++)
         {
-            m.at<float>(j+pSamples.size(),i) = array[i];
+            m.at<float>(j+pSamples.size(),i) = feat.at<float>(0,i);
         }
     }
 
@@ -273,32 +290,28 @@ void MainWindow::on_testSVM_clicked()
 
     cv::Mat m = cv::Mat(samples.first().size(),1,CV_32FC1);
     classifiedData.clear();
-    QByteArray array;
 //    int j = 12;
+    for(int i=0;i<currSample;i++)
+        samples.pop_front();
+    if(samples.size() != wallCandidates.size())
+    {
+        qDebug() << "das wird nichts werden";
+    return;
+}
     for(int j=0;j<samples.size();j++)
     {
-        array = samples.at(j);
-        for(int i=0;i<array.size();i++)
+        if(wallCandidates.at(j) != -1)
         {
-            m.at<float>(0,i) = array[i];
-        }
-
-        CvMat test = (CvMat)m;
+        cv::Mat filtered = filter->extractFeatures(wallCandidates.at(j),samples.at(j));
+        CvMat test = (CvMat)filtered;
+        qDebug() << "test sample " << test.rows << " " << test.cols;
         int predClass = 9;
         predClass = svm->svmClassification(&test);
         classifiedData.append(predClass);
         qDebug() << j << " Class " << predClass;
-
     }
-
-    if(classifiedData.length() != samples.length())
-        qDebug() << "ERROR not all data classified";
-    else
+    }
         showClassified();
-
-
-
-
 }
 
 void MainWindow::showNext()
@@ -309,6 +322,7 @@ void MainWindow::showNext()
         viewData.append(samples.takeFirst());
         classyViewData.pop_front();
         classyViewData.append(classifiedData.takeFirst());
+        wallCandidates.pop_front();
 
         this->updateSonarView3(viewData);
 
@@ -353,7 +367,6 @@ void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
 //        faktor = faktor * 10;
     if(true)
     {
-
         for(int i = 1; i<range+1; i++)
             scene2.addLine(0,(i*faktor),simpleViewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
 
@@ -363,14 +376,12 @@ void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
             for (int i = 0; i < n; i++) {
                 QByteArray data = curDataSet.at(j);
                 char b = data[i];
-
-
-                int skalarM = 25;
+                int skalarM = 1;
                 int val = classyViewData.at(j);
-                if((val == 1))
-                    gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
+                if((val == 1)  && (i > wallCandidates.at(j) - skalarM ) && (i < wallCandidates.at(j) + skalarM))
+                    gi.setColorAt(1.0*i/n,QColor(0,255,0));
                 else
-                    gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
+                    gi.setColorAt(1.0*i/n,QColor(0,0,0));
 
             }
             dataQueue.append(gi);
@@ -378,12 +389,8 @@ void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
 
         }
 
-        for(int i =0; i<currSample; i++)
+        for(int i =0; i<simpleViewWidth; i++)
             scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
-        scene2.addRect(currSample,1,selSampleWidth,274,(Qt::NoPen),QBrush(dataQueue[currSample]));
-        for(int i =currSample+1; i<simpleViewWidth; i++)
-            scene2.addRect(i+selSampleWidth-1,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
-
     }
 }
 

@@ -38,6 +38,10 @@ private:
     QList<int> wallCandidates;
     QList<QByteArray> pSamples;
     QList<QByteArray> nSamples;
+    QList<int> pWallCand;
+    QList<int> nWallCand;
+
+
     float range;
     int currSample;
     QAction *actionPos;

@@ -18,6 +18,7 @@ SonarEchoFilter::SonarEchoFilter()
     gWallWindowSize = 3;
     gLargePeakTH = 0.5 * 7.5;
     gMeanBehindTH = 1.0 * 7.5;
+    prevWallCandidate = 0.0;
 }
 
 /**
@@ -43,12 +44,14 @@ QByteArray SonarEchoFilter::newSonarData(SonarReturnData data)
 
     // filter out noise etc.
     Mat echoFiltered = filterEcho(data,echo);
+    Mat echoGaussian = gaussFilterEcho(echoFiltered);
+    echoFiltered.release();
 
     rawHistory[data.switchCommand.time] = mat2QVector(echo);
 
-    filteredHistory[data.switchCommand.time] = mat2QVector(echoFiltered);
+    filteredHistory[data.switchCommand.time] = mat2QVector(echoGaussian);
 
-        QByteArray arr = mat2byteArray(echoFiltered);
+        QByteArray arr = mat2byteArray(echoGaussian);
 //    int K = findWall(data,arr);
 
 
@@ -123,6 +126,27 @@ void SonarEchoFilter::initNoiseMat()
     }
 }
 
+Mat SonarEchoFilter::gaussFilterEcho(const cv::Mat& echo)
+{
+    //Apply Gaussian Filter
+    Mat echoFiltered = Mat::zeros(1,N,CV_32F);
+    int wSize = 1; // fixed!!!
+
+    // remove noise from signal
+    for(int i=wSize; i<N-wSize; i++)
+    {
+        Mat window = echo.colRange(i-wSize, i+wSize);
+
+        // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
+        float gF = gGaussFactor;
+        echoFiltered.at<float>(0,i) =  window.at<float>(0,0)*(1-gF)/2
+                                       + window.at<float>(0,1)*gF
+                                       + window.at<float>(0,2)*(1-gF)/2;
+    }
+    return echoFiltered;
+
+}
+
 Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
 {
     Mat echoFiltered = Mat::zeros(1,N,CV_32F);
@@ -148,24 +172,7 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
         }
 
     }
-
-
-    //Apply Gaussian Filter
-    Mat echoFiltered2 = Mat::zeros(1,N,CV_32F);
-    int wSize = 1; // fixed!!!
-
-    // remove noise from signal
-    for(int i=wSize; i<N-wSize; i++)
-    {
-        Mat window = echoFiltered.colRange(i-wSize, i+wSize);
-
-        // [ 0.1065    0.7870    0.1065 ] = sum(fspecial('gaussian'))
-        float gF = gGaussFactor;
-        echoFiltered2.at<float>(0,i) =  window.at<float>(0,0)*(1-gF)/2
-                                       + window.at<float>(0,1)*gF
-                                       + window.at<float>(0,2)*(1-gF)/2;
-    }
-    return echoFiltered2;
+    return echoFiltered;
 
 ////    echoFiltered = echo/noiseMat.row(data.switchCommand.startGain);
 
@@ -215,22 +222,15 @@ Mat SonarEchoFilter::filterEcho(SonarReturnData data, const Mat& echo)
 
 }
 
-void SonarEchoFilter::addToList(QList<QVector2D>& list, const QVector2D p)
-{
-    if (list.length()==0) {
-        list.append(p);
-        return;
-    }
-
-    QVector2D& q = list[list.length()-1];
-    if ((q-p).length()>1)
-        list.append(p);
-}
 
 int SonarEchoFilter::findWall(SonarReturnData data,const QByteArray echoBA)
 {
     const cv::Mat echo = this->byteArray2Mat(echoBA);
+    return findWall(data,echo);
+}
 
+int SonarEchoFilter::findWall(SonarReturnData data, const cv::Mat& echo)
+{
     // find last maximum
 
     //changed wallwindows size
@@ -288,6 +288,79 @@ int SonarEchoFilter::findWall(SonarReturnData data,const QByteArray echoBA)
 //    }
     return K;
 }
+
+Mat SonarEchoFilter::extractFeatures(int wallCandidate, const QByteArray echoBA)
+{
+    const cv::Mat echo = this->byteArray2Mat(echoBA);
+    Mat ret = extractFeatures(wallCandidate,echo);
+    return ret;
+}
+
+Mat SonarEchoFilter::extractFeatures(int xw, const cv::Mat& echo)
+{
+    qDebug() << "wallC " << xw << " mat " << echo.cols << " " << echo.rows;
+    Mat features = Mat::zeros(1,9,CV_32F);
+//    int kp = gWallWindowSize;
+    int kp = 3;
+    //F1
+    float f[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    int xp = xw;
+    for(int i=xw-kp; i<xw+kp;i++)
+    {
+        if(echo.at<float>(0,i) > f[0])
+        {
+            f[0] = echo.at<float>(0,i);
+            xp = i;
+        }
+    }
+
+    //F2 und F3
+    Scalar mean1 = Scalar();
+    Scalar mean2 = Scalar();
+    Scalar stdDev1 = Scalar();
+    Scalar stdDev2 = Scalar();
+
+    meanStdDev(echo.colRange(0,xw),mean1,stdDev1);
+    meanStdDev(echo.colRange(xw+1,echo.cols-1),mean2,stdDev2);
+    Scalar var1 = stdDev1.mul(stdDev1);
+    Scalar var2 = stdDev2.mul(stdDev2);
+
+    f[1] = mean1.val[0]/mean2.val[0];
+    f[2] = var1.val[0]/var2.val[0];
+
+    f[3] = xw;
+    f[4] = xw;
+//        prevWallCandidate = xw;
+
+//    f[4] = xw - prevWallCandidate;
+//    prevWallCandidate = xw;
+
+    meanStdDev(echo.colRange(xp-kp,xp+kp),mean1,stdDev1);
+    f[5] = mean1.val[0];
+    f[6] = stdDev1.val[0] * stdDev1.val[0];
+
+    meanStdDev(echo.colRange(xw-kp,xw+kp),mean1,stdDev1);
+    f[7] = mean1.val[0];
+    f[8] = stdDev1.val[0] * stdDev1.val[0];
+
+    for(int i=0; i<features.cols; i++)
+        features.at<float>(0,i) = f[i];
+
+    return features;
+}
+
+void SonarEchoFilter::addToList(QList<QVector2D>& list, const QVector2D p)
+{
+    if (list.length()==0) {
+        list.append(p);
+        return;
+    }
+
+    QVector2D& q = list[list.length()-1];
+    if ((q-p).length()>1)
+        list.append(p);
+}
+
 
 void SonarEchoFilter::reset()
 {

@@ -23,8 +23,20 @@ public:
     QMap<QDateTime, QVector<double> > varHistory;
     QMap<QDateTime, QVector<double> > meanHistory;
 
+    //filter chain
     QByteArray newSonarData(SonarReturnData data);
     int findWall(SonarReturnData data,const QByteArray echoBA);
+    int findWall(SonarReturnData data,const cv::Mat& echo);
+    cv::Mat gaussFilterEcho(const cv::Mat& echo);
+    cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
+    cv::Mat extractFeatures(int wallCandidate, const cv::Mat& echo);
+    cv::Mat extractFeatures(int wallCandidate, const QByteArray echoBA);
+
+    //helpers
+    QByteArray mat2byteArray(cv::Mat& mat);
+    QVector<double> mat2QVector(cv::Mat& mat);
+    cv::Mat byteArray2Mat(QByteArray array);
+
 
 
 //signals:
@@ -46,10 +58,6 @@ private:
     bool DEBUG;
 //    QSettings& s;
 
-    cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
-    QByteArray mat2byteArray(cv::Mat& mat);
-    QVector<double> mat2QVector(cv::Mat& mat);
-    cv::Mat byteArray2Mat(QByteArray array);
 
     //ehemals settings
     float gGaussFactor;
@@ -57,9 +65,12 @@ private:
     int gWallWindowSize;
     float gLargePeakTH;
     float gMeanBehindTH;
+    float prevWallCandidate;
 
     cv::Mat noiseMat;
     void initNoiseMat();
+
+
 
 };
 
