@@ -5,6 +5,7 @@
 #include <sonardatasourcefile.h>
 #include "a.out.h"
 #include "SVMClassifier.h"
+#include "sonarechodata.h"
 
 class SonarEchoFilter;
 
@@ -33,6 +34,7 @@ private:
     QList<QByteArray> rawData;
 
     //for classification
+    QList<SonarEchoData> sam;
     QList<QByteArray> viewData;
     QList<QByteArray> samples;
     QList<int> wallCandidates;
@@ -44,6 +46,7 @@ private:
 
     float range;
     int currSample;
+    int viewSamplePointer;
     QAction *actionPos;
     QAction *actionNeg;
     QAction *actionSkip;
@@ -73,6 +76,7 @@ private slots:
     void on_loadSVM_clicked();
     void on_saveSVM_clicked();
     void showClassified();
+    void applyHeuristic();
 
     //classifier slots
     void positivSample();

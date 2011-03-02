@@ -4,6 +4,7 @@
 #include <opencv/highgui.h>
 #include "sonarechofilter.h"
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -45,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     nWallCand.clear();
     range = 0.0;
     currSample = 0;
-    filter = NULL;
+    filter = new SonarEchoFilter();
 
     svm = new SVMClassifier();
 }
@@ -93,7 +94,9 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
 
                 if((j == (currSample)))
                 {
-                     if((i >= (wallCandidates.first() - wws)) && (i <= (wallCandidates.first() + wws)))
+//                    int wc = sam[viewSamplePointer].getWallCandidate();
+                    int wc = wallCandidates.first();
+                     if((i >= (wc - wws)) && (i <= (wc + wws)))
                         gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
                      else
                          gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
@@ -123,7 +126,7 @@ void MainWindow::on_loadSonarFile_clicked()
     QString path = "/home/kluessi/Downloads/untertrave.852";
 
     QDateTime time = QDateTime::fromString("M2d2y1114:42:59","'M'M'd'd'y'yyhh:mm:ss");
-    SonarEchoFilter filter = SonarEchoFilter();
+//    SonarEchoFilter filter = SonarEchoFilter();
 
     SonarDataSourceFile *file = NULL;
     file = new SonarDataSourceFile(this,path);
@@ -136,6 +139,7 @@ void MainWindow::on_loadSonarFile_clicked()
     }
     else
     {
+
         samples.clear();
         wallCandidates.clear();
         rawData.clear();
@@ -143,25 +147,42 @@ void MainWindow::on_loadSonarFile_clicked()
         range = dat.getRange();
         int count = 222;
         currSample = simpleViewWidth/2;
+        viewSamplePointer = currSample;
         int cntWallCandSkip = 0;
         QByteArray filteredSample;
+        sam.clear();
         while(dat.isPacketValid() && count > 0)
         {
+            SonarEchoData data = SonarEchoData(dat);
+
             cntWallCandSkip++;
-           filteredSample = filter.newSonarData(dat);
-           if(cntWallCandSkip > currSample)
-               wallCandidates.append(filter.findWall(dat,filteredSample));
-//           wallCandidates.append(filter.findWall(dat,dat.getEchoData()));
-           rawData.append(dat.getEchoData());
+            filter->filterEcho(data);
+            filter->findWall(data);
+            sam.append(data);
+            filteredSample = filter->newSonarData(dat);
+
+            int cc = 0;
+            for(int i=0; i<filteredSample.size();i++)
+            {
+                if(filteredSample[i] != data.getFiltered()[i])
+                    cc++;
+            }
+            if(cc != 0)
+                qDebug() << "ERR CC " << cc;
+
+            if(cntWallCandSkip > currSample)
+                wallCandidates.append(filter->findWall(dat,filteredSample));
+            rawData.append(dat.getEchoData());
             samples.append(filteredSample);
-//           qDebug() << "size" << QString::number(filteredSample.size()) << " " << dat.getEchoData().size();
-//            samples.append(dat.getEchoData());
-            dat = file->getNextPacket();
+
             count--;
+            dat = file->getNextPacket();
         }
+
+
         if(samples.size() != (wallCandidates.size()+currSample))
-            qDebug() << "something terribly went wrong";
-        qDebug() << "Samples: " << samples.length();
+            qDebug() << "Samples " << samples.size() << " wc+cs " << (wallCandidates.size() + currSample);
+        qDebug() << "Samples: " << sam.length();
 
     }
     delete file;
@@ -181,11 +202,38 @@ void MainWindow::askForClasses()
         nSamples.clear();
         pWallCand.clear();
         nWallCand.clear();
-
         for(int i=0;i<simpleViewWidth;i++)
         {
-          viewData.append(samples.takeFirst());
+//            QByteArray arr = sam[i].getFiltered();
+//            viewData.append(arr);
+
+            QByteArray arr = samples.first();
+            QByteArray arr2 = sam[i].getFiltered();
+            int cc = 0;
+            for(int i=0; i<arr.size();i++)
+            {
+                if(arr[i] != arr2[i])
+                    cc++;
+            }
+            if(cc != 0)
+                qDebug() << "ERR CC " << cc;
+
+           viewData.append(samples.takeFirst());
         }
+
+        QByteArray arr = viewData[currSample];
+        QByteArray arr2 = sam[viewSamplePointer].getFiltered();
+        int cc = 0;
+        for(int i=0; i<arr.size();i++)
+        {
+            if(arr[i] != arr2[i])
+                cc++;
+        }
+        if(cc != 0)
+            qDebug() << "ERR CC " << cc;
+
+
+
         qDebug() << "size "+QString::number(viewData.size()) << "current sample " << QString::number(currSample);
         this->updateSonarView2(viewData);
 
@@ -201,7 +249,8 @@ void MainWindow::positivSample()
     {
         pSamples.append(viewData.at(currSample));
         pWallCand.append(wallCandidates.first());
-    }
+//    sam[viewSamplePointer].setClassLabel(true);
+}
     skipSample();
 }
 
@@ -209,19 +258,35 @@ void MainWindow::negativSample()
 {
     if(wallCandidates.first() != -1)
     {
-        nSamples.append(viewData.at(currSample));
-        nWallCand.append(wallCandidates.first());
-    }
+    nSamples.append(viewData.at(currSample));
+    nWallCand.append(wallCandidates.first());
+}
+//    sam[viewSamplePointer].setClassLabel(false);
     skipSample();
 }
 
 void MainWindow::skipSample()
 {
+//    if(viewSamplePointer < sam.size())
     if(!samples.isEmpty())
     {
         viewData.pop_front();
+        viewSamplePointer++;
+//        viewData.append(arr);
         viewData.append(samples.takeFirst());
         wallCandidates.pop_front();
+
+        QByteArray arr = viewData[currSample];
+        QByteArray arr2 = sam[viewSamplePointer].getFiltered();
+        int cc = 0;
+        for(int i=0; i<arr.size();i++)
+        {
+            if(arr[i] != arr2[i])
+                cc++;
+        }
+        if(cc != 0)
+            qDebug() << "ERR CC " << cc;
+
         this->updateSonarView2(viewData);
 
     }
@@ -295,23 +360,49 @@ void MainWindow::on_testSVM_clicked()
         samples.pop_front();
     if(samples.size() != wallCandidates.size())
     {
-        qDebug() << "das wird nichts werden";
+        qDebug() << "Samples und WallCandidates stimmen nicht ueberein";
     return;
 }
+
     for(int j=0;j<samples.size();j++)
     {
         if(wallCandidates.at(j) != -1)
         {
-        cv::Mat filtered = filter->extractFeatures(wallCandidates.at(j),samples.at(j));
-        CvMat test = (CvMat)filtered;
-        qDebug() << "test sample " << test.rows << " " << test.cols;
-        int predClass = 9;
-        predClass = svm->svmClassification(&test);
-        classifiedData.append(predClass);
-        qDebug() << j << " Class " << predClass;
+            cv::Mat filtered = filter->extractFeatures(wallCandidates.at(j),samples.at(j));
+            CvMat test = (CvMat)filtered;
+//            qDebug() << "test sample " << test.rows << " " << test.cols;
+            int predClass = 9;
+            predClass = svm->svmClassification(&test);
+            classifiedData.append(predClass);
+//            qDebug() << j << " Class " << predClass;
+        }
+        else
+        {
+           classifiedData.append(-1);
+        }
     }
-    }
+
+    if(samples.size() != classifiedData.size())
+        qDebug() << "Samples vs ClassifiedData " << samples.size() << " " << classifiedData.size();
+    else
         showClassified();
+}
+
+void MainWindow::applyHeuristic()
+{
+    int limVarianceTH = 25;
+
+    if(wallCandidates.size() != samples.size() && wallCandidates.size() != classifiedData.size())
+    {
+        qDebug() << "groessen Stimmen nicht";
+        return;
+    }
+    for(int i=0;i<samples.size();i++)
+    {
+        int blub;
+    }
+
+
 }
 
 void MainWindow::showNext()

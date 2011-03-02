@@ -4,6 +4,7 @@
 #include <sonarreturndata.h>
 #include <opencv/cv.h>
 #include <QtCore>
+#include "sonarechodata.h"
 
 class SonarEchoFilter
 {
@@ -31,6 +32,11 @@ public:
     cv::Mat filterEcho(SonarReturnData data,const cv::Mat& echo);
     cv::Mat extractFeatures(int wallCandidate, const cv::Mat& echo);
     cv::Mat extractFeatures(int wallCandidate, const QByteArray echoBA);
+    //new
+    void filterEcho(SonarEchoData &data);
+    void gaussFilter(SonarEchoData &data);
+    void findWall(SonarEchoData &data);
+    void extractFeatures(SonarEchoData &data);
 
     //helpers
     QByteArray mat2byteArray(cv::Mat& mat);

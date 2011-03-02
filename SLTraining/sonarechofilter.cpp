@@ -44,17 +44,17 @@ QByteArray SonarEchoFilter::newSonarData(SonarReturnData data)
 
     // filter out noise etc.
     Mat echoFiltered = filterEcho(data,echo);
-    Mat echoGaussian = gaussFilterEcho(echoFiltered);
-    echoFiltered.release();
+//    Mat echoGaussian = gaussFilterEcho(echoFiltered);
+
 
     rawHistory[data.switchCommand.time] = mat2QVector(echo);
 
-    filteredHistory[data.switchCommand.time] = mat2QVector(echoGaussian);
+//    filteredHistory[data.switchCommand.time] = mat2QVector(echoGaussian);
 
-        QByteArray arr = mat2byteArray(echoGaussian);
+        QByteArray arr = mat2byteArray(echoFiltered);
 //    int K = findWall(data,arr);
 
-
+echoFiltered.release();
 
     return arr;
 
@@ -125,6 +125,125 @@ void SonarEchoFilter::initNoiseMat()
         }
     }
 }
+
+void SonarEchoFilter::gaussFilter(SonarEchoData &data)
+{
+    qDebug("Gauss Filter needs to be implemented. Sorry");
+}
+
+void SonarEchoFilter::filterEcho(SonarEchoData &data)
+{
+    Mat echoFiltered = Mat::zeros(1,N,CV_32F);
+    Mat echo = this->byteArray2Mat(data.getRawData());
+
+    int gain = data.getGain();
+    for(int j=0;j<N;j++)
+    {
+        if(gain < 17)
+        {
+            float newVal = 0.0;
+            if(noiseMat.at<float>(gain,j) != 0.0)
+                newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain,j);
+            if(newVal < 0.0)
+                newVal = 0.0;
+            echoFiltered.at<float>(0,j) = newVal;
+        } else
+        {
+            echoFiltered.at<float>(0,j) = 0.0;
+        }
+    }
+    data.setFiltered(this->mat2byteArray(echoFiltered));
+}
+
+void SonarEchoFilter::findWall(SonarEchoData &data)
+{
+    Mat echo = this->byteArray2Mat(data.getFiltered());
+    int wSize= gWallWindowSize;
+    int K = -1;
+
+    for(int j=N-wSize-1; j>=wSize; j--) {
+
+        // window around the point we're looking at
+        Mat window = echo.colRange(j-wSize, j+wSize);
+
+        Scalar mean;
+        Scalar stdDev;
+
+        // calc stdDev inside window
+        meanStdDev(window, mean,stdDev);
+        float stdDevInWindow = stdDev[0]*stdDev[0];
+
+        // TODO: fiddle with TH, or move it a little bit to the left
+        bool largePeak = mean[0]>gLargePeakTH;
+
+        // calc mean in area behind our current pos.
+        Mat prev = echo.colRange(j+wSize,echo.cols-1);
+        meanStdDev(prev, mean, stdDev);
+        float meanBehind = mean[0];
+
+        // take first peak found.
+        if (stdDevInWindow > gVarianceTH
+            && meanBehind< gMeanBehindTH
+            && largePeak && K<0) {
+            K=j;
+            data.setWallCandidate(K);
+            break;
+        }
+    }
+
+}
+
+void SonarEchoFilter::extractFeatures(SonarEchoData &data)
+{
+    //    qDebug() << "wallC " << xw << " mat " << echo.cols << " " << echo.rows;
+       Mat echo = this->byteArray2Mat(data.getFiltered());
+       int xw = data.getWallCandidate();
+        int kp = gWallWindowSize;
+        float f[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        int xp = xw;
+        for(int i=xw-kp; i<xw+kp;i++)
+        {
+            if(echo.at<float>(0,i) > f[0])
+            {
+                f[0] = echo.at<float>(0,i);
+                xp = i;
+            }
+        }
+
+        Scalar mean1 = Scalar();
+        Scalar mean2 = Scalar();
+        Scalar stdDev1 = Scalar();
+        Scalar stdDev2 = Scalar();
+
+        meanStdDev(echo.colRange(0,xw),mean1,stdDev1);
+        meanStdDev(echo.colRange(xw+1,echo.cols-1),mean2,stdDev2);
+        Scalar var1 = stdDev1.mul(stdDev1);
+        Scalar var2 = stdDev2.mul(stdDev2);
+
+        data.addFeature(mean1.val[0]/mean2.val[0]);
+        data.addFeature(var1.val[0]/var2.val[0]);
+        data.addFeature(xw);
+        data.addFeature(xw -prevWallCandidate);
+//        f[1] = mean1.val[0]/mean2.val[0];
+//        f[2] = var1.val[0]/var2.val[0];
+//        f[3] = xw;
+//        f[4] = xw - prevWallCandidate;
+//        prevWallCandidate = xw;
+
+        meanStdDev(echo.colRange(xp-kp,xp+kp),mean1,stdDev1);
+        data.addFeature(mean1.val[0]);
+        data.addFeature(stdDev1.val[0] * stdDev1.val[0]);
+//        f[5] = mean1.val[0];
+//        f[6] = stdDev1.val[0] * stdDev1.val[0];
+
+        meanStdDev(echo.colRange(xw-kp,xw+kp),mean1,stdDev1);
+//        f[7] = mean1.val[0];
+//        f[8] = stdDev1.val[0] * stdDev1.val[0];
+        data.addFeature(mean1.val[0]);
+        data.addFeature(stdDev1.val[0] * stdDev1.val[0]);
+
+}
+
 
 Mat SonarEchoFilter::gaussFilterEcho(const cv::Mat& echo)
 {
@@ -236,8 +355,8 @@ int SonarEchoFilter::findWall(SonarReturnData data, const cv::Mat& echo)
     //changed wallwindows size
     int wSize= gWallWindowSize;
 
-    QVector<double> varHist(N);
-    QVector<double> meanHist(N);
+//    QVector<double> varHist(N);
+//    QVector<double> meanHist(N);
 
     int K = -1;
 
@@ -253,7 +372,7 @@ int SonarEchoFilter::findWall(SonarReturnData data, const cv::Mat& echo)
         meanStdDev(window, mean,stdDev);
         float stdDevInWindow = stdDev[0]*stdDev[0];
 
-        varHist[j]=stdDevInWindow;
+//        varHist[j]=stdDevInWindow;
 
         // TODO: fiddle with TH, or move it a little bit to the left
         //changed
@@ -269,7 +388,7 @@ int SonarEchoFilter::findWall(SonarReturnData data, const cv::Mat& echo)
         meanStdDev(prev, mean, stdDev);
         float meanBehind = mean[0];
 
-        meanHist[j]=meanBehind;
+//        meanHist[j]=meanBehind;
 
         // take first peak found.
         if (stdDevInWindow > gVarianceTH
@@ -298,11 +417,9 @@ Mat SonarEchoFilter::extractFeatures(int wallCandidate, const QByteArray echoBA)
 
 Mat SonarEchoFilter::extractFeatures(int xw, const cv::Mat& echo)
 {
-    qDebug() << "wallC " << xw << " mat " << echo.cols << " " << echo.rows;
+//    qDebug() << "wallC " << xw << " mat " << echo.cols << " " << echo.rows;
     Mat features = Mat::zeros(1,9,CV_32F);
-//    int kp = gWallWindowSize;
-    int kp = 3;
-    //F1
+    int kp = gWallWindowSize;
     float f[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     int xp = xw;
     for(int i=xw-kp; i<xw+kp;i++)
@@ -314,7 +431,6 @@ Mat SonarEchoFilter::extractFeatures(int xw, const cv::Mat& echo)
         }
     }
 
-    //F2 und F3
     Scalar mean1 = Scalar();
     Scalar mean2 = Scalar();
     Scalar stdDev1 = Scalar();
@@ -327,13 +443,9 @@ Mat SonarEchoFilter::extractFeatures(int xw, const cv::Mat& echo)
 
     f[1] = mean1.val[0]/mean2.val[0];
     f[2] = var1.val[0]/var2.val[0];
-
     f[3] = xw;
-    f[4] = xw;
-//        prevWallCandidate = xw;
-
-//    f[4] = xw - prevWallCandidate;
-//    prevWallCandidate = xw;
+    f[4] = xw - prevWallCandidate;
+    prevWallCandidate = xw;
 
     meanStdDev(echo.colRange(xp-kp,xp+kp),mean1,stdDev1);
     f[5] = mean1.val[0];
