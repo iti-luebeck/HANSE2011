@@ -22,8 +22,13 @@ protected:
     void changeEvent(QEvent *e);
 
 
+    // Testzwecke
+
+
 public slots:
     void updateSounderView(const EchoReturnData data);
+    void updateEchoUi(float avgDistance, int averageWindow);
+
 
 private:
     Log4Qt::Logger *logger;
@@ -38,6 +43,8 @@ private slots:
     void on_save_clicked();
     void on_applyButton_clicked();
     void on_selFile_clicked();
+    void on_save2_clicked();
+
 };
 
 #endif // ECHOSOUNDERFORM_H

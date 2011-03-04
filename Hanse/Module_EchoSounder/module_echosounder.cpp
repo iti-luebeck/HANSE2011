@@ -26,12 +26,24 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     setDefaultValue("recordFile", "output.txt");
     setDefaultValue("fileReaderDelay", 100);
 
+    setDefaultValue("teshold", 30);
+    setDefaultValue("averageWindow", 12);
+    setDefaultValue("count", 0);
+
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
 
     this->sim = sim;
 
     recorder = NULL;
     source = NULL;
+
+    for(int i = 0; i < 4; i++){
+        for (int j = 0; j < 252; j++){
+            fewSigAvg[i][j] = 0;
+            avgSig[j] = 0;
+        }
+    }
+    count = 0;
 
     //reset();
 }
@@ -97,8 +109,6 @@ void Module_EchoSounder::emitEchoSignal()
 }
 
 void Module_EchoSounder::refreshSimData(EchoReturnData dat){
-    addData("range", dat.getRange());
-
     emit newEchoData(dat);
     emit dataChanged(this);
 }
@@ -110,7 +120,7 @@ bool Module_EchoSounder::doNextScan(){
  //   }else{
 //        const EchoReturnData d;
 
-        const EchoReturnData d = source->getNextPacket();
+        EchoReturnData d = source->getNextPacket();
 
         if(!source || !source->isOpen()){
             logger->error("Nein das source ist kaputt");
@@ -120,6 +130,7 @@ bool Module_EchoSounder::doNextScan(){
             setHealthToOk();
             addData("range", d.getRange());
             emit newEchoData(d);
+            scanningOutput(d);
             emit dataChanged(this);
             return true;
         } else {
@@ -127,6 +138,130 @@ bool Module_EchoSounder::doNextScan(){
             return false;
         }
 //    }
+}
+
+void Module_EchoSounder::scanningOutput(const EchoReturnData data){
+
+    float dataLength = data.getEchoData().length();
+    // Gewünschte Ausgabeeinheit
+    float einheit = dataLength/data.getRange();
+
+    // Variable die Angibt, wie viele Datenwerte gleichzeitig angeguckt werden,
+    // um über einen Schwellwert zu kommen.
+    averageWindow = getSettingsValue("averageWindow").toInt();
+
+    // Der eben genannte Schwellwert, optimaler Wert muss noch gesucht werden!
+    threshold = getSettingsValue("threshold").toInt();
+
+    // Berechnete Summe von avgTest Datenwerte
+    float avgFilter = 0.0;
+
+    // Berechneter Durchschnittsabstand
+
+
+    float temp = 0.0;
+
+    float aktMax = 0.0;
+    char c;
+
+    if(count%5==4){
+        for (int i = 0; i < dataLength; i++) {
+            c = data.getEchoData()[i];
+            if(c < threshold){
+                fewSigAvg[0][i] = 0;
+            }else{
+                fewSigAvg[0][i] = data.getEchoData()[i];
+            }
+        }
+    } else if(count%5==3){
+        for (int i = 0; i < dataLength; i++) {
+            c = data.getEchoData()[i];
+            if(c < threshold){
+                fewSigAvg[1][i] = 0;
+            }else{
+                fewSigAvg[1][i] = data.getEchoData()[i];
+            }
+        }
+    } else if(count%5==2){
+        for (int i = 0; i < dataLength; i++) {
+            c = data.getEchoData()[i];
+            if(c < threshold){
+                fewSigAvg[2][i] = 0;
+            }else{
+                fewSigAvg[2][i] = data.getEchoData()[i];
+            }
+        }
+    } else if(count%5==1){
+        for (int i = 0; i < dataLength; i++) {
+            c = data.getEchoData()[i];
+            if(c < threshold){
+                fewSigAvg[3][i] = 0;
+            }else{
+                fewSigAvg[3][i] = data.getEchoData()[i];
+            }
+        }
+    } else if(count%5==0){
+        for (int i = 0; i < dataLength; i++) {
+            c = data.getEchoData()[i];
+            if(c < threshold){
+                fewSigAvg[4][i] = 0;
+            }else{
+                fewSigAvg[4][i] = data.getEchoData()[i];
+            }
+        }
+    }
+
+    if(count!=0){
+        if(count%5==0){
+            count = 0;
+            avgDistance = 0.0;
+            // Summe aus allen 5 Datenarrays, Durchschnitt pro Datenwert
+            for(int i = 0; i < 5; i++){
+                for (int j = 0; j < dataLength; j++){
+                    temp = avgSig[j]+fewSigAvg[i][j];
+                    avgSig[j] = (temp/5);
+                }
+            }
+
+            for (int r = 0; r < 252; r++){
+                if(aktMax < avgSig[r]){
+                    aktMax = avgSig[r];
+                }
+            }
+
+            // Prüfen, ob die nächsten X Datenwerte den Schwellwert überschreiten
+            for(int x = 0; x < dataLength-averageWindow; x++){
+                for(int y = x; y<x+averageWindow; y++){
+                    avgFilter = avgFilter+avgSig[y];
+                }
+
+                if(avgFilter>((0.875)*(float)averageWindow * aktMax)){
+
+                    avgDistance = (x+3)/einheit;
+                    emit newEchoUiData(avgDistance,averageWindow);
+
+                    // Berechnung abgeschlossen, also raus hier!
+                    break;
+                }
+            }
+
+        }
+    }
+    addData("avgDistance",avgDistance);
+    addData("count",count);
+    addData("averageWindow",averageWindow);
+    emit newWallBehaviourData(data, avgDistance);
+    emit dataChanged(this);
+
+
+    // Zähler um zu gucken, wie viele Messungen schon verarbeitet wurden
+    count++;
+
+
+}
+
+float Module_EchoSounder::getAvgCm(){
+    return avgDistance;
 }
 
 void Module_EchoSounder::reset(){

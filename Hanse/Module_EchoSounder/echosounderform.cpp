@@ -4,12 +4,18 @@
 #include <Framework/dataloghelper.h>
 
 EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::EchoSounderForm),
-    scene()
+        QWidget(parent),
+        ui(new Ui::EchoSounderForm),
+        scene()
 {
     ui->setupUi(this);
     this->echo = echo;
+
+    // Testzwecke init
+
+
+    // Testzwecke
+
 
     //logger = Log4Qt::Logger::logger("EchoSounderForm");
 
@@ -17,13 +23,13 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
 
 
     QLinearGradient gi(0,0,0,279);
-    gi.setColorAt(0,QColor("black"));
-    gi.setColorAt(279,QColor("black"));
+    gi.setColorAt(0,QColor("white"));
+    gi.setColorAt(279,QColor("white"));
     for(int i =0; i<ui->graphicsView->width()/1; i++)
     {
-//        QGraphicsRectItem *rit = scene.addRect((i*10),1,(i+1)*10,274,(Qt::NoPen));
-//        rit->setBrush(QBrush(gi));
-//        ritQueue.append(rit);
+        //        QGraphicsRectItem *rit = scene.addRect((i*10),1,(i+1)*10,274,(Qt::NoPen));
+        //        rit->setBrush(QBrush(gi));
+        //        ritQueue.append(rit);
         dataQueue.append(gi);
     }
 
@@ -39,7 +45,16 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->format852->setChecked(!echo->getSettingsValue("formatCSV").toBool());
     ui->recordFile->setText(DataLogHelper::getLogDir()+"echolog.XXX");
     ui->updateView->setChecked(false);
+
+    ui->averageWindow->setText(echo->getSettingsValue("averageWindow").toString());
+    ui->averageWindowInput->setText(echo->getSettingsValue("averageWindow").toString());
+
+    ui->thresholdInput->setText(echo->getSettingsValue("threshold").toString());
+    ui->thresholdText->setText(echo->getSettingsValue("threshold").toString());
+    ui->gainText->setText(echo->getSettingsValue("gain").toString());
+    ui->gain->setValue(echo->getSettingsValue("gain").toInt());
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
+    QObject::connect(echo,SIGNAL(newEchoUiData(float, int)),this,SLOT(updateEchoUi(float, int)));
 }
 
 EchoSounderForm::~EchoSounderForm()
@@ -68,14 +83,27 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
         range = echo->getSettingsValue("range").toFloat();
     }
 
+    int threshold = echo->getSettingsValue("threshold").toString().toInt();
     float n = data.getEchoData().length();
+
+    //scanningOutput(data, cast);
+
+
     scene.clear();
     int height = ui->graphicsView->height()-1;
     float faktor = (height / range);
     if(range >= 20.0){
         faktor = faktor * 10;
     }
-//    scene.addLine(-256,280,256,280,QPen(QColor("red")))->setZValue(10);
+
+
+    int rangeView = (int)range;
+    char r[2];
+    sprintf(r,"%i",rangeView);
+    ui->r2->setText(r);
+
+
+    //    scene.addLine(-256,280,256,280,QPen(QColor("red")))->setZValue(10);
 
 
     if (ui->updateView->isChecked())
@@ -89,8 +117,19 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
         QLinearGradient gi(0,0,0,279);
         for (int i = 0; i < n; i++) {
             char b = data.getEchoData()[i];
-            gi.setColorAt(1.0*i/n,QColor(0,2*b,0));
+
+            if(ui->filter->isChecked()){
+                if(b>threshold){
+                    gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+                } else {
+                    b = 0;
+                    gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+                }
+            } else {
+                gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+            }
         }
+
         dataQueue.append(gi);
         dataQueue.pop_front();
 
@@ -103,12 +142,30 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 
 }
 
+
+void EchoSounderForm::updateEchoUi(float avgDistance, int averageWindow){
+
+    char a[20];
+    sprintf(a,"%f",avgDistance);
+    ui->avgDistance->setText(a);
+    qDebug(a);
+
+    char b[4];
+    sprintf(b,"%i",averageWindow);
+    ui->averageWindow->setText(b);
+    qDebug(b);
+
+}
+
 void EchoSounderForm::on_save_clicked()
 {
     echo->setSettingsValue("serialPort",ui->serialPort->text());
     ui->port->setText(echo->getSettingsValue("serialPort").toString());
     echo->setSettingsValue("range",ui->range->currentText());
     ui->echoRange->setText(echo->getSettingsValue("range").toString());
+    echo->setSettingsValue("gain", ui->gain->value());
+    ui->gainText->setText(echo->getSettingsValue("gain").toString());
+
     QTimer::singleShot(0,echo,SLOT(reset()));
 
     // Hier fehlt ggf. noch ein löschen der view, wenn die range geändert wird.
@@ -128,8 +185,18 @@ void EchoSounderForm::on_applyButton_clicked()
 void EchoSounderForm::on_selFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-         "Open Echo Recording", ui->fileName->text(), "Recording (*.852)");
+                                                    "Open Echo Recording", ui->fileName->text(), "Recording (*.852)");
 
     if (fileName.length()>0)
         ui->fileName->setText(fileName);
+}
+
+
+void EchoSounderForm::on_save2_clicked(){
+    echo->setSettingsValue("threshold", ui->thresholdInput->text());
+    ui->thresholdInput->setText(echo->getSettingsValue("threshold").toString());
+    ui->thresholdText->setText(echo->getSettingsValue("threshold").toString());
+    echo->setSettingsValue("averageWindow", ui->averageWindowInput->text());
+    ui->averageWindow->setText(echo->getSettingsValue("averageWindow").toString());
+    QTimer::singleShot(0,echo,SLOT(reset()));
 }

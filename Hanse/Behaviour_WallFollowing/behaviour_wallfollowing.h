@@ -4,34 +4,71 @@
 #include <Framework/robotbehaviour.h>
 
 #include <Behaviour_WallFollowing/wallfollowingform.h>
-#include <Module_Compass/module_compass.h>
-#include <Module_IMU/module_imu.h>
 #include <Module_EchoSounder/module_echosounder.h>
-//#include <Framework/robotmodule.h>
+#include <Framework/eventthread.h>
 
 class WallFollowingForm;
+class Module_ThrusterControlLoop;
+class Module_Simulation;
 
 class Behaviour_WallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_WallFollowing(QString id, Module_EchoSounder *echo);
+    Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo, Module_Simulation *sim);
 
     QList<RobotModule*> getDependencies();
 
     QWidget* createView(QWidget *parent);
 
-        bool isActive();
+    bool isActive();
 
 
 private:
-        Module_EchoSounder* echo;
-public slots:
-        void startBehaviour();
-        void stop();
-        void reset();
+     //QTimer timer;
+     void init();
 
-private slots:
+     void controlWallFollow();
+
+
+     // void timerSlotExecute();
+
+     Module_ThrusterControlLoop * tcl;
+     Module_EchoSounder *echo;
+     Module_Simulation *sim;
+     EventThread updateThread;
+
+    // int timerTime;
+     bool running;
+
+     float avgDistance;
+     float distanceInput;
+
+     void timerSlotExecute();
+
+public slots:
+     void updateFromSettings();
+     void startBehaviour();
+     void stop();
+     void reset();
+     void terminate();
+     void stopOnWallError();
+
+     // Module_EchoSounder -> Behaviour_Wallfollowing
+     void newWallBehaviourData(const EchoReturnData data, float avgDistance);
+
+
+signals:
+     void timerStart( int msec );
+     void timerStop();
+
+     void forwardSpeed(float fwSpeed);
+     void angularSpeed(float anSpeed);
+
+     void startControlTimer();
+
+     // Behaviour_WallFollowing -> WallFollowingForm
+     void newWallUiData(const EchoReturnData data, float avgDistance);
 
 };
 

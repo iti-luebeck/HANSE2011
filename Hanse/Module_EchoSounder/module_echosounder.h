@@ -35,17 +35,35 @@ public:
     Module_EchoSounder(QString id, Module_Simulation *sim);
     ~Module_EchoSounder();
 
+    const EchoReturnData d;
+
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
 
     void emitEchoSignal();
+    float getAvgCm();
+    float avgDistance;
+
+protected:
+    //void scanningOutput(const EchoReturnData data, int);
+    int count;
+    int range;
+    int averageWindow;
+
+    int threshold;
+    float avgSig[251];
+    float fewSigAvg[5][251];
 
 public slots:
     bool doNextScan();
+    void scanningOutput(const EchoReturnData data);
 
 public slots:
     void reset();
     void terminate();
+
+    // Behaviour_WallFollowing -> Module_EchoSounder
+    //void newEchoUiDataWE(float avgDistance, int averageWindow, int threshold, String port, int range);
 
 private slots:
     void gotEnabledChanged(bool);
@@ -54,6 +72,14 @@ private slots:
 signals:
     void newEchoData(const EchoReturnData data);
     void requestEchoSignal();
+
+    // Module_EchoSounder -> EchoSounderForm
+    void newEchoUiData(float avgDistance, int averageWindow);
+
+    // Module_EchoSounder -> Behaviour_WallFollowing (ggf. weiter)
+    void newWallBehaviourData(const EchoReturnData data, float avgDistance);
+   // void newWallUiDataEW(float avgDistance, int averageWindow, int threshold, String port, int range);
+
 
 private:
     Module_Simulation *sim;

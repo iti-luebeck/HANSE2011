@@ -4,6 +4,9 @@
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 
 #include <QWidget>
+#include "Module_EchoSounder/module_echosounder.h"
+#include <QGraphicsScene>
+#include <log4qt/logger.h>
 
 class Behaviour_WallFollowing;
 
@@ -22,11 +25,21 @@ protected:
 
 private:
     Ui::WallFollowingForm *ui;
-    Behaviour_WallFollowing *wallfollowing;
+    Behaviour_WallFollowing *wallfollow;
+    QGraphicsScene scene;
+    QQueue<QLinearGradient> dataQueue;
+    QQueue<QGraphicsRectItem*> ritQueue;
+
 
 signals:
     void startBehaviour();
     void stopBehaviour();
+
+public slots:
+    // Behaviour_WallFollowing -> WallFollowingForm
+    void updateWallUi(const EchoReturnData data,float dist);
+
+
 private slots:
     void on_stopButton_clicked();
     void on_startButton_clicked();
