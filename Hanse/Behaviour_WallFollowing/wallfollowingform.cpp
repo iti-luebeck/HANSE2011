@@ -53,6 +53,9 @@ void WallFollowingForm::on_startButton_clicked()
 {
     wallfollow->setSettingsValue("distanceInput", ui->distanceInput->text());
 
+    wallfollow->setSettingsValue("forwardInput", ui->forwardInput->text());
+    wallfollow->setSettingsValue("angularInput", ui->angularSpeed->text());
+
     //qDebug("startButton clicked");
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
     //qDebug("startButton clicked2");

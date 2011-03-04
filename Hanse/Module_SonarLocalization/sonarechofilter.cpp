@@ -4,6 +4,7 @@
 #include <QtCore>
 #include <Module_ScanningSonar/module_scanningsonar.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
+#include <Module_SonarLocalization/svm.h>
 
 using namespace cv;
 
@@ -50,6 +51,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     int K = findWall(data,echoFiltered);
 
     // pending later: SVM
+
 
     // pending later: Blob-Filter
 
@@ -243,7 +245,8 @@ int SonarEchoFilter::findWall(SonarReturnData data,const Mat& echo)
 
 void SonarEchoFilter::reset()
 {
-    this->DEBUG = sloc->getSettingsValue("DEBUG").toBool();
+    if(this->sloc)
+        this->DEBUG = sloc->getSettingsValue("DEBUG").toBool();
 
     this->darknessCount = 0;
     this->swipedArea = 0;

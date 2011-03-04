@@ -45,6 +45,9 @@ private:
     void createMap();
 
 private slots:
+    void on_trainSVM_clicked();
+    void on_openTrainingSamples_clicked();
+    void on_apply_clicked();
     void on_selSat_clicked();
     void on_selMap_clicked();
     void on_spinBox_valueChanged(int );

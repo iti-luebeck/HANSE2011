@@ -105,6 +105,7 @@ void Behaviour_WallFollowing::controlWallFollow()
 {
     avgDistance = echo->avgDistance;
     float temp = 0.0;
+    QString fall="";
     /**
       * Wie das mit dem Forward und Angular speed geht:
       *
@@ -120,31 +121,33 @@ void Behaviour_WallFollowing::controlWallFollow()
       */
     if(((avgDistance-0.2) < distanceInput) && (distanceInput < (avgDistance+0.2))){
         qDebug("Fall1: avgDistance == distanceInput");
-        emit forwardSpeed(0.0);
+           fall ="Fall 1";
+        addData("Fall1: angSpeed", angSpeed);
+        addData("Fall1: fwdSpeed",fwdSpeed);
+        emit dataChanged(this);
+
+        emit forwardSpeed(fwdSpeed);
         emit angularSpeed(0.0);
     } else if(avgDistance > distanceInput ){
-        qDebug("Fall2: avgDistance > distanceInput");
-        temp = avgDistance - distanceInput;
-        temp = temp*(-1.0);
-        if(temp < -1.0){
-            emit forwardSpeed(0.0);
-            emit angularSpeed(-1.0);
-        } else {
-            emit forwardSpeed(0.0);
+fall = "Fall 2";
+        addData("Fall2: angSpeed", angSpeed);
+        addData("Fall2: fwdSpeed",fwdSpeed);
+        emit dataChanged(this);
+        temp =angSpeed*(-1.0);
+            emit forwardSpeed(fwdSpeed);
             emit angularSpeed(temp);
-        }
+
     } else if(avgDistance < distanceInput){
-        qDebug("Fall3: avgDistance < distanceInput");
-        temp = avgDistance - distanceInput;
-        temp = temp*(-1.0);
-        if(temp > 1.0){
-            emit forwardSpeed(0.0);
-            emit angularSpeed(1.0);
-        } else {
-            emit forwardSpeed(0.0);
-            emit angularSpeed(temp);
-        }
+     //addData("Fall3: avgDistance < distanceInput");
+     addData("Fall3: angSpeed", angSpeed);
+     addData("Fall3: fwdSpeed",fwdSpeed);
+     fall = "Fall 3";
+     emit dataChanged(this);
+            emit forwardSpeed(fwdSpeed);
+            emit angularSpeed(angSpeed);
     }
+    addData("Verhalten:",fall);
+    emit dataChanged(this);
 
 }
 
@@ -177,6 +180,8 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
 void Behaviour_WallFollowing::updateFromSettings()
 {
     this->distanceInput = this->getSettingsValue("distanceInput").toFloat();
+    this->fwdSpeed = this->getSettingsValue("forwardInput").toFloat();
+    this->angSpeed = this->getSettingsValue("angularInput").toFloat();
 }
 
 void Behaviour_WallFollowing::stopOnWallError(){

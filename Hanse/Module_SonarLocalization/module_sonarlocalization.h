@@ -5,6 +5,7 @@
 #include <Framework/position.h>
 #include <Module_ScanningSonar/sonarreturndata.h>
 #include <opencv/cv.h>
+#include <opencv/ml.h>
 
 class Module_ScanningSonar;
 class SonarEchoFilter;
@@ -70,11 +71,16 @@ private:
     SonarEchoFilter* filter;
     SonarParticleFilter* pf;
     QThread pfThread;
+    CvSVMParams svmParam;
+    CvSVM* svm;
 
     void init();
+    void initSVM();
+
 
 private slots:
     void newPositionEst(QVector3D p);
+    void trainSVM();
 
 };
 

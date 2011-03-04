@@ -43,7 +43,8 @@ private:
 
      float avgDistance;
      float distanceInput;
-
+     float angSpeed;
+     float fwdSpeed;
      void timerSlotExecute();
 
 public slots:

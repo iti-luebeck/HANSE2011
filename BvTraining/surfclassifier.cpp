@@ -1,6 +1,6 @@
 #include "surfclassifier.h"
 #include "helpers.h"
-#include "feature.h"
+//#include "feature.h"
 
 SURFClassifier::SURFClassifier(double thresh, QList<Mat> objects)
 {
@@ -79,7 +79,7 @@ void SURFClassifier::classify(Mat &image, QList<FoundObject> &matches)
     Mat imageGray;
     vector<CvScalar> keyPoints;
     vector<KeyPoint> keyPointsCV;
-    Feature f;
+//    Feature f;
 
 //  imshow("Image", frame);
 //  waitKey();
@@ -88,18 +88,20 @@ void SURFClassifier::classify(Mat &image, QList<FoundObject> &matches)
     cvtColor( image, imageGray, CV_RGB2GRAY );
 //  imshow("Image", frameGray);
 //  waitKey();
-    f.findFeatures( new IplImage( imageGray ), keyPoints );
-    f.wait();
-    CvMat *d = f.getDescriptor();
+//    f.findFeatures( new IplImage( imageGray ), keyPoints );
+//    f.wait();
+//    CvMat *d = f.getDescriptor();
 
     Mat features;
-    if ( d != NULL )
+//    if ( d != NULL )
+    if(true)
     {
         for (int i = 0; i < keyPoints.size(); i++)
         {
             keyPointsCV.push_back( KeyPoint( keyPoints[i].val[0], keyPoints[i].val[1], 10, 1, 1, 1, 1 ) );
         }
-        features = Mat( d );
+//
+//        features = Mat( d );
         features = features.t();
     }
 

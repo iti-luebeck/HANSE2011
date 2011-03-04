@@ -5,6 +5,7 @@
 #include <qwt-qt4/qwt_plot_marker.h>
 #include <qwt-qt4/qwt_symbol.h>
 #include <qwt-qt4/qwt_legend.h>
+#include <qfiledialog.h>
 
 #include "sonarechofilter.h"
 #include "sonarparticlefilter.h"
@@ -17,19 +18,19 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
 
     this->m = m;
 
-    currentPos = NULL;
+//    currentPos = NULL;
 
-    createPlot();
+//    createPlot();
 
-    scene = new QGraphicsScene(parent);
-    createMap();
+//    scene = new QGraphicsScene(parent);
+//    createMap();
 
-    setFields();
+//    setFields();
 
-    on_plotSelect_valueChanged(0);
+//    on_plotSelect_valueChanged(0);
 
-    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
-    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
+//    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
+//    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
 }
 
 void Form_SonarLocalization::createPlot()
@@ -285,4 +286,28 @@ void Form_SonarLocalization::on_selSat_clicked()
 
     if (fileName.length()>0)
         ui->config_satImage->setText(fileName);
+}
+
+void Form_SonarLocalization::on_apply_clicked()
+{
+    m->setSettingsValue("svm",(100+ui->svmChooser->currentIndex()));
+    m->setSettingsValue("kernel",ui->kernelChooser->currentIndex());
+    m->setSettingsValue("degree",ui->degree->text());
+    m->setSettingsValue("cost",ui->cost->text());
+    m->setSettingsValue("epsilon",ui->epsilon->text());
+    m->setSettingsValue("coef0",ui->coef0->text());
+    m->setSettingsValue("gamma",ui->gamma->text());
+}
+
+void Form_SonarLocalization::on_openTrainingSamples_clicked()
+{
+
+    QString s = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
+    m->setSettingsValue("trainingData",s);
+    ui->trainingDataPath->setText(s);
+}
+
+void Form_SonarLocalization::on_trainSVM_clicked()
+{
+    QTimer::singleShot(0,m,SLOT(trainSVM()));
 }

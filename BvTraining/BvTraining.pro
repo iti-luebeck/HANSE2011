@@ -17,7 +17,6 @@ SOURCES += main.cpp \
     surftraining.cpp \
     helpers.cpp \
     surfclassifier.cpp \
-    feature.cpp \
     surf/utils.cpp \
     surf/surf.cpp \
     surf/ipoint.cpp \
@@ -39,7 +38,6 @@ HEADERS += trainingwindow.h \
     surftraining.h \
     helpers.h \
     surfclassifier.h \
-    feature.h \
     surf/utils.h \
     surf/surflib.h \
     surf/surf.h \

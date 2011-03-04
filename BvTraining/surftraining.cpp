@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <QDir>
-#include <feature.h>
+//#include <feature.h>
 
 using namespace cv;
 using namespace std;
@@ -20,7 +20,7 @@ void SurfTraining::train(QList<int> frameList, QString videoFile, bool isDir)
 {
     QList<Mat> featureList;
     SURF surf(500.0);
-    Feature f;
+//    Feature f;
 
     if ( isDir )
     {
@@ -54,11 +54,11 @@ void SurfTraining::train(QList<int> frameList, QString videoFile, bool isDir)
                 cvtColor( frame, frameGray, CV_RGB2GRAY );
 //                imshow("Image", frameGray);
 //                waitKey();
-                f.findFeatures( new IplImage( frameGray ), keyPoints );
+//                f.findFeatures( new IplImage( frameGray ), keyPoints );
 
-                f.wait();
+//                f.wait();
 
-                CvMat *d = f.getDescriptor();
+//                CvMat *d = f.getDescriptor();
 
                 for (int i = 0; i < keyPoints.size(); i++)
                 {
@@ -75,7 +75,7 @@ void SurfTraining::train(QList<int> frameList, QString videoFile, bool isDir)
                         Mat feature(64, 1, CV_32F);
                         for (int k = 0; k < 64; k++)
                         {
-                            feature.at<float>( k, 0 ) = cvmGet( d, i, k );
+//                            feature.at<float>( k, 0 ) = cvmGet( d, i, k );
                         }
 
                         featureList.append(feature);
