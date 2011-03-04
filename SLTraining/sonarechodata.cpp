@@ -7,7 +7,7 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->raw = arr;
     arr.clear();
     this->filtered.clear();
-    this->classLabel = 0;
+    this->classLabel = -1;
     this->bClassified = false;
     this->bFiltered = false;
     this->bWallCandidate = false;
@@ -16,13 +16,15 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->range = data.getRange();
     this->gain = data.switchCommand.startGain;
 
-    this->features.clear();
+    this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
 
 }
 
-QByteArray SonarEchoData::getFeatures()
+cv::Mat SonarEchoData::getFeatures()
 {
+//    for(int i=0; i<features.cols;i++)
+//        qDebug() << "FEAT " << features.at<float>(0,i);
     return this->features;
 }
 
@@ -83,17 +85,20 @@ float SonarEchoData::getGain()
     return this->gain;
 }
 
-void SonarEchoData::addFeature(float value)
+void SonarEchoData::addFeature(int index, float value)
 {
-    features.append(value);
+//    qDebug() << "feature added " << value;
+    features.at<float>(0,index) = value;
 }
 
 void SonarEchoData::setClassLabel(bool isWallCand)
 {
+    this->bClassified = false;
     this->classLabel = 1;
     if(!isWallCand)
-        this->classLabel = -1;
-    this->bClassified = true;
+        this->classLabel = 0;
+    if(this->wallCandidate != -1)
+        this->bClassified = true;
 }
 
 void SonarEchoData::setFiltered(QByteArray data)
@@ -105,7 +110,9 @@ void SonarEchoData::setFiltered(QByteArray data)
 void SonarEchoData::setWallCandidate(int bin)
 {
     this->wallCandidate = bin;
-    this->bWallCandidate = true;
+    this->bWallCandidate = false;
+    if(bin != -1)
+        this->bWallCandidate = true;
 }
 
 

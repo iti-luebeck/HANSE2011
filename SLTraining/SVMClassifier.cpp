@@ -23,6 +23,7 @@ void SVMClassifier::train(CvMat *data, CvMat *classes)
     for (int i = 0; i < classes->cols; i++) {
 
         qDebug("%d", (int)cvGet2D(classes, 0, i).val[0]);
+        qDebug("%d", (int)cvGet2D(data,0,0).val[0]);
     }
 
 

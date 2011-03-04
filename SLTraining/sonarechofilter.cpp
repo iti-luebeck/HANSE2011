@@ -210,6 +210,8 @@ void SonarEchoFilter::extractFeatures(SonarEchoData &data)
             }
         }
 
+        data.addFeature(0,f[0]);
+
         Scalar mean1 = Scalar();
         Scalar mean2 = Scalar();
         Scalar stdDev1 = Scalar();
@@ -220,10 +222,10 @@ void SonarEchoFilter::extractFeatures(SonarEchoData &data)
         Scalar var1 = stdDev1.mul(stdDev1);
         Scalar var2 = stdDev2.mul(stdDev2);
 
-        data.addFeature(mean1.val[0]/mean2.val[0]);
-        data.addFeature(var1.val[0]/var2.val[0]);
-        data.addFeature(xw);
-        data.addFeature(xw -prevWallCandidate);
+        data.addFeature(1,mean1.val[0]/mean2.val[0]);
+        data.addFeature(2,var1.val[0]/var2.val[0]);
+        data.addFeature(3,xw);
+        data.addFeature(4,xw -prevWallCandidate);
 //        f[1] = mean1.val[0]/mean2.val[0];
 //        f[2] = var1.val[0]/var2.val[0];
 //        f[3] = xw;
@@ -231,16 +233,16 @@ void SonarEchoFilter::extractFeatures(SonarEchoData &data)
 //        prevWallCandidate = xw;
 
         meanStdDev(echo.colRange(xp-kp,xp+kp),mean1,stdDev1);
-        data.addFeature(mean1.val[0]);
-        data.addFeature(stdDev1.val[0] * stdDev1.val[0]);
+        data.addFeature(5,mean1.val[0]);
+        data.addFeature(6,stdDev1.val[0] * stdDev1.val[0]);
 //        f[5] = mean1.val[0];
 //        f[6] = stdDev1.val[0] * stdDev1.val[0];
 
         meanStdDev(echo.colRange(xw-kp,xw+kp),mean1,stdDev1);
 //        f[7] = mean1.val[0];
 //        f[8] = stdDev1.val[0] * stdDev1.val[0];
-        data.addFeature(mean1.val[0]);
-        data.addFeature(stdDev1.val[0] * stdDev1.val[0]);
+        data.addFeature(7,mean1.val[0]);
+        data.addFeature(8,stdDev1.val[0] * stdDev1.val[0]);
 
 }
 

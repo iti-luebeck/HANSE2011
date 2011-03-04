@@ -81,11 +81,12 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
         for(int i = 1; i<range+1; i++)
             scene2.addLine(0,(i*faktor),simpleViewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
 
-        for(int j=0; j<curDataSet.size(); j++)
+        for(int j=0; j<simpleViewWidth; j++)
         {
             QLinearGradient gi(0,0,0,279);
             for (int i = 0; i < n; i++) {
-                QByteArray data = curDataSet.at(j);
+//                QByteArray data = curDataSet.at(j);
+                QByteArray data = sam[viewSamplePointer+j].getFiltered();
                 char b = data[i];
 //                if(j == (curDataSet.length()/2))
 
@@ -94,8 +95,8 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
 
                 if((j == (currSample)))
                 {
-//                    int wc = sam[viewSamplePointer].getWallCandidate();
-                    int wc = wallCandidates.first();
+                    int wc = sam[viewSamplePointer+currSample].getWallCandidate();
+//                    int wc = wallCandidates.first();
                      if((i >= (wc - wws)) && (i <= (wc + wws)))
                         gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
                      else
@@ -202,6 +203,7 @@ void MainWindow::askForClasses()
         nSamples.clear();
         pWallCand.clear();
         nWallCand.clear();
+        viewSamplePointer = 0;
         for(int i=0;i<simpleViewWidth;i++)
         {
 //            QByteArray arr = sam[i].getFiltered();
@@ -221,17 +223,17 @@ void MainWindow::askForClasses()
            viewData.append(samples.takeFirst());
         }
 
-        QByteArray arr = viewData[currSample];
-        QByteArray arr2 = sam[viewSamplePointer].getFiltered();
-        int cc = 0;
-        for(int i=0; i<arr.size();i++)
-        {
-            if(arr[i] != arr2[i])
-                cc++;
-        }
-        if(cc != 0)
-            qDebug() << "ERR CC " << cc;
-
+//        QByteArray arr = viewData[currSample];
+//        QByteArray arr2 = sam[viewSamplePointer].getFiltered();
+//        int cc = 0;
+//        for(int i=0; i<arr.size();i++)
+//        {
+//            if(arr[i] != arr2[i])
+//                cc++;
+//        }
+//        if(cc != 0)
+//            qDebug() << "ERR CC " << cc;
+        viewSamplePointer = 0;
 
 
         qDebug() << "size "+QString::number(viewData.size()) << "current sample " << QString::number(currSample);
@@ -245,17 +247,21 @@ void MainWindow::askForClasses()
 
 void MainWindow::positivSample()
 {
+    if(sam[viewSamplePointer].getWallCandidate() != -1)
+        sam[viewSamplePointer].setClassLabel(true);
     if(wallCandidates.first() != -1)
     {
         pSamples.append(viewData.at(currSample));
         pWallCand.append(wallCandidates.first());
-//    sam[viewSamplePointer].setClassLabel(true);
+
 }
     skipSample();
 }
 
 void MainWindow::negativSample()
 {
+    if(sam[viewSamplePointer].getWallCandidate() != -1)
+        sam[viewSamplePointer].setClassLabel(false);
     if(wallCandidates.first() != -1)
     {
     nSamples.append(viewData.at(currSample));
@@ -267,17 +273,16 @@ void MainWindow::negativSample()
 
 void MainWindow::skipSample()
 {
-//    if(viewSamplePointer < sam.size())
-    if(!samples.isEmpty())
+    if(viewSamplePointer < sam.size()-simpleViewWidth)
+//    if(!samples.isEmpty())
     {
         viewData.pop_front();
         viewSamplePointer++;
-//        viewData.append(arr);
         viewData.append(samples.takeFirst());
         wallCandidates.pop_front();
 
         QByteArray arr = viewData[currSample];
-        QByteArray arr2 = sam[viewSamplePointer].getFiltered();
+        QByteArray arr2 = sam[viewSamplePointer+currSample].getFiltered();
         int cc = 0;
         for(int i=0; i<arr.size();i++)
         {
@@ -320,8 +325,11 @@ cv::Mat MainWindow::cvtList2Mat()
 {
 
     QByteArray array;
-    cv::Mat m = cv::Mat::zeros(pSamples.size()+nSamples.size(),9,CV_32FC1);
-    for(int j=0;j<pSamples.size();j++)
+    int pos=0;
+    int neg=0;
+    this->getClassCount(pos,neg);
+    cv::Mat m = cv::Mat::zeros(pos+neg,9,CV_32FC1);
+    for(int j=0;j<pos;j++)
     {
         array = pSamples.at(j);
         cv::Mat tmp = filter->byteArray2Mat(array);
@@ -331,7 +339,7 @@ cv::Mat MainWindow::cvtList2Mat()
             m.at<float>(j,i) = feat.at<float>(0,i);
         }
     }
-    for(int j=0;j<nSamples.size();j++)
+    for(int j=0;j<neg;j++)
     {
         array = nSamples.at(j);
         cv::Mat feat = filter->extractFeatures(nWallCand.at(j),array);
@@ -346,46 +354,35 @@ cv::Mat MainWindow::cvtList2Mat()
 
 void MainWindow::on_testSVM_clicked()
 {
-
     on_loadSonarFile_clicked();
-
-//    pSamples = samples;
-//    cv::Mat testData = cvtList2Mat();
-//    CvMat test = testData;
-
-    cv::Mat m = cv::Mat(samples.first().size(),1,CV_32FC1);
     classifiedData.clear();
-//    int j = 12;
-    for(int i=0;i<currSample;i++)
-        samples.pop_front();
-    if(samples.size() != wallCandidates.size())
+    for(int j=0;j<sam.size();j++)
     {
-        qDebug() << "Samples und WallCandidates stimmen nicht ueberein";
-    return;
-}
+        if(sam[j].hasWallCandidate())
+        {
+            SonarEchoData dat = sam[j];
+            filter->extractFeatures(dat);
+            sam.replace(j,dat);
 
-    for(int j=0;j<samples.size();j++)
-    {
-        if(wallCandidates.at(j) != -1)
-        {
-            cv::Mat filtered = filter->extractFeatures(wallCandidates.at(j),samples.at(j));
-            CvMat test = (CvMat)filtered;
-//            qDebug() << "test sample " << test.rows << " " << test.cols;
             int predClass = 9;
+            cv::Mat feat = sam[j].getFeatures();
+
+            cv::Mat arr = dat.getFeatures();
+//            for(int i=0;i<feat.cols;i++)
+//            {
+//                qDebug() << "VA " << feat.at<float>(0,i);
+//               qDebug() << "VA2 " << arr.at<float>(0,i);
+//        }
+
+//            cv::Mat test1 = filter->byteArray2Mat(feat);
+            qDebug() << "rows " <<feat.rows << "cols " << feat.cols;
+            CvMat test = feat;
             predClass = svm->svmClassification(&test);
-            classifiedData.append(predClass);
-//            qDebug() << j << " Class " << predClass;
-        }
-        else
-        {
-           classifiedData.append(-1);
+            sam[j].setClassLabel(predClass);
+            qDebug() << j << " Class " << predClass;
         }
     }
-
-    if(samples.size() != classifiedData.size())
-        qDebug() << "Samples vs ClassifiedData " << samples.size() << " " << classifiedData.size();
-    else
-        showClassified();
+   showClassified();
 }
 
 void MainWindow::applyHeuristic()
@@ -407,14 +404,9 @@ void MainWindow::applyHeuristic()
 
 void MainWindow::showNext()
 {
-    if(!samples.isEmpty())
+    if(viewSamplePointer < sam.size()-simpleViewWidth)
     {
-        viewData.pop_front();
-        viewData.append(samples.takeFirst());
-        classyViewData.pop_front();
-        classyViewData.append(classifiedData.takeFirst());
-        wallCandidates.pop_front();
-
+        viewSamplePointer++;
         this->updateSonarView3(viewData);
 
     }
@@ -428,19 +420,14 @@ void MainWindow::showNext()
 
 void MainWindow::showClassified()
 {
-    if(samples.size() < 50 )
+    if(sam.size() < 50 )
     {
         qDebug() << "Need more than 50 samples to classify";
     }
     else
     {
+        viewSamplePointer = 0;
         viewData.clear();
-        for(int i=0;i<simpleViewWidth;i++)
-        {
-          viewData.append(samples.takeFirst());
-          classyViewData.append(classifiedData.takeFirst());
-        }
-        qDebug() << "size "+QString::number(viewData.size()) << "current sample " << QString::number(currSample);
         this->updateSonarView3(viewData);
 
         this->addAction(actionNext);
@@ -450,7 +437,8 @@ void MainWindow::showClassified()
 
 void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
 {
-    float n = curDataSet.first().length();
+//    float n = curDataSet.first().length();
+    float n = sam[0].getFiltered().length();
     scene2.clear();
     int height = ui->graphicsView_2->height()-1;
     float faktor = (height/range);
@@ -461,15 +449,16 @@ void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
         for(int i = 1; i<range+1; i++)
             scene2.addLine(0,(i*faktor),simpleViewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
 
-        for(int j=0; j<curDataSet.size(); j++)
+        for(int j=0; j<simpleViewWidth; j++)
         {
             QLinearGradient gi(0,0,0,279);
             for (int i = 0; i < n; i++) {
-                QByteArray data = curDataSet.at(j);
-                char b = data[i];
+//                QByteArray data = sam[viewSamplePointer+j].getFiltered();
+//                char b = data[i];
                 int skalarM = 1;
-                int val = classyViewData.at(j);
-                if((val == 1)  && (i > wallCandidates.at(j) - skalarM ) && (i < wallCandidates.at(j) + skalarM))
+                int cl = sam[viewSamplePointer+j].getClassLabel();
+                int wc = sam[viewSamplePointer+j].getWallCandidate();
+                if((cl == 1)  && (i > wc- skalarM ) && (i < wc + skalarM))
                     gi.setColorAt(1.0*i/n,QColor(0,255,0));
                 else
                     gi.setColorAt(1.0*i/n,QColor(0,0,0));
@@ -485,31 +474,118 @@ void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
     }
 }
 
+void MainWindow::getClassCount(int &pos, int &neg)
+{
+    pos = 0;
+    neg = 0;
+
+    for(int i=0; i<sam.size();i++)
+    {
+        if(sam[i].isClassified())
+        {
+            if(sam[i].getClassLabel() == 1)
+                pos++;
+            else if(sam[i].getClassLabel() == 0)
+                neg++;
+        }
+    }
+}
+
 void MainWindow::on_trainSVM_clicked()
 {
     this->clearActions();
-    CvMat samples;
-    cv::Mat clasLab = cv::Mat::ones(1,pSamples.size()+nSamples.size(),CV_32S);
-    CvMat *classes = cvCreateMat(pSamples.size() + nSamples.size(),1, CV_32S);
-    cvSet(classes, cvScalar(1));
-    for(int i=0;i<nSamples.size();i++)
+
+    int pos = 0;
+    int neg = 0;
+    this->getClassCount(pos,neg);
+
+    if(pos == 0 || neg == 0)
     {
-        clasLab.at<int>(0,i+pSamples.size()) = -1;
-        cvSet2D(classes, i + pSamples.size(), 0, cvScalar(0));
+        qDebug() << "POS " << pos << "NEG " << neg;
+        return;
     }
-//    clasLab = clasLab.t();
 
-//    for (int i = 0; i < clasLab.cols; i++) {
-//        qDebug("%d", clasLab.at<int>(0,i));
+
+//    CvMat samples;
+////    cv::Mat clasLab = cv::Mat::ones(1,pos+neg,CV_32S);
+//    CvMat *classes = cvCreateMat(pos+neg,1, CV_32S);
+
+//    cvSet(classes, cvScalar(1));
+//    for(int i=0;i<neg;i++)
+//    {
+////        clasLab.at<int>(0,i+pos) = -1;
+//        cvSet2D(classes, i + pos, 0, cvScalar(0));
 //    }
+////    clasLab = clasLab.t();
 
-    samples = cvtList2Mat();
-//    classes = clasLab;
+////    for (int i = 0; i < clasLab.cols; i++) {
+////        qDebug("%d", clasLab.at<int>(0,i));
+////    }
 
-    qDebug() << "Dimension " << samples.rows << " " << samples.cols;
-    qDebug() << "Dimension2 " << classes->rows << " " << classes->cols;
-    svm->train(&samples,classes);
-    cvReleaseMat(&classes);
+//    samples = cvtList2Mat();
+////    classes = clasLab;
+
+
+    CvMat *classes = cvCreateMat(pos+neg,1, CV_32S);
+//    CvMat *sampls = cvCreateMat(pos+neg,9,CV_32F);
+
+    cv::Mat sampls = cv::Mat::zeros(pos+neg,9,CV_32FC1);
+//    cv::Mat labl1 = cv::Mat(pos+neg,1,CV_32S);
+
+
+//    int pos = 0;
+//    int neg = 0;
+//    this->getClassCount(pos,neg);
+    qDebug() << " rows " << sampls.rows << " cols " << sampls.cols;
+    qDebug() << " rows " << classes->rows << " cols " << classes->cols;
+
+    QByteArray array;
+    cv::Mat features;
+
+    int cfs = 0;
+    for(int i=0; i<sam.size();i++)
+    {
+        if(sam[i].isClassified())
+        {
+            if(!sam[i].isFiltered())
+                filter->extractFeatures(sam[i]);
+//            array = sam[i].getFeatures();
+            features = sam[i].getFeatures();
+            for(int j=0;j<sampls.cols;j++)
+            {
+                sampls.at<float>(cfs,j) = features.at<float>(0,j);
+            }
+            int u = (int)sam[i].getClassLabel();
+            qDebug() << cfs << "<= " << pos+neg << " CL " << u;
+            cvSet2D(classes,cfs,0,cvScalar(u));
+            cfs++;
+            if(cfs == pos+neg)
+            {
+                qDebug("found all marked samples");
+                break;
+            }
+//            if(sam[i].getClassLabel() == 1)
+//                cvSet2D(classes,i,0,cvScalar(1));
+//            else if((sam[i].getClassLabel() == 0))
+//                cvSet2D(classes,i,0,cvScalar(0));
+//            else
+//                qDebug("wieso gibt es keine klasse?");
+
+        }
+    }
+
+//    this->createSamples(s1,l1);
+//    CvMat classes = l1.clone();
+//    CvMat sampls = s1.clone();
+//    &sampls = s1.clone();
+
+
+        CvMat samplsCvt = sampls;
+    qDebug() << "Dimension " << sampls.rows << " " << sampls.cols;
+//    qDebug() << "Dimension2 " << l1.rows << " " << l1.cols;
+    svm->train(&samplsCvt,classes);
+//    cvReleaseMat(&classes);
+//    cvReleaseMat(&sampls);
 
 }
 

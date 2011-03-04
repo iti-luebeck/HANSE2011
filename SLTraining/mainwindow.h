@@ -60,6 +60,8 @@ private:
     QList<int> classifiedData;
     QList<int> classyViewData;
 
+    void getClassCount(int &pos, int &neg);
+
 public slots:
     void updateSonarView2(const QList<QByteArray> samples);
     void updateSonarView3(const QList<QByteArray> samples);

@@ -4,6 +4,7 @@
 #include <QByteArray>
 #include <QDateTime>
 #include "sonarreturndata.h"
+#include <opencv/cv.h>
 
 class SonarEchoData
 {
@@ -21,12 +22,13 @@ public:
     float getHeadPosition();
     float getGain();
     QDateTime getTimeStamp();
-    QByteArray getFeatures();
+    cv::Mat getFeatures();
 
     void setClassLabel(bool isWallCand);
     void setFiltered(QByteArray data);
     void setWallCandidate(int bin);
-    void addFeature(float value);
+    void addFeature(int index, float value);
+
 
 
 private:
@@ -40,7 +42,8 @@ private:
     float headPosition;
     float range;
     QDateTime timestamp;
-    QByteArray features;
+//    QByteArray features;
+    cv::Mat features;
     float gain;
 //    float features;
 };
