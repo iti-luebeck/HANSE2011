@@ -26,9 +26,11 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     setDefaultValue("recordFile", "output.txt");
     setDefaultValue("fileReaderDelay", 100);
 
-    setDefaultValue("teshold", 30);
+    setDefaultValue("threshold", 30);
     setDefaultValue("averageWindow", 12);
     setDefaultValue("count", 0);
+
+    setDefaultValue("scanTimer",100);
 
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
 
@@ -98,7 +100,7 @@ void Module_EchoSounder::ThreadedReader::run(void){
 
         if (m->getSettingsValue("enabled").toBool()){// || !m->doNextScan()){
             m->doNextScan();
-            msleep(500);
+            msleep(m->getSettingsValue("scanTimer").toInt());
         }
     }
 }
@@ -114,30 +116,30 @@ void Module_EchoSounder::refreshSimData(EchoReturnData dat){
 }
 
 bool Module_EchoSounder::doNextScan(){
-//    if(sim->isEnabled()){
-//        emit requestEchoSignal();
-  //      return true;
- //   }else{
-//        const EchoReturnData d;
+    //    if(sim->isEnabled()){
+    //        emit requestEchoSignal();
+    //      return true;
+    //   }else{
+    //        const EchoReturnData d;
 
-        EchoReturnData d = source->getNextPacket();
+    EchoReturnData d = source->getNextPacket();
 
-        if(!source || !source->isOpen()){
-            logger->error("Nein das source ist kaputt");
-            return false;
-        }
-        if(d.isPacketValid()){
-            setHealthToOk();
-            addData("range", d.getRange());
-            emit newEchoData(d);
-            scanningOutput(d);
-            emit dataChanged(this);
-            return true;
-        } else {
-            setHealthToSick("Received §&%§%§=§$ Dropping packet.");
-            return false;
-        }
-//    }
+    if(!source || !source->isOpen()){
+        logger->error("Nein das source ist kaputt");
+        return false;
+    }
+    if(d.isPacketValid()){
+        setHealthToOk();
+        addData("range", d.getRange());
+        emit newEchoData(d);
+        scanningOutput(d);
+        emit dataChanged(this);
+        return true;
+    } else {
+        setHealthToSick("Received §&%§%§=§$ Dropping packet.");
+        return false;
+    }
+    //    }
 }
 
 void Module_EchoSounder::scanningOutput(const EchoReturnData data){
@@ -156,14 +158,11 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     // Berechnete Summe von avgTest Datenwerte
     float avgFilter = 0.0;
 
-    // Berechneter Durchschnittsabstand
-
-
     float temp = 0.0;
-
     float aktMax = 0.0;
     char c;
 
+    // 5 Datenarrays werden für die Distanzberechnung gefüllt
     if(count%5==4){
         for (int i = 0; i < dataLength; i++) {
             c = data.getEchoData()[i];
@@ -214,37 +213,37 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     if(count!=0){
         if(count%5==0){
             count = 0;
-            avgDistance = 0.0;
-            // Summe aus allen 5 Datenarrays, Durchschnitt pro Datenwert
-            for(int i = 0; i < 5; i++){
-                for (int j = 0; j < dataLength; j++){
-                    temp = avgSig[j]+fewSigAvg[i][j];
-                    avgSig[j] = (temp/5);
-                }
+        }
+
+        avgDistance = 0.0;
+        // Summe aus allen 5 Datenarrays, Durchschnitt pro Datenwert
+        for(int i = 0; i < 5; i++){
+            for (int j = 0; j < dataLength; j++){
+                temp = avgSig[j]+fewSigAvg[i][j];
+                avgSig[j] = (temp/5);
+            }
+        }
+
+        for (int r = 0; r < 252; r++){
+            if(aktMax < avgSig[r]){
+                aktMax = avgSig[r];
+            }
+        }
+
+        // Prüfen, ob die nächsten X Datenwerte den Schwellwert überschreiten
+        for(int x = 0; x < dataLength-averageWindow; x++){
+            for(int y = x; y<x+averageWindow; y++){
+                avgFilter = avgFilter+avgSig[y];
             }
 
-            for (int r = 0; r < 252; r++){
-                if(aktMax < avgSig[r]){
-                    aktMax = avgSig[r];
-                }
+            if(avgFilter>((0.875)*(float)averageWindow * aktMax)){
+
+                avgDistance = (x+3)/einheit;
+                emit newEchoUiData(avgDistance,averageWindow);
+
+                // Berechnung abgeschlossen, also raus hier!
+                break;
             }
-
-            // Prüfen, ob die nächsten X Datenwerte den Schwellwert überschreiten
-            for(int x = 0; x < dataLength-averageWindow; x++){
-                for(int y = x; y<x+averageWindow; y++){
-                    avgFilter = avgFilter+avgSig[y];
-                }
-
-                if(avgFilter>((0.875)*(float)averageWindow * aktMax)){
-
-                    avgDistance = (x+3)/einheit;
-                    emit newEchoUiData(avgDistance,averageWindow);
-
-                    // Berechnung abgeschlossen, also raus hier!
-                    break;
-                }
-            }
-
         }
     }
     addData("avgDistance",avgDistance);
@@ -253,10 +252,8 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     emit newWallBehaviourData(data, avgDistance);
     emit dataChanged(this);
 
-
     // Zähler um zu gucken, wie viele Messungen schon verarbeitet wurden
     count++;
-
 
 }
 
@@ -297,10 +294,7 @@ void Module_EchoSounder::reset(){
         recorder->start();
     }
 
-//    reader.start();
-//    if (sim->isEnabled())
-//        return;
-     logger->debug("open source");
+    logger->debug("open source");
     if (getSettingsValue("readFromFile").toBool())
     {
         logger->debug("starting source");
@@ -313,14 +307,6 @@ void Module_EchoSounder::reset(){
     reader.start();
 }
 
-// Klappt das so?!
-//EchoReturnData Module_EchoSounder::getScan(){
-//    if(doNextScan() == true){
-//        return d;
-//    }else{
-//        return NULL;
-//    }
-//}
 
 QList<RobotModule*> Module_EchoSounder::getDependencies()
 {

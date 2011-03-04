@@ -14,6 +14,9 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     this->echo = echo;
     setDefaultValue("serialPort", "COM9");
     setDefaultValue("range", 5);
+    setDefaultValue("forwardSpeed",0.5);
+    setDefaultValue("angularSpeed",0.3);
+    setDefaultValue("desiredDistance",1.0);
 
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
@@ -120,33 +123,25 @@ void Behaviour_WallFollowing::controlWallFollow()
       * range: -1.0 to 1.0
       */
     if(((avgDistance-0.2) < distanceInput) && (distanceInput < (avgDistance+0.2))){
-        qDebug("Fall1: avgDistance == distanceInput");
-           fall ="Fall 1";
-        addData("Fall1: angSpeed", angSpeed);
-        addData("Fall1: fwdSpeed",fwdSpeed);
-        emit dataChanged(this);
+        fall ="Fall 1, no turn - only forward";
 
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(0.0);
     } else if(avgDistance > distanceInput ){
-fall = "Fall 2";
-        addData("Fall2: angSpeed", angSpeed);
-        addData("Fall2: fwdSpeed",fwdSpeed);
-        emit dataChanged(this);
+        fall = "Fall 2, turn left";
+
         temp =angSpeed*(-1.0);
-            emit forwardSpeed(fwdSpeed);
-            emit angularSpeed(temp);
+        emit forwardSpeed(fwdSpeed);
+        emit angularSpeed(temp);
 
     } else if(avgDistance < distanceInput){
-     //addData("Fall3: avgDistance < distanceInput");
-     addData("Fall3: angSpeed", angSpeed);
-     addData("Fall3: fwdSpeed",fwdSpeed);
-     fall = "Fall 3";
-     emit dataChanged(this);
-            emit forwardSpeed(fwdSpeed);
-            emit angularSpeed(angSpeed);
+        fall = "Fall 3, turn right";
+
+        emit forwardSpeed(fwdSpeed);
+        emit angularSpeed(angSpeed);
     }
-    addData("Verhalten:",fall);
+    emit updateWallFall(fall);
+    addData("Current Fall: ",fall);
     emit dataChanged(this);
 
 }
@@ -156,32 +151,32 @@ fall = "Fall 2";
 void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, float avgDistance)
 {
     if(isEnabled()){
-    emit newWallUiData(data, avgDistance);
-    this->avgDistance = avgDistance;
+        emit newWallUiData(data, avgDistance);
+        this->avgDistance = avgDistance;
 
-    if(sim->isEnabled())
-    {
-        //
-    } else {
-
-        if(avgDistance > 0.0)
+        if(sim->isEnabled())
         {
-            if(isEnabled() && this->getHealthStatus().isHealthOk()){
-                Behaviour_WallFollowing::controlWallFollow();
-            }
+            //
         } else {
-            this->setHealthToSick("average distance missing");
+
+            if(avgDistance > 0.0)
+            {
+                if(isEnabled() && this->getHealthStatus().isHealthOk()){
+                    Behaviour_WallFollowing::controlWallFollow();
+                }
+            } else {
+                this->setHealthToSick("average distance missing");
+            }
         }
     }
-}
 }
 
 
 void Behaviour_WallFollowing::updateFromSettings()
 {
-    this->distanceInput = this->getSettingsValue("distanceInput").toFloat();
-    this->fwdSpeed = this->getSettingsValue("forwardInput").toFloat();
-    this->angSpeed = this->getSettingsValue("angularInput").toFloat();
+    this->distanceInput = this->getSettingsValue("desiredDistance").toFloat();
+    this->fwdSpeed = this->getSettingsValue("forwardSpeed").toFloat();
+    this->angSpeed = this->getSettingsValue("angularSpeed").toFloat();
 }
 
 void Behaviour_WallFollowing::stopOnWallError(){

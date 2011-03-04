@@ -14,6 +14,7 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     QObject::connect(this,SIGNAL(stopBehaviour()),wallfollow,SLOT(stop()));
 
     connect(wallfollow,SIGNAL(newWallUiData(const EchoReturnData, float)),this,SLOT(updateWallUi(const EchoReturnData, float)));
+    connect(wallfollow,SIGNAL(updateWallFall(QString)),this,SLOT(updateWallFall(QString)));
 
     ui->setupUi(this);
 
@@ -28,7 +29,9 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     }
     this->ui->port->setText(wallfollow->getSettingsValue("serialPort").toString());
     this->ui->echoRange->setText(wallfollow->getSettingsValue("range").toString());
-
+    this->ui->forwardInput->setText(wallfollow->getSettingsValue("forwardSpeed").toString());
+    this->ui->angularInput->setText(wallfollow->getSettingsValue("angularSpeed").toString());
+    this->ui->distanceInput->setText(wallfollow->getSettingsValue("desiredDistance").toString());
     this->ui->updateView->setChecked(false);
 }
 
@@ -51,10 +54,10 @@ void WallFollowingForm::changeEvent(QEvent *e)
 
 void WallFollowingForm::on_startButton_clicked()
 {
-    wallfollow->setSettingsValue("distanceInput", ui->distanceInput->text());
+    wallfollow->setSettingsValue("desiredDistance", ui->distanceInput->text());
 
-    wallfollow->setSettingsValue("forwardInput", ui->forwardInput->text());
-    wallfollow->setSettingsValue("angularInput", ui->angularSpeed->text());
+    wallfollow->setSettingsValue("forwardSpeed", ui->forwardInput->text());
+    wallfollow->setSettingsValue("angularSpeed", ui->angularInput->text());
 
     //qDebug("startButton clicked");
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
@@ -110,9 +113,14 @@ void WallFollowingForm::updateWallUi(const EchoReturnData data, float dist)
     QString result;
     QTextStream(&result) << dist;
     this->ui->avgDistance->setText(result);
+    QString result2;
+    QTextStream(&result2) << range;
+    this->ui->r2->setText(result2);
 
 }
 
-
+void WallFollowingForm::updateWallFall(QString fall){
+    ui->currentFall->setText(fall);
+}
 
 

@@ -53,6 +53,8 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->thresholdText->setText(echo->getSettingsValue("threshold").toString());
     ui->gainText->setText(echo->getSettingsValue("gain").toString());
     ui->gain->setValue(echo->getSettingsValue("gain").toInt());
+    ui->timer->setText(echo->getSettingsValue("scanTimer").toString());
+    ui->timerInput->setText(echo->getSettingsValue("scanTimer").toString());
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
     QObject::connect(echo,SIGNAL(newEchoUiData(float, int)),this,SLOT(updateEchoUi(float, int)));
 }
@@ -165,7 +167,8 @@ void EchoSounderForm::on_save_clicked()
     ui->echoRange->setText(echo->getSettingsValue("range").toString());
     echo->setSettingsValue("gain", ui->gain->value());
     ui->gainText->setText(echo->getSettingsValue("gain").toString());
-
+    echo->setSettingsValue("scanTimer", ui->timerInput->text());
+    ui->timer->setText(echo->getSettingsValue("scanTimer").toString());
     QTimer::singleShot(0,echo,SLOT(reset()));
 
     // Hier fehlt ggf. noch ein löschen der view, wenn die range geändert wird.
@@ -198,5 +201,6 @@ void EchoSounderForm::on_save2_clicked(){
     ui->thresholdText->setText(echo->getSettingsValue("threshold").toString());
     echo->setSettingsValue("averageWindow", ui->averageWindowInput->text());
     ui->averageWindow->setText(echo->getSettingsValue("averageWindow").toString());
+
     QTimer::singleShot(0,echo,SLOT(reset()));
 }
