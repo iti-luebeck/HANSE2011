@@ -24,7 +24,7 @@ public:
     QDateTime getTimeStamp();
     cv::Mat getFeatures();
 
-    void setClassLabel(bool isWallCand);
+    void setClassLabel(int label);
     void setFiltered(QByteArray data);
     void setWallCandidate(int bin);
     void addFeature(int index, float value);

@@ -146,7 +146,7 @@ void MainWindow::on_loadSonarFile_clicked()
         rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 222;
+        int count = 1000;
         currSample = simpleViewWidth/2;
         viewSamplePointer = currSample;
         int cntWallCandSkip = 0;
@@ -354,6 +354,7 @@ cv::Mat MainWindow::cvtList2Mat()
 
 void MainWindow::on_testSVM_clicked()
 {
+    int cc[] = {0,0};
     on_loadSonarFile_clicked();
     classifiedData.clear();
     for(int j=0;j<sam.size();j++)
@@ -379,26 +380,54 @@ void MainWindow::on_testSVM_clicked()
             CvMat test = feat;
             predClass = svm->svmClassification(&test);
             sam[j].setClassLabel(predClass);
+            cc[predClass]++;
             qDebug() << j << " Class " << predClass;
         }
     }
+    qDebug() << "negativ " << cc[0] << " positiv " << cc[1];
+    this->applyHeuristic();
    showClassified();
 }
 
 void MainWindow::applyHeuristic()
 {
-    int limVarianceTH = 25;
+    int deltaTH = 20;
+    bool singlePoint = true;
+    bool deltaK = true;
 
-    if(wallCandidates.size() != samples.size() && wallCandidates.size() != classifiedData.size())
+    //SinglePoint Method
+    if(singlePoint)
     {
-        qDebug() << "groessen Stimmen nicht";
-        return;
-    }
-    for(int i=0;i<samples.size();i++)
-    {
-        int blub;
+        for(int i = 1; i<sam.size()-1;i++)
+        {
+            bool prev = sam[i-1].hasWallCandidate();
+            bool next = sam[i+1].hasWallCandidate();
+            if(!prev && !next)
+            {
+                sam[i].setWallCandidate(-1);
+                sam[i].setClassLabel(0);
+            }
+
+        }
     }
 
+    //DeltaKMethod
+    if(deltaK)
+    {
+        for(int i = 1; i<sam.size();i++)
+        {
+            int wcPrev = sam[i-1].getWallCandidate();
+            int wcCurr = sam[i].getWallCandidate();
+            int absolut = abs(wcPrev-wcCurr);
+            if((absolut > deltaTH) && sam[i-1].hasWallCandidate() && sam[i].hasWallCandidate())
+            {
+                qDebug() << " wc " <<wcPrev << wcCurr;
+                sam[i].setWallCandidate(-1);
+                sam[i].setClassLabel(0);
+            }
+
+        }
+    }
 
 }
 
@@ -547,16 +576,17 @@ void MainWindow::on_trainSVM_clicked()
     {
         if(sam[i].isClassified())
         {
-            if(!sam[i].isFiltered())
+//            if(!sam[i].isFiltered())
                 filter->extractFeatures(sam[i]);
 //            array = sam[i].getFeatures();
             features = sam[i].getFeatures();
             for(int j=0;j<sampls.cols;j++)
             {
                 sampls.at<float>(cfs,j) = features.at<float>(0,j);
+                qDebug() << " add feature " << features.at<float>(0,j);
             }
             int u = (int)sam[i].getClassLabel();
-            qDebug() << cfs << "<= " << pos+neg << " CL " << u;
+//            qDebug() << cfs << "<= " << pos+neg << " CL " << u;
             cvSet2D(classes,cfs,0,cvScalar(u));
             cfs++;
             if(cfs == pos+neg)

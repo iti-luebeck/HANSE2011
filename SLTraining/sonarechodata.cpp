@@ -91,12 +91,13 @@ void SonarEchoData::addFeature(int index, float value)
     features.at<float>(0,index) = value;
 }
 
-void SonarEchoData::setClassLabel(bool isWallCand)
+void SonarEchoData::setClassLabel(int label)
 {
     this->bClassified = false;
-    this->classLabel = 1;
-    if(!isWallCand)
-        this->classLabel = 0;
+   if(label > 0)
+        this->classLabel = 1;
+   else
+       this->classLabel = 0;
     if(this->wallCandidate != -1)
         this->bClassified = true;
 }
