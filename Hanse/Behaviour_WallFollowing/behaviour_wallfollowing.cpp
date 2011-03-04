@@ -136,7 +136,7 @@ void Behaviour_WallFollowing::controlWallFollow()
     } else if(avgDistance < distanceInput){
         qDebug("Fall3: avgDistance < distanceInput");
         temp = avgDistance - distanceInput;
-        temp = temp*(1.0);
+        temp = temp*(-1.0);
         if(temp > 1.0){
             emit forwardSpeed(0.0);
             emit angularSpeed(1.0);
