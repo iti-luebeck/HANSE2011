@@ -25,7 +25,7 @@ QByteArray EchoReturnData::getEchoData() const{
     QByteArray clone = packet;
     clone.remove(0,12);                 // removal of header.
     clone.remove(getDataBytes(), 1);    // removal of termination byte.
-    qDebug() << QString::number(clone.size());
+    //qDebug() << QString::number(clone.size());
     return clone;
 }
 
