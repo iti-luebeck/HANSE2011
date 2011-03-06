@@ -41,6 +41,7 @@ Module_Compass::Module_Compass(QString id, Module_UID *uid, Module_Simulation *s
     setDefaultValue("iirFilter",0);
     setDefaultValue("sampleRate",5);
     setDefaultValue("debug",1);
+    timer.moveToThread(this);
 
 }
 
@@ -50,7 +51,7 @@ Module_Compass::~Module_Compass()
 
 void Module_Compass::init()
 {
-    timer.moveToThread(this);
+//    timer.moveToThread(this);
 //    timer->moveToThread(&this->moduleThread);
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 

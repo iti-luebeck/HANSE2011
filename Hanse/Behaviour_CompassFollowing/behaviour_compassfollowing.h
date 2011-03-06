@@ -25,15 +25,16 @@ public:
 private:
         Module_Compass* compass;
         Module_ThrusterControlLoop* tcl;
-        QTimer *timer;
-        QTimer *turnTimer;
+        QTimer timer;
+        QTimer turnTimer;
         bool turning;
         void stopOnCompassError();
 public slots:
-        void start();
+        void startBehaviour();
         void stop();
         void reset();
         void refreshHeading();
+        void init();
 
 private slots:
         void controlLoop();

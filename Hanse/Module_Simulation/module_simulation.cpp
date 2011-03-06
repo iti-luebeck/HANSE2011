@@ -13,6 +13,7 @@ Module_Simulation::Module_Simulation(QString id)
     blockSize = 0;
 
     qRegisterMetaType<cv::Mat>("cv::Mat");
+    timer.moveToThread(this);
 }
 
 Module_Simulation::~Module_Simulation()
@@ -22,7 +23,7 @@ Module_Simulation::~Module_Simulation()
 void Module_Simulation::init()
 {
     reset();
-    timer.moveToThread(this);
+//    timer.moveToThread(this);
 }
 
 void Module_Simulation::terminate()

@@ -46,6 +46,7 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
         }
     }
     count = 0;
+    timer.moveToThread(this);
 
     //reset();
 }
@@ -54,7 +55,7 @@ Module_EchoSounder::~Module_EchoSounder(){
 
 void Module_EchoSounder::init()
 {
-    timer.moveToThread(this);
+    //timer.moveToThread(this);
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
     connect(sim,SIGNAL(newEchoData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
     connect(this,SIGNAL(requestEchoSignal()), sim, SLOT(requestEchoSlot()));

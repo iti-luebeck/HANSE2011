@@ -18,6 +18,8 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
 
     setEnabled(false);
     state = STATE_IDLE;
+    updateTimer.moveToThread(this);
+    timerNoBall.moveToThread(this);
 
 }
 

@@ -32,6 +32,8 @@ Module_PressureSensor::Module_PressureSensor(QString id, Module_UID *uid, Module
 
     setDefaultValue("i2cAddress", 0x50);
     setDefaultValue("frequency", 1);
+
+    timer.moveToThread(this);
 }
 
 Module_PressureSensor::~Module_PressureSensor()
@@ -40,7 +42,7 @@ Module_PressureSensor::~Module_PressureSensor()
 
 void Module_PressureSensor::init()
 {
-    timer.moveToThread(this);
+
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     /* connect simulation */

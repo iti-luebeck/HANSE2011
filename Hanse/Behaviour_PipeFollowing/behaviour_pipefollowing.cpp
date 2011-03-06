@@ -17,13 +17,8 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->tcl = tcl;
     this->cam = cam;
     this->sim = sim;
-//    connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
-//    connect (this,SIGNAL(timerStart(int)),&timer,SLOT(start(int)));
-//    connect(this, SIGNAL(timerStop()),&timer,SLOT(stop()));
-
-
-
     setEnabled(false);
+    timer.moveToThread(this);
 
  }
 
@@ -35,7 +30,6 @@ bool Behaviour_PipeFollowing::isActive()
 void Behaviour_PipeFollowing::init()
 {
     logger->debug("pipe init");
-    timer.moveToThread(this);
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 

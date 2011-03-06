@@ -104,6 +104,7 @@ Module_IMU::Module_IMU(QString id, Module_UID *uid, Module_Simulation *sim)
     setDefaultValue("smplTimeMult",1);
     setDefaultValue("filterTaps",2);
     setDefaultValue("gyroSens","300");
+    timer.moveToThread(this);
 }
 
 Module_IMU::~Module_IMU()
@@ -119,7 +120,7 @@ void Module_IMU::terminate()
 
 void Module_IMU::init()
 {
-    timer.moveToThread(this);
+//    timer.moveToThread(this);
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     /* connect sim */

@@ -15,6 +15,7 @@ Module_ADC::Module_ADC(QString id, Module_UID *uid)
     setDefaultValue("Vref", 5);
     setDefaultValue("waterFilter",5);
     setDefaultValue("filtersize",5);
+        timer.moveToThread(this);
 }
 
 Module_ADC::~Module_ADC()
@@ -29,7 +30,7 @@ void Module_ADC::terminate()
 
 void Module_ADC::init()
 {
-    timer.moveToThread(this);
+//    timer.moveToThread(this);
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
     reset();
 

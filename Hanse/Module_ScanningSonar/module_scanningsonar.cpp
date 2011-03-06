@@ -31,6 +31,7 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoo
     qRegisterMetaType<SonarReturnData>("SonarReturnData");
     recorder = NULL;
     source = NULL;
+    timer.moveToThread(this);
 }
 
 Module_ScanningSonar::~Module_ScanningSonar()
@@ -39,7 +40,7 @@ Module_ScanningSonar::~Module_ScanningSonar()
 
 void Module_ScanningSonar::init()
 {
-    timer.moveToThread(this);
+//    timer.moveToThread(this);
     connect(&timer,SIGNAL(timeout()), this, SLOT(doNextScan()));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
 

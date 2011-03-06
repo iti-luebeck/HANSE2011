@@ -7,18 +7,16 @@ Behaviour_CompassFollowing::Behaviour_CompassFollowing(QString id, Module_Thrust
 {
     this->compass = compass;
     this->tcl = tcl;
-    timer = NULL;
-    turnTimer = NULL;
-    setEnabled(false);
-    turning = false;
+
 //    connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
 //    connect(&turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
 
 //    connect(this,SIGNAL(startControlTimer()),&timer,SLOT(start()));
 //    connect(this,SIGNAL(startTurnTimer()),&turnTimer,SLOT(start()));
 
-    connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
-    connect(this,SIGNAL(newForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    timer.moveToThread(this);
+    turnTimer.moveToThread(this);
+
 }
 
 bool Behaviour_CompassFollowing::isActive()
@@ -26,26 +24,32 @@ bool Behaviour_CompassFollowing::isActive()
     return isEnabled();
 }
 
-void Behaviour_CompassFollowing::start()
+void Behaviour_CompassFollowing::init()
 {
-    timer = new QTimer();
-    turnTimer = new QTimer();
-    connect(timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
-    connect(turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
+    setEnabled(false);
+    turning = false;
+    connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+    connect(this,SIGNAL(newForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
+    connect(&turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
+}
+
+void Behaviour_CompassFollowing::startBehaviour()
+{
     logger->info("starting Compass Following");
     this->setEnabled(true);
     addData("ctrHeading",compass->getHeading());
     turning = false;
     emit dataChanged(this);
-    timer->start(100);
+    timer.start(100);
 //    turnTimer->start(getSettingsValue("driveTime").toInt());
 }
 
 void Behaviour_CompassFollowing::stop()
 {
     this->setEnabled(false);
-    timer->stop();
-    turnTimer->stop();
+    timer.stop();
+    turnTimer.stop();
     setEnabled(false);
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
@@ -54,11 +58,8 @@ void Behaviour_CompassFollowing::stop()
 
 void Behaviour_CompassFollowing::reset()
 {
-    if(timer != NULL)
-    {
-        timer->stop();
-        turnTimer->stop();
-    }
+    timer.stop();
+    turnTimer.stop();
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
     RobotModule::reset();
@@ -68,11 +69,9 @@ void Behaviour_CompassFollowing::reset()
         emit dataChanged(this);
         turning = false;
         this->setHealthToOk();
-        if(timer != NULL)
-        {
-            timer->start();
-            turnTimer->start();
-        }
+        timer.start();
+        turnTimer.start();
+
     }
     else
     {
@@ -136,8 +135,8 @@ void Behaviour_CompassFollowing::refreshHeading()
 void Behaviour_CompassFollowing::stopOnCompassError()
 {
     this->setEnabled(false);
-    timer->stop();
-    turnTimer->stop();
+    timer.stop();
+    turnTimer.stop();
     setHealthToSick("compass error");
     setEnabled(false);
     emit newAngularSpeed(0.0);
