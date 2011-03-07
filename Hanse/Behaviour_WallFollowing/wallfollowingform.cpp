@@ -14,7 +14,7 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     QObject::connect(this,SIGNAL(stopBehaviour()),wallfollow,SLOT(stop()));
 
     connect(wallfollow,SIGNAL(newWallUiData(const EchoReturnData, float)),this,SLOT(updateWallUi(const EchoReturnData, float)));
-    connect(wallfollow,SIGNAL(updateWallFall(QString)),this,SLOT(updateWallFall(QString)));
+    connect(wallfollow,SIGNAL(updateWallCase(QString)),this,SLOT(updateWallCase(QString)));
 
     ui->setupUi(this);
 
@@ -119,8 +119,8 @@ void WallFollowingForm::updateWallUi(const EchoReturnData data, float dist)
 
 }
 
-void WallFollowingForm::updateWallFall(QString fall){
-    ui->currentFall->setText(fall);
+void WallFollowingForm::updateWallCase(QString caseW){
+    ui->currentCase->setText(caseW);
 }
 
 

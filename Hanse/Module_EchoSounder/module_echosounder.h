@@ -80,6 +80,8 @@ signals:
     void newWallBehaviourData(const EchoReturnData data, float avgDistance);
    // void newWallUiDataEW(float avgDistance, int averageWindow, int threshold, String port, int range);
 
+    void dataError();
+
 
 private:
     Module_Simulation *sim;

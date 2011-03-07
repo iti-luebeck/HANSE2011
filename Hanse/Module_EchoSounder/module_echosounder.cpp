@@ -127,6 +127,7 @@ bool Module_EchoSounder::doNextScan(){
 
     if(!source || !source->isOpen()){
         logger->error("Nein das source ist kaputt");
+        emit dataError();
         return false;
     }
     if(d.isPacketValid()){
@@ -138,6 +139,7 @@ bool Module_EchoSounder::doNextScan(){
         return true;
     } else {
         setHealthToSick("Received §&%§%§=§$ Dropping packet.");
+        emit dataError();
         return false;
     }
     //    }

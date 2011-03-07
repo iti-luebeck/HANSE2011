@@ -20,6 +20,7 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
 
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
+    QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnWallError()));
 }
 bool Behaviour_WallFollowing::isActive()
 {
@@ -108,7 +109,7 @@ void Behaviour_WallFollowing::controlWallFollow()
 {
     avgDistance = echo->avgDistance;
     float temp = 0.0;
-    QString fall="";
+
     /**
       * Wie das mit dem Forward und Angular speed geht:
       *
@@ -123,25 +124,25 @@ void Behaviour_WallFollowing::controlWallFollow()
       * range: -1.0 to 1.0
       */
     if(((avgDistance-0.2) < distanceInput) && (distanceInput < (avgDistance+0.2))){
-        fall ="Fall 1, no turn - only forward";
+        wallCase ="Case 1, no turn - only forward";
 
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(0.0);
     } else if(avgDistance > distanceInput ){
-        fall = "Fall 2, turn left";
+        wallCase = "Case 2, turn left";
 
         temp =angSpeed*(-1.0);
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(temp);
 
     } else if(avgDistance < distanceInput){
-        fall = "Fall 3, turn right";
+        wallCase = "Case 3, turn right";
 
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(angSpeed);
     }
-    emit updateWallFall(fall);
-    addData("Current Fall: ",fall);
+    emit updateWallCase(wallCase);
+    addData("Current Case: ",wallCase);
     emit dataChanged(this);
 
 }
@@ -166,6 +167,10 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
                 }
             } else {
                 this->setHealthToSick("average distance missing");
+                emit forwardSpeed(0.0);
+                emit angularSpeed(0.0);
+                wallCase = "Case 4: No average distance, stop thruster!";
+                emit updateWallCase(wallCase);
             }
         }
     }
@@ -180,6 +185,11 @@ void Behaviour_WallFollowing::updateFromSettings()
 }
 
 void Behaviour_WallFollowing::stopOnWallError(){
-
+    emit forwardSpeed(0.0);
+    emit angularSpeed(0.0);
+    wallCase = "Case 4: No data/source, stop thruster!";
+    emit updateWallCase(wallCase);
+    addData("Current Case: ",wallCase);
+    emit dataChanged(this);
 }
 

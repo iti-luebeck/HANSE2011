@@ -27,6 +27,7 @@ public:
 private:
      //QTimer timer;
      void init();
+     QString wallCase;
 
      void controlWallFollow();
 
@@ -70,7 +71,7 @@ signals:
 
      // Behaviour_WallFollowing -> WallFollowingForm
      void newWallUiData(const EchoReturnData data, float avgDistance);
-     void updateWallFall(QString fall);
+     void updateWallCase(QString caseW);
 };
 
 

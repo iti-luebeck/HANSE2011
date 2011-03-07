@@ -38,7 +38,7 @@ signals:
 public slots:
     // Behaviour_WallFollowing -> WallFollowingForm
     void updateWallUi(const EchoReturnData data,float dist);
-    void updateWallFall(QString fall);
+    void updateWallCase(QString caseW);
 
 
 private slots:

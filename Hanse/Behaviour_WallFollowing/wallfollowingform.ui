@@ -74,7 +74,7 @@
        <rect>
         <x>10</x>
         <y>19</y>
-        <width>71</width>
+        <width>101</width>
         <height>20</height>
        </rect>
       </property>
@@ -85,7 +85,7 @@
      <widget class="QLineEdit" name="port">
       <property name="geometry">
        <rect>
-        <x>90</x>
+        <x>130</x>
         <y>50</y>
         <width>81</width>
         <height>20</height>
@@ -108,7 +108,7 @@
      <widget class="QCheckBox" name="updateView">
       <property name="geometry">
        <rect>
-        <x>200</x>
+        <x>240</x>
         <y>20</y>
         <width>111</width>
         <height>20</height>
@@ -124,7 +124,7 @@
      <widget class="QLineEdit" name="echoRange">
       <property name="geometry">
        <rect>
-        <x>90</x>
+        <x>130</x>
         <y>20</y>
         <width>81</width>
         <height>22</height>
@@ -135,10 +135,10 @@
     <widget class="QGroupBox" name="groupBox_3">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>220</x>
        <y>120</y>
-       <width>331</width>
-       <height>261</height>
+       <width>431</width>
+       <height>271</height>
       </rect>
      </property>
      <property name="title">
@@ -147,9 +147,9 @@
      <widget class="QPushButton" name="startButton">
       <property name="geometry">
        <rect>
-        <x>210</x>
+        <x>260</x>
         <y>40</y>
-        <width>101</width>
+        <width>121</width>
         <height>23</height>
        </rect>
       </property>
@@ -160,7 +160,7 @@
      <widget class="QPushButton" name="stopButton">
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>270</x>
         <y>90</y>
         <width>75</width>
         <height>23</height>
@@ -175,7 +175,7 @@
        <rect>
         <x>20</x>
         <y>40</y>
-        <width>91</width>
+        <width>111</width>
         <height>21</height>
        </rect>
       </property>
@@ -188,7 +188,7 @@
        <rect>
         <x>20</x>
         <y>90</y>
-        <width>91</width>
+        <width>111</width>
         <height>21</height>
        </rect>
       </property>
@@ -199,7 +199,7 @@
      <widget class="QLineEdit" name="avgDistance">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>170</x>
         <y>40</y>
         <width>61</width>
         <height>20</height>
@@ -212,7 +212,7 @@
      <widget class="QLineEdit" name="distanceInput">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>170</x>
         <y>90</y>
         <width>61</width>
         <height>20</height>
@@ -227,12 +227,12 @@
        <rect>
         <x>20</x>
         <y>140</y>
-        <width>111</width>
+        <width>141</width>
         <height>17</height>
        </rect>
       </property>
       <property name="text">
-       <string>Forward Speed (max):</string>
+       <string>Forward speed (max):</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_5">
@@ -240,18 +240,18 @@
        <rect>
         <x>20</x>
         <y>180</y>
-        <width>131</width>
+        <width>161</width>
         <height>17</height>
        </rect>
       </property>
       <property name="text">
-       <string>Angular Speed (max +/-):</string>
+       <string>Angular speed (max +/-):</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="forwardInput">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>190</x>
         <y>140</y>
         <width>61</width>
         <height>21</height>
@@ -261,7 +261,7 @@
      <widget class="QLineEdit" name="angularInput">
       <property name="geometry">
        <rect>
-        <x>160</x>
+        <x>190</x>
         <y>180</y>
         <width>61</width>
         <height>21</height>
@@ -273,20 +273,24 @@
        <rect>
         <x>20</x>
         <y>220</y>
-        <width>61</width>
+        <width>91</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>Current Fall:</string>
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Current case:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="currentFall">
+     <widget class="QLineEdit" name="currentCase">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>220</y>
-        <width>181</width>
+        <x>20</x>
+        <y>240</y>
+        <width>391</width>
         <height>20</height>
        </rect>
       </property>
