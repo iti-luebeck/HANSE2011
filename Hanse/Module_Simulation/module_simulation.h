@@ -71,10 +71,10 @@ private:
     quint32 blockSize;
     int     read_ret;
     QTcpSocket *tcpSocket;
+    //QDataStream input_stream2;
 
     void init();
     void parse_input(QString input);
-//    void start();
     void connectToServer();
 
     void requestDepth();

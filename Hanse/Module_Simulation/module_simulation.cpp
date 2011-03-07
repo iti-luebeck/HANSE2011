@@ -233,6 +233,12 @@ void Module_Simulation::parse_input(QString input){
         input_stream2 >> inputdata;
 
         float ff = inputdata.toFloat();
+
+        /*QString debug_string = QString("received data: ");
+        QVariant tmp(ff);
+        debug_string.append(tmp.toString());
+        logger->debug(debug_string);*/
+
         addData("depth", (-1)*ff);
         emit newDepthData((-1)*ff);
     }
@@ -404,35 +410,38 @@ void Module_Simulation::parse_input(QString input){
 
 void Module_Simulation::readResponse()
 {
-    //qDebug("Client read...");
+    qDebug("Client read...");
     QMutexLocker l(&this->moduleMutex);
 
     QDataStream input_stream2(tcpSocket);
-//    input_stream2.setVersion(QDataStream::Qt_4_7);
+    input_stream2.setVersion(QDataStream::Qt_4_7);
 
-    //get the length of the following data
-    if (blockSize == 0) {
-        if (tcpSocket->bytesAvailable() < (int)sizeof(quint32))
+    //process all new readable data and dont do it only once because of the readyRead() signal
+    //that comes not regularly
+    while(1){
+        if (blockSize == 0) {//get the length of the following data
+            if (tcpSocket->bytesAvailable() < (int)sizeof(quint32))
+                return;
+
+            input_stream2 >> blockSize;
+            //QVariant tmp(blockSize);
+            //logger->debug(tmp.toString());
+        }
+
+        //only proceed if we have enough data
+        if (tcpSocket->bytesAvailable() < blockSize)
             return;
 
-        input_stream2 >> blockSize;
-        //QVariant tmp(blockSize);
-        //logger->debug(tmp.toString());
+        //we have enugh data, start parsing
+        QString command;
+        input_stream2 >> command;
+        //logger->debug(command);
+
+        parse_input(command);
+
+        //reset so we can take new commands
+        blockSize = 0;
     }
-
-    //only proceed if we have enough data
-    if (tcpSocket->bytesAvailable() < blockSize)
-        return;
-
-    //we have enugh data, start parsing
-    QString command;
-    input_stream2 >> command;
-    //logger->debug(command);
-
-    parse_input(command);
-
-    //reset so we can take new commands
-    blockSize = 0;
 }
 
 void Module_Simulation::displayError(QAbstractSocket::SocketError Error)
