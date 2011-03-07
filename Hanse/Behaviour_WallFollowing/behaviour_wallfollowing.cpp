@@ -123,24 +123,28 @@ void Behaviour_WallFollowing::controlWallFollow()
       *
       * range: -1.0 to 1.0
       */
+    if(echo->isEnabled()){
     if(((avgDistance-0.2) < distanceInput) && (distanceInput < (avgDistance+0.2))){
-        wallCase ="Case 1, no turn - only forward";
+        wallCase ="Case 1: No turn - only forward";
 
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(0.0);
     } else if(avgDistance > distanceInput ){
-        wallCase = "Case 2, turn left";
+        wallCase = "Case 2: Turn left";
 
         temp =angSpeed*(-1.0);
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(temp);
 
     } else if(avgDistance < distanceInput){
-        wallCase = "Case 3, turn right";
+        wallCase = "Case 3: Turn right";
 
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(angSpeed);
     }
+} else {
+   wallCase = "Case 4: Echomodule not enabled, stop thruster";
+}
     emit updateWallCase(wallCase);
     addData("Current Case: ",wallCase);
     emit dataChanged(this);
@@ -169,7 +173,7 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
                 this->setHealthToSick("average distance missing");
                 emit forwardSpeed(0.0);
                 emit angularSpeed(0.0);
-                wallCase = "Case 4: No average distance, stop thruster!";
+                wallCase = "Case 5: No average distance, stop thruster!";
                 emit updateWallCase(wallCase);
             }
         }
@@ -187,7 +191,7 @@ void Behaviour_WallFollowing::updateFromSettings()
 void Behaviour_WallFollowing::stopOnWallError(){
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
-    wallCase = "Case 4: No data/source, stop thruster!";
+    wallCase = "Case 6: No data/source, stop thruster!";
     emit updateWallCase(wallCase);
     addData("Current Case: ",wallCase);
     emit dataChanged(this);

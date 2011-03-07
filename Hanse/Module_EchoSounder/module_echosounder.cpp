@@ -287,6 +287,7 @@ void Module_EchoSounder::reset(){
     if (!isEnabled()){
         return;
     }
+
     logger->debug("starting recorder");
     if (getSettingsValue("enableRecording").toBool()) {
         if (getSettingsValue("formatCSV").toBool())
