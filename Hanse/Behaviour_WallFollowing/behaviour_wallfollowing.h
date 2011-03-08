@@ -46,6 +46,7 @@ private:
      float distanceInput;
      float angSpeed;
      float fwdSpeed;
+     float corridorWidth;
      void timerSlotExecute();
 
 public slots:
