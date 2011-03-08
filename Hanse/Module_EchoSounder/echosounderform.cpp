@@ -57,6 +57,10 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->timerInput->setText(echo->getSettingsValue("scanTimer").toString());
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
     QObject::connect(echo,SIGNAL(newEchoUiData(float, int)),this,SLOT(updateEchoUi(float, int)));
+
+    avgTemp = -1.0;
+    einheit = -1.0;
+
 }
 
 EchoSounderForm::~EchoSounderForm()
@@ -78,12 +82,14 @@ void EchoSounderForm::changeEvent(QEvent *e)
 
 void EchoSounderForm::updateSounderView(const EchoReturnData data)
 {
+    einheit = data.getEchoData().length()/data.getRange();
     float range;
     if(echo->getSettingsValue("readFromFile").toBool() == true){
         range = data.getRange();
     }else{
         range = echo->getSettingsValue("range").toFloat();
     }
+
 
     int threshold = echo->getSettingsValue("threshold").toString().toInt();
     float n = data.getEchoData().length();
@@ -113,22 +119,29 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
         for(int i = 1; i < range+1; i++)
         {
 
-            scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+            scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(255,218,185,255)))->setZValue(10);
         }
 
         QLinearGradient gi(0,0,0,279);
         for (int i = 0; i < n; i++) {
             char b = data.getEchoData()[i];
 
-            if(ui->filter->isChecked()){
-                if(b>threshold){
-                    gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+            if(i != avgTemp){
+                //qDebug("normal Print");
+
+                if(ui->filter->isChecked()){
+                    if(b>threshold){
+                        gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+                    } else {
+                        b = 0;
+                        gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+                    }
                 } else {
-                    b = 0;
                     gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
                 }
             } else {
-                gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+                //qDebug("avg Print");
+                gi.setColorAt(1.0*i/n,QColor(255,000,000));
             }
         }
 
@@ -146,16 +159,18 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 
 
 void EchoSounderForm::updateEchoUi(float avgDistance, int averageWindow){
-
+    //qDebug("Array Pos");
+    avgTemp = avgDistance*einheit;
+    //qDebug()<< avgTemp;
     char a[20];
     sprintf(a,"%f",avgDistance);
     ui->avgDistance->setText(a);
-    qDebug(a);
+    //qDebug(a);
 
     char b[4];
     sprintf(b,"%i",averageWindow);
     ui->averageWindow->setText(b);
-    qDebug(b);
+    // qDebug(b);
 
 }
 

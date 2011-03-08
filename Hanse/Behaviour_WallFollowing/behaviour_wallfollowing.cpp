@@ -43,7 +43,6 @@ void Behaviour_WallFollowing::init()
 
 void Behaviour_WallFollowing::startBehaviour()
 {
-
     this->reset();
     logger->info("Behaviour started" );
     Behaviour_WallFollowing::updateFromSettings();
@@ -127,7 +126,10 @@ void Behaviour_WallFollowing::controlWallFollow()
       *
       * range: -1.0 to 1.0
       */
-    if(echo->isEnabled()){
+    float diff = avgDistance-distanceInput;
+    addData("Difference average-desired: ",diff);
+    emit dataChanged(this);
+    if(echo->isEnabled() && this->isActive()){
         if(running==true){
             if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
                 wallCase ="Case 1: No turn - only forward";
@@ -147,8 +149,14 @@ void Behaviour_WallFollowing::controlWallFollow()
                 emit forwardSpeed(fwdSpeed);
                 emit angularSpeed(angSpeed);
             }
+        } else if(this->isActive()){
+            wallCase = "Case 0: WallFollowing not started, stop thruster";
+            emit forwardSpeed(0.0);
+            emit angularSpeed(0.0);
         } else {
-            wallCase = "Case 4: Echomodule not enabled, stop thruster";
+             wallCase = "Case 4: Echomodule not enabled, stop thruster";
+             emit forwardSpeed(0.0);
+             emit angularSpeed(0.0);
         }
         emit updateWallCase(wallCase);
         addData("Current Case: ",wallCase);

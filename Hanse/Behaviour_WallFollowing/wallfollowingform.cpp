@@ -75,7 +75,8 @@ void WallFollowingForm::on_stopButton_clicked()
 
 void WallFollowingForm::updateWallUi(const EchoReturnData data, float dist)
 {
-
+    float einheit =  data.getEchoData().length()/data.getRange();
+    int avgTemp = dist*einheit;
     float range = data.getRange();
 
     float n = data.getEchoData().length();
@@ -94,13 +95,17 @@ void WallFollowingForm::updateWallUi(const EchoReturnData data, float dist)
         for(int i = 1; i < range+1; i++)
         {
 
-            scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+             scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(255,218,185,255)))->setZValue(10);
         }
 
         QLinearGradient gi(0,0,0,279);
         for (int i = 0; i < n; i++) {
             char b = data.getEchoData()[i];
-            gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+            if(i != avgTemp){
+                gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
+            } else {
+                gi.setColorAt(1.0*i/n,QColor(255,000,000));
+            }
         }
         dataQueue.append(gi);
         dataQueue.pop_front();

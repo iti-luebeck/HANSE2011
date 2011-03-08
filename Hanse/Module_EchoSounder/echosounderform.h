@@ -21,13 +21,13 @@ public:
 protected:
     void changeEvent(QEvent *e);
 
-
-    // Testzwecke
-
+    int avgTemp;
+    float einheit;
+    float avgDistance;
 
 public slots:
     void updateSounderView(const EchoReturnData data);
-    void updateEchoUi(float avgDistance, int averageWindow);
+    void updateEchoUi(float avgPos, int averageWindow);
 
 
 private:
