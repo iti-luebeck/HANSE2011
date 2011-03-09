@@ -31,6 +31,7 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     setDefaultValue("count", 0);
 
     setDefaultValue("scanTimer",100);
+    setDefaultValue("calcFactor",0.875);
 
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
 
@@ -165,6 +166,11 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     float aktMax = 0.0;
     char c;
 
+    //calcFactor = getSettingsValue("calcFactor").toDouble();
+    //qDebug()<<calcFactor;
+    calcFactor = getSettingsValue("calcFactor").toFloat();
+     qDebug()<<calcFactor;
+
     // 5 Datenarrays werden für die Distanzberechnung gefüllt
     if(count%5==4){
         for (int i = 0; i < dataLength; i++) {
@@ -239,7 +245,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
                 avgFilter = avgFilter+avgSig[y];
             }
 
-            if(avgFilter>((0.875)*(float)averageWindow * aktMax)){
+            if(avgFilter>((calcFactor)*(float)averageWindow * aktMax)){
 
                 avgDistance = (x+3)/einheit;
                 emit newEchoUiData(avgDistance,averageWindow);

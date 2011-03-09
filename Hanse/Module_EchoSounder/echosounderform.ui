@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -143,14 +143,14 @@
      <widget class="QCheckBox" name="filter">
       <property name="geometry">
        <rect>
-        <x>430</x>
+        <x>410</x>
         <y>20</y>
-        <width>121</width>
+        <width>151</width>
         <height>17</height>
        </rect>
       </property>
       <property name="text">
-       <string>Activate Filter</string>
+       <string>Activate Filter (View)</string>
       </property>
      </widget>
      <widget class="QLabel" name="abc">
@@ -333,8 +333,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>221</width>
-       <height>211</height>
+       <width>331</width>
+       <height>241</height>
       </rect>
      </property>
      <property name="title">
@@ -343,7 +343,7 @@
      <widget class="QComboBox" name="range">
       <property name="geometry">
        <rect>
-        <x>98</x>
+        <x>178</x>
         <y>60</y>
         <width>71</width>
         <height>22</height>
@@ -383,7 +383,7 @@
      <widget class="QLineEdit" name="serialPort">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>180</x>
         <y>20</y>
         <width>71</width>
         <height>22</height>
@@ -393,7 +393,7 @@
      <widget class="QLabel" name="rangeLabel">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>110</x>
         <y>60</y>
         <width>53</width>
         <height>16</height>
@@ -406,7 +406,7 @@
      <widget class="QLabel" name="label">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>110</x>
         <y>20</y>
         <width>71</width>
         <height>16</height>
@@ -419,8 +419,8 @@
      <widget class="QPushButton" name="save">
       <property name="geometry">
        <rect>
-        <x>60</x>
-        <y>170</y>
+        <x>110</x>
+        <y>200</y>
         <width>101</width>
         <height>23</height>
        </rect>
@@ -432,7 +432,7 @@
      <widget class="QLabel" name="label_8">
       <property name="geometry">
        <rect>
-        <x>40</x>
+        <x>120</x>
         <y>90</y>
         <width>31</width>
         <height>16</height>
@@ -445,7 +445,7 @@
      <widget class="QSpinBox" name="gain">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>180</x>
         <y>90</y>
         <width>71</width>
         <height>22</height>
@@ -458,7 +458,7 @@
      <widget class="QLabel" name="label_10">
       <property name="geometry">
        <rect>
-        <x>40</x>
+        <x>120</x>
         <y>130</y>
         <width>46</width>
         <height>13</height>
@@ -471,10 +471,33 @@
      <widget class="QLineEdit" name="timerInput">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>180</x>
         <y>130</y>
         <width>71</width>
         <height>20</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_15">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>160</y>
+        <width>141</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Avg. dist. calc Factor:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="factorInput">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>160</y>
+        <width>71</width>
+        <height>22</height>
        </rect>
       </property>
      </widget>
@@ -483,7 +506,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>240</y>
+       <y>270</y>
        <width>351</width>
        <height>131</height>
       </rect>

@@ -55,6 +55,8 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->gain->setValue(echo->getSettingsValue("gain").toInt());
     ui->timer->setText(echo->getSettingsValue("scanTimer").toString());
     ui->timerInput->setText(echo->getSettingsValue("scanTimer").toString());
+    ui->factorInput->setText(echo->getSettingsValue("calcFactor").toString());
+
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
     QObject::connect(echo,SIGNAL(newEchoUiData(float, int)),this,SLOT(updateEchoUi(float, int)));
 
@@ -184,6 +186,7 @@ void EchoSounderForm::on_save_clicked()
     ui->gainText->setText(echo->getSettingsValue("gain").toString());
     echo->setSettingsValue("scanTimer", ui->timerInput->text());
     ui->timer->setText(echo->getSettingsValue("scanTimer").toString());
+    echo->setSettingsValue("calcFactor",ui->factorInput->text());
     QTimer::singleShot(0,echo,SLOT(reset()));
 
     // Hier fehlt ggf. noch ein löschen der view, wenn die range geändert wird.
