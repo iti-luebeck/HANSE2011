@@ -168,8 +168,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
 
     //calcFactor = getSettingsValue("calcFactor").toDouble();
     //qDebug()<<calcFactor;
-    calcFactor = getSettingsValue("calcFactor").toFloat();
-     qDebug()<<calcFactor;
+
 
     // 5 Datenarrays werden für die Distanzberechnung gefüllt
     if(count%5==4){
@@ -228,12 +227,24 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
         // Summe aus allen 5 Datenarrays, Durchschnitt pro Datenwert
         for(int i = 0; i < 5; i++){
             for (int j = 0; j < dataLength; j++){
-                temp = avgSig[j]+fewSigAvg[i][j];
-                avgSig[j] = (temp/5);
+                avgSig[j] = avgSig[j]+fewSigAvg[i][j];
             }
         }
 
+        for(int i=0; i<dataLength;i++){
+            avgSig[i] = (avgSig[i]/5);
+        }
+
+        for(int i=0; i<dataLength;i++){
+            if(avgSig[i]<threshold){
+                avgSig[i]=0;
+            }
+        }
+
+        qDebug()<<avgSig;
         for (int r = 0; r < 252; r++){
+            //qDebug()<<aktMax;
+
             if(aktMax < avgSig[r]){
                 aktMax = avgSig[r];
             }
@@ -241,17 +252,32 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
 
         // Prüfen, ob die nächsten X Datenwerte den Schwellwert überschreiten
         for(int x = 0; x < dataLength-averageWindow; x++){
-            for(int y = x; y<x+averageWindow; y++){
+            for(int y = x; y<x+averageWindow-1; y++){
                 avgFilter = avgFilter+avgSig[y];
+
             }
 
-            if(avgFilter>((calcFactor)*(float)averageWindow * aktMax)){
+            calcFactor = getSettingsValue("calcFactor").toFloat();
+
+            float a = ((calcFactor)*(float)averageWindow * aktMax);
+//            qDebug("Neue Daten:");
+//            qDebug()<<a;
+//            qDebug()<<avgFilter;
+//            qDebug()<<calcFactor;
+//            qDebug()<<(float)averageWindow;
+//            qDebug()<<aktMax;
+
+            if(avgFilter>a){
+                //qDebug("avgDistance neu");
+
 
                 avgDistance = (x+3)/einheit;
                 emit newEchoUiData(avgDistance,averageWindow);
 
                 // Berechnung abgeschlossen, also raus hier!
                 break;
+            } else {
+                avgFilter = 0.0;
             }
         }
     }
