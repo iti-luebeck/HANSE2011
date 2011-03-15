@@ -62,6 +62,8 @@ private:
 
     void getClassCount(int &pos, int &neg);
 
+    void toPointList();
+
 public slots:
     void updateSonarView2(const QList<QByteArray> samples);
     void updateSonarView3(const QList<QByteArray> samples);

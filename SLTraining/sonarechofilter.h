@@ -38,6 +38,8 @@ public:
     void findWall(SonarEchoData &data);
     void extractFeatures(SonarEchoData &data);
 
+    void getNoNoiseFilter(QVector<int> &vec);
+
     //helpers
     QByteArray mat2byteArray(cv::Mat& mat);
     QVector<double> mat2QVector(cv::Mat& mat);
