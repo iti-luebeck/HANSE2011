@@ -47,8 +47,8 @@ signals:
       */
     void newDepthData(float depth);
     /** signals for simulation */
-    void requestDepth(int noise);
-    void requestTemp(int noise);
+    void requestDepth();
+    void requestTemp();
 
 protected slots:
     virtual void doHealthCheck();

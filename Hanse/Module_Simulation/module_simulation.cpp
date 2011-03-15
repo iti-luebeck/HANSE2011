@@ -93,6 +93,7 @@ void Module_Simulation::sending_AUV_ID()
     tcpSocket->flush();
 }
 
+/*
 void Module_Simulation::requestDepthWithNoise(int noise)
 {
     if(client_running){
@@ -101,17 +102,18 @@ void Module_Simulation::requestDepthWithNoise(int noise)
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
-}
+}*/
 
 void Module_Simulation::requestDepth()
 {
     if(client_running){
-        QString request = QString("Depth\n");
+        QString request = QString("Depth ").append("press").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
 }
 
+/*
 void Module_Simulation::requestTempWithNoise(int noise)
 {
     if(client_running){
@@ -120,12 +122,13 @@ void Module_Simulation::requestTempWithNoise(int noise)
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
-}
+}*/
 
 void Module_Simulation::requestTemp()
 {
     if(client_running){
-        tcpSocket->write(QString("Temp\n").toAscii().data(), QString("Temp\n").length());
+        QString request = QString("Temp ").append("temp").append("\n");
+        tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
 }
@@ -143,7 +146,7 @@ void Module_Simulation::requestThrusterSpeed(QString id,int speed)
 void Module_Simulation::requestAngles()
 {
     if(client_running){
-        QString request = QString("Angles\n");
+        QString request = QString("Angles ").append("compass").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
@@ -152,7 +155,7 @@ void Module_Simulation::requestAngles()
 void Module_Simulation::requestSonar()
 {
     if(client_running){
-        QString request = QString("Sonar\n");
+        QString request = QString("Sonar ").append("sonar").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
@@ -161,7 +164,7 @@ void Module_Simulation::requestSonar()
 void Module_Simulation::requestSonarGround()
 {
     if(client_running){
-        QString request = QString("SonarGround\n");
+        QString request = QString("SonarGround ").append("sonar_ground").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
@@ -179,7 +182,7 @@ void Module_Simulation::requestIMU()
 void Module_Simulation::requestImage()
 {
     if(client_running){
-        QString request = QString("Camera\n");
+        QString request = QString("Camera ").append("bottom_cam").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
@@ -201,17 +204,17 @@ void Module_Simulation::requestDepthSlot(){
     requestDepth();
 }
 
-void Module_Simulation::requestDepthWithNoiseSlot(int noise){
+/*void Module_Simulation::requestDepthWithNoiseSlot(int noise){
     requestDepthWithNoise(noise);
-}
+}*/
 
 void Module_Simulation::requestTempSlot(){
     requestTemp();
 }
 
-void Module_Simulation::requestTempWithNoiseSlot(int noise){
+/*void Module_Simulation::requestTempWithNoiseSlot(int noise){
     requestTempWithNoise(noise);
-}
+}*/
 
 void Module_Simulation::requestThrusterSpeedSlot(QString id,int speed){
     requestThrusterSpeed(id,speed);
@@ -227,8 +230,35 @@ void Module_Simulation::requestIMUSlot(){
 
 void Module_Simulation::parse_input(QString input){
     QDataStream input_stream2(tcpSocket);
-    if(input.startsWith("DepthNoise"))
+    /*if(input.startsWith("DepthNoise"))
     {
+        QString inputdata;
+        input_stream2 >> inputdata;
+
+        float ff = inputdata.toFloat();
+
+        QString debug_string = QString("received data: ");
+        QVariant tmp(ff);
+        debug_string.append(tmp.toString());
+        logger->debug(debug_string);
+
+        addData("depth", (-1)*ff);
+        emit newDepthData((-1)*ff);
+    }
+    else if(input.startsWith("TempNoise"))
+    {
+        QString inputdata;
+        input_stream2 >> inputdata;
+
+        float ff = inputdata.toFloat();
+        addData("temperature", (10)*ff);
+    }*/
+    if(input.startsWith("Depth"))
+    {
+        QString depth_name;
+        input_stream2 >> depth_name;
+        logger->debug(depth_name);
+
         QString inputdata;
         input_stream2 >> inputdata;
 
@@ -242,8 +272,12 @@ void Module_Simulation::parse_input(QString input){
         addData("depth", (-1)*ff);
         emit newDepthData((-1)*ff);
     }
-    else if(input.startsWith("TempNoise"))
+    else if(input.startsWith("Temp"))
     {
+        QString temp_name;
+        input_stream2 >> temp_name;
+        logger->debug(temp_name);
+
         QString inputdata;
         input_stream2 >> inputdata;
 
@@ -252,6 +286,10 @@ void Module_Simulation::parse_input(QString input){
     }
     else if(input.startsWith("Camera"))
     {
+        QString cam_name;
+        input_stream2 >> cam_name;
+        logger->debug(cam_name);
+
         QByteArray inputdata;
         input_stream2 >> inputdata;
 
@@ -280,6 +318,10 @@ void Module_Simulation::parse_input(QString input){
     }
     else if(input.startsWith("Angles"))
     {
+        QString compass_name;
+        input_stream2 >> compass_name;
+        logger->debug(compass_name);
+
         QString input2;
         input_stream2 >> input2;
 
@@ -297,6 +339,10 @@ void Module_Simulation::parse_input(QString input){
     }
     else if(input.startsWith("Sonar"))
     {
+        QString sonar_name;
+        input_stream2 >> sonar_name;
+        logger->debug(sonar_name);
+
         QByteArray inputdata;
         input_stream2 >> inputdata;
 
@@ -323,6 +369,10 @@ void Module_Simulation::parse_input(QString input){
 
     }else if(input.startsWith("SonarGround"))
     {
+        QString sonar_name;
+        input_stream2 >> sonar_name;
+        logger->debug(sonar_name);
+
         QByteArray inputdata;
         input_stream2 >> inputdata;
 
@@ -410,7 +460,7 @@ void Module_Simulation::parse_input(QString input){
 
 void Module_Simulation::readResponse()
 {
-    qDebug("Client read...");
+    //qDebug("Client read...");
     QMutexLocker l(&this->moduleMutex);
 
     QDataStream input_stream2(tcpSocket);

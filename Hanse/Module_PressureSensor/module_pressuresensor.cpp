@@ -47,8 +47,8 @@ void Module_PressureSensor::init()
 
     /* connect simulation */
     connect(sim,SIGNAL(newDepthData(float)),this,SLOT(refreshSimData(float)));
-    connect(this,SIGNAL(requestDepth(int)),sim,SLOT(requestDepthWithNoiseSlot(int)));
-    connect(this,SIGNAL(requestTemp(int)),sim,SLOT(requestTempWithNoiseSlot(int)));
+    connect(this,SIGNAL(requestDepth()),sim,SLOT(requestDepthSlot()));
+    connect(this,SIGNAL(requestTemp()),sim,SLOT(requestTempSlot()));
 
     reset();
 
@@ -93,8 +93,8 @@ void Module_PressureSensor::reset()
 void Module_PressureSensor::refreshData()
 {
 
-//    qDebug() << "press ref THREAD ID";
-//    qDebug() << QThread::currentThreadId();
+   // qDebug() << "press ref THREAD ID";
+   // qDebug() << QThread::currentThreadId();
 
     if (!getSettingsValue("enabled").toBool())
         return;
@@ -102,8 +102,8 @@ void Module_PressureSensor::refreshData()
     if(sim->isEnabled())
     {
         logger->debug("request");
-        emit requestDepth(1);
-        emit requestTemp(1);
+        emit requestDepth();
+        emit requestTemp();
     }
     else
     {

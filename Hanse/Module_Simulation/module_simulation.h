@@ -32,9 +32,9 @@ public slots:
     void requestSonarGroundSlot();
     void requestImageSlot();
     void requestDepthSlot();
-    void requestDepthWithNoiseSlot(int noise);
+    //void requestDepthWithNoiseSlot(int noise);
     void requestTempSlot();
-    void requestTempWithNoiseSlot(int noise);
+    //void requestTempWithNoiseSlot(int noise);
     void requestThrusterSpeedSlot(QString id,int speed);
     void requestAnglesSlot();
     void requestIMUSlot();
@@ -78,9 +78,9 @@ private:
     void connectToServer();
 
     void requestDepth();
-    void requestDepthWithNoise(int noise);
+    //void requestDepthWithNoise(int noise);
     void requestTemp();
-    void requestTempWithNoise(int noise);
+    //void requestTempWithNoise(int noise);
     void requestThrusterSpeed(QString id,int speed);
     void requestAngles();
     void requestSonar();
