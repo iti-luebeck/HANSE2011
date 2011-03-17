@@ -3,11 +3,8 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <QtGui>
 #include <Behaviour_PipeFollowing/pipefollowingform.h>
-//#include <OpenCV/include/opencv/cv.h>
 #include <opencv/cxcore.h>
-#include <Module_VisualSLAM/capture/clahe.h>
 #include <Module_Simulation/module_simulation.h>
-//using namespace cv;
 
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam, Module_Simulation *sim) :
         RobotBehaviour(id)

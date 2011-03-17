@@ -92,11 +92,34 @@ void MainWindow::refreshThreshold()
             }
         }
 
+//        cvThreshold(tempImage, binary, 100, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+
+<<<<<<< .mine
+        int w = tempImage->height;
+        int h = tempImage->width;
+
+        CvMat *samples = cvCreateMat(w*h, 1, CV_32F);
+        CvMat *labels = cvCreateMat(w*h, 1, CV_32S);
+
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                cvmSet(samples, i*h + j, 0, cvGet2D(tempImage, i, j).val[0]);
+            }
+        }
+        CvTermCriteria termcrit = cvTermCriteria(CV_TERMCRIT_ITER, 10000, 10);
+        cvKMeans2(samples, 2, labels, termcrit);
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                cvSet2D(binary, i, j, cvScalar(255*cvGet2D(labels, i*h + j, 0).val[0]));            }
+        }
+
+        cvReleaseMat(&samples);
+        cvReleaseMat(&labels);
+
 //        cvEqualizeHist( tempImage, tempImage );
 
 //        cvThreshold( tempImage, binary, highThreshold, 255, CV_THRESH_TOZERO_INV );
 //        cvThreshold( binary, binary, lowThreshold, 255, CV_THRESH_BINARY );
-        cvThreshold( tempImage, binary, highThreshold, 255, CV_THRESH_BINARY | CV_THRESH_OTSU );
 
         if ( inverted )
         {

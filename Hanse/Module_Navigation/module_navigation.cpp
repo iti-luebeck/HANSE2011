@@ -4,20 +4,20 @@
 #include "form_navigation.h"
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
-#include <Module_VisualSLAM/module_visualslam.h>
+//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include <Module_Compass/module_compass.h>
 
 Module_Navigation::Module_Navigation( QString id,
                                       Module_SonarLocalization *sonarLoc,
-                                      Module_VisualSLAM* visSLAM,
+                                      /*Module_VisualSLAM* visSLAM,*/
                                       Module_ThrusterControlLoop *tcl,
                                       Module_PressureSensor *pressure,
                                       Module_Compass *compass ) :
         RobotModule(id)
 {
     this->sonarLoc = sonarLoc;
-    this->visSLAM = visSLAM;
+//    this->visSLAM = visSLAM;
     this->tcl = tcl;
     this->pressure = pressure;
     this->compass = compass;
@@ -32,8 +32,8 @@ void Module_Navigation::init()
                       this, SLOT( depthUpdate(RobotModule*) ) );
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( headingUpdate(RobotModule*) ) );
-    QObject::connect( visSLAM, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( vslamPositionUpdate(RobotModule*) ) );
+//    QObject::connect( visSLAM, SIGNAL( dataChanged(RobotModule*) ),
+//                      this, SLOT( vslamPositionUpdate(RobotModule*) ) );
     QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
                       this, SLOT( sonarPositionUpdate() ) );
 
@@ -56,7 +56,7 @@ QList<RobotModule*> Module_Navigation::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append( sonarLoc );
-    ret.append( visSLAM );
+//    ret.append( visSLAM );
     ret.append( tcl );
     ret.append( pressure );
     ret.append( compass );
@@ -86,11 +86,11 @@ void Module_Navigation::gotoWayPoint( QString name, Position delta )
     state = NAV_STATE_GO_TO_GOAL;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
 
-    Position currentPosition = visSLAM->getLocalization();
-    double dx = currentGoalPosition.getX() - currentPosition.getX();
-    double dy = currentGoalPosition.getY() - currentPosition.getY();
-    headingToGoal = atan2( -dx, dy ) * 180 / CV_PI;
-    distanceToGoal = sqrt( dx*dx + dy*dy );
+//    Position currentPosition = visSLAM->getLocalization();
+//    double dx = currentGoalPosition.getX() - currentPosition.getX();
+//    double dy = currentGoalPosition.getY() - currentPosition.getY();
+//    headingToGoal = atan2( -dx, dy ) * 180 / CV_PI;
+//    distanceToGoal = sqrt( dx*dx + dy*dy );
 
     tcl->setDepth( currentGoalPosition.getZ() );
     tcl->setForwardSpeed( .0 );
@@ -217,7 +217,7 @@ void Module_Navigation::headingUpdate( RobotModule * )
 
 void Module_Navigation::vslamPositionUpdate( RobotModule * )
 {
-    double currentHeading = visSLAM->getLocalization().getYaw();
+    double currentHeading = 0.0; //visSLAM->getLocalization().getYaw();
     int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
     switch ( state )
     {
@@ -260,7 +260,7 @@ void Module_Navigation::vslamPositionUpdate( RobotModule * )
             break;
         case NAV_SUBSTATE_MOVE_FORWARD:
             // Check if the goal has already been reached.
-            Position currentPosition = visSLAM->getLocalization();
+            Position currentPosition; // = visSLAM->getLocalization();
             if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
                        ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
                 < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
@@ -384,11 +384,11 @@ void Module_Navigation::save( QString path )
     QString slamPath = path;
     slamPath.append( "/slam.txt" );
 
-    QFile slamFile( slamPath );
-    slamFile.open( QIODevice::WriteOnly );
-    QTextStream slamTS( &slamFile );
-    visSLAM->save( slamTS );
-    slamFile.close();
+//    QFile slamFile( slamPath );
+//    slamFile.open( QIODevice::WriteOnly );
+//    QTextStream slamTS( &slamFile );
+//    visSLAM->save( slamTS );
+//    slamFile.close();
 
     QString waypointPath = path;
     waypointPath.append( "/waypoint.txt" );
@@ -421,11 +421,11 @@ void Module_Navigation::load( QString path )
     QString slamPath = path;
     slamPath.append( "/slam.txt" );
 
-    QFile slamFile( slamPath );
-    slamFile.open( QIODevice::ReadOnly );
-    QTextStream slamTS( &slamFile );
-    visSLAM->load( slamTS );
-    slamFile.close();
+//    QFile slamFile( slamPath );
+//    slamFile.open( QIODevice::ReadOnly );
+//    QTextStream slamTS( &slamFile );
+//    visSLAM->load( slamTS );
+//    slamFile.close();
 
     QString waypointPath = path;
     waypointPath.append( "/waypoint.txt" );

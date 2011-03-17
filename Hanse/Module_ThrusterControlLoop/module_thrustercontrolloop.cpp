@@ -18,15 +18,17 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     pressureSensor_isHealthOK=true;
     dataLockerMutex.unlock();
 
-    setDefaultValue("p_up",     1.0);
-    setDefaultValue("p_down",   1.0);
-    setDefaultValue("maxSpU",   0.3);
-    setDefaultValue("maxSpD",   -0.3);
-    setDefaultValue("neutrSpD", 0.0);
-    setDefaultValue("maxDepthError", 0.05);
+    setDefaultValue("Kp", 0.5);
+    setDefaultValue("Ti", 2.0);
+    setDefaultValue("Td", 0.0);
+    setDefaultValue("neutralSpeed", 0.0);
+    setDefaultValue("minSpeed", -0.3);
+    setDefaultValue("maxSpeed", 0.3);
 
     setDefaultValue("horizSpM_exp", false);
     setDefaultValue("ignoreHealth", false);
+
+    pidController = new PIDController(0.5, 2, 0, 0, -0.3, 0.3);
 }
 
 void Module_ThrusterControlLoop::terminate()
@@ -66,24 +68,22 @@ void Module_ThrusterControlLoop::reset()
     emit setRightThruster(0);
     emit setUpDownThrusterFront(0);
     emit setUpDownThrusterBack(0);
-//    thrusterLeft->setSpeed( 0 );
-//    thrusterRight->setSpeed(0 );
-//    thrusterDown->setSpeed( 0 );
-//    thrusterDownFront->setSpeed( 0 );
 }
 
 void Module_ThrusterControlLoop::updateConstantsFromInitNow()
 {
     QMutexLocker l(&dataLockerMutex);
-    p_down    = getSettingsValue("p_down").toFloat();
-    p_up      = getSettingsValue("p_up").toFloat();
-    maxSpD    = getSettingsValue("maxSpD").toFloat();
-    maxSpU    = getSettingsValue("maxSpU").toFloat();
-    neutrSpD  = getSettingsValue("neutrSpD").toFloat();
-    maxDepthError = getSettingsValue("maxDepthError").toFloat();
+    Kp = getSettingsValue("Kp").toFloat();
+    Ti = getSettingsValue("Ti").toFloat();
+    Td = getSettingsValue("Td").toFloat();
+    neutralSpeed = getSettingsValue("neutralSpeed").toFloat();
+    minSpeed = getSettingsValue("minSpeed").toFloat();
+    maxSpeed = getSettingsValue("maxSpeed").toFloat();
 
     horizSpM_exp = getSettingsValue("horizSpM_exp").toBool();
     ignoreHealth = getSettingsValue("ignoreHealth").toBool();
+
+    pidController->setValues(Kp, Ti, Td, neutralSpeed, minSpeed, maxSpeed);
 }
 
 void Module_ThrusterControlLoop::healthStatusChanged(HealthStatus pressureSensorHealth) {
@@ -102,41 +102,16 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         return;
 
     if (control_loop_enabled) {
-
-        QDateTime now = QDateTime::currentDateTime();
-        historyIst[now] = depth;
-        historySoll[now] = setvalueDepth;
-
         // Speed of the UpDownThruster:
         // TODO: PRESUMPTION: speed>0.0 means UP
-        float speed = neutrSpD;
-        float error = depth-setvalueDepth;
-
-
-        addData("depth_error", error); // for logging
-
-        // control-loop step:
-        if (fabs(error) > maxDepthError) {
-            if (error > 0.0) {
-                // We are to deep => go UP:
-                speed += p_up*error;
-            } else {
-                // We are not deep enough
-                speed += p_down*error;
-            }
-        }
-
+        float speed = pidController->nextControlValue(setvalueDepth, depth);
 
         //// Health-Check ////
         // Can we believe the pressure sensor?
         // If not stop the thrusterDown!
-        if (!pressureSensor_isHealthOK) { speed = 0; }
+        if (!pressureSensor_isHealthOK) { speed = neutralSpeed; }
 
-        // limit the speed:
-        if (speed>maxSpU) { speed=maxSpU; }
-        if (speed<maxSpD) { speed=maxSpD; }
-
-        if (abs(error)>getSettingsValue("forceUnpauseError").toFloat())
+        if (abs(setvalueDepth - depth)>getSettingsValue("forceUnpauseError").toFloat())
             paused = false;
 
         if (paused)
@@ -144,15 +119,6 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
 
         emit setUpDownThrusterFront(speed);
         emit setUpDownThrusterBack(speed);
-//        thrusterDown->setSpeed(speed);
-//        thrusterDownFront->setSpeed(speed);
-        historyThrustCmd[now] = speed;
-
-        if (historyThrustCmd.size()>maxHist) {
-            historyThrustCmd.remove(historyThrustCmd.keys().first());
-            historySoll.remove(historySoll.keys().first());
-            historyIst.remove(historyIst.keys().first());
-        }
 
         emit dataChanged(this);
     }

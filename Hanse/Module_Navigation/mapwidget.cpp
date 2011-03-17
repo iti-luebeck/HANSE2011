@@ -1,7 +1,7 @@
 #include "mapwidget.h"
 #include "ui_mapwidget.h"
 #include <Module_Navigation/waypointdialog.h>
-#include <Module_VisualSLAM/module_visualslam.h>
+//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_SonarLocalization/sonarparticlefilter.h>
 
@@ -48,7 +48,7 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     ui->showVisSLAM->setChecked(nav->getSettingsValue("showVisSLAM").toBool());
 
     connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
-    connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
+//    connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
     connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Position>)), this, SLOT(updateWaypoints(QMap<QString,Position>)) );
     connect( nav, SIGNAL(setNewGoal(Position)), this, SLOT(updateGoal(Position)) );
     connect( nav, SIGNAL(clearedGoal()), this, SLOT(clearGoal()) );
@@ -105,7 +105,7 @@ void MapWidget::updateVisualSLAM()
         QList<Position> landmarks;
         QList<Position> particles;
         int bestParticle;
-        nav->visSLAM->getPlotData( landmarks, particles, bestParticle );
+//        nav->visSLAM->getPlotData( landmarks, particles, bestParticle );
 
         double width = 0.1;
         for ( int i = 0; i < landmarks.size(); i++ )
@@ -206,7 +206,7 @@ void MapWidget::updateGoal( Position goal )
     goalItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
     goalItem->setZValue( 1150 );
 
-    Position pos = nav->visSLAM->getLocalization();
+    Position pos; // = nav->visSLAM->getLocalization();
     QGraphicsItem *item = scene->addLine( goal.getX(), goal.getY(),
                            pos.getX(), pos.getY(),
                            pen );

@@ -9,7 +9,7 @@
 #include <Module_IMU/module_imu.h>
 #include <Module_Compass/module_compass.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
-#include <Module_VisualSLAM/module_visualslam.h>
+//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>

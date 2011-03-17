@@ -13,7 +13,6 @@ INCLUDEPATH += .
 include(../qextserialport/qextserialport.pri)
 include(../log4qt/log4qt.pri)
 include(../OpenCV.pri)
-include(../gsl.pri)
 include(../qwt.pri)
 unix:DEFINES += OS_UNIX
 win32:DEFINES += OS_WIN32
@@ -46,31 +45,12 @@ HEADERS += Framework/healthstatus.h \
     Module_IMU/imu_form.h \
     Module_Compass/module_compass.h \
     Module_Compass/compass_form.h \
-    Module_VisualSLAM/module_visualslam.h \
     Module_SonarLocalization/module_sonarlocalization.h \
     Framework/position.h \
     Module_SonarLocalization/form_sonarlocalization.h \
     Framework/robotbehaviour.h \
     Behaviour_PipeFollowing/behaviour_pipefollowing.h \
     Module_ScanningSonar/scanningsonar_form.h \
-    Module_VisualSLAM/helpers.h \
-    Module_VisualSLAM/odometry/odometry.h \
-    Module_VisualSLAM/feature/feature.h \
-    Module_VisualSLAM/feature/surf/utils.h \
-    Module_VisualSLAM/feature/surf/surflib.h \
-    Module_VisualSLAM/feature/surf/surf.h \
-    Module_VisualSLAM/feature/surf/responselayer.h \
-    Module_VisualSLAM/feature/surf/kmeans.h \
-    Module_VisualSLAM/feature/surf/ipoint.h \
-    Module_VisualSLAM/feature/surf/integral.h \
-    Module_VisualSLAM/feature/surf/fasthessian.h \
-    Module_VisualSLAM/feature/fast/cvfast.h \
-    Module_VisualSLAM/capture/stereocapture.h \
-    Module_VisualSLAM/slam/quaternion.h \
-    Module_VisualSLAM/slam/particle.h \
-    Module_VisualSLAM/slam/naiveslam.h \
-    Module_VisualSLAM/slam/landmark.h \
-    Module_VisualSLAM/form_visualslam.h \
     Behaviour_PipeFollowing/pipefollowingform.h \
     Framework/hanseapp.h \
     Module_SonarLocalization/sonarechofilter.h \
@@ -82,7 +62,6 @@ HEADERS += Framework/healthstatus.h \
     Module_Navigation/module_navigation.h \
     Module_Navigation/form_navigation.h \
     Framework/dataloghelper.h \
-    Module_VisualSLAM/slam/visualslamparticle.h \
     Framework/qgraphicsviewextended.h \
     Framework/moduledataview.h \
     Framework/modulehealthview.h \
@@ -95,7 +74,6 @@ HEADERS += Framework/healthstatus.h \
     Behaviour_BallFollowing/ballfollowingform.h \
     Behaviour_BallFollowing/behaviour_ballfollowing.h \
     Framework/eventthread.h \
-    Module_VisualSLAM/capture/clahe.h \
     Module_Webcams/module_webcams.h \
     Module_Webcams/form_webcams.h \
     Behaviour_BallFollowing/blobs/ComponentLabeling.h \
@@ -126,7 +104,9 @@ HEADERS += Framework/healthstatus.h \
     Module_EchoSounder/echodatacsvrecorder.h \
     Module_EchoSounder/echodata852recorder.h \
     Behaviour_WallFollowing/wallfollowingform.h \
-    Behaviour_WallFollowing/behaviour_wallfollowing.h
+    Behaviour_WallFollowing/behaviour_wallfollowing.h \
+    Framework/pidcontroller.h \
+    Framework/pidwidget.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -157,31 +137,12 @@ SOURCES += Framework/robotmodule.cpp \
     Module_IMU/imu_form.cpp \
     Module_Compass/module_compass.cpp \
     Module_Compass/compass_form.cpp \
-    Module_VisualSLAM/module_visualslam.cpp \
     Module_SonarLocalization/module_sonarlocalization.cpp \
     Framework/position.cpp \
     Module_SonarLocalization/form_sonarlocalization.cpp \
     Framework/robotbehaviour.cpp \
     Behaviour_PipeFollowing/behaviour_pipefollowing.cpp \
     Module_ScanningSonar/scanningsonar_form.cpp \
-    Module_VisualSLAM/odometry/odometry.cpp \
-    Module_VisualSLAM/feature/feature.cpp \
-    Module_VisualSLAM/feature/surf/utils.cpp \
-    Module_VisualSLAM/feature/surf/surf.cpp \
-    Module_VisualSLAM/feature/surf/ipoint.cpp \
-    Module_VisualSLAM/feature/surf/integral.cpp \
-    Module_VisualSLAM/feature/surf/fasthessian.cpp \
-    Module_VisualSLAM/feature/fast/cvfast.cpp \
-    Module_VisualSLAM/feature/fast/cv_fast_12.cc \
-    Module_VisualSLAM/feature/fast/cv_fast_11.cc \
-    Module_VisualSLAM/feature/fast/cv_fast_10.cc \
-    Module_VisualSLAM/feature/fast/cv_fast_9.cc \
-    Module_VisualSLAM/capture/stereocapture.cpp \
-    Module_VisualSLAM/slam/quaternion.cpp \
-    Module_VisualSLAM/slam/particle.cpp \
-    Module_VisualSLAM/slam/naiveslam.cpp \
-    Module_VisualSLAM/slam/landmark.cpp \
-    Module_VisualSLAM/form_visualslam.cpp \
     Behaviour_PipeFollowing/pipefollowingform.cpp \
     Framework/hanseapp.cpp \
     Module_SonarLocalization/sonarechofilter.cpp \
@@ -193,7 +154,6 @@ SOURCES += Framework/robotmodule.cpp \
     Module_Navigation/module_navigation.cpp \
     Module_Navigation/form_navigation.cpp \
     Framework/dataloghelper.cpp \
-    Module_VisualSLAM/slam/visualslamparticle.cpp \
     Framework/qgraphicsviewextended.cpp \
     Framework/moduledataview.cpp \
     Framework/modulehealthview.cpp \
@@ -206,7 +166,6 @@ SOURCES += Framework/robotmodule.cpp \
     Behaviour_BallFollowing/ballfollowingform.cpp \
     Behaviour_BallFollowing/behaviour_ballfollowing.cpp \
     Framework/eventthread.cpp \
-    Module_VisualSLAM/capture/clahe.cpp \
     Module_Webcams/module_webcams.cpp \
     Module_Webcams/form_webcams.cpp \
     Behaviour_BallFollowing/blobs/ComponentLabeling.cpp \
@@ -235,7 +194,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_EchoSounder/echodatacsvrecorder.cpp \
     Module_EchoSounder/echodata852recorder.cpp \
     Behaviour_WallFollowing/wallfollowingform.cpp \
-    Behaviour_WallFollowing/behaviour_wallfollowing.cpp
+    Behaviour_WallFollowing/behaviour_wallfollowing.cpp \
+    Framework/pidcontroller.cpp \
+    Framework/pidwidget.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -247,7 +208,6 @@ FORMS += Framework/mainwindow.ui \
     Module_Compass/compass_form.ui \
     Module_SonarLocalization/form_sonarlocalization.ui \
     Module_ScanningSonar/scanningsonar_form.ui \
-    Module_VisualSLAM/form_visualslam.ui \
     Behaviour_PipeFollowing/pipefollowingform.ui \
     Module_Navigation/waypointdialog.ui \
     Module_Navigation/form_navigation.ui \
@@ -264,5 +224,6 @@ FORMS += Framework/mainwindow.ui \
     Behaviour_CompassFollowing/compassfollowingform.ui \
     Module_ADC/adc_form.ui \
     Module_EchoSounder/echosounderform.ui \
-    Behaviour_WallFollowing/wallfollowingform.ui
+    Behaviour_WallFollowing/wallfollowingform.ui \
+    Framework/pidwidget.ui
 OTHER_FILES += bin/log4qt.properties

@@ -4,7 +4,7 @@
 #include <Framework/robotbehaviour.h>
 
 #include <Behaviour_GoalFollowing/goalfollowingform.h>
-#include <Module_VisualSLAM/module_visualslam.h>
+//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Framework/robotmodule.h>
 
 #define STATE_IDLE 100
@@ -20,7 +20,7 @@ class Behaviour_GoalFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_GoalFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_VisualSLAM* vsl);
+    Behaviour_GoalFollowing(QString id, Module_ThrusterControlLoop* tcl/*, Module_VisualSLAM* vsl*/);
 
     QList<RobotModule*> getDependencies();
 
@@ -32,7 +32,7 @@ public:
 private:
 
     Module_ThrusterControlLoop* tcl;
-    Module_VisualSLAM* vsl;
+//    Module_VisualSLAM* vsl;
     QDateTime last;
     QTimer timerNoGoal;
     int state;

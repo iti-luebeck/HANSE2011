@@ -23,10 +23,6 @@ protected:
 private:
     Ui::TCL_Form *ui;
     Module_ThrusterControlLoop *module;
-    QwtPlot *plot;
-    QwtPlotCurve *curveSoll;
-    QwtPlotCurve *curveIst;
-    QwtPlotCurve *curveThruster;
 
 private slots:
     void on_save_clicked();
