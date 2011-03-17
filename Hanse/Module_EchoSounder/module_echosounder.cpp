@@ -241,7 +241,6 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
             }
         }
 
-        qDebug()<<avgSig;
         for (int r = 0; r < 252; r++){
             //qDebug()<<aktMax;
 

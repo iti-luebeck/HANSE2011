@@ -126,8 +126,8 @@ void Behaviour_WallFollowing::controlWallFollow()
       *
       * range: -1.0 to 1.0
       */
-    float diff = avgDistance-distanceInput;
-    addData("Difference average-desired: ",diff);
+    addData("Desired distance: ",distanceInput);
+    addData("Avg distance: ",avgDistance);
     emit dataChanged(this);
     if(echo->isEnabled() && this->isActive()){
         if(running==true){
