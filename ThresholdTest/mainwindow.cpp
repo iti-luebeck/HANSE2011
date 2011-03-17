@@ -3,6 +3,7 @@
 
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+#include <QtCore>
 #include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -28,6 +29,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     lowThreshold = 0;
     highThreshold = 255;
+
+    playing = false;
+    count = 0;
 }
 
 MainWindow::~MainWindow()
@@ -88,10 +92,11 @@ void MainWindow::refreshThreshold()
             }
         }
 
-        cvEqualizeHist( tempImage, tempImage );
+//        cvEqualizeHist( tempImage, tempImage );
 
-        cvThreshold( tempImage, binary, highThreshold, 255, CV_THRESH_TOZERO_INV );
-        cvThreshold( binary, binary, lowThreshold, 255, CV_THRESH_BINARY );
+//        cvThreshold( tempImage, binary, highThreshold, 255, CV_THRESH_TOZERO_INV );
+//        cvThreshold( binary, binary, lowThreshold, 255, CV_THRESH_BINARY );
+        cvThreshold( tempImage, binary, highThreshold, 255, CV_THRESH_BINARY | CV_THRESH_OTSU );
 
         if ( inverted )
         {
@@ -287,4 +292,76 @@ void MainWindow::on_invertCheckBox_toggled(bool checked)
 {
     inverted = checked;
     refreshThreshold();
+}
+
+void MainWindow::on_playButton_clicked()
+{
+    if (playing) {
+        playing = false;
+    } else {
+        QDir dir(QFileDialog::getExistingDirectory(this, QString("bla")));
+        dir.setFilter( QDir::Files );
+        files = dir.entryList();
+        QStringList filters;
+//        filters << "*.png";
+        files = dir.entryList(filters, QDir::Files);
+        for (int i = 0; i < files.size(); i++) {
+            files[i] = dir.filePath(files[i]);
+        }
+
+        playing = true;
+        count = 0;
+        QTimer::singleShot(1000, this, SLOT(nextImage()));
+    }
+}
+
+void MainWindow::nextImage()
+{
+    if (count < files.size()) {
+        QString fileName = files[count];
+        if ( QFile::exists( fileName ) )
+        {
+            if ( rgbImage ) cvReleaseImage( &rgbImage );
+            if ( hsvImage ) cvReleaseImage( &hsvImage );
+            if ( grayscaleImage ) cvReleaseImage( &grayscaleImage );
+            if ( R ) cvReleaseImage( &R );
+            if ( G ) cvReleaseImage( &G );
+            if ( B ) cvReleaseImage( &B );
+            if ( H ) cvReleaseImage( &H );
+            if ( S ) cvReleaseImage( &S );
+            if ( V ) cvReleaseImage( &V );
+            if ( binary ) cvReleaseImage( &binary );
+
+            rgbImage = cvLoadImage( fileName.toStdString().c_str(), 1 );
+            cvCvtColor( rgbImage, rgbImage, CV_BGR2RGB );
+
+            grayscaleImage = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+            cvCvtColor( rgbImage, grayscaleImage, CV_RGB2GRAY );
+
+            R = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+            G = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+            B = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+            cvSplit( rgbImage, R, G, B, NULL );
+
+            hsvImage = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 3 );
+            cvCvtColor( rgbImage, hsvImage, CV_RGB2HSV );
+
+            H = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+            S = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+            V = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+            cvSplit( hsvImage, H, S, V, NULL );
+
+            binary = cvCreateImage( cvGetSize( rgbImage ), IPL_DEPTH_8U, 1 );
+
+            refreshThreshold();
+        }
+
+        count++;
+
+        if (playing) {
+            QTimer::singleShot(1000, this, SLOT(nextImage()));
+        }
+    } else {
+        playing = false;
+    }
 }

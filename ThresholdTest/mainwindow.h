@@ -43,7 +43,12 @@ private:
     IplImage *V;
     IplImage *binary;
 
+    bool playing;
+    int count;
+    QStringList files;
+
 private slots:
+    void on_playButton_clicked();
     void on_invertCheckBox_toggled(bool checked);
     void on_loadButton_clicked();
     void on_hsvRadioButton_toggled(bool checked);
@@ -54,6 +59,8 @@ private slots:
     void on_grayRadioButton_toggled(bool checked);
     void on_horizontalSlider_2_sliderMoved(int position);
     void on_horizontalSlider_sliderMoved(int position);
+
+    void nextImage();
 };
 
 #endif // MAINWINDOW_H
