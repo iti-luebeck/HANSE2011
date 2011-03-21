@@ -155,7 +155,7 @@ void Module_Simulation::requestAngles()
 void Module_Simulation::requestSonar()
 {
     if(client_running){
-        QString request = QString("Sonar ").append("sonar").append("\n");
+        QString request = QString("Sonar ").append("sonar_360").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
