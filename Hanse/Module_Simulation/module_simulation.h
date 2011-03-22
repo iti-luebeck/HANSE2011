@@ -12,6 +12,8 @@
 #include <opencv/cv.h>
 #include "Module_ScanningSonar/sonarreturndata.h"
 #include "Module_ScanningSonar/sonarswitchcommand.h"
+#include "Module_EchoSounder/echoreturndata.h"
+#include "Module_EchoSounder/echoswitchcommand.h"
 
 class Module_Simulation : public RobotModule {
     Q_OBJECT
@@ -32,9 +34,7 @@ public slots:
     void requestSonarGroundSlot();
     void requestImageSlot();
     void requestDepthSlot();
-    //void requestDepthWithNoiseSlot(int noise);
     void requestTempSlot();
-    //void requestTempWithNoiseSlot(int noise);
     void requestThrusterSpeedSlot(QString id,int speed);
     void requestAnglesSlot();
     void requestIMUSlot();
@@ -53,10 +53,9 @@ signals:
     void newDepthData(float depth);
     void newAngleData(float angle_yaw, float angle_pitch, float angle_roll);
     void newSonarData(SonarReturnData sondat);
-    void newSonarGroundData(SonarReturnData sondat);
+    void newSonarGroundData(EchoReturnData echodat);
     void newIMUData(float accl_x,float accl_y,float accl_z,float angvel_x,float angvel_y,float angvel_z);
     void newImageData(cv::Mat simframe);
-    void test(char* readbuff);
 
 protected:
     virtual void doHealthCheck();
@@ -71,16 +70,13 @@ private:
     quint32 blockSize;
     int     read_ret;
     QTcpSocket *tcpSocket;
-    //QDataStream input_stream2;
 
     void init();
     void parse_input(QString input);
     void connectToServer();
 
     void requestDepth();
-    //void requestDepthWithNoise(int noise);
     void requestTemp();
-    //void requestTempWithNoise(int noise);
     void requestThrusterSpeed(QString id,int speed);
     void requestAngles();
     void requestSonar();

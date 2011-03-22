@@ -3,7 +3,6 @@
 
 #include "Framework/robotmodule.h"
 #include "echoreturndata.h"
-#include <Module_Simulation/module_simulation.h>
 #include <QtCore>
 
 class QextSerialPort;
@@ -20,7 +19,7 @@ class Module_EchoSounder : public RobotModule{
 
     class ThreadedReader : public QThread{
     public:
-        ThreadedReader(Module_EchoSounder* m, Module_Simulation* sim);
+        ThreadedReader(Module_EchoSounder* m);
 
         void pleaseStop();
         void run(void);
@@ -40,7 +39,6 @@ public:
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
 
-    void emitEchoSignal();
     float getAvgCm();
     float avgDistance;
 
@@ -72,7 +70,9 @@ private slots:
 
 signals:
     void newEchoData(const EchoReturnData data);
-    void requestEchoSignal();
+
+    //simulator stuff
+    void requestSonarGroundSignal();
 
     // Module_EchoSounder -> EchoSounderForm
     void newEchoUiData(float avgDistance, int averageWindow);

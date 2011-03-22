@@ -11,7 +11,7 @@
 #include <Module_Simulation/module_simulation.h>
 
 Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
-    : RobotModule(id), reader(this, sim)
+    : RobotModule(id), reader(this)
 {
     setDefaultValue("serialPort", "COM9");
     setDefaultValue("range", 5);
@@ -58,15 +58,16 @@ void Module_EchoSounder::init()
 {
     //timer.moveToThread(this);
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
-    connect(sim,SIGNAL(newEchoData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
-    connect(this,SIGNAL(requestEchoSignal()), sim, SLOT(requestEchoSlot()));
+    /* connect simulation */
+    connect(sim,SIGNAL(newSonarGroundData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
+    connect(this,SIGNAL(requestSonarGroundSignal()),sim,SLOT(requestSonarGroundSlot()));
+
     reset();
 }
 
-Module_EchoSounder::ThreadedReader::ThreadedReader(Module_EchoSounder *m, Module_Simulation *sim)
+Module_EchoSounder::ThreadedReader::ThreadedReader(Module_EchoSounder *m)
 {
     this->m = m;
-    this->sim = sim;
     running = true;
 }
 
@@ -99,7 +100,6 @@ void Module_EchoSounder::ThreadedReader::run(void){
     running = true;
     while(running)
     {
-
         if (m->getSettingsValue("enabled").toBool()){// || !m->doNextScan()){
             m->doNextScan();
             msleep(m->getSettingsValue("scanTimer").toInt());
@@ -107,43 +107,39 @@ void Module_EchoSounder::ThreadedReader::run(void){
     }
 }
 
-void Module_EchoSounder::emitEchoSignal()
-{
-    emit requestEchoSignal();
-}
-
 void Module_EchoSounder::refreshSimData(EchoReturnData dat){
+    addData("range", dat.getRange());
     emit newEchoData(dat);
+    scanningOutput(dat);
     emit dataChanged(this);
 }
 
 bool Module_EchoSounder::doNextScan(){
-    //    if(sim->isEnabled()){
-    //        emit requestEchoSignal();
-    //      return true;
-    //   }else{
-    //        const EchoReturnData d;
-
-    EchoReturnData d = source->getNextPacket();
-
-    if(!source || !source->isOpen()){
-        logger->error("Nein das source ist kaputt");
-        emit dataError();
-        return false;
-    }
-    if(d.isPacketValid()){
-        setHealthToOk();
-        addData("range", d.getRange());
-        emit newEchoData(d);
-        scanningOutput(d);
-        emit dataChanged(this);
+    if(sim->isEnabled()){
+        emit requestSonarGroundSignal();
         return true;
-    } else {
-        setHealthToSick("Received §&%§%§=§$ Dropping packet.");
-        emit dataError();
-        return false;
+    }else{
+
+        EchoReturnData d = source->getNextPacket();
+
+        if(!source || !source->isOpen()){
+            logger->error("Nein das source ist kaputt");
+            emit dataError();
+            return false;
+        }
+        if(d.isPacketValid()){
+            setHealthToOk();
+            addData("range", d.getRange());
+            emit newEchoData(d);
+            scanningOutput(d);
+            emit dataChanged(this);
+            return true;
+        } else {
+            setHealthToSick("Received §&%§%§=§$ Dropping packet.");
+            emit dataError();
+            return false;
+        }
     }
-    //    }
 }
 
 void Module_EchoSounder::scanningOutput(const EchoReturnData data){
@@ -327,6 +323,14 @@ void Module_EchoSounder::reset(){
             recorder = new EchoData852Recorder(*this);
 
         recorder->start();
+    }
+
+    if (sim->isEnabled())
+    {
+        timer.setInterval(500);
+        timer.start();
+        reader.start();
+        return;
     }
 
     logger->debug("open source");

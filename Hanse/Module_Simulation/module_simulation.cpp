@@ -93,17 +93,6 @@ void Module_Simulation::sending_AUV_ID()
     tcpSocket->flush();
 }
 
-/*
-void Module_Simulation::requestDepthWithNoise(int noise)
-{
-    if(client_running){
-        QVariant tmp(noise);
-        QString request = QString("DepthNoise ").append(tmp.toString()).append("\n");
-        tcpSocket->write(request.toAscii().data(), request.length());
-        tcpSocket->flush();
-    }
-}*/
-
 void Module_Simulation::requestDepth()
 {
     if(client_running){
@@ -112,17 +101,6 @@ void Module_Simulation::requestDepth()
         tcpSocket->flush();
     }
 }
-
-/*
-void Module_Simulation::requestTempWithNoise(int noise)
-{
-    if(client_running){
-        QVariant tmp(noise);
-        QString request = QString("TempNoise ").append(tmp.toString()).append("\n");
-        tcpSocket->write(request.toAscii().data(), request.length());
-        tcpSocket->flush();
-    }
-}*/
 
 void Module_Simulation::requestTemp()
 {
@@ -155,7 +133,7 @@ void Module_Simulation::requestAngles()
 void Module_Simulation::requestSonar()
 {
     if(client_running){
-        QString request = QString("Sonar ").append("sonar_360").append("\n");
+        QString request = QString("Sonar360 ").append("sonar_360").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
@@ -164,7 +142,7 @@ void Module_Simulation::requestSonar()
 void Module_Simulation::requestSonarGround()
 {
     if(client_running){
-        QString request = QString("SonarGround ").append("sonar_ground").append("\n");
+        QString request = QString("SonarEcho ").append("sonar_ground").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
@@ -204,17 +182,9 @@ void Module_Simulation::requestDepthSlot(){
     requestDepth();
 }
 
-/*void Module_Simulation::requestDepthWithNoiseSlot(int noise){
-    requestDepthWithNoise(noise);
-}*/
-
 void Module_Simulation::requestTempSlot(){
     requestTemp();
 }
-
-/*void Module_Simulation::requestTempWithNoiseSlot(int noise){
-    requestTempWithNoise(noise);
-}*/
 
 void Module_Simulation::requestThrusterSpeedSlot(QString id,int speed){
     requestThrusterSpeed(id,speed);
@@ -230,29 +200,6 @@ void Module_Simulation::requestIMUSlot(){
 
 void Module_Simulation::parse_input(QString input){
     QDataStream input_stream2(tcpSocket);
-    /*if(input.startsWith("DepthNoise"))
-    {
-        QString inputdata;
-        input_stream2 >> inputdata;
-
-        float ff = inputdata.toFloat();
-
-        QString debug_string = QString("received data: ");
-        QVariant tmp(ff);
-        debug_string.append(tmp.toString());
-        logger->debug(debug_string);
-
-        addData("depth", (-1)*ff);
-        emit newDepthData((-1)*ff);
-    }
-    else if(input.startsWith("TempNoise"))
-    {
-        QString inputdata;
-        input_stream2 >> inputdata;
-
-        float ff = inputdata.toFloat();
-        addData("temperature", (10)*ff);
-    }*/
     if(input.startsWith("Depth"))
     {
         QString depth_name;
@@ -337,7 +284,7 @@ void Module_Simulation::parse_input(QString input){
 
         emit newAngleData(angle_yaw,angle_pitch,angle_roll);
     }
-    else if(input.startsWith("Sonar"))
+    else if(input.startsWith("Sonar360"))
     {
         QString sonar_name;
         input_stream2 >> sonar_name;
@@ -367,7 +314,7 @@ void Module_Simulation::parse_input(QString input){
 
         emit newSonarData(*sondat);
 
-    }else if(input.startsWith("SonarGround"))
+    }else if(input.startsWith("SonarEcho"))
     {
         QString sonar_name;
         input_stream2 >> sonar_name;
@@ -376,27 +323,24 @@ void Module_Simulation::parse_input(QString input){
         QByteArray inputdata;
         input_stream2 >> inputdata;
 
-        SonarSwitchCommand cmd;
+        EchoSwitchCommand cmd;
         cmd.range = 50;
         cmd.startGain = 1;
-        cmd.stepSize = 1;
         cmd.dataPoints = 25;
-        /*
-        cmd.range = parent.getSettings().value("range").toInt();
-        cmd.startGain = parent.getSettings().value("gain").toInt();
-        cmd.trainAngle = parent.getSettings().value("trainAngle").toInt();
-        cmd.sectorWidth = parent.getSettings().value("sectorWidth").toInt();
-        cmd.stepSize = parent.getSettings().value("stepSize").toInt();
-        cmd.pulseLength = parent.getSettings().value("pulseLength").toInt();
-        cmd.dataPoints = parent.getSettings().value("dataPoints").toInt();
-        cmd.switchDelay = parent.getSettings().value("switchDelay").toInt();
-        cmd.frequency = parent.getSettings().value("frequency").toInt();
-        */
+        /*cmd.time = other.time;
+        this->range = other.range;
+        this->startGain = other.startGain;
+        this->pulseLength = other.pulseLength;
+        this->profileMinRange = other.profileMinRange;
+        this->profile = other.profile;
+        this->frequency = other.frequency;
+        this->switchDelay = other.switchDelay;
+        this->totalBytes = other.totalBytes;
+        this->nToRead = other.nToRead;
+        this->origFileHeader = other.origFileHeader;*/
 
-        SonarReturnData* sondat = new SonarReturnData(cmd,inputdata);
-
-        emit newSonarGroundData(*sondat);
-
+        EchoReturnData* echodat = new EchoReturnData(cmd,inputdata);
+        emit newSonarGroundData(*echodat);
     }
     else if(input.startsWith("IMU"))
     {
