@@ -245,7 +245,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
             }
         }
 
-        // Prüfen, ob die nächsten X Datenwerte den Schwellwert überschreiten
+        // Prüfen, ob die naechsten X Datenwerte den Schwellwert überschreiten
         for(int x = 0; x < dataLength-averageWindow; x++){
             for(int y = x; y<x+averageWindow-1; y++){
                 avgFilter = avgFilter+avgSig[y];
@@ -282,7 +282,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     emit newWallBehaviourData(data, avgDistance);
     emit dataChanged(this);
 
-    // Zähler um zu gucken, wie viele Messungen schon verarbeitet wurden
+    // Zaehler um zu gucken, wie viele Messungen schon verarbeitet wurden
     count++;
 
 }

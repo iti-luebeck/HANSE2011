@@ -114,6 +114,8 @@ void Module_Simulation::requestTemp()
 void Module_Simulation::requestThrusterSpeed(QString id,int speed)
 {
     if(client_running){
+//        addData(id,speed);
+//        emit dataChanged(this);
         QVariant tmp(speed);
         QString request = QString("Thruster ").append(id).append(" ").append(tmp.toString()).append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
@@ -275,6 +277,7 @@ void Module_Simulation::parse_input(QString input){
     {
         QString inputdata;
         input_stream2 >> inputdata;
+        logger->debug(inputdata);
     }
     else if(input.startsWith("Angles"))
     {

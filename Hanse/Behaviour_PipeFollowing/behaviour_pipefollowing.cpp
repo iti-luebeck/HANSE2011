@@ -108,9 +108,12 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 {
-    QMutexLocker l(&this->dataLockerMutex);
+    logger->debug(" simu data");
+  //  QMutexLocker l(&this->dataLockerMutex);
+    this->dataLockerMutex.lock();
     simFrame.copyTo(frame);
-    imshow("blub",frame);
+    this->dataLockerMutex.unlock();
+    //imshow("blub",frame);
     timerSlotExecute();
 }
 
@@ -134,8 +137,8 @@ void Behaviour_PipeFollowing::timerSlot()
 
 void Behaviour_PipeFollowing::timerSlotExecute()
 {
-    qDebug() << "pipe thread id";
-    qDebug() << QThread::currentThreadId();
+    //qDebug() << "pipe thread id";
+    //qDebug() << QThread::currentThreadId();
     QTime run,run2;
     run.restart();
 
