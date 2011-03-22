@@ -59,8 +59,8 @@ void Module_EchoSounder::init()
     //timer.moveToThread(this);
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
     /* connect simulation */
-    connect(sim,SIGNAL(newSonarGroundData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
-    connect(this,SIGNAL(requestSonarGroundSignal()),sim,SLOT(requestSonarGroundSlot()));
+    connect(sim,SIGNAL(newSonarSideData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
+    connect(this,SIGNAL(requestSonarSideSignal()),sim,SLOT(requestSonarSideSlot()));
 
     reset();
 }
@@ -116,7 +116,7 @@ void Module_EchoSounder::refreshSimData(EchoReturnData dat){
 
 bool Module_EchoSounder::doNextScan(){
     if(sim->isEnabled()){
-        emit requestSonarGroundSignal();
+        emit requestSonarSideSignal();
         return true;
     }else{
 

@@ -72,7 +72,7 @@ signals:
     void newEchoData(const EchoReturnData data);
 
     //simulator stuff
-    void requestSonarGroundSignal();
+    void requestSonarSideSignal();
 
     // Module_EchoSounder -> EchoSounderForm
     void newEchoUiData(float avgDistance, int averageWindow);

@@ -148,6 +148,15 @@ void Module_Simulation::requestSonarGround()
     }
 }
 
+void Module_Simulation::requestSonarSide()
+{
+    if(client_running){
+        QString request = QString("SonarEcho ").append("sonar_side").append("\n");
+        tcpSocket->write(request.toAscii().data(), request.length());
+        tcpSocket->flush();
+    }
+}
+
 void Module_Simulation::requestIMU()
 {
     if(client_running){
@@ -176,6 +185,10 @@ void Module_Simulation::requestSonarSlot(){
 
 void Module_Simulation::requestSonarGroundSlot(){
     requestSonarGround();
+}
+
+void Module_Simulation::requestSonarSideSlot(){
+    requestSonarSide();
 }
 
 void Module_Simulation::requestDepthSlot(){
@@ -340,7 +353,11 @@ void Module_Simulation::parse_input(QString input){
         this->origFileHeader = other.origFileHeader;*/
 
         EchoReturnData* echodat = new EchoReturnData(cmd,inputdata);
-        emit newSonarGroundData(*echodat);
+        if(sonar_name.startsWith("sonar_ground")){
+            emit newSonarGroundData(*echodat);
+        }else if(sonar_name.startsWith("sonar_side")){
+            emit newSonarSideData(*echodat);
+        }
     }
     else if(input.startsWith("IMU"))
     {

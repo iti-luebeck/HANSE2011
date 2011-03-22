@@ -32,6 +32,7 @@ public slots:
 
     void requestSonarSlot();
     void requestSonarGroundSlot();
+    void requestSonarSideSlot();
     void requestImageSlot();
     void requestDepthSlot();
     void requestTempSlot();
@@ -54,6 +55,7 @@ signals:
     void newAngleData(float angle_yaw, float angle_pitch, float angle_roll);
     void newSonarData(SonarReturnData sondat);
     void newSonarGroundData(EchoReturnData echodat);
+    void newSonarSideData(EchoReturnData echodat);
     void newIMUData(float accl_x,float accl_y,float accl_z,float angvel_x,float angvel_y,float angvel_z);
     void newImageData(cv::Mat simframe);
 
@@ -81,6 +83,7 @@ private:
     void requestAngles();
     void requestSonar();
     void requestSonarGround();
+    void requestSonarSide();
     void requestIMU();
     void requestImage();
 };
