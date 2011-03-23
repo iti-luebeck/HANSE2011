@@ -10,14 +10,14 @@
 
 Module_Navigation::Module_Navigation( QString id,
                                       Module_SonarLocalization *sonarLoc,
-                                      Module_VisualSLAM* visSLAM,
+//                                      Module_VisualSLAM* visSLAM,
                                       Module_ThrusterControlLoop *tcl,
                                       Module_PressureSensor *pressure,
                                       Module_Compass *compass ) :
         RobotModule(id)
 {
     this->sonarLoc = sonarLoc;
-    this->visSLAM = visSLAM;
+//    this->visSLAM = visSLAM;
     this->tcl = tcl;
     this->pressure = pressure;
     this->compass = compass;
@@ -32,8 +32,8 @@ void Module_Navigation::init()
                       this, SLOT( depthUpdate(RobotModule*) ) );
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( headingUpdate(RobotModule*) ) );
-    QObject::connect( visSLAM, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( vslamPositionUpdate(RobotModule*) ) );
+//    QObject::connect( visSLAM, SIGNAL( dataChanged(RobotModule*) ),
+//                      this, SLOT( vslamPositionUpdate(RobotModule*) ) );
     QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
                       this, SLOT( sonarPositionUpdate() ) );
 
@@ -56,7 +56,7 @@ QList<RobotModule*> Module_Navigation::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append( sonarLoc );
-    ret.append( visSLAM );
+//    ret.append( visSLAM );
     ret.append( tcl );
     ret.append( pressure );
     ret.append( compass );

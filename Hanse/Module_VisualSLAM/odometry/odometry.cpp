@@ -1,6 +1,4 @@
 #include "odometry.h"
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_eigen.h>
 #include "../feature/feature.h"
 
 Odometry::Odometry()
@@ -120,6 +118,7 @@ int Odometry::calcConsensusSet( vector<CvScalar>last, vector<CvScalar>next, vect
 
 void Odometry::calcFivePoint( vector<CvScalar> last, vector<CvScalar> next, vector<CvMat *> &Es )
 {
+    /*
     int numTotal = (int)last.size();
     CvMat *P = cvCreateMat( 3, 5, CV_64F );
     CvMat *Q = cvCreateMat( 3, 5, CV_64F );
@@ -284,6 +283,7 @@ void Odometry::calcFivePoint( vector<CvScalar> last, vector<CvScalar> next, vect
     cvReleaseMat( &A2 );
     cvReleaseMat( &A3 );
     cvReleaseMat( &M1 );
+    */
 }
 
 void Odometry::fivePointHelper( CvMat *EEMat, CvMat *AMat )

@@ -70,7 +70,6 @@ private:
 
     SonarEchoFilter* filter;
     SonarParticleFilter* pf;
-    QThread pfThread;
     CvSVMParams svmParam;
     CvSVM* svm;
 

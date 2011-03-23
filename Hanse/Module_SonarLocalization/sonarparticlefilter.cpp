@@ -18,6 +18,8 @@ SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization* sonar, SonarE
     this->sonar = sonar;
     this->filter = filter;
 
+    logger->debug("ParticleFilter constructor");
+
     loadMap();
 
     reset();

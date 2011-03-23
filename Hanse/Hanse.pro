@@ -13,7 +13,6 @@ INCLUDEPATH += .
 include(../qextserialport/qextserialport.pri)
 include(../log4qt/log4qt.pri)
 include(../OpenCV.pri)
-include(../gsl.pri)
 include(../qwt.pri)
 unix:DEFINES += OS_UNIX
 win32:DEFINES += OS_WIN32

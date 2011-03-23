@@ -18,16 +18,16 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
 
     this->m = m;
 
-//    currentPos = NULL;
+    currentPos = NULL;
 
-//    createPlot();
+    createPlot();
 
-//    scene = new QGraphicsScene(parent);
+    scene = new QGraphicsScene(parent);
 //    createMap();
 
-//    setFields();
+    setFields();
 
-//    on_plotSelect_valueChanged(0);
+    on_plotSelect_valueChanged(0);
 
 //    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
 //    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
