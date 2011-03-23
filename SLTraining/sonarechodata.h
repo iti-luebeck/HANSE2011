@@ -29,6 +29,9 @@ public:
     void setWallCandidate(int bin);
     void addFeature(int index, float value);
 
+    void setGroupID(int id);
+    int getGroupID();
+
 
 
 private:
@@ -46,6 +49,7 @@ private:
     cv::Mat features;
     float gain;
 //    float features;
+    int group;
 };
 
 #endif // SONARECHODATA_H

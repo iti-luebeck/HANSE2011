@@ -15,6 +15,7 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->headPosition = data.getHeadPosition();
     this->range = data.getRange();
     this->gain = data.switchCommand.startGain;
+    this->group = -1;
 
     this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
@@ -83,6 +84,16 @@ float SonarEchoData::getRange()
 float SonarEchoData::getGain()
 {
     return this->gain;
+}
+
+int SonarEchoData::getGroupID()
+{
+    return this->group;
+}
+
+void SonarEchoData::setGroupID(int id)
+{
+    this->group = id;
 }
 
 void SonarEchoData::addFeature(int index, float value)

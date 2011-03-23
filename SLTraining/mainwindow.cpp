@@ -146,7 +146,7 @@ void MainWindow::on_loadSonarFile_clicked()
         rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 1000;
+        int count = 200;
         currSample = simpleViewWidth/2;
         viewSamplePointer = currSample;
         int cntWallCandSkip = 0;
@@ -376,16 +376,17 @@ void MainWindow::on_testSVM_clicked()
 //        }
 
 //            cv::Mat test1 = filter->byteArray2Mat(feat);
-            qDebug() << "rows " <<feat.rows << "cols " << feat.cols;
+//            qDebug() << "rows " <<feat.rows << "cols " << feat.cols;
             CvMat test = feat;
             predClass = svm->svmClassification(&test);
             sam[j].setClassLabel(predClass);
             cc[predClass]++;
-            qDebug() << j << " Class " << predClass;
+//            qDebug() << j << " Class " << predClass;
         }
     }
     qDebug() << "negativ " << cc[0] << " positiv " << cc[1];
     this->applyHeuristic();
+    this->groupWallCandidates();
    showClassified();
 }
 
@@ -487,9 +488,19 @@ void MainWindow::updateSonarView3(const QList<QByteArray> curDataSet)
                 int skalarM = 1;
                 int cl = sam[viewSamplePointer+j].getClassLabel();
                 int wc = sam[viewSamplePointer+j].getWallCandidate();
+
+                //mark groups
+                if(i<=2)
+                {
+                if(sam[viewSamplePointer+j].getGroupID()%2 == 0)
+                    gi.setColorAt(1.0*i/n,QColor(255,0,0));
+                else
+                    gi.setColorAt(1.0*i/n,QColor(0,0,255));
+                }
+
                 if((cl == 1)  && (i > wc- skalarM ) && (i < wc + skalarM))
                     gi.setColorAt(1.0*i/n,QColor(0,255,0));
-                else
+                else if(i > 2)
                     gi.setColorAt(1.0*i/n,QColor(0,0,0));
 
             }
@@ -619,7 +630,7 @@ void MainWindow::on_trainSVM_clicked()
 
 }
 
-void MainWindow::toPointList()
+void MainWindow::groupWallCandidates()
 {
     QVector<int> noNoise;
     filter->getNoNoiseFilter(noNoise);
@@ -630,12 +641,13 @@ void MainWindow::toPointList()
     int darknessBeginArea=0;
     int groupID=1;
     int lastDirection=-1;
+    int cutTH = 360;
 
     for(int i=0; i<sam.size();i++)
     {
         int diff = 0;
         int newDirection =0;
-        if(sam[i].getGain())
+        if(noNoise.at(sam[i].getGain()) == 0)
             qDebug("no noise Information");
         else
         {
@@ -652,13 +664,26 @@ void MainWindow::toPointList()
                     newDirection = -1;
                 else
                     newDirection= 0;
-
             }
             else
             {
                 newDirection=1;
                 diff = 0;
-
+            }
+            //Grouping
+            temp_area = temp_area + diff;
+            qDebug() << "tempArea " << temp_area;
+            if(temp_area > 360 || temp_area > cutTH)
+            {
+                //TODO search for darkness to cut if TH reached
+                //cut
+                temp_area = 0;
+                groupID++;
+            }
+            else
+            {
+                //add to current Group
+                sam[i].setGroupID(groupID);
             }
         }
     }

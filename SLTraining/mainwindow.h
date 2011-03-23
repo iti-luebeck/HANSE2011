@@ -62,7 +62,7 @@ private:
 
     void getClassCount(int &pos, int &neg);
 
-    void toPointList();
+    void groupWallCandidates();
 
 public slots:
     void updateSonarView2(const QList<QByteArray> samples);
