@@ -72,13 +72,13 @@ void Form_SonarLocalization::createMap()
     result->setZValue(-1);
     result->setScale(0.2);
 
-    QVector<QVector4D> particles = m->pf->getParticles();
+    QVector<QVector4D> particles = m->pf.getParticles();
     foreach (QVector4D p, particles) {
         particleItems.append(scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("green"))));
     }
 
     // draw map
-    foreach (QVector2D p, m->pf->getMapPoints()) {
+    foreach (QVector2D p, m->pf.getMapPoints()) {
         scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
     }
 }
@@ -133,37 +133,37 @@ void Form_SonarLocalization::on_plotSelect_valueChanged(int )
 {
     int value = ui->plotSelect->value();
 
-    if (value<0 || value >= m->filter->rawHistory.size())
+    if (value<0 || value >= m->filter.rawHistory.size())
         return;
 
-    QDateTime time = m->filter->rawHistory.keys().at(value);
+    QDateTime time = m->filter.rawHistory.keys().at(value);
     ui->dateTimeEdit->setDateTime(time);
 
     QVector<double> xData;
-    for(int i=0; i<m->filter->N; i++)
+    for(int i=0; i<m->filter.N; i++)
         xData.append(i/5.0);
 
     // copy the data into the curves
-    curveRaw->setData(xData, m->filter->rawHistory[time]);
+    curveRaw->setData(xData, m->filter.rawHistory[time]);
     curveRaw->attach(plot);
 
-    curveFiltered->setData(xData, m->filter->filteredHistory[time]);
+    curveFiltered->setData(xData, m->filter.filteredHistory[time]);
     curveFiltered->setPen(QPen("green"));
 //    curveFiltered->attach(plot);
 
-    curveTH->setData(xData, m->filter->threshHistory[time]);
+    curveTH->setData(xData, m->filter.threshHistory[time]);
     curveTH->setPen(QPen("red"));
     curveTH->attach(plot);
 
-    curveVar->setData(xData, m->filter->varHistory[time]);
+    curveVar->setData(xData, m->filter.varHistory[time]);
     curveVar->setPen(QPen("brown"));
     curveVar->attach(plot);
 
-    curveMean->setData(xData, m->filter->meanHistory[time]);
+    curveMean->setData(xData, m->filter.meanHistory[time]);
     curveMean->setPen(QPen("blue"));
     curveMean->attach(plot);
 
-    int K = m->filter->kHistory[time];
+    int K = m->filter.kHistory[time];
     if (K>=0) {
         curveK->setSymbol(QwtSymbol(QwtSymbol::VLine, QBrush(), QPen("green"), QSize(1,500)));
 //        curveK->setXValue(15.0);
@@ -220,7 +220,7 @@ void Form_SonarLocalization::newPositionEstimate(QVector3D e)
         delete it;
     }
     particleItems.clear();
-    QVector<QVector4D> particles = m->pf->getParticles();
+    QVector<QVector4D> particles = m->pf.getParticles();
     foreach (QVector4D p, particles) {
         particleItems.append(scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("green"))));
     }
@@ -234,8 +234,8 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
     if (!ui->update->isChecked())
         return;
 
-    QList<QVector2D> z = m->pf->getLatestObservation();
-    if (z.size()==0 || m->pf->getParticleCount() < p)
+    QList<QVector2D> z = m->pf.getLatestObservation();
+    if (z.size()==0 || m->pf.getParticleCount() < p)
         return;
 
     m->logger->debug("");
@@ -247,7 +247,7 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
     }
     volatileItems.clear();
 
-    QVector4D particle = m->pf->getParticles()[p];
+    QVector4D particle = m->pf.getParticles()[p];
     m->logger->debug("particle: X="+QString::number(particle.x())+",Y="+QString::number(particle.y())+",Z="
                      +QString::number(particle.z())+",W="+QString::number(particle.w()));
 
@@ -262,7 +262,7 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
 
     if (currentPos != NULL)
         delete currentPos;
-    currentPos = scene->addEllipse(m->pf->getParticles()[p].x(), m->pf->getParticles()[p].y(), 1,1,QPen(QColor("red")));
+    currentPos = scene->addEllipse(m->pf.getParticles()[p].x(), m->pf.getParticles()[p].y(), 1,1,QPen(QColor("red")));
     currentPos->setZValue(10);
 }
 

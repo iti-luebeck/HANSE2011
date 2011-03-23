@@ -6,10 +6,10 @@
 #include <Module_ScanningSonar/sonarreturndata.h>
 #include <opencv/cv.h>
 #include <opencv/ml.h>
+#include <Module_SonarLocalization/sonarechofilter.h>
+#include <Module_SonarLocalization/sonarparticlefilter.h>
 
 class Module_ScanningSonar;
-class SonarEchoFilter;
-class SonarParticleFilter;
 class Module_PressureSensor;
 
 class Module_SonarLocalization : public RobotModule {
@@ -52,7 +52,7 @@ public:
 
     void setLocalization(QVector2D position);
 
-    SonarParticleFilter& particleFilter() const;
+    SonarParticleFilter& particleFilter();
 
 public slots:
     void reset();
@@ -68,8 +68,8 @@ private:
     Module_ScanningSonar* sonar;
     Module_PressureSensor* pressure;
 
-    SonarEchoFilter* filter;
-    SonarParticleFilter* pf;
+    SonarEchoFilter filter;
+    SonarParticleFilter pf;
     CvSVMParams svmParam;
     CvSVM* svm;
 

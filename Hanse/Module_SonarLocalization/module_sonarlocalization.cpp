@@ -13,29 +13,33 @@
 using namespace cv;
 
 Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_PressureSensor* pressure)
-    : RobotModule(id)
+    : RobotModule(id),
+        filter(this),
+        pf(*this, filter)
 {
-    this->sonar = sonar;
-    this->pressure = pressure;
+       filter.moveToThread(this);
+       pf.moveToThread(this);
+
+       this->sonar = sonar;
+
 }
 
 void Module_SonarLocalization::init()
 {
     logger->debug("INIT SONARLOC");
-    this->filter = new SonarEchoFilter(this);
-    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), filter, SLOT(newSonarData(SonarReturnData)));
-    this->pf = new SonarParticleFilter(this, filter);
+
+    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), &filter, SLOT(newSonarData(SonarReturnData)));
     logger->debug("filter created");
     qRegisterMetaType< QList<QVector2D> >("QList<QVector2D>");
-    connect(filter, SIGNAL(newImage(QList<QVector2D>)), pf, SLOT(newImage(QList<QVector2D>)));
-    connect(pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
+    connect(&filter, SIGNAL(newImage(QList<QVector2D>)), &pf, SLOT(newImage(QList<QVector2D>)));
+    connect(&pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
 }
 
 void Module_SonarLocalization::reset()
 {
     RobotModule::reset();
-    filter->reset();
-    pf->reset();
+    filter.reset();
+    pf.reset();
 }
 
 void Module_SonarLocalization::terminate()
@@ -95,9 +99,9 @@ void Module_SonarLocalization::trainSVM()
     svm = new CvSVM(training,labels,0,0,svmParam);
 }
 
-SonarParticleFilter& Module_SonarLocalization::particleFilter() const
+SonarParticleFilter& Module_SonarLocalization::particleFilter()
 {
-    return *(this->pf);
+    return this->pf;
 }
 
 void Module_SonarLocalization::newPositionEst(QVector3D p)
@@ -107,12 +111,12 @@ void Module_SonarLocalization::newPositionEst(QVector3D p)
 
 void Module_SonarLocalization::setLocalization(QVector2D position)
 {
-    pf->setLocalization(position);
+    pf.setLocalization(position);
 }
 
 Position Module_SonarLocalization::getLocalization()
 {
-    QVector3D p = pf->getBestEstimate();
+    QVector3D p = pf.getBestEstimate();
     Position r;
     r.setX(p.x());
     r.setY(p.y());
@@ -123,7 +127,7 @@ Position Module_SonarLocalization::getLocalization()
 
 float Module_SonarLocalization::getLocalizationConfidence()
 {
-    return pf->getParticles()[0].w();
+    return pf.getParticles()[0].w();
 }
 
 QDateTime Module_SonarLocalization::getLastRefreshTime()

@@ -48,7 +48,7 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     ui->showVisSLAM->setChecked(nav->getSettingsValue("showVisSLAM").toBool());
 
     connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
-    connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
+    //connect( nav->visSLAM, SIGNAL(viewUpdated()), this, SLOT(updateVisualSLAM()) );
     connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Position>)), this, SLOT(updateWaypoints(QMap<QString,Position>)) );
     connect( nav, SIGNAL(setNewGoal(Position)), this, SLOT(updateGoal(Position)) );
     connect( nav, SIGNAL(clearedGoal()), this, SLOT(clearGoal()) );

@@ -27,6 +27,8 @@ Module_Navigation::Module_Navigation( QString id,
 
 void Module_Navigation::init()
 {
+        qRegisterMetaType< QMap<QString,Position> >("QMap<QString,Position>");
+
     // Connect to signals from the sensors.
     QObject::connect( pressure, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( depthUpdate(RobotModule*) ) );

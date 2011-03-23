@@ -22,7 +22,7 @@ Q_OBJECT
 
 public:
 
-    SonarParticleFilter(Module_SonarLocalization* sonar, SonarEchoFilter *filter);
+    SonarParticleFilter(Module_SonarLocalization& sonar, SonarEchoFilter& filter);
 
     void reset();
 
@@ -53,8 +53,8 @@ private:
     QVector3D controlVariance;
     QVector3D initialVariance;
 
-    Module_SonarLocalization* sonar;
-    SonarEchoFilter *filter;
+    Module_SonarLocalization& sonar;
+    SonarEchoFilter& filter;
     QVector<QVector4D> particles;
 
     QVector<QVector2D> mapPoints;
