@@ -393,8 +393,8 @@ void MainWindow::on_testSVM_clicked()
 void MainWindow::applyHeuristic()
 {
     int deltaTH = 20;
-    bool singlePoint = false;
-    bool deltaK = false;
+    bool singlePoint = true;
+    bool deltaK = true;
 
     //SinglePoint Method
     if(singlePoint)
