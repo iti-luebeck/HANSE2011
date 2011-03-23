@@ -3,7 +3,7 @@
 
 #include <QByteArray>
 #include <QDateTime>
-#include "sonarreturndata.h"
+#include "Module_ScanningSonar/sonarreturndata.h"
 #include <opencv/cv.h>
 
 class SonarEchoData

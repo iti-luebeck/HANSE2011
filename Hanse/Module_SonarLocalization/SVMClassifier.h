@@ -16,8 +16,9 @@ private:
 	CvSVM* svm;
 
 private:
-	int svmClassification(CvMat* sample);
+
 public:
+        int svmClassification(CvMat* sample);
 	void train(CvMat* data, CvMat *classes);
 	CvMat* classify(CvMat* data);
 	void saveClassifier(const char* fileName);

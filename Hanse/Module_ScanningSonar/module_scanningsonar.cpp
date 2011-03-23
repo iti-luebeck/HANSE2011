@@ -191,7 +191,7 @@ void Module_ScanningSonar::reset()
         source = new SonarDataSourceSerial(*this);
 
     logger->debug("Restarting reader.");
-    timer.setInterval(500);
+    timer.setInterval(100);
     if(source != NULL)
     {
 //       QTimer::singleShot(0, timer, SLOT(start()));

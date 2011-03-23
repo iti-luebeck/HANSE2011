@@ -120,7 +120,10 @@ Position Module_SonarLocalization::getLocalization()
     Position r;
     r.setX(p.x());
     r.setY(p.y());
-    r.setZ(pressure->getDepth());
+//    if(pressure)
+//    if(pressure && pressure->isEnabled() && pressure->getHealthStatus().isHealthOk())
+//        r.setZ(pressure->getDepth());
+    r.setZ(0);
     r.setYaw(p.z()*180/M_PI);
     return r;
 }

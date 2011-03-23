@@ -1,5 +1,7 @@
 #include "SVMClassifier.h"
 
+#include <QtCore>
+
 SVMClassifier::SVMClassifier(void)
 {
         svm = new CvSVM();
@@ -15,6 +17,15 @@ void SVMClassifier::train(CvMat *data, CvMat *classes)
 	// Scale training data to an interval from 0 to 1 for all components.
         //calcScale(data);
         //scale(data);
+
+
+    qDebug("SVM TRAIN");
+    for (int i = 0; i < classes->rows; i++) {
+
+        qDebug("%d", (int)cvGet2D(classes, i, 0).val[0]);
+        qDebug("%d", (int)cvGet2D(data,0,0).val[0]);
+    }
+
 
 	// Set up class weights for two-class classifier (should be equal).
 	CvMat* class_weights = cvCreateMat(1, 2, CV_32FC1);
@@ -41,17 +52,18 @@ void SVMClassifier::train(CvMat *data, CvMat *classes)
 	CvParamGrid gamma_grid = CvSVM::get_default_grid(CvSVM::GAMMA);
 	CvParamGrid nu_grid = CvSVM::get_default_grid(CvSVM::NU);
 
-	svm->train_auto(data, classes,	// Train data, classes
-		NULL, NULL,					// Var index, sample index
-		params, 20,					// Params, K
-		CvParamGrid(),				// C
-		gamma_grid,					// GAMMA
-		CvParamGrid(),				// P
-		nu_grid,					// NU
-		CvParamGrid(),				// COEF
-		CvParamGrid());				// DEGREE
+//        svm->train(data,classes,NULL,NULL,params);
+        svm->train_auto(data, classes,	// Train data, classes
+                NULL, NULL,					// Var index, sample index
+                params, 20,					// Params, K
+                CvParamGrid(),				// C
+                gamma_grid,					// GAMMA
+                CvParamGrid(),				// P
+                nu_grid,					// NU
+                CvParamGrid(),				// COEF
+                CvParamGrid());				// DEGREE
 
-	// params = svm->get_params();
+         params = svm->get_params();
 }
 
 int SVMClassifier::svmClassification(CvMat* sample)

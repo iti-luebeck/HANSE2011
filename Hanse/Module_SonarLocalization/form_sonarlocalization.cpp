@@ -110,6 +110,8 @@ void Form_SonarLocalization::setFields()
 
     ui->a1->setText(m->getSettingsValue("a1").toString());
     ui->a2->setText(m->getSettingsValue("a2").toString());
+
+    ui->configure_SVM->setText(m->getSettingsValue("Path2SVM").toString());
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -310,4 +312,16 @@ void Form_SonarLocalization::on_openTrainingSamples_clicked()
 void Form_SonarLocalization::on_trainSVM_clicked()
 {
     QTimer::singleShot(0,m,SLOT(trainSVM()));
+}
+
+void Form_SonarLocalization::on_selSVM_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+         "Open SVM file", ui->config_mapFile->text(), "OpenCV SVM Data (*.xml)");
+
+    if (fileName.length()>0)
+    {
+        m->setSettingsValue("Path2SVM",fileName);
+        ui->configure_SVM->setText(fileName);
+    }
 }

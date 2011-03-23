@@ -45,6 +45,7 @@ private:
     void createMap();
 
 private slots:
+    void on_selSVM_clicked();
     void on_trainSVM_clicked();
     void on_openTrainingSamples_clicked();
     void on_apply_clicked();

@@ -72,7 +72,6 @@ HEADERS += Framework/healthstatus.h \
     Module_VisualSLAM/form_visualslam.h \
     Behaviour_PipeFollowing/pipefollowingform.h \
     Framework/hanseapp.h \
-    Module_SonarLocalization/sonarechofilter.h \
     Module_SonarLocalization/sonarparticlefilter.h \
     Module_ScanningSonar/sonarswitchcommand.h \
     Module_ScanningSonar/sonardatacsvrecorder.h \
@@ -125,7 +124,10 @@ HEADERS += Framework/healthstatus.h \
     Module_EchoSounder/echodatacsvrecorder.h \
     Module_EchoSounder/echodata852recorder.h \
     Behaviour_WallFollowing/wallfollowingform.h \
-    Behaviour_WallFollowing/behaviour_wallfollowing.h
+    Behaviour_WallFollowing/behaviour_wallfollowing.h \
+    Module_SonarLocalization/SVMClassifier.h \
+    Module_SonarLocalization/sonarechofilter.h \
+    Module_SonarLocalization/sonarechodata.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -183,7 +185,6 @@ SOURCES += Framework/robotmodule.cpp \
     Module_VisualSLAM/form_visualslam.cpp \
     Behaviour_PipeFollowing/pipefollowingform.cpp \
     Framework/hanseapp.cpp \
-    Module_SonarLocalization/sonarechofilter.cpp \
     Module_SonarLocalization/sonarparticlefilter.cpp \
     Module_ScanningSonar/sonarswitchcommand.cpp \
     Module_ScanningSonar/sonardatacsvrecorder.cpp \
@@ -234,7 +235,10 @@ SOURCES += Framework/robotmodule.cpp \
     Module_EchoSounder/echodatacsvrecorder.cpp \
     Module_EchoSounder/echodata852recorder.cpp \
     Behaviour_WallFollowing/wallfollowingform.cpp \
-    Behaviour_WallFollowing/behaviour_wallfollowing.cpp
+    Behaviour_WallFollowing/behaviour_wallfollowing.cpp \
+    Module_SonarLocalization/SVMClassifier.cpp \
+    Module_SonarLocalization/sonarechofilter.cpp \
+    Module_SonarLocalization/sonarechodata.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \

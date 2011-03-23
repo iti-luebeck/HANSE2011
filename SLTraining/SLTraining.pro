@@ -9,8 +9,7 @@ SOURCES += main.cpp \
     sonardatasourcefile.cpp \
     qgraphicsviewextended.cpp \
     SVMClassifier.cpp \
-    sonarechodata.cpp \
-    sonarparticlefilter.cpp
+    sonarechodata.cpp
 HEADERS += \
     sonarechofilter.h \
     sonarswitchcommand.h \
@@ -19,8 +18,7 @@ HEADERS += \
     qgraphicsviewextended.h \
     SVMClassifier.h \
     mainwindow.h \
-    sonarechodata.h \
-    sonarparticlefilter.h
+    sonarechodata.h
 
 FORMS += mainwindow.ui
 DESTDIR = ../build
