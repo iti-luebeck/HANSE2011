@@ -119,6 +119,8 @@ void SonarEchoFilter::findWall(SonarEchoData &data)
 
 void SonarEchoFilter::extractFeatures(SonarEchoData &data)
 {
+    if(!data.hasWallCandidate())
+        return;
     logger->debug("1");
     Mat echo = this->byteArray2Mat(data.getFiltered());
     logger->debug("2");
