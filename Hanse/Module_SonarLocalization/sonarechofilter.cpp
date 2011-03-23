@@ -121,9 +121,9 @@ void SonarEchoFilter::extractFeatures(SonarEchoData &data)
 {
     if(!data.hasWallCandidate())
         return;
-    logger->debug("1");
+
     Mat echo = this->byteArray2Mat(data.getFiltered());
-    logger->debug("2");
+
     int xw = data.getWallCandidate();
      int kp = this->sloc->getSettingsValue("wallWindowSize").toInt();
      float f[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -143,12 +143,12 @@ void SonarEchoFilter::extractFeatures(SonarEchoData &data)
      Scalar mean2 = Scalar();
      Scalar stdDev1 = Scalar();
      Scalar stdDev2 = Scalar();
-     logger->debug("3"+QString::number(xw));
+
      meanStdDev(echo.colRange(0,xw),mean1,stdDev1);
      meanStdDev(echo.colRange(xw+1,echo.cols-1),mean2,stdDev2);
      Scalar var1 = stdDev1.mul(stdDev1);
      Scalar var2 = stdDev2.mul(stdDev2);
-logger->debug("4");
+
      data.addFeature(1,mean1.val[0]/mean2.val[0]);
      data.addFeature(2,var1.val[0]/var2.val[0]);
      data.addFeature(3,xw);
@@ -158,19 +158,19 @@ logger->debug("4");
      f[3] = xw;
      f[4] = xw - prevWallCandidate;
      prevWallCandidate = xw;
-logger->debug("5");
+
      meanStdDev(echo.colRange(xp-kp,xp+kp),mean1,stdDev1);
      data.addFeature(5,mean1.val[0]);
      data.addFeature(6,stdDev1.val[0] * stdDev1.val[0]);
      f[5] = mean1.val[0];
      f[6] = stdDev1.val[0] * stdDev1.val[0];
-logger->debug("6");
+
      meanStdDev(echo.colRange(xw-kp,xw+kp),mean1,stdDev1);
      f[7] = mean1.val[0];
      f[8] = stdDev1.val[0] * stdDev1.val[0];
      data.addFeature(7,mean1.val[0]);
      data.addFeature(8,stdDev1.val[0] * stdDev1.val[0]);
-     logger->debug("7");
+
 }
 
 void SonarEchoFilter::applyHeuristic()
