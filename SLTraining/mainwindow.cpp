@@ -188,15 +188,21 @@ void MainWindow::askForClasses()
 
 void MainWindow::positivSample()
 {
-    if(sam[viewSamplePointer].getWallCandidate() != -1)
-        sam[viewSamplePointer].setClassLabel(true);
+    if(sam[viewSamplePointer+currSample].getWallCandidate() != -1)
+    {
+        qDebug() << "positive ";
+        sam[viewSamplePointer+currSample].setClassLabel(true);
+    }
     skipSample();
 }
 
 void MainWindow::negativSample()
 {
-    if(sam[viewSamplePointer].getWallCandidate() != -1)
-        sam[viewSamplePointer].setClassLabel(false);
+    if(sam[viewSamplePointer+currSample].getWallCandidate() != -1)
+    {
+        qDebug() << "negative ";
+        sam[viewSamplePointer+currSample].setClassLabel(false);
+    }
     skipSample();
 }
 
@@ -317,6 +323,7 @@ void MainWindow::applyHeuristic()
             bool next = sam[i+1].hasWallCandidate();
             if(!prev && !next)
             {
+                qDebug() << "heuristic remove single WallCandidate";
                 sam[i].setWallCandidate(-1);
                 sam[i].setClassLabel(0);
             }
@@ -581,7 +588,7 @@ void MainWindow::groupWallCandidates()
         }
         //Grouping
         temp_area = temp_area + diff;
-        qDebug() << "tempArea " << temp_area;
+//        qDebug() << "tempArea " << temp_area;
         if(temp_area > 360 || temp_area > cutTH)
         {
             //TODO search for darkness to cut if TH reached
