@@ -59,8 +59,8 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         if(gain < 17)
         {
             float newVal = 0.0;
-            if(noiseMat.at<float>(gain,j) != 0.0)
-                newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain,j);
+            if(noiseMat.at<float>(gain-1,j) != 0.0)
+                newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain-1,j);
             if(newVal < 0.0)
                 newVal = 0.0;
             echoFiltered.at<float>(0,j) = newVal;
