@@ -169,21 +169,21 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
         emit newWallUiData(data, avgDistance);
         this->avgDistance = avgDistance;
 
-//        if(sim->isEnabled())
-//        {
-//            if(avgDistance > 0.0)
-//            {
-//                if(isEnabled() && this->getHealthStatus().isHealthOk()){
-//                    Behaviour_WallFollowing::controlWallFollow();
-//                }
-//            } else {
-//                this->setHealthToSick("average distance missing");
-//                emit forwardSpeed(0.0);
-//                emit angularSpeed(0.0);
-//                wallCase = "Case 5: No average distance, stop thruster!";
-//                emit updateWallCase(wallCase);
-//            }
-//        } else {
+        if(sim->isEnabled())
+        {
+            if(avgDistance > 0.0)
+            {
+                if(isEnabled() && this->getHealthStatus().isHealthOk()){
+                    Behaviour_WallFollowing::controlWallFollow();
+                }
+            } else {
+                this->setHealthToSick("average distance missing");
+                emit forwardSpeed(0.0);
+                emit angularSpeed(0.0);
+                wallCase = "Case 5: No average distance, stop thruster!";
+                emit updateWallCase(wallCase);
+            }
+        } else {
 
             if(avgDistance > 0.0)
             {
@@ -197,7 +197,7 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
                 wallCase = "Case 5: No average distance, stop thruster!";
                 emit updateWallCase(wallCase);
             }
-        //}
+        }
     }
 }
 
