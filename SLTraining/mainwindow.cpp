@@ -69,7 +69,9 @@ void MainWindow::on_loadSVM_clicked()
 
 void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
 {
-    float n = curDataSet.first().length();
+
+    float n = sam[0].getRawData().length();
+
     scene2.clear();
     int height = ui->graphicsView_2->height()-1;
     float faktor = (height/range);
@@ -86,12 +88,13 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
             QLinearGradient gi(0,0,0,279);
             for (int i = 0; i < n; i++) {
 //                QByteArray data = curDataSet.at(j);
-                QByteArray data = sam[viewSamplePointer+j].getFiltered();
+//                QByteArray data = sam[viewSamplePointer+j].getFiltered();
+                QByteArray data = sam[viewSamplePointer+j].getRawData();
                 char b = data[i];
 //                if(j == (curDataSet.length()/2))
 
                 int wws = ui->wallwindowsize->text().toInt();
-                int skalarM = 25;
+                int skalarM = 1;
 
                 if((j == (currSample)))
                 {
@@ -126,8 +129,9 @@ void MainWindow::on_loadSonarFile_clicked()
 //    QString path = "/home/hanse/untertrave.852";
     QString path = "/home/kluessi/Downloads/untertrave.852";
 
-    QDateTime time = QDateTime::fromString("M2d2y1114:42:59","'M'M'd'd'y'yyhh:mm:ss");
-//    SonarEchoFilter filter = SonarEchoFilter();
+
+    QDateTime time = QDateTime::fromString("20100331 14:39","yyyyMMdd hh:mm");
+    qDebug() << "time " << time.toString("yyyyMMdd");
 
     SonarDataSourceFile *file = NULL;
     file = new SonarDataSourceFile(this,path);
@@ -146,43 +150,19 @@ void MainWindow::on_loadSonarFile_clicked()
         rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 200;
+        int count = 1000;
         currSample = simpleViewWidth/2;
         viewSamplePointer = currSample;
-        int cntWallCandSkip = 0;
-        QByteArray filteredSample;
         sam.clear();
         while(dat.isPacketValid() && count > 0)
         {
             SonarEchoData data = SonarEchoData(dat);
-
-            cntWallCandSkip++;
             filter->filterEcho(data);
             filter->findWall(data);
             sam.append(data);
-            filteredSample = filter->newSonarData(dat);
-
-            int cc = 0;
-            for(int i=0; i<filteredSample.size();i++)
-            {
-                if(filteredSample[i] != data.getFiltered()[i])
-                    cc++;
-            }
-            if(cc != 0)
-                qDebug() << "ERR CC " << cc;
-
-            if(cntWallCandSkip > currSample)
-                wallCandidates.append(filter->findWall(dat,filteredSample));
-            rawData.append(dat.getEchoData());
-            samples.append(filteredSample);
-
             count--;
             dat = file->getNextPacket();
         }
-
-
-        if(samples.size() != (wallCandidates.size()+currSample))
-            qDebug() << "Samples " << samples.size() << " wc+cs " << (wallCandidates.size() + currSample);
         qDebug() << "Samples: " << sam.length();
 
     }
@@ -192,53 +172,14 @@ void MainWindow::on_loadSonarFile_clicked()
 
 void MainWindow::askForClasses()
 {
-    if(samples.size() < 50 )
+    if(sam.size() < 50 )
     {
         qDebug() << "Need more than 50 samples to classify";
     }
     else
     {
-        viewData.clear();
-        pSamples.clear();
-        nSamples.clear();
-        pWallCand.clear();
-        nWallCand.clear();
         viewSamplePointer = 0;
-        for(int i=0;i<simpleViewWidth;i++)
-        {
-//            QByteArray arr = sam[i].getFiltered();
-//            viewData.append(arr);
-
-            QByteArray arr = samples.first();
-            QByteArray arr2 = sam[i].getFiltered();
-            int cc = 0;
-            for(int i=0; i<arr.size();i++)
-            {
-                if(arr[i] != arr2[i])
-                    cc++;
-            }
-            if(cc != 0)
-                qDebug() << "ERR CC " << cc;
-
-           viewData.append(samples.takeFirst());
-        }
-
-//        QByteArray arr = viewData[currSample];
-//        QByteArray arr2 = sam[viewSamplePointer].getFiltered();
-//        int cc = 0;
-//        for(int i=0; i<arr.size();i++)
-//        {
-//            if(arr[i] != arr2[i])
-//                cc++;
-//        }
-//        if(cc != 0)
-//            qDebug() << "ERR CC " << cc;
-        viewSamplePointer = 0;
-
-
-        qDebug() << "size "+QString::number(viewData.size()) << "current sample " << QString::number(currSample);
         this->updateSonarView2(viewData);
-
         this->addAction(actionPos);
         this->addAction(actionSkip);
         this->addAction(actionNeg);
@@ -249,12 +190,6 @@ void MainWindow::positivSample()
 {
     if(sam[viewSamplePointer].getWallCandidate() != -1)
         sam[viewSamplePointer].setClassLabel(true);
-    if(wallCandidates.first() != -1)
-    {
-        pSamples.append(viewData.at(currSample));
-        pWallCand.append(wallCandidates.first());
-
-}
     skipSample();
 }
 
@@ -262,38 +197,15 @@ void MainWindow::negativSample()
 {
     if(sam[viewSamplePointer].getWallCandidate() != -1)
         sam[viewSamplePointer].setClassLabel(false);
-    if(wallCandidates.first() != -1)
-    {
-    nSamples.append(viewData.at(currSample));
-    nWallCand.append(wallCandidates.first());
-}
-//    sam[viewSamplePointer].setClassLabel(false);
     skipSample();
 }
 
 void MainWindow::skipSample()
 {
     if(viewSamplePointer < sam.size()-simpleViewWidth)
-//    if(!samples.isEmpty())
     {
-        viewData.pop_front();
         viewSamplePointer++;
-        viewData.append(samples.takeFirst());
-        wallCandidates.pop_front();
-
-        QByteArray arr = viewData[currSample];
-        QByteArray arr2 = sam[viewSamplePointer+currSample].getFiltered();
-        int cc = 0;
-        for(int i=0; i<arr.size();i++)
-        {
-            if(arr[i] != arr2[i])
-                cc++;
-        }
-        if(cc != 0)
-            qDebug() << "ERR CC " << cc;
-
         this->updateSonarView2(viewData);
-
     }
     else
     {
@@ -647,45 +559,42 @@ void MainWindow::groupWallCandidates()
     {
         int diff = 0;
         int newDirection =0;
-        if(noNoise.at(sam[i].getGain()) == 0)
-            qDebug("no noise Information");
+
+        if(i > 1)
+        {
+            diff = abs(sam[i-1].getHeadPosition()-sam[i].getHeadPosition());
+            if (diff>180)
+                diff = abs(diff - 360);
+            newDirection = (sam[i-1].getHeadPosition()-sam[i].getHeadPosition());
+
+            if(newDirection > 0)
+                newDirection = 1;
+            else if(newDirection < 0)
+                newDirection = -1;
+            else
+                newDirection= 0;
+        }
         else
         {
-            if(i > 1)
-            {
-                diff = abs(sam[i-1].getHeadPosition()-sam[i].getHeadPosition());
-                if (diff>180)
-                    diff = abs(diff - 360);
-                newDirection = (sam[i-1].getHeadPosition()-sam[i].getHeadPosition());
-
-                if(newDirection > 0)
-                    newDirection = 1;
-                else if(newDirection < 0)
-                    newDirection = -1;
-                else
-                    newDirection= 0;
-            }
-            else
-            {
-                newDirection=1;
-                diff = 0;
-            }
-            //Grouping
-            temp_area = temp_area + diff;
-            qDebug() << "tempArea " << temp_area;
-            if(temp_area > 360 || temp_area > cutTH)
-            {
-                //TODO search for darkness to cut if TH reached
-                //cut
-                temp_area = 0;
-                groupID++;
-            }
-            else
-            {
-                //add to current Group
-                sam[i].setGroupID(groupID);
-            }
+            newDirection=1;
+            diff = 0;
         }
+        //Grouping
+        temp_area = temp_area + diff;
+        qDebug() << "tempArea " << temp_area;
+        if(temp_area > 360 || temp_area > cutTH)
+        {
+            //TODO search for darkness to cut if TH reached
+            //cut
+            temp_area = 0;
+            groupID++;
+        }
+        else
+        {
+            //add to current Group
+            sam[i].setGroupID(groupID);
+        }
+
     }
 
 

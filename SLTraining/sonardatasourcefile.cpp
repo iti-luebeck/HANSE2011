@@ -36,9 +36,11 @@ SonarDataSourceFile::SonarDataSourceFile(QObject *parent, QString path)
 
 const SonarReturnData SonarDataSourceFile::getNextPacket()
 {
+
     // skip until we are at the startTime
     SonarReturnData p = readPacket();
     // TODO: will block until the file is finished
+
     while (p.isPacketValid() && startTime>p.switchCommand.time) {
         p = readPacket();
     }

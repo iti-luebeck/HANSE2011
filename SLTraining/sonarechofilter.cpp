@@ -164,10 +164,14 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
             if(noiseMat.at<float>(gain,j) != 0.0)
                 newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain,j);
             if(newVal < 0.0)
+            {
+                qDebug() << "deleting data";
                 newVal = 0.0;
+            }
             echoFiltered.at<float>(0,j) = newVal;
         } else
         {
+            qDebug() << "gain to big :'-(";
             echoFiltered.at<float>(0,j) = 0.0;
         }
     }
