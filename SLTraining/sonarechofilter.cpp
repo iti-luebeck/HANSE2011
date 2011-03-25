@@ -143,6 +143,15 @@ void SonarEchoFilter::initNoiseMat()
                     noiseMat.at<float>(i,j) = nearNoise;
         }
     }
+
+    //DEBUG
+//    for(int i = 0; i < noiseMat.rows; i++)
+//    {
+//        for(int j = 0; j < noiseMat.cols; j++)
+//        {
+//            qDebug() << "noiseMat at "  << i << "," << j << noiseMat.at<float>(i,j);
+//        }
+//    }
 }
 
 void SonarEchoFilter::gaussFilter(SonarEchoData &data)
@@ -161,11 +170,15 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         if(gain < 17)
         {
             float newVal = 0.0;
-            if(noiseMat.at<float>(gain,j) != 0.0)
-                newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain,j);
+            if(noiseMat.at<float>(gain-1,j) != 0.0)
+            {
+//                qDebug() << "point " << gain << "," << j;
+//                qDebug() << "Divide " << echo.at<float>(0,j) << " by " << noiseMat.at<float>(gain-1,j);
+                newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain-1,j);
+            }
             if(newVal < 0.0)
             {
-                qDebug() << "deleting data";
+//                qDebug() << "deleting data";
                 newVal = 0.0;
             }
             echoFiltered.at<float>(0,j) = newVal;
