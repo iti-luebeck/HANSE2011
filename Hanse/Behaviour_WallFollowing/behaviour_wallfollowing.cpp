@@ -36,7 +36,6 @@ void Behaviour_WallFollowing::init()
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 
     this->updateFromSettings();
-    //connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
     avgDistance = 1.0;
     distanceInput = 1.0;
 }
@@ -48,9 +47,7 @@ void Behaviour_WallFollowing::startBehaviour()
     Behaviour_WallFollowing::updateFromSettings();
     this->setHealthToOk();
     this->setEnabled(true);
-    //timer.start(timerTime);
     emit started(this);
-    //echo->doNextScan();
     running = true;
 
     //qDebug() << "wall thread id";
@@ -172,10 +169,21 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
         emit newWallUiData(data, avgDistance);
         this->avgDistance = avgDistance;
 
-        if(sim->isEnabled())
-        {
-            //
-        } else {
+//        if(sim->isEnabled())
+//        {
+//            if(avgDistance > 0.0)
+//            {
+//                if(isEnabled() && this->getHealthStatus().isHealthOk()){
+//                    Behaviour_WallFollowing::controlWallFollow();
+//                }
+//            } else {
+//                this->setHealthToSick("average distance missing");
+//                emit forwardSpeed(0.0);
+//                emit angularSpeed(0.0);
+//                wallCase = "Case 5: No average distance, stop thruster!";
+//                emit updateWallCase(wallCase);
+//            }
+//        } else {
 
             if(avgDistance > 0.0)
             {
@@ -189,7 +197,7 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
                 wallCase = "Case 5: No average distance, stop thruster!";
                 emit updateWallCase(wallCase);
             }
-        }
+        //}
     }
 }
 

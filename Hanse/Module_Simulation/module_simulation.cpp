@@ -334,7 +334,7 @@ void Module_Simulation::parse_input(QString input){
     {
         QString sonar_name;
         input_stream2 >> sonar_name;
-        logger->debug(sonar_name);
+        //logger->debug(sonar_name);
 
         QByteArray inputdata;
         input_stream2 >> inputdata;

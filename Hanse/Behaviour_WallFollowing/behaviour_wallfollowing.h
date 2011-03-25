@@ -57,9 +57,8 @@ public slots:
      void terminate();
      void stopOnWallError();
 
-     // Module_EchoSounder -> Behaviour_Wallfollowing
+     // Module_EchoSounder -> Behaviour_WallFollowing
      void newWallBehaviourData(const EchoReturnData data, float avgDistance);
-
 
 signals:
      void timerStart( int msec );
