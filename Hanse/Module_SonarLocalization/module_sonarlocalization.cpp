@@ -33,6 +33,8 @@ void Module_SonarLocalization::init()
     qRegisterMetaType< QList<QVector2D> >("QList<QVector2D>");
     connect(&filter, SIGNAL(newImage(QList<QVector2D>)), &pf, SLOT(newImage(QList<QVector2D>)));
     connect(&pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
+
+    connect(&filter,SIGNAL(newFilteredData(int)),this,SLOT(retrieveWallCandidate(int)));
 }
 
 void Module_SonarLocalization::reset()
@@ -141,4 +143,9 @@ QDateTime Module_SonarLocalization::getLastRefreshTime()
 bool Module_SonarLocalization::isLocalizationLost()
 {
     return false; // TODO must involve some kind of threshold
+}
+
+void Module_SonarLocalization::retrieveWallCandidate(int wallCandidate)
+{
+    emit newWallCandidate(wallCandidate);
 }

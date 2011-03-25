@@ -57,10 +57,12 @@ public:
 public slots:
     void reset();
     void terminate();
+    void retrieveWallCandidate(int wallCandidate);
 
 signals:
     void healthStatusChanged(HealthStatus data);
 
+    void newWallCandidate(int wallCandidate);
     void newLocalizationEstimate();
     void lostLocalization();
 

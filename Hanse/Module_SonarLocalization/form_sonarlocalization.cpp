@@ -29,6 +29,20 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
 
     on_plotSelect_valueChanged(0);
 
+    this->ui->graphicsView->setScene(&scene2);
+    QLinearGradient gi(0,0,0,279);
+    gi.setColorAt(0,QColor("black"));
+    gi.setColorAt(1,QColor("black"));
+    scene2.clear();
+    dataQueue.clear();
+    wallCandidateList.clear();
+    for(int i =0; i<100; i++)
+    {
+        dataQueue.append(gi);
+        wallCandidateList.append(-1);
+    }
+    connect(m,SIGNAL(newWallCandidate(int)),this,SLOT(updateSonarView(int)));
+
 //    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
 //    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
 }
@@ -325,3 +339,57 @@ void Form_SonarLocalization::on_selSVM_clicked()
         ui->configure_SVM->setText(fileName);
     }
 }
+
+void Form_SonarLocalization::updateSonarView(int WallCandidate)
+{
+    qDebug() << "new candidate " << WallCandidate;
+    int viewWidth = 100;
+    wallCandidateList.append(WallCandidate);
+    wallCandidateList.removeFirst();
+    float range = 50;
+
+    float n = 250;
+    scene2.clear();
+    int height = ui->graphicsView->height()-1;
+    float faktor = (height/range);
+//    if(range > 20.0)
+//        faktor = faktor * 10;
+    if(true)
+    {
+        for(int i = 1; i<range+1; i++)
+            scene2.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+
+        for(int j=0; j<viewWidth; j++)
+        {
+            QLinearGradient gi(0,0,0,279);
+            for (int i = 0; i < n; i++) {
+                int skalarM = 1;
+//                int cl = echoList.last().getClassLabel();
+                int wc = wallCandidateList.at(j);
+//                qDebug() << "current wc " << wc;
+
+                //mark groups
+//                if(i<=2)
+//                {
+//                if(echoList.last().getGroupID()%2 == 0)
+//                    gi.setColorAt(1.0*i/n,QColor(255,0,0));
+//                else
+//                    gi.setColorAt(1.0*i/n,QColor(0,0,255));
+//                }
+
+                if((wc != -1)  && (i > wc- skalarM ) && (i < wc + skalarM))
+                    gi.setColorAt(1.0*i/n,QColor(0,255,0));
+                else
+                    gi.setColorAt(1.0*i/n,QColor(0,0,0));
+
+            }
+            dataQueue.append(gi);
+            dataQueue.pop_front();
+
+        }
+
+        for(int i =0; i<viewWidth; i++)
+            scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
+    }
+}
+

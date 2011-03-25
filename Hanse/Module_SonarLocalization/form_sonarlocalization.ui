@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>543</width>
-    <height>592</height>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -647,10 +647,32 @@
        </layout>
       </widget>
      </widget>
+     <widget class="QWidget" name="tab_6">
+      <attribute name="title">
+       <string>DataView</string>
+      </attribute>
+      <widget class="QGraphicsViewExtended" name="graphicsView">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>20</y>
+         <width>401</width>
+         <height>311</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QGraphicsViewExtended</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">qgraphicsviewextended.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

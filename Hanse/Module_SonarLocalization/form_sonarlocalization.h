@@ -9,7 +9,6 @@
 #include <qwt-qt4/qwt_symbol.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 
-
 namespace Ui {
     class Form_SonarLocalization;
 }
@@ -28,6 +27,9 @@ private:
     QList<QGraphicsEllipseItem*> particleItems;
     QGraphicsEllipseItem* currentPos;
     QGraphicsScene* scene;
+    QGraphicsScene scene2;
+    QQueue<QLinearGradient> dataQueue;
+    QList<int> wallCandidateList;
     Ui::Form_SonarLocalization *ui;
     QwtPlot *plot;
     QwtPlotCurve *curveRaw;
@@ -43,6 +45,9 @@ private:
     void setFields();
     void createPlot();
     void createMap();
+
+    public slots:
+    void updateSonarView(int WallCandidate);
 
 private slots:
     void on_selSVM_clicked();

@@ -42,6 +42,9 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     int predClass = svm->svmClassification(&feat);
     currData.setClassLabel(predClass);
     candidates.append(currData);
+
+    emit newFilteredData(currData.getWallCandidate());
+
     this->applyHeuristic();
     this->grouping();
 
@@ -176,7 +179,7 @@ void SonarEchoFilter::extractFeatures(SonarEchoData &data)
 void SonarEchoFilter::applyHeuristic()
 {
     int deltaTH = this->sloc->getSettingsValue("darknessCnt").toInt();
-    bool singlePoint = false;
+    bool singlePoint = true;
     bool deltaK = false;
 
     //SinglePoint Method
@@ -187,6 +190,7 @@ void SonarEchoFilter::applyHeuristic()
         bool next = candidates[i+1].hasWallCandidate();
         if(!prev && !next)
         {
+            logger->debug("heuristic removes single point");;
             candidates[i].setWallCandidate(-1);
             candidates[i].setClassLabel(0);
         }
