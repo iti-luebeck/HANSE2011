@@ -226,8 +226,8 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
 void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 {
     QMutexLocker l(&dataLockerMutex);
-    qDebug() << "tcl THREAD ID";
-    qDebug() << QThread::currentThreadId();
+    //qDebug() << "tcl THREAD ID";
+    //qDebug() << QThread::currentThreadId();
 
     if (!getSettingsValue("enabled").toBool() || paused)
         return;

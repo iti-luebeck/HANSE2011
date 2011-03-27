@@ -11,14 +11,6 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->setupUi(this);
     this->echo = echo;
 
-    // Testzwecke init
-
-
-    // Testzwecke
-
-
-    //logger = Log4Qt::Logger::logger("EchoSounderForm");
-
     this->ui->graphicsView->setScene(&scene);
 
 
@@ -129,8 +121,11 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
             char b = data.getEchoData()[i];
 
             if(i != avgTemp){
-                //qDebug("normal Print");
 
+                // Just in case da ist mal ein negativer Wert drin ;)
+                if(b < 0){
+                    b = b*(-1);
+                }
                 if(ui->filter->isChecked()){
                     if(b>threshold){
                         gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));

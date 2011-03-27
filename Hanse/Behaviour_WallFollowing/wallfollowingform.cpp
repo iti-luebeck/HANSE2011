@@ -101,6 +101,10 @@ void WallFollowingForm::updateWallUi(const EchoReturnData data, float dist)
         QLinearGradient gi(0,0,0,279);
         for (int i = 0; i < n; i++) {
             char b = data.getEchoData()[i];
+            // Just in case da ist mal ein negativer Wert drin ;)
+            if(b < 0){
+                b = b*(-1);
+            }
             if(i != avgTemp){
                 gi.setColorAt(1.0*i/n,QColor(255-2*b,255-2*b,255-2*b));
             } else {
