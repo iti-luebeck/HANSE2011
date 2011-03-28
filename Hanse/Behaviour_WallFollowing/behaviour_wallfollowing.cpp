@@ -21,7 +21,8 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
 
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
-    QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnWallError()));
+    QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
+    QObject::connect(this,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
 }
 bool Behaviour_WallFollowing::isActive()
 {
@@ -66,7 +67,7 @@ void Behaviour_WallFollowing::stop()
     if (this->isActive())
     {
         logger->info( "Behaviour stopped" );
-        wallCase = "Case 8: Wallfollowing stopped, stop thruster";
+        wallCase = "Wallfollowing stopped, stop thruster";
         emit updateWallCase(wallCase);
         addData("Current Case: ",wallCase);
         emit dataChanged(this);
@@ -126,78 +127,61 @@ void Behaviour_WallFollowing::controlWallFollow()
     addData("Desired distance: ",distanceInput);
     addData("Avg distance: ",avgDistance);
     emit dataChanged(this);
-    if(echo->isEnabled() && this->isActive()){
-        if(running==true){
-            if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
-                wallCase ="Case 1: No turn - only forward";
 
-                emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(0.0);
-            } else if(avgDistance > distanceInput ){
-                wallCase = "Case 2: Turn left";
-
-                temp =angSpeed*(-1.0);
-                emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(temp);
-
-            } else if(avgDistance < distanceInput){
-                wallCase = "Case 3: Turn right";
-
-                emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(angSpeed);
-            }
-        } else if(this->isActive()){
-            wallCase = "Case 0: WallFollowing not started, stop thruster";
-            emit forwardSpeed(0.0);
+    if(running==true){
+        if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
+            wallCase ="Case 1: No turn - only forward";
+            emit forwardSpeed(fwdSpeed);
             emit angularSpeed(0.0);
-        } else {
-             wallCase = "Case 4: Echomodule not enabled, stop thruster";
-             emit forwardSpeed(0.0);
-             emit angularSpeed(0.0);
+        } else if(avgDistance > distanceInput ){
+            wallCase = "Case 3: Turn left";
+            temp =angSpeed*(-1.0);
+            emit forwardSpeed(fwdSpeed);
+            emit angularSpeed(temp);
+        } else if(avgDistance < distanceInput){
+            wallCase = "Case 2: Turn right";
+            emit forwardSpeed(fwdSpeed);
+            emit angularSpeed(angSpeed);
         }
-        emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
-        emit dataChanged(this);
     }
+    emit updateWallCase(wallCase);
+    addData("Current Case: ",wallCase);
+    emit dataChanged(this);
 }
 
 
 
 void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, float avgDistance)
 {
-    if(isEnabled()){
-        emit newWallUiData(data, avgDistance);
-        this->avgDistance = avgDistance;
-
-        if(sim->isEnabled())
-        {
-            if(avgDistance > 0.0)
-            {
-                if(isEnabled() && this->getHealthStatus().isHealthOk()){
-                    Behaviour_WallFollowing::controlWallFollow();
-                }
-            } else {
-                this->setHealthToSick("average distance missing");
+    if(this->isActive()){
+        if(echo->isEnabled()){
+            emit newWallUiData(data, avgDistance);
+            this->avgDistance = avgDistance;
+            if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
+                Behaviour_WallFollowing::controlWallFollow();
+            } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
                 emit forwardSpeed(0.0);
-                emit angularSpeed(0.0);
-                wallCase = "Case 5: No average distance, stop thruster!";
+                emit angularSpeed(angSpeed);
+                wallCase = "Case 4: No average distance (no wall)?! Only turn right...";
                 emit updateWallCase(wallCase);
+                addData("Current Case: ",wallCase);
+                emit dataChanged(this);
             }
+        } else if(!echo->isEnabled()){
+            emit dataError();
+            qDebug("Wallfollowing: Echomodule not enabled!");
         } else {
-
-            if(avgDistance > 0.0)
-            {
-                if(isEnabled() && this->getHealthStatus().isHealthOk()){
-                    Behaviour_WallFollowing::controlWallFollow();
-                }
-            } else {
-                this->setHealthToSick("average distance missing");
-                emit forwardSpeed(0.0);
-                emit angularSpeed(0.0);
-                wallCase = "Case 5: No average distance, stop thruster!";
-                emit updateWallCase(wallCase);
-            }
+            this->setHealthToSick("Something is really wrong, stop thruster");
+            emit forwardSpeed(0.0);
+            emit angularSpeed(0.0);
+            wallCase = "Something is really wrong, stop thruster";
+            emit updateWallCase(wallCase);
+            addData("Current Case: ",wallCase);
+            emit dataChanged(this);
         }
+    } else {
+        wallCase = "Wallfollowing not activated!";
+        emit updateWallCase(wallCase);
     }
 }
 
@@ -210,10 +194,10 @@ void Behaviour_WallFollowing::updateFromSettings()
     this->corridorWidth = this->getSettingsValue("corridorWidth").toFloat();
 }
 
-void Behaviour_WallFollowing::stopOnWallError(){
+void Behaviour_WallFollowing::stopOnEchoError(){
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
-    wallCase = "Case 6: No data/source, stop thruster!";
+    wallCase = "No echosignal, stop thruster!";
     emit updateWallCase(wallCase);
     addData("Current Case: ",wallCase);
     emit dataChanged(this);

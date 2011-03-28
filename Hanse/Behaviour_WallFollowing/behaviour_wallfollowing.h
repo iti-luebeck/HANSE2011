@@ -55,7 +55,7 @@ public slots:
      void stop();
      void reset();
      void terminate();
-     void stopOnWallError();
+     void stopOnEchoError();
 
      // Module_EchoSounder -> Behaviour_WallFollowing
      void newWallBehaviourData(const EchoReturnData data, float avgDistance);
@@ -63,6 +63,7 @@ public slots:
 signals:
      void timerStart( int msec );
      void timerStop();
+     void dataError();
 
      void forwardSpeed(float fwSpeed);
      void angularSpeed(float anSpeed);

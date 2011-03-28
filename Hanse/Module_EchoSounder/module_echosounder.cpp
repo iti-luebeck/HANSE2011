@@ -137,6 +137,7 @@ bool Module_EchoSounder::doNextScan(){
         } else {
             setHealthToSick("Received §&%§%§=§$ Dropping packet.");
             emit dataError();
+            qDebug("Received §&%§%§=§$ Dropping packet.");
             return false;
         }
     }
@@ -164,7 +165,6 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
 
     //calcFactor = getSettingsValue("calcFactor").toDouble();
     //qDebug()<<calcFactor;
-
 
     // 5 Datenarrays werden für die Distanzberechnung gefüllt
     if(count%5==4){
@@ -265,13 +265,11 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
             if(avgFilter>a){
                 //qDebug("avgDistance neu");
 
-
                 avgDistance = (x+3)/einheit;
-                emit newEchoUiData(avgDistance,averageWindow);
-
                 // Berechnung abgeschlossen, also raus hier!
                 break;
             } else {
+                avgDistance = 0.0;
                 avgFilter = 0.0;
             }
         }
@@ -279,6 +277,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     addData("avgDistance",avgDistance);
     addData("count",count);
     addData("averageWindow",averageWindow);
+    emit newEchoUiData(avgDistance,averageWindow);
     emit newWallBehaviourData(data, avgDistance);
     emit dataChanged(this);
 
