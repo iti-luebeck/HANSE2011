@@ -57,12 +57,12 @@ public:
 public slots:
     void reset();
     void terminate();
-    void retrieveWallCandidate(int wallCandidate);
+    void retrieveSonarEchoData(SonarEchoData data);
 
 signals:
     void healthStatusChanged(HealthStatus data);
 
-    void newWallCandidate(int wallCandidate);
+    void newSonarEchoData(SonarEchoData data);
     void newLocalizationEstimate();
     void lostLocalization();
 

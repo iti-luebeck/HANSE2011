@@ -33,7 +33,7 @@ public:
 
 signals:
     void newImage(QList<QVector2D> observations);
-    void newFilteredData(int wallCandidate);
+    void newSonarEchoData(SonarEchoData data);
 
 private slots:
     void newSonarData(SonarReturnData data);

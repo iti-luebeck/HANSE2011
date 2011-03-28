@@ -27,9 +27,17 @@ private:
     QList<QGraphicsEllipseItem*> particleItems;
     QGraphicsEllipseItem* currentPos;
     QGraphicsScene* scene;
+    //WallCandidate View
     QGraphicsScene scene2;
     QQueue<QLinearGradient> dataQueue;
-    QList<int> wallCandidateList;
+    QList<SonarEchoData> sonarEchoDataList;
+
+    //UnfilteredView
+    QGraphicsScene sceneUnfiltered;
+    QQueue<QLinearGradient> dataQueueUnfiltered;
+    QList<SonarEchoData> sonarEchoDataUnfilteredList;
+
+
     Ui::Form_SonarLocalization *ui;
     QwtPlot *plot;
     QwtPlotCurve *curveRaw;
@@ -47,7 +55,8 @@ private:
     void createMap();
 
     public slots:
-    void updateSonarView(int WallCandidate);
+    void updateSonarView(SonarEchoData data);
+    void updateSonarViewUnfiltered(SonarEchoData unfiltered);
 
 private slots:
     void on_selSVM_clicked();

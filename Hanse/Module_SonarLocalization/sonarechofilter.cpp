@@ -42,8 +42,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     int predClass = svm->svmClassification(&feat);
     currData.setClassLabel(predClass);
     candidates.append(currData);
-
-    emit newFilteredData(currData.getWallCandidate());
+    emit newSonarEchoData(currData);
 
     this->applyHeuristic();
     this->grouping();
@@ -180,7 +179,7 @@ void SonarEchoFilter::applyHeuristic()
 {
     int deltaTH = this->sloc->getSettingsValue("darknessCnt").toInt();
     bool singlePoint = true;
-    bool deltaK = false;
+    bool deltaK = true;
 
     //SinglePoint Method
     if(singlePoint && candidates.size() > 3)
@@ -338,6 +337,7 @@ void SonarEchoFilter::reset()
         QByteArray ba = path.toLatin1();
           const char *c_str2 = ba.data();
         svm->loadClassifier(c_str2);
+        logger->info("SVM Classifier loaded");
     }
 }
 

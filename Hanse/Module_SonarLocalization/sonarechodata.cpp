@@ -1,5 +1,10 @@
 #include "sonarechodata.h"
 
+SonarEchoData::SonarEchoData()
+{
+
+}
+
 SonarEchoData::SonarEchoData(SonarReturnData data)
 {
     QByteArray arr = data.getEchoData();
@@ -20,6 +25,23 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
 
+}
+
+SonarEchoData::SonarEchoData(const SonarEchoData& dat)
+{
+    this->raw = dat.raw;
+    this->bClassified = dat.bClassified;
+    this->bWallCandidate = dat.bWallCandidate;
+    this->bFiltered = dat.bFiltered;
+    this->classLabel = dat.classLabel;
+    this->filtered = dat.filtered;
+    this->wallCandidate = dat.wallCandidate;
+    this->headPosition = dat.headPosition;
+    this->range = dat.range;
+    this->timestamp = dat.timestamp;
+    this->features = dat.features;
+    this->gain = dat.gain;
+    this->group = dat.group;
 }
 
 cv::Mat SonarEchoData::getFeatures()
@@ -56,7 +78,7 @@ bool SonarEchoData::hasWallCandidate()
     return this->bWallCandidate;
 }
 
-QByteArray SonarEchoData::getRawData()
+QByteArray SonarEchoData::getRawData() const
 {
     return this->raw;
 }

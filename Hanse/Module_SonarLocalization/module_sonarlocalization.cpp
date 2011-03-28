@@ -34,7 +34,8 @@ void Module_SonarLocalization::init()
     connect(&filter, SIGNAL(newImage(QList<QVector2D>)), &pf, SLOT(newImage(QList<QVector2D>)));
     connect(&pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
 
-    connect(&filter,SIGNAL(newFilteredData(int)),this,SLOT(retrieveWallCandidate(int)));
+    qRegisterMetaType< SonarEchoData > ("SonarEchoData");
+    connect(&filter,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(retrieveSonarEchoData(SonarEchoData)));
 }
 
 void Module_SonarLocalization::reset()
@@ -145,7 +146,7 @@ bool Module_SonarLocalization::isLocalizationLost()
     return false; // TODO must involve some kind of threshold
 }
 
-void Module_SonarLocalization::retrieveWallCandidate(int wallCandidate)
+void Module_SonarLocalization::retrieveSonarEchoData(SonarEchoData data)
 {
-    emit newWallCandidate(wallCandidate);
+    emit newSonarEchoData(data);
 }

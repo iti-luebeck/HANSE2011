@@ -10,8 +10,10 @@ class SonarEchoData
 {
 public:
     SonarEchoData(SonarReturnData data);
+    SonarEchoData(const SonarEchoData& dat);
+    SonarEchoData();
 
-    QByteArray getRawData();
+    QByteArray getRawData() const;
     QByteArray getFiltered();
     bool isClassified();
     bool hasWallCandidate();

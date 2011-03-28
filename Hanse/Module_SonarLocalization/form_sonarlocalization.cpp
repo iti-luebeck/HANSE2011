@@ -33,15 +33,24 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     QLinearGradient gi(0,0,0,279);
     gi.setColorAt(0,QColor("black"));
     gi.setColorAt(1,QColor("black"));
+
     scene2.clear();
     dataQueue.clear();
-    wallCandidateList.clear();
+    sonarEchoDataList.clear();
     for(int i =0; i<100; i++)
     {
         dataQueue.append(gi);
-        wallCandidateList.append(-1);
+
     }
-    connect(m,SIGNAL(newWallCandidate(int)),this,SLOT(updateSonarView(int)));
+    connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarView(SonarEchoData)));
+    //unfiltered View
+    this->ui->unfilteredView->setScene(&sceneUnfiltered);
+    sceneUnfiltered.clear();
+    dataQueueUnfiltered.clear();
+    sonarEchoDataUnfilteredList.clear();
+    for(int i =0; i<100; i++)
+        dataQueueUnfiltered.append(gi);
+    connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarViewUnfiltered(SonarEchoData)));
 
 //    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
 //    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
@@ -340,13 +349,18 @@ void Form_SonarLocalization::on_selSVM_clicked()
     }
 }
 
-void Form_SonarLocalization::updateSonarView(int WallCandidate)
+void Form_SonarLocalization::updateSonarView(SonarEchoData data)
 {
-    qDebug() << "new candidate " << WallCandidate;
+//    qDebug() << "new candidate " << WallCandidate;
     int viewWidth = 100;
-    wallCandidateList.append(WallCandidate);
-    wallCandidateList.removeFirst();
-    float range = 50;
+    sonarEchoDataList.append(data);
+    while(sonarEchoDataList.size() < viewWidth)
+        sonarEchoDataList.append(data);
+
+    if(sonarEchoDataList.size() > viewWidth)
+        sonarEchoDataList.removeFirst();
+
+    float range = sonarEchoDataList.first().getRange();
 
     float n = 250;
     scene2.clear();
@@ -365,7 +379,7 @@ void Form_SonarLocalization::updateSonarView(int WallCandidate)
             for (int i = 0; i < n; i++) {
                 int skalarM = 1;
 //                int cl = echoList.last().getClassLabel();
-                int wc = wallCandidateList.at(j);
+                int wc = sonarEchoDataList[j].getWallCandidate();
 //                qDebug() << "current wc " << wc;
 
                 //mark groups
@@ -390,6 +404,66 @@ void Form_SonarLocalization::updateSonarView(int WallCandidate)
 
         for(int i =0; i<viewWidth; i++)
             scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
+    }
+}
+
+void Form_SonarLocalization::updateSonarViewUnfiltered(SonarEchoData unfiltered)
+{
+    int viewWidth = 100;
+    sonarEchoDataUnfilteredList.append(unfiltered);
+    while(sonarEchoDataUnfilteredList.size() < viewWidth)
+        sonarEchoDataUnfilteredList.append(unfiltered);
+
+    if(sonarEchoDataUnfilteredList.size() > viewWidth)
+        sonarEchoDataUnfilteredList.removeFirst();
+
+    float range = sonarEchoDataUnfilteredList.first().getRange();
+    float n = 250;
+
+    sceneUnfiltered.clear();
+    int height = ui->unfilteredView->height()-1;
+    float faktor = (height/range);
+//    if(range > 20.0)
+//        faktor = faktor * 10;
+    if(true)
+    {
+
+        for(int i = 1; i<range+1; i++)
+            sceneUnfiltered.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+
+        for(int j=0; j<viewWidth; j++)
+        {
+            QLinearGradient gi(0,0,0,279);
+            for (int i = 0; i < n; i++) {
+//                QByteArray data = curDataSet.at(j);
+                QByteArray data = sonarEchoDataList[j].getFiltered();
+//                QByteArray data = sam[viewSamplePointer+j].getRawData();
+                char b = data[i];
+//                if(j == (curDataSet.length()/2))
+
+                int wws = 2;
+                int skalarM = 25;
+
+//                if((j == (viewWidth/2)))
+//                {
+//                    int wc = sonarEchoDataUnfilteredList[j].getWallCandidate();
+////                    int wc = wallCandidates.first();
+//                     if((i >= (wc - wws)) && (i <= (wc + wws)))
+//                        gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
+//                     else
+//                         gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
+//                }
+//                else
+                    gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
+            }
+            dataQueueUnfiltered.append(gi);
+            dataQueueUnfiltered.pop_front();
+
+        }
+
+        for(int i =0; i<viewWidth; i++)
+            sceneUnfiltered.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueueUnfiltered[i]));
+
     }
 }
 
