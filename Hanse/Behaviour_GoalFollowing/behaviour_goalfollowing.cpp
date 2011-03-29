@@ -4,13 +4,11 @@
 #include <QtGui>
 #include <Behaviour_GoalFollowing/goalfollowingform.h>
 
-Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_VisualSLAM *vsl)
+Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterControlLoop *tcl)
     : RobotBehaviour(id)
 {
     this->tcl = tcl;
-    this->vsl = vsl;
 
-    connect(vsl, SIGNAL(foundNewObject(int)),this,SLOT(newData(int)) );
     connect(&timerNoGoal, SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     state = STATE_IDLE;
@@ -69,7 +67,6 @@ void Behaviour_GoalFollowing::ctrGoalFollowing()
     timerNoGoal.stop();
     QRectF rect;
     QDateTime current;
-    vsl->getObjectPosition( 1, rect, current );
     float x = (rect.topLeft().x() + rect.topRight().x()) / 2;
     float robCenterX = this->getSettingsValue("robCenterX").toFloat();
     float diff = robCenterX - x;

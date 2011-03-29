@@ -8,6 +8,7 @@ TARGET = ThresholdTest
 TEMPLATE = app
 DESTDIR = ../build
 
+include(../OpenCV.pri)
 
 SOURCES += main.cpp\
         mainwindow.cpp
@@ -17,8 +18,3 @@ HEADERS  += mainwindow.h
 FORMS    += mainwindow.ui
 
 INCLUDEPATH += "..\include"
-
-LIBS += "..\lib\opencv\libcv210.dll.a" \
-    "..\lib\opencv\libcxcore210.dll.a" \
-    "..\lib\opencv\libcvaux210.dll.a" \
-    "..\lib\opencv\libhighgui210.dll.a"

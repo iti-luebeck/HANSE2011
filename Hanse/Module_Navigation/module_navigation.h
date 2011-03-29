@@ -40,7 +40,6 @@ class Module_Navigation : public RobotModule
 public:
     Module_Navigation( QString id,
                        Module_SonarLocalization *sonarLoc,
-//                       Module_VisualSLAM* visSLAM,
                        Module_ThrusterControlLoop* tcl,
                        Module_PressureSensor *pressure,
                        Module_Compass *compass );
@@ -139,7 +138,6 @@ protected:
 private:    
     Position defaultPos;
     Module_SonarLocalization *sonarLoc;
-    Module_VisualSLAM *visSLAM;
     Module_ThrusterControlLoop* tcl;
     Module_PressureSensor *pressure;
     Module_Compass *compass;

@@ -9,7 +9,7 @@
 #include <Module_IMU/module_imu.h>
 #include <Module_Compass/module_compass.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
-#include <Module_VisualSLAM/module_visualslam.h>
+//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
@@ -88,12 +88,8 @@ void ModulesGraph::build()
     Module_Webcams *cams = new Module_Webcams( "cams" );
     this->modules.append( cams );
 
-    logger->debug("Creating Module_VisualSLAM");
-    Module_VisualSLAM* visualLoc = new Module_VisualSLAM( "visualSLAM", sonarLoc, cams );
-    this->modules.append(visualLoc);
-
     logger->debug("Creating Module_Navigation");
-    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc,/* visualLoc,*/ controlLoop, pressure, compass );
+    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, controlLoop, pressure, compass );
     this->modules.append(navi);
 
     logger->debug("Creating Behaviour_PipeFollowing");

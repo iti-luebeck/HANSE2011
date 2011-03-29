@@ -27,62 +27,62 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>P UP  (+)</string>
+          <string>Kp</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="p_up"/>
+        <widget class="QLineEdit" name="kpEdit"/>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>P DOWN  (+)</string>
+          <string>Ti</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="p_down"/>
+        <widget class="QLineEdit" name="tiEdit"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Neutral Speed DOWN (-)</string>
+          <string>Td</string>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="neutrSpD"/>
+        <widget class="QLineEdit" name="tdEdit"/>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>max Speed UP  (+)</string>
+          <string>neutral speed</string>
          </property>
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="maxSpU"/>
+        <widget class="QLineEdit" name="neutralEdit"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>max Speed DOWN (-)</string>
+          <string>min speed</string>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="maxSpD"/>
+        <widget class="QLineEdit" name="minEdit"/>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>max depth error (+ in m)</string>
+          <string>max speed</string>
          </property>
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QLineEdit" name="maxDepthError"/>
+        <widget class="QLineEdit" name="maxEdit"/>
        </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_6">

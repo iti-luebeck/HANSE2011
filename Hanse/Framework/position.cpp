@@ -28,19 +28,19 @@ Position::Position( const QVector3D& pos )
 }
 
 
-Position::Position( CvMat *translation, Quaternion rotation )
-{
-    float yaw;
-    float pitch;
-    float roll;
-    rotation.getYawPitchRoll( yaw, pitch, roll );
-    setRoll( (double)roll );
-    setPitch( (double)pitch );
-    setYaw( (double)yaw );
-    setX( -cvmGet( translation, 0, 0 ) );
-    setY( cvmGet( translation, 2, 0 ) );
-    setZ( -cvmGet( translation, 1, 0 ) );
-}
+//Position::Position( CvMat *translation, Quaternion rotation )
+//{
+//    float yaw;
+//    float pitch;
+//    float roll;
+//    rotation.getYawPitchRoll( yaw, pitch, roll );
+//    setRoll( (double)roll );
+//    setPitch( (double)pitch );
+//    setYaw( (double)yaw );
+//    setX( -cvmGet( translation, 0, 0 ) );
+//    setY( cvmGet( translation, 2, 0 ) );
+//    setZ( -cvmGet( translation, 1, 0 ) );
+//}
 
 Position& Position::operator=( const Position& pos )
 {

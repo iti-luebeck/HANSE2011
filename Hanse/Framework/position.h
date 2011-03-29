@@ -4,7 +4,7 @@
 #include <QtCore>
 #include <QVector3D>
 #include <opencv/cxcore.h>
-#include <Module_VisualSLAM/slam/quaternion.h>
+//#include <Module_VisualSLAM/slam/quaternion.h>
 
 /**
   * Position and orientation.
@@ -34,7 +34,7 @@ public:
     Position( const QVector3D& pos );
     Position( double x = 0, double y = 0, double z = 0,
               double roll = 0, double pitch = 0, double yaw = 0 );
-    Position( CvMat *translation, Quaternion rotation );
+//    Position( CvMat *translation, Quaternion rotation );
 
     Position& operator=( const Position& );
     Position operator+( Position pos );

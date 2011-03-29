@@ -2,6 +2,7 @@
 #define MODULE_THRUSTERCONTROLLOOP_H
 
 #include <Framework/robotmodule.h>
+#include <Framework/pidcontroller.h>
 
 class Module_PressureSensor;
 class Module_Thruster;
@@ -106,12 +107,12 @@ private:
 
     // Speed of the UpDownThruster:
     // TODO: PRESUMPTION: speed>0.0 means UP
-    float p_down;   // should be +
-    float p_up;     // should be +
-    float maxSpD;   // should be -
-    float maxSpU;   // should be +
-    float neutrSpD; // should be -
-    float maxDepthError; // should be +
+    float Kp;
+    float Ti;
+    float Td;
+    float neutralSpeed;
+    float minSpeed;
+    float maxSpeed;
 
     bool horizSpM_exp;
 
@@ -125,12 +126,9 @@ private:
     bool ignoreHealth;
     bool pressureSensor_isHealthOK;
 
-    static const int maxHist = 600;
-    QMap<QDateTime,float> historyIst;
-    QMap<QDateTime,float> historySoll;
-    QMap<QDateTime,float> historyThrustCmd;
-
     volatile bool paused;
+
+    PIDController *pidController;
 
 private slots:
 
