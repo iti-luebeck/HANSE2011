@@ -406,7 +406,9 @@ void Form_SonarLocalization::updateSonarViewUnfiltered(SonarEchoData unfiltered)
 //                if(j == (curDataSet.length()/2))
 
                 int wws = 2;
-                int skalarM = 25;
+                int skalarM = 7;
+
+//                qDebug() << " WErt " << (int)b;
 
 //                if((j == (viewWidth/2)))
 //                {

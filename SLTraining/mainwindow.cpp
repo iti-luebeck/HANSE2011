@@ -94,7 +94,7 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
 //                if(j == (curDataSet.length()/2))
 
                 int wws = ui->wallwindowsize->text().toInt();
-                int skalarM = 25;
+                int skalarM = 7;//25;
 
                 if((j == (currSample)))
                 {
@@ -124,10 +124,10 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
 
 void MainWindow::on_loadSonarFile_clicked()
 {
-    //    QString path = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
+        QString path = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
     //    QString path = "/home/hanse/Desktop/scanningsonar.852";
 //    QString path = "/home/hanse/untertrave.852";
-    QString path = "/home/kluessi/Downloads/untertrave.852";
+//    QString path = "/home/kluessi/Downloads/untertrave.852";
 
 
     QDateTime time = QDateTime::fromString("20100331 14:39","yyyyMMdd hh:mm");
@@ -458,7 +458,7 @@ void MainWindow::on_trainSVM_clicked()
     int neg = 0;
     this->getClassCount(pos,neg);
 
-    if(pos == 0 || neg == 0)
+    if(pos == 0)
     {
         qDebug() << "POS " << pos << "NEG " << neg;
         return;

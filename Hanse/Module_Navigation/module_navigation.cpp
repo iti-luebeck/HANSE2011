@@ -35,6 +35,10 @@ void Module_Navigation::init()
     QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
                       this, SLOT( sonarPositionUpdate() ) );
 
+    connect(this,SIGNAL(newDepth(float)),tcl,SLOT(setDepth(float)));
+    connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    connect(this,SIGNAL(newANGSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
 
@@ -78,6 +82,7 @@ void Module_Navigation::doHealthCheck()
 
 void Module_Navigation::gotoWayPoint( QString name, Position delta )
 {
+    logger->debug("going to wp");
     currentGoalName = name;
     currentGoalPosition = waypoints[name];
     state = NAV_STATE_GO_TO_GOAL;
@@ -89,16 +94,19 @@ void Module_Navigation::gotoWayPoint( QString name, Position delta )
 //    headingToGoal = atan2( -dx, dy ) * 180 / CV_PI;
 //    distanceToGoal = sqrt( dx*dx + dy*dy );
 
-    tcl->setDepth( currentGoalPosition.getZ() );
-    tcl->setForwardSpeed( .0 );
-    tcl->setAngularSpeed( .0 );
+    emit newDepth(currentGoalPosition.getZ());
+    emit newFFSpeed(.0);
+    emit newANGSpeed(.0);
+//    tcl->setDepth( currentGoalPosition.getZ() );
+//    tcl->setForwardSpeed( .0 );
+//    tcl->setAngularSpeed( .0 );
 
     addData("state", state);
     addData("substate", substate);
     addData("headingToGoal", headingToGoal);
     dataChanged( this );
 
-    setNewGoal( currentGoalPosition );
+    emit setNewGoal( currentGoalPosition );
 }
 
 void Module_Navigation::clearGoal()
@@ -106,8 +114,10 @@ void Module_Navigation::clearGoal()
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
 
-    tcl->setForwardSpeed( .0 );
-    tcl->setAngularSpeed( .0 );
+    emit newFFSpeed(.0);
+    emit newANGSpeed(.0);
+//    tcl->setForwardSpeed( .0 );
+//    tcl->setAngularSpeed( .0 );
 
     addData("state", state);
     addData("substate", substate);
@@ -167,19 +177,23 @@ void Module_Navigation::headingUpdate( RobotModule * )
                      getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
                 {
                     // positiv: drehhung nach rechts.
-                    tcl->setAngularSpeed( getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
-                                          * ( headingToGoal - compassHeading ) );
+                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
+                                * ( headingToGoal - compassHeading );
+                    emit newANGSpeed(val);
+//                    tcl->setAngularSpeed(  );
                 }
                 else
                 {
-                    tcl->setAngularSpeed( .0 );
+                    emit newANGSpeed(.0);
+//                    tcl->setAngularSpeed( .0 );
                     float speed = getSettingsValue( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
                     if ( distanceToGoal < getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
                     {
                         speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
                     }
-                    tcl->setForwardSpeed( speed );
+                    emit newFFSpeed(speed);
+//                    tcl->setForwardSpeed( speed );
                     substate = NAV_SUBSTATE_MOVE_FORWARD;
                     initialCompassHeading = compass->getHeading();
 
@@ -193,12 +207,15 @@ void Module_Navigation::headingUpdate( RobotModule * )
             if ( fabs( initialCompassHeading - compassHeading ) >
                  getSettingsValue(QString( "hysteresis_heading" ), NAV_HYSTERESIS_HEADING ).toDouble() )
             {
-                tcl->setAngularSpeed( getSettingsValue( QString( "p_heading" ), NAV_P_HEADING ).toDouble()
-                                      * ( initialCompassHeading - compassHeading ) );
+                float val = getSettingsValue( QString( "p_heading" ), NAV_P_HEADING ).toDouble()
+                            * ( initialCompassHeading - compassHeading );
+                emit newANGSpeed(val);
+//                tcl->setAngularSpeed(  );
             }
             else
             {
-                tcl->setAngularSpeed( .0 );
+                emit newANGSpeed(.0);
+//                tcl->setAngularSpeed( .0 );
             }
         }
         break;
@@ -233,19 +250,23 @@ void Module_Navigation::vslamPositionUpdate( RobotModule * )
                      getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
                 {
                     // positiv: drehhung nach rechts.
-                    tcl->setAngularSpeed( getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
-                                          * ( headingToGoal - currentHeading ) );
+                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
+                                * ( headingToGoal - currentHeading );
+//                    tcl->setAngularSpeed(  );
+                    emit newANGSpeed(val);
                 }
                 else
                 {
-                    tcl->setAngularSpeed( .0 );
+                    emit newANGSpeed(.0);
+//                    tcl->setAngularSpeed( .0 );
                     float speed = getSettingsValue( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
                     if ( distanceToGoal < getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
                     {
                         speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
                     }
-                    tcl->setForwardSpeed( speed );
+                    emit newFFSpeed(speed);
+//                    tcl->setForwardSpeed( speed );
                     substate = NAV_SUBSTATE_MOVE_FORWARD;
                     initialCompassHeading = compass->getHeading();
 
@@ -263,8 +284,10 @@ void Module_Navigation::vslamPositionUpdate( RobotModule * )
                 < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
             {
                 state = NAV_STATE_REACHED_GOAL;
-                tcl->setForwardSpeed( .0 );
-                tcl->setAngularSpeed( .0 );
+                emit newFFSpeed(.0);
+                emit newANGSpeed(.0);
+//                tcl->setForwardSpeed( .0 );
+//                tcl->setAngularSpeed( .0 );
                 reachedWaypoint( currentGoalName );
             }
             break;
@@ -282,6 +305,7 @@ void Module_Navigation::vslamPositionUpdate( RobotModule * )
 
 void Module_Navigation::sonarPositionUpdate()
 {
+    logger->info("update sonar position");
     double currentHeading = sonarLoc->getLocalization().getYaw();
     int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
     switch ( state )
@@ -301,19 +325,23 @@ void Module_Navigation::sonarPositionUpdate()
                      getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
                 {
                     // positiv: drehhung nach rechts.
-                    tcl->setAngularSpeed(getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
-                                          * ( headingToGoal - currentHeading ) );
+                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
+                                * ( headingToGoal - currentHeading );
+//                    tcl->setAngularSpeed( );
+                    emit newANGSpeed(val);
                 }
                 else
                 {
-                    tcl->setAngularSpeed( .0 );
+                    emit newANGSpeed(.0);
+//                    tcl->setAngularSpeed( .0 );
                     float speed = getSettingsValue( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
                     if ( distanceToGoal < getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
                     {
                         speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
                     }
-                    tcl->setForwardSpeed( speed );
+                    emit newFFSpeed(speed);
+//                    tcl->setForwardSpeed( speed );
                     substate = NAV_SUBSTATE_MOVE_FORWARD;
                     initialCompassHeading = compass->getHeading();
 
@@ -331,8 +359,10 @@ void Module_Navigation::sonarPositionUpdate()
                 < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
             {
                 state = NAV_STATE_REACHED_GOAL;
-                tcl->setForwardSpeed( .0 );
-                tcl->setAngularSpeed( .0 );
+                emit newFFSpeed(.0);
+                emit newANGSpeed(.0);
+//                tcl->setForwardSpeed( .0 );
+//                tcl->setAngularSpeed( .0 );
                 reachedWaypoint( currentGoalName );
             }
             break;
@@ -350,7 +380,8 @@ void Module_Navigation::sonarPositionUpdate()
 
 void Module_Navigation::forwardDone()
 {
-    tcl->setForwardSpeed( .0 );
+    emit newFFSpeed(.0);
+//    tcl->setForwardSpeed( .0 );
     gotoWayPoint( currentGoalName, Position() );
 }
 
@@ -366,6 +397,7 @@ QMap<QString, Position> Module_Navigation::getWaypoints()
 
 void Module_Navigation::addWaypoint( QString name, Position pos )
 {
+    logger->debug("add wp");
     waypoints[ name ] = pos;
     updatedWaypoints( waypoints );
 }

@@ -28,6 +28,8 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
                                                       NAV_FORWARD_MAX_SPEED).toString() );
     ui->forwardTimeEdit->setText( nav->getSettingsValue( QString( "forward_time" ),
                                                   NAV_FORWARD_TIME).toString() );
+    qRegisterMetaType<Position>("Position");
+    connect(this,SIGNAL(goToPosition(QString,Position)),nav,SLOT(gotoWayPoint(QString,Position)));
 }
 
 Form_Navigation::~Form_Navigation()
@@ -61,6 +63,7 @@ void Form_Navigation::on_listWidget_itemDoubleClicked(QListWidgetItem* item)
 void Form_Navigation::on_addButton_clicked()
 {
     WaypointDialog wd( QString(), 0.0, 0.0, 2.5, 0.0, 0.0, this );
+
     QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Position) ),
                       nav, SLOT( addWaypoint(QString,Position) ) );
     wd.exec();
@@ -197,10 +200,12 @@ void Form_Navigation::on_applyButton_clicked()
 void Form_Navigation::on_gotoButton_clicked()
 {
     QList<QListWidgetItem *> selectedItems = ui->listWidget->selectedItems();
+    qDebug() << "items " << selectedItems.size();
     if ( selectedItems.size() == 1 )
     {
         QString goal = selectedItems[0]->text();
-        nav->gotoWayPoint( goal, Position() );
+        emit goToPosition(goal, Position());
+//        nav->gotoWayPoint( goal, Position() );
     }
 }
 

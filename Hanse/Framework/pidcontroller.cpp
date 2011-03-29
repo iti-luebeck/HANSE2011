@@ -5,8 +5,8 @@ PIDController::PIDController(double Kp, double Ti, double Td, double offset, dou
     setValues(Kp, Ti, Td, offset, min, max);
 
     y = 0;
-    QTimer::singleShot(100, this, SLOT(test()));
-    stest = 1.5;
+//    QTimer::singleShot(100, this, SLOT(test()));
+//    stest = 1.5;
 }
 
 void PIDController::setValues(double Kp, double Ti, double Td, double offset, double min, double max)

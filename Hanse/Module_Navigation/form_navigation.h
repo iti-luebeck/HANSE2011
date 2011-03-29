@@ -28,6 +28,7 @@ private:
 
 signals:
     void removedWaypoint( QString name );
+    void goToPosition(QString name, Position pos);
 
 private slots:
     void on_clearGoalButton_clicked();

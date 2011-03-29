@@ -70,13 +70,6 @@ public:
       */
     QString addWayPoint(Position position,QString name="");
 
-    /**
-      * move the robot the given waypoint.
-      * stop if the robot is within "delta" range of the waypoint.
-      *
-      * if delta is ommited, a default range will be used.
-      */
-    void gotoWayPoint(QString name, Position delta);
 
     void clearGoal();
 
@@ -106,6 +99,13 @@ private:
     void init();
 
 public slots:
+    /**
+      * move the robot the given waypoint.
+      * stop if the robot is within "delta" range of the waypoint.
+      *
+      * if delta is ommited, a default range will be used.
+      */
+    void gotoWayPoint(QString name, Position delta);
 
     /**
       * Stops any currently active navigation; clears the history.
@@ -131,6 +131,10 @@ signals:
     void updatedWaypoints( QMap<QString, Position> waypoints );
     void setNewGoal( Position goal );
     void clearedGoal();
+
+    void newDepth(float depth);
+    void newFFSpeed(float speed);
+    void newANGSpeed(float speed);
 
 protected:
     virtual void doHealthCheck();
