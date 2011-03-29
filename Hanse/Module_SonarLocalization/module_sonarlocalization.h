@@ -50,7 +50,6 @@ public:
       */
     bool isLocalizationLost();
 
-    void setLocalization(QVector2D position);
 
     SonarParticleFilter& particleFilter();
 
@@ -58,6 +57,7 @@ public slots:
     void reset();
     void terminate();
     void retrieveSonarEchoData(SonarEchoData data);
+    void setLocalization(QVector2D position);
 
 signals:
     void healthStatusChanged(HealthStatus data);
@@ -76,12 +76,9 @@ private:
     CvSVM* svm;
 
     void init();
-    void initSVM();
-
 
 private slots:
     void newPositionEst(QVector3D p);
-    void trainSVM();
 
 };
 

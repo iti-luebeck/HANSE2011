@@ -5,6 +5,7 @@
 SVMClassifier::SVMClassifier(void)
 {
         svm = new CvSVM();
+        loaded = false;
 }
 
 SVMClassifier::~SVMClassifier(void)
@@ -107,7 +108,24 @@ void SVMClassifier::saveClassifier(const char *fileName)
 	svm->save(fileName);
 }
 
-void SVMClassifier::loadClassifier(const char *fileName)
+bool SVMClassifier::loadClassifier(const char *fileName)
 {
+    try
+    {
 	svm->load(fileName);
+    }
+    catch(...)
+    {
+        loaded = false;
+        return false;
+    }
+    loaded = true;
+    return true;
+
 }
+
+bool SVMClassifier::isSVM()
+{
+    return loaded;
+}
+

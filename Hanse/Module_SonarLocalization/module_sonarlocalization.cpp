@@ -29,11 +29,9 @@ void Module_SonarLocalization::init()
     logger->debug("INIT SONARLOC");
 
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), &filter, SLOT(newSonarData(SonarReturnData)));
-    logger->debug("filter created");
     qRegisterMetaType< QList<QVector2D> >("QList<QVector2D>");
     connect(&filter, SIGNAL(newImage(QList<QVector2D>)), &pf, SLOT(newImage(QList<QVector2D>)));
     connect(&pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
-
     qRegisterMetaType< SonarEchoData > ("SonarEchoData");
     connect(&filter,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(retrieveSonarEchoData(SonarEchoData)));
 }
@@ -62,46 +60,6 @@ QWidget* Module_SonarLocalization::createView(QWidget* parent)
     return new Form_SonarLocalization(parent, this);
 }
 
-void Module_SonarLocalization::initSVM()
-{
-    svmParam.svm_type = getSettingsValue("svm").toInt();
-    svmParam.kernel_type = getSettingsValue("kernel").toInt();
-    svmParam.degree = getSettingsValue("degree").toInt();
-    svmParam.gamma = getSettingsValue("gamma").toDouble(); //1/num_features
-    svmParam.coef0 = getSettingsValue("coef0").toDouble();
-    svmParam.nu = 0.5;
-    svmParam.C = 1;
-    svmParam.p = 0.1;
-    svmParam.term_crit.epsilon = getSettingsValue("epsilon").toDouble();
-    svmParam.term_crit.type = CV_TERMCRIT_EPS;
-    }
-
-void Module_SonarLocalization::trainSVM()
-{
-
-    CvMat* data = cvCreateMat(5,9,CV_32FC1);
-    CvMat* label = cvCreateMat(5,1,CV_32FC1);
-
-//    FileStorage storage("../bin/sonarloc/myData.xml", CV_STORAGE_WRITE);
-//    storage.writeObj("trainingSamples", data);
-//    storage.writeObj("trainingLabels", label);
-//    storage.release();
-
-        CvFileStorage * fs = cvOpenFileStorage( "../bin/sonarloc/myData.xml", 0, CV_STORAGE_READ );
-    CvMat * training = (CvMat *)cvReadByName(fs, 0, "trainingSamples", 0);
-    CvMat * labels = (CvMat *)cvReadByName(fs, 0, "trainingLabels", 0);
-    logger->debug(QString::number(training->rows));
-    float gam = 1.0/(training->rows);
-    logger->debug("GaMMA"+QString::number(gam));
-    svmParam.gamma = gam;
-
-//    fs = cvOpenFileStorage( "../bin/sonarloc/myData2.xml", 0, CV_STORAGE_WRITE );
-//        cvWrite(fs, "trainingSamples", training, cvAttrList(0,0));
-//        cvWrite(fs, "traininglabels", labels, cvAttrList(0,0));
-
-    svm = new CvSVM(training,labels,0,0,svmParam);
-}
-
 SonarParticleFilter& Module_SonarLocalization::particleFilter()
 {
     return this->pf;
@@ -114,12 +72,15 @@ void Module_SonarLocalization::newPositionEst(QVector3D p)
 
 void Module_SonarLocalization::setLocalization(QVector2D position)
 {
+    QMutexLocker l(&this->moduleMutex);
     pf.setLocalization(position);
 }
 
 Position Module_SonarLocalization::getLocalization()
 {
+    this->moduleMutex.lock();
     QVector3D p = pf.getBestEstimate();
+    this->moduleMutex.unlock();
     Position r;
     r.setX(p.x());
     r.setY(p.y());
@@ -133,6 +94,7 @@ Position Module_SonarLocalization::getLocalization()
 
 float Module_SonarLocalization::getLocalizationConfidence()
 {
+    QMutexLocker l(&this->moduleMutex);
     return pf.getParticles()[0].w();
 }
 

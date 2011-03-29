@@ -39,7 +39,9 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     this->findWall(currData);
     this->extractFeatures(currData);
     CvMat feat = currData.getFeatures();
-    int predClass = svm->svmClassification(&feat);
+    int predClass = 1;
+    if(svm->isSVM())
+        predClass = svm->svmClassification(&feat);
     currData.setClassLabel(predClass);
     candidates.append(currData);
     emit newSonarEchoData(currData);
@@ -189,7 +191,7 @@ void SonarEchoFilter::applyHeuristic()
         bool next = candidates[i+1].hasWallCandidate();
         if(!prev && !next)
         {
-            logger->debug("heuristic removes single point");;
+//            logger->debug("heuristic removes single point");;
             candidates[i].setWallCandidate(-1);
             candidates[i].setClassLabel(0);
         }
@@ -264,7 +266,10 @@ void SonarEchoFilter::sendImage()
 {
      QList<QVector2D> posArray;
      for(int i = 0; i < candidates.size(); i++)
-         posArray.append(candidates[i].getEuclidean());
+     {
+         if(candidates[i].getClassLabel() > 0)
+            posArray.append(candidates[i].getEuclidean());
+     }
      logger->debug("New Image");
     emit newImage(posArray);
     candidates.clear();
@@ -336,8 +341,10 @@ void SonarEchoFilter::reset()
     {
         QByteArray ba = path.toLatin1();
           const char *c_str2 = ba.data();
-        svm->loadClassifier(c_str2);
-        logger->info("SVM Classifier loaded");
+        if(svm->loadClassifier(c_str2))
+            logger->info("SVM Classifier loaded");
+        else
+            logger->error("Could not load SVM. No Classification possible");
     }
 }
 

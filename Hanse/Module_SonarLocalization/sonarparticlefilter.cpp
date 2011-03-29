@@ -238,7 +238,7 @@ QVector<QVector4D> SonarParticleFilter::getParticles()
 
 void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observations)
 {
-    logger->debug("pressed next button.");
+//    logger->debug("pressed next button.");
 
     particlesMutex.lock();
     QVector<QVector4D> oldParticles = particles;

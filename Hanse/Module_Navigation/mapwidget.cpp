@@ -15,6 +15,7 @@ MapWidget::MapWidget( QWidget *parent) :
     QObject::connect( ui->graphicsView, SIGNAL( mouseReleaseEventAt(QPointF) ),
                       this, SLOT( graphicsMouseReleased(QPointF)) );
 
+
     scene = new QGraphicsScene( QRectF(-1000,-1000,2000,2000), ui->graphicsView );
     ui->graphicsView->setScene( scene );
 
@@ -34,6 +35,8 @@ MapWidget::~MapWidget()
 void MapWidget::setNavigation(Module_Navigation *nav)
 {
     this->nav = nav;
+
+    QObject::connect(this,SIGNAL(newManualLocalization(QVector2D)),nav->sonarLoc,SLOT(setLocalization(QVector2D)));
 
     createMap();
 
@@ -346,7 +349,8 @@ void MapWidget::startSonarLocalization()
 
 void MapWidget::stopSonarLocalization(QPointF point)
 {
-    nav->sonarLoc->setLocalization(QVector2D(point));
+//    nav->sonarLoc->setLocalization(QVector2D(point));
+    emit newManualLocalization(QVector2D(point));
     QApplication::restoreOverrideCursor();
     isSonarLocalizationInProgress = false;
 }

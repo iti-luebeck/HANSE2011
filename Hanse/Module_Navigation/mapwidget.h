@@ -65,6 +65,9 @@ private slots:
     void on_showSonarMap_toggled(bool checked);
 
     void timerElapsed();
+
+signals:
+    void newManualLocalization(QVector2D position);
 };
 
 #endif // MAPWIDGET_H

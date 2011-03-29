@@ -60,9 +60,8 @@ private:
 
 private slots:
     void on_selSVM_clicked();
-    void on_trainSVM_clicked();
-    void on_openTrainingSamples_clicked();
-    void on_apply_clicked();
+    void on_enableFilteredView_clicked(bool checked);
+    void on_enableUnfilteredOutput_clicked(bool checked);
     void on_selSat_clicked();
     void on_selMap_clicked();
     void on_spinBox_valueChanged(int );

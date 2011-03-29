@@ -42,7 +42,7 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
         dataQueue.append(gi);
 
     }
-    connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarView(SonarEchoData)));
+
     //unfiltered View
     this->ui->unfilteredView->setScene(&sceneUnfiltered);
     sceneUnfiltered.clear();
@@ -50,7 +50,7 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     sonarEchoDataUnfilteredList.clear();
     for(int i =0; i<100; i++)
         dataQueueUnfiltered.append(gi);
-    connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarViewUnfiltered(SonarEchoData)));
+
 
 //    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
 //    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
@@ -313,42 +313,6 @@ void Form_SonarLocalization::on_selSat_clicked()
         ui->config_satImage->setText(fileName);
 }
 
-void Form_SonarLocalization::on_apply_clicked()
-{
-    m->setSettingsValue("svm",(100+ui->svmChooser->currentIndex()));
-    m->setSettingsValue("kernel",ui->kernelChooser->currentIndex());
-    m->setSettingsValue("degree",ui->degree->text());
-    m->setSettingsValue("cost",ui->cost->text());
-    m->setSettingsValue("epsilon",ui->epsilon->text());
-    m->setSettingsValue("coef0",ui->coef0->text());
-    m->setSettingsValue("gamma",ui->gamma->text());
-}
-
-void Form_SonarLocalization::on_openTrainingSamples_clicked()
-{
-
-    QString s = QFileDialog::getOpenFileName(this, tr("Open File"), "../bin/sonarloc/");
-    m->setSettingsValue("trainingData",s);
-    ui->trainingDataPath->setText(s);
-}
-
-void Form_SonarLocalization::on_trainSVM_clicked()
-{
-    QTimer::singleShot(0,m,SLOT(trainSVM()));
-}
-
-void Form_SonarLocalization::on_selSVM_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this,
-         "Open SVM file", ui->config_mapFile->text(), "OpenCV SVM Data (*.xml)");
-
-    if (fileName.length()>0)
-    {
-        m->setSettingsValue("Path2SVM",fileName);
-        ui->configure_SVM->setText(fileName);
-    }
-}
-
 void Form_SonarLocalization::updateSonarView(SonarEchoData data)
 {
 //    qDebug() << "new candidate " << WallCandidate;
@@ -378,7 +342,7 @@ void Form_SonarLocalization::updateSonarView(SonarEchoData data)
             QLinearGradient gi(0,0,0,279);
             for (int i = 0; i < n; i++) {
                 int skalarM = 1;
-//                int cl = echoList.last().getClassLabel();
+                int cl = sonarEchoDataList[j].getClassLabel();
                 int wc = sonarEchoDataList[j].getWallCandidate();
 //                qDebug() << "current wc " << wc;
 
@@ -391,7 +355,7 @@ void Form_SonarLocalization::updateSonarView(SonarEchoData data)
 //                    gi.setColorAt(1.0*i/n,QColor(0,0,255));
 //                }
 
-                if((wc != -1)  && (i > wc- skalarM ) && (i < wc + skalarM))
+                if(((cl != 0) && (wc != -1)  && (i > wc- skalarM ) && (i < wc + skalarM)))
                     gi.setColorAt(1.0*i/n,QColor(0,255,0));
                 else
                     gi.setColorAt(1.0*i/n,QColor(0,0,0));
@@ -467,3 +431,31 @@ void Form_SonarLocalization::updateSonarViewUnfiltered(SonarEchoData unfiltered)
     }
 }
 
+
+void Form_SonarLocalization::on_enableUnfilteredOutput_clicked(bool checked)
+{
+    disconnect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarViewUnfiltered(SonarEchoData)));
+    if(checked)
+        connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarViewUnfiltered(SonarEchoData)));
+}
+
+void Form_SonarLocalization::on_enableFilteredView_clicked(bool checked)
+{
+     disconnect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarView(SonarEchoData)));
+     if(checked)
+         connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarView(SonarEchoData)));
+
+}
+
+void Form_SonarLocalization::on_selSVM_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+         "Open SVM Classifier", ui->configure_SVM->text());
+
+    if (fileName.length()>0)
+    {
+        ui->configure_SVM->setText(fileName);
+        this->m->setSettingsValue("Path2SVM",fileName);
+    }
+
+}
