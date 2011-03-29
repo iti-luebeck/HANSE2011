@@ -400,7 +400,7 @@ void Form_SonarLocalization::updateSonarViewUnfiltered(SonarEchoData unfiltered)
             QLinearGradient gi(0,0,0,279);
             for (int i = 0; i < n; i++) {
 //                QByteArray data = curDataSet.at(j);
-                QByteArray data = sonarEchoDataList[j].getFiltered();
+                QByteArray data = sonarEchoDataUnfilteredList[j].getFiltered();
 //                QByteArray data = sam[viewSamplePointer+j].getRawData();
                 char b = data[i];
 //                if(j == (curDataSet.length()/2))
