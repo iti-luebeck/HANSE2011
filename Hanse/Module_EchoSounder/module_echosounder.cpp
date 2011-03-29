@@ -120,13 +120,14 @@ bool Module_EchoSounder::doNextScan(){
         return true;
     }else{
 
-        EchoReturnData d = source->getNextPacket();
-
         if(!source || !source->isOpen()){
             logger->error("Nein das source ist kaputt");
             emit dataError();
             return false;
         }
+
+        EchoReturnData d = source->getNextPacket();
+
         if(d.isPacketValid()){
             setHealthToOk();
             addData("range", d.getRange());
