@@ -349,10 +349,10 @@ void Module_Navigation::sonarPositionUpdate()
                     // positiv: drehhung nach rechts.
                     float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat()
                                 * diffHeading;
-                    if (val > 0.1) val = 0.1;
-                    if (val < -0.1) val = -0.1;
-                    if (val > 0 && val < 0.05) val = 0.05;
-                    if (val < 0 && val > -0.05) val = -0.05;
+                    if (val > 0.3) val = 0.3;
+                    if (val < -0.3) val = -0.3;
+                    if (val > 0 && val < 0.2) val = 0.2;
+                    if (val < 0 && val > -0.2) val = -0.2;
 //                    tcl->setAngularSpeed( );
                     emit newANGSpeed(val);
                 }

@@ -216,7 +216,7 @@ void SonarEchoFilter::grouping()
 {
     QVector<int> noNoise;
     this->getNoNoiseFilter(noNoise);
-    int cutTH = 360;
+    int cutTH = 300;
 
 //    if(noNoise.at(candidates[candidates.size()-1].getGain()) == 0)
 //        qDebug("no noise Information");
@@ -245,14 +245,38 @@ void SonarEchoFilter::grouping()
         //Grouping
         temp_area = temp_area + diff;
 //        qDebug() << "tempArea " << temp_area;
-        if(temp_area > 360 || temp_area > cutTH)
+        if(temp_area > cutTH)
         {
             //TODO search for darkness to cut if TH reached
-            groupID++;
-            this->sendImage();
-            temp_area = 0;
-            diff = 0;
-            newDirection = 0;
+
+            //search for first wallcandidate and cut points before
+//            bool firstWC = false;
+//            while(!firstWC && candidates.size() > 0)
+//            {
+//                if(candidates.first().getClassLabel() == 0)
+//                    candidates.pop_front();
+//                if(candidates.first().getClassLabel() == 1)
+//                    firstWC = true;
+//            }
+
+            //check if last 10 candidates are negativ. If so, cut.
+            int windowSize = 10;
+            bool darkness = true;
+            for(int i = candidates.size()-1; i > candidates.size()-windowSize; i--)
+            {
+                if(candidates[i].getClassLabel() == 1)
+                    darkness = false;
+            }
+
+
+            if(temp_area > 360 || darkness)
+               {
+                groupID++;
+                this->sendImage();
+                temp_area = 0;
+                diff = 0;
+                newDirection = 0;
+            }
         }
         else
         {

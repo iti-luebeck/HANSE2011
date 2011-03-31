@@ -6,6 +6,9 @@
 #include "Module_ScanningSonar/sonarreturndata.h"
 #include <opencv/cv.h>
 
+#define POSITIVE_CLASS  1;
+#define NEGATIVE_CLASS  0;
+
 class SonarEchoData
 {
 public:
