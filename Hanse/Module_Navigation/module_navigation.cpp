@@ -88,11 +88,11 @@ void Module_Navigation::gotoWayPoint( QString name, Position delta )
     state = NAV_STATE_GO_TO_GOAL;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
 
-//    Position currentPosition = visSLAM->getLocalization();
-//    double dx = currentGoalPosition.getX() - currentPosition.getX();
-//    double dy = currentGoalPosition.getY() - currentPosition.getY();
-//    headingToGoal = atan2( -dx, dy ) * 180 / CV_PI;
-//    distanceToGoal = sqrt( dx*dx + dy*dy );
+    Position currentPosition = sonarLoc->getLocalization();
+    double dx = currentGoalPosition.getX() - currentPosition.getX();
+    double dy = currentGoalPosition.getY() - currentPosition.getY();
+    headingToGoal = (atan2( -dx, dy ) * 180 / CV_PI);
+    distanceToGoal = sqrt( dx*dx + dy*dy );
 
     emit newDepth(currentGoalPosition.getZ());
     emit newFFSpeed(.0);
@@ -160,6 +160,7 @@ void Module_Navigation::headingUpdate( RobotModule * )
 {
     double compassHeading = compass->getHeading();
     int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
+    return;
     switch ( state )
     {
     case NAV_STATE_IDLE:
@@ -308,6 +309,28 @@ void Module_Navigation::sonarPositionUpdate()
     logger->info("update sonar position");
     double currentHeading = sonarLoc->getLocalization().getYaw();
     int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
+
+    // Adjust the heading with a P controller.
+    float diffHeading = headingToGoal - currentHeading;
+    while (diffHeading >= 180 ) diffHeading -= 360;
+    while (diffHeading < -180 ) diffHeading += 360;
+
+    addData("diffHeading", diffHeading);
+
+    // Check if the goal has already been reached.
+    Position currentPosition = sonarLoc->getLocalization();
+    if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
+               ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
+        < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
+    {
+        state = NAV_STATE_REACHED_GOAL;
+        emit newFFSpeed(.0);
+        emit newANGSpeed(.0);
+//                tcl->setForwardSpeed( .0 );
+//                tcl->setAngularSpeed( .0 );
+        emit reachedWaypoint( currentGoalName );
+    }
+
     switch ( state )
     {
     case NAV_STATE_IDLE:
@@ -320,13 +343,16 @@ void Module_Navigation::sonarPositionUpdate()
         case NAV_SUBSTATE_ADJUST_HEADING:
             if ( headingSensor == 2 )
             {
-                // Adjust the heading with a P controller.
-                if ( fabs( headingToGoal - currentHeading ) >
+                if ( fabs( diffHeading ) >
                      getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
                 {
                     // positiv: drehhung nach rechts.
-                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
-                                * ( headingToGoal - currentHeading );
+                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat()
+                                * diffHeading;
+                    if (val > 0.1) val = 0.1;
+                    if (val < -0.1) val = -0.1;
+                    if (val > 0 && val < 0.05) val = 0.05;
+                    if (val < 0 && val > -0.05) val = -0.05;
 //                    tcl->setAngularSpeed( );
                     emit newANGSpeed(val);
                 }
@@ -352,19 +378,6 @@ void Module_Navigation::sonarPositionUpdate()
             }
             break;
         case NAV_SUBSTATE_MOVE_FORWARD:
-            // Check if the goal has already been reached.
-            Position currentPosition = sonarLoc->getLocalization();
-            if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
-                       ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
-                < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
-            {
-                state = NAV_STATE_REACHED_GOAL;
-                emit newFFSpeed(.0);
-                emit newANGSpeed(.0);
-//                tcl->setForwardSpeed( .0 );
-//                tcl->setAngularSpeed( .0 );
-                reachedWaypoint( currentGoalName );
-            }
             break;
         }
         break;
