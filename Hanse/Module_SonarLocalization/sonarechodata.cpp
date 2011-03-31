@@ -159,3 +159,8 @@ QVector2D SonarEchoData::getEuclidean()
     return vec;
 }
 
+void SonarEchoData::addOffsetToHeadPos(float degree)
+{
+    this->headPosition = this->headPosition + degree;
+}
+

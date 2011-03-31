@@ -117,9 +117,8 @@ public slots:
     void save( QString path );
     void load( QString path );
 
-    void depthUpdate( RobotModule * );
+    void depthUpdate(float depth);
     void headingUpdate( RobotModule * );
-    void vslamPositionUpdate( RobotModule * );
     void sonarPositionUpdate();
     void forwardDone();
 

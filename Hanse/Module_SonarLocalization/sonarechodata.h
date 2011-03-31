@@ -33,6 +33,7 @@ public:
     void setFiltered(QByteArray data);
     void setWallCandidate(int bin);
     void addFeature(int index, float value);
+    void addOffsetToHeadPos(float degree);
 
     void setGroupID(int id);
     int getGroupID();

@@ -28,8 +28,8 @@ void Module_Navigation::init()
         qRegisterMetaType< QMap<QString,Position> >("QMap<QString,Position>");
 
     // Connect to signals from the sensors.
-//    QObject::connect( pressure, SIGNAL( dataChanged(RobotModule*) ),
-//                      this, SLOT( depthUpdate(RobotModule*) ) );
+//    QObject::connect( pressure, SIGNAL(newDepthData(float)),
+//                      this, SLOT( depthUpdate(float) ) );
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( headingUpdate(RobotModule*) ) );
     QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
@@ -82,7 +82,6 @@ void Module_Navigation::doHealthCheck()
 
 void Module_Navigation::gotoWayPoint( QString name, Position delta )
 {
-    logger->debug("going to wp");
     currentGoalName = name;
     currentGoalPosition = waypoints[name];
     state = NAV_STATE_GO_TO_GOAL;
@@ -97,9 +96,6 @@ void Module_Navigation::gotoWayPoint( QString name, Position delta )
     emit newDepth(currentGoalPosition.getZ());
     emit newFFSpeed(.0);
     emit newANGSpeed(.0);
-//    tcl->setDepth( currentGoalPosition.getZ() );
-//    tcl->setForwardSpeed( .0 );
-//    tcl->setAngularSpeed( .0 );
 
     addData("state", state);
     addData("substate", substate);
@@ -116,8 +112,6 @@ void Module_Navigation::clearGoal()
 
     emit newFFSpeed(.0);
     emit newANGSpeed(.0);
-//    tcl->setForwardSpeed( .0 );
-//    tcl->setAngularSpeed( .0 );
 
     addData("state", state);
     addData("substate", substate);
@@ -126,9 +120,9 @@ void Module_Navigation::clearGoal()
     clearedGoal();
 }
 
-void Module_Navigation::depthUpdate( RobotModule * )
+void Module_Navigation::depthUpdate( float depth)
 {
-    float currentDepth = pressure->getDepth();
+    float currentDepth = depth;
     switch ( state )
     {
     case NAV_STATE_IDLE:
@@ -230,98 +224,19 @@ void Module_Navigation::headingUpdate( RobotModule * )
     dataChanged( this );
 }
 
-void Module_Navigation::vslamPositionUpdate( RobotModule * )
-{
-    double currentHeading = 0.0; //visSLAM->getLocalization().getYaw();
-    int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
-    switch ( state )
-    {
-    case NAV_STATE_IDLE:
-        break;
-    case NAV_STATE_GO_TO_GOAL:
-        switch ( substate )
-        {
-        case NAV_SUBSTATE_ADJUST_DEPTH:
-            break;
-        case NAV_SUBSTATE_ADJUST_HEADING:
-            if ( headingSensor == 1 )
-            {
-                // Adjust the heading with a P controller.
-                if ( fabs( headingToGoal - currentHeading ) >
-                     getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
-                {
-                    // positiv: drehhung nach rechts.
-                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
-                                * ( headingToGoal - currentHeading );
-//                    tcl->setAngularSpeed(  );
-                    emit newANGSpeed(val);
-                }
-                else
-                {
-                    emit newANGSpeed(.0);
-//                    tcl->setAngularSpeed( .0 );
-                    float speed = getSettingsValue( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
-                    if ( distanceToGoal < getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
-                    {
-                        speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
-                                 ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
-                    }
-                    emit newFFSpeed(speed);
-//                    tcl->setForwardSpeed( speed );
-                    substate = NAV_SUBSTATE_MOVE_FORWARD;
-                    initialCompassHeading = compass->getHeading();
-
-                    // Go forward for "forward_time" seconds.
-                    QTimer::singleShot( 1000 * getSettingsValue( "forward_time", NAV_FORWARD_TIME ).toDouble(),
-                                        this, SLOT( forwardDone() ) );
-                }
-            }
-            break;
-        case NAV_SUBSTATE_MOVE_FORWARD:
-            // Check if the goal has already been reached.
-            Position currentPosition; // = visSLAM->getLocalization();
-            if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
-                       ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
-                < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
-            {
-                state = NAV_STATE_REACHED_GOAL;
-                emit newFFSpeed(.0);
-                emit newANGSpeed(.0);
-//                tcl->setForwardSpeed( .0 );
-//                tcl->setAngularSpeed( .0 );
-                reachedWaypoint( currentGoalName );
-            }
-            break;
-        }
-        break;
-    case NAV_STATE_FAILED_TO_GO_TO_GOAL:
-    case NAV_STATE_REACHED_GOAL:
-        break;
-    }
-
-    addData("state", state);
-    addData("substate", substate);
-    dataChanged( this );
-}
-
 void Module_Navigation::sonarPositionUpdate()
 {
-    float currentDepth = pressure->getDepth();
     logger->info("update sonar position");
+    float currentDepth = pressure->getDepth();
     double currentHeading = sonarLoc->getLocalization().getYaw();
-    int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
+    int headingSensor = getSettingsValue( "heading_sensor", 2 ).toInt();
 
     //check depth
     if ( fabs( currentDepth - currentGoalPosition.getZ() ) <
          getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() )
-    {
         substate = NAV_SUBSTATE_ADJUST_HEADING;
-
-    }
     else
-    {
         substate = NAV_SUBSTATE_ADJUST_DEPTH;
-    }
     addData("substate", substate);
     emit dataChanged( this );
 
@@ -329,7 +244,6 @@ void Module_Navigation::sonarPositionUpdate()
     float diffHeading = headingToGoal - currentHeading;
     while (diffHeading >= 180 ) diffHeading -= 360;
     while (diffHeading < -180 ) diffHeading += 360;
-
     addData("diffHeading", diffHeading);
 
     // Check if the goal has already been reached.
@@ -341,8 +255,6 @@ void Module_Navigation::sonarPositionUpdate()
         state = NAV_STATE_REACHED_GOAL;
         emit newFFSpeed(.0);
         emit newANGSpeed(.0);
-//                tcl->setForwardSpeed( .0 );
-//                tcl->setAngularSpeed( .0 );
         emit reachedWaypoint( currentGoalName );
     }
 
@@ -368,13 +280,11 @@ void Module_Navigation::sonarPositionUpdate()
                     if (val < -0.3) val = -0.3;
                     if (val > 0 && val < 0.2) val = 0.2;
                     if (val < 0 && val > -0.2) val = -0.2;
-//                    tcl->setAngularSpeed( );
                     emit newANGSpeed(val);
                 }
                 else
                 {
                     emit newANGSpeed(.0);
-//                    tcl->setAngularSpeed( .0 );
                     float speed = getSettingsValue( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
                     if ( distanceToGoal < getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
                     {
@@ -382,7 +292,6 @@ void Module_Navigation::sonarPositionUpdate()
                                  ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
                     }
                     emit newFFSpeed(speed);
-//                    tcl->setForwardSpeed( speed );
                     substate = NAV_SUBSTATE_MOVE_FORWARD;
                     initialCompassHeading = compass->getHeading();
 
@@ -409,7 +318,6 @@ void Module_Navigation::sonarPositionUpdate()
 void Module_Navigation::forwardDone()
 {
     emit newFFSpeed(.0);
-//    tcl->setForwardSpeed( .0 );
     gotoWayPoint( currentGoalName, Position() );
 }
 
@@ -425,7 +333,6 @@ QMap<QString, Position> Module_Navigation::getWaypoints()
 
 void Module_Navigation::addWaypoint( QString name, Position pos )
 {
-    logger->debug("add wp");
     waypoints[ name ] = pos;
     updatedWaypoints( waypoints );
 }
