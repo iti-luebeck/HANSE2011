@@ -28,6 +28,7 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
                                                       NAV_FORWARD_MAX_SPEED).toString() );
     ui->forwardTimeEdit->setText( nav->getSettingsValue( QString( "forward_time" ),
                                                   NAV_FORWARD_TIME).toString() );
+    ui->headingBox->setCurrentIndex(nav->getSettingsValue("heading_sensor").toInt());
     qRegisterMetaType<Position>("Position");
     connect(this,SIGNAL(goToPosition(QString,Position)),nav,SLOT(gotoWayPoint(QString,Position)));
 }

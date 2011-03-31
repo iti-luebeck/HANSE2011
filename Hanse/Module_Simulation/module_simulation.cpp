@@ -219,7 +219,7 @@ void Module_Simulation::parse_input(QString input){
     {
         QString depth_name;
         input_stream2 >> depth_name;
-        logger->debug(depth_name);
+//        logger->debug(depth_name);
 
         QString inputdata;
         input_stream2 >> inputdata;
@@ -238,7 +238,7 @@ void Module_Simulation::parse_input(QString input){
     {
         QString temp_name;
         input_stream2 >> temp_name;
-        logger->debug(temp_name);
+//        logger->debug(temp_name);
 
         QString inputdata;
         input_stream2 >> inputdata;
@@ -250,7 +250,7 @@ void Module_Simulation::parse_input(QString input){
     {
         QString cam_name;
         input_stream2 >> cam_name;
-        logger->debug(cam_name);
+//        logger->debug(cam_name);
 
         QByteArray inputdata;
         input_stream2 >> inputdata;
@@ -277,13 +277,13 @@ void Module_Simulation::parse_input(QString input){
     {
         QString inputdata;
         input_stream2 >> inputdata;
-        logger->debug(inputdata);
+//        logger->debug(inputdata);
     }
     else if(input.startsWith("Angles"))
     {
         QString compass_name;
         input_stream2 >> compass_name;
-        logger->debug(compass_name);
+//        logger->debug(compass_name);
 
         QString input2;
         input_stream2 >> input2;

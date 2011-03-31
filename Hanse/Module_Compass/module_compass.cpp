@@ -160,7 +160,7 @@ void Module_Compass::refreshData()
 
     if(sim->isEnabled())
     {
-        logger->debug("request sim");
+//        logger->debug("request sim");
         emit requestAngles();
     }
     else
@@ -181,7 +181,7 @@ void Module_Compass::refreshData()
 
 void Module_Compass::refreshSimData(float angle_yaw, float angle_pitch, float angle_roll)
 {
-    logger->debug("new compass data");
+//    logger->debug("new compass data");
     addData("heading",angle_yaw);
     addData("pitch",angle_pitch);
     addData("roll",angle_roll);

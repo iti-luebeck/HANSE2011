@@ -101,7 +101,7 @@ void Module_PressureSensor::refreshData()
 
     if(sim->isEnabled())
     {
-        logger->debug("request");
+//        logger->debug("request");
         emit requestDepth();
         emit requestTemp();
     }

@@ -28,8 +28,8 @@ void Module_Navigation::init()
         qRegisterMetaType< QMap<QString,Position> >("QMap<QString,Position>");
 
     // Connect to signals from the sensors.
-    QObject::connect( pressure, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( depthUpdate(RobotModule*) ) );
+//    QObject::connect( pressure, SIGNAL( dataChanged(RobotModule*) ),
+//                      this, SLOT( depthUpdate(RobotModule*) ) );
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( headingUpdate(RobotModule*) ) );
     QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
@@ -86,7 +86,7 @@ void Module_Navigation::gotoWayPoint( QString name, Position delta )
     currentGoalName = name;
     currentGoalPosition = waypoints[name];
     state = NAV_STATE_GO_TO_GOAL;
-    substate = NAV_SUBSTATE_ADJUST_DEPTH;
+    substate = NAV_SUBSTATE_ADJUST_HEADING;
 
     Position currentPosition = sonarLoc->getLocalization();
     double dx = currentGoalPosition.getX() - currentPosition.getX();
@@ -142,7 +142,7 @@ void Module_Navigation::depthUpdate( RobotModule * )
             {
                 substate = NAV_SUBSTATE_ADJUST_HEADING;
                 addData("substate", substate);
-                dataChanged( this );
+                emit dataChanged( this );
             }
             break;
         case NAV_SUBSTATE_ADJUST_HEADING:
@@ -306,9 +306,24 @@ void Module_Navigation::vslamPositionUpdate( RobotModule * )
 
 void Module_Navigation::sonarPositionUpdate()
 {
+    float currentDepth = pressure->getDepth();
     logger->info("update sonar position");
     double currentHeading = sonarLoc->getLocalization().getYaw();
     int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
+
+    //check depth
+    if ( fabs( currentDepth - currentGoalPosition.getZ() ) <
+         getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() )
+    {
+        substate = NAV_SUBSTATE_ADJUST_HEADING;
+
+    }
+    else
+    {
+        substate = NAV_SUBSTATE_ADJUST_DEPTH;
+    }
+    addData("substate", substate);
+    emit dataChanged( this );
 
     // Adjust the heading with a P controller.
     float diffHeading = headingToGoal - currentHeading;
