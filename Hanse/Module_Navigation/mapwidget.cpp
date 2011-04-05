@@ -233,9 +233,15 @@ void MapWidget::newSonarLocEstimate()
     QVector<QVector4D> particles = nav->sonarLoc->particleFilter().getParticles();
     foreach (QVector4D p, particles) {
         QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), 1,1, masterParticle);
-        int weight = p.w();
+        qreal pint = p.w();
+        qDebug() << "real " << pint;
+        int weight = (int)pint;
+        qDebug() << "gewicht " << weight;
         if(weight < 0)
+        {
             weight = 0;
+            qDebug() << "neg weight";
+        }
         if(weight > 255)
             weight = 255;
         e->setPen(QPen(QColor(0,weight,0)));
