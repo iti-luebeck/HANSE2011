@@ -9,8 +9,8 @@
 #include "sonardata852recorder.h"
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_Simulation/module_simulation.h>
-Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim)
-    : RobotModule(id), reader(this)
+Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim)
+    : RobotModule(id)
 {
     this->sim = sim;
     setDefaultValue("serialPort", "COM1");
@@ -40,7 +40,6 @@ Module_ScanningSonar::~Module_ScanningSonar()
 
 void Module_ScanningSonar::init()
 {
-//    timer.moveToThread(this);
     connect(&timer,SIGNAL(timeout()), this, SLOT(doNextScan()));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
 
@@ -51,25 +50,11 @@ void Module_ScanningSonar::init()
 
 }
 
-Module_ScanningSonar::ThreadedReader::ThreadedReader(Module_ScanningSonar* m)
-{
-    this->m = m;
-    running = true;
-}
-
-void Module_ScanningSonar::ThreadedReader::pleaseStop()
-{
-    running = false;
-}
-
 void Module_ScanningSonar::terminate()
 {
-//    RobotModule::terminate();
+
     QTimer::singleShot(0,&timer,SLOT(stop()));
-    logger->debug("Asking Sonar Reading Thread to stop.");
-    reader.pleaseStop();
-    logger->debug("Waiting for Sonar Reading Thread to terminate.");
-    reader.wait();
+
     logger->debug("Destroying sonar data source and recorder.");
     if (this->source != NULL) {
         delete this->source;
@@ -82,18 +67,6 @@ void Module_ScanningSonar::terminate()
         recorder = NULL;
     }
     RobotModule::terminate();
-}
-
-void Module_ScanningSonar::ThreadedReader::run(void)
-{
-    running = true;
-    while(running)
-    {
-        if (m->getSettingsValue("enabled").toBool()){// || !m->doNextScan()){
-            m->doNextScan();
-            msleep(500);
-        }
-    }
 }
 
 void Module_ScanningSonar::refreshSimData(SonarReturnData data)
@@ -139,10 +112,6 @@ void Module_ScanningSonar::reset()
 {
     RobotModule::reset();
 
-    logger->debug("Stopping reader.");
-//    reader.pleaseStop();
-//    reader.wait();
-
     logger->debug("Destroying and sonar data source.");
     if (this->source != NULL) {
         this->source->stop();
@@ -169,40 +138,40 @@ void Module_ScanningSonar::reset()
         recorder->start();
     }
 
-//    reader.start();
-
     if (sim->isEnabled())
     {
+
         timer.setInterval(120);
         timer.start();
-        return;
-    }
 
-    if (getSettingsValue("readFromFile").toBool())
-    {
-        source = new SonarDataSourceFile(*this, getSettingsValue("filename").toString());
-        if(!source->isOpen())
+    } else {
+
+        if (getSettingsValue("readFromFile").toBool())
         {
-            logger->error("source not opened");
-            source = NULL;
+            source = new SonarDataSourceFile(*this, getSettingsValue("filename").toString());
+            if(!source->isOpen())
+            {
+                logger->error("source not opened");
+                source = NULL;
+            }
+        }
+        else {
+            source = new SonarDataSourceSerial(*this);
+        }
+
+        logger->debug("Restarting reader.");
+        if(source != NULL)
+        {
+           timer.setInterval(0); // timerSlot will block
+           timer.start();
+           setHealthToOk();
+       }
+        else
+        {
+            setHealthToSick("source is null");
         }
     }
-    else
-        source = new SonarDataSourceSerial(*this);
 
-    logger->debug("Restarting reader.");
-    timer.setInterval(100);
-    if(source != NULL)
-    {
-//       QTimer::singleShot(0, timer, SLOT(start()));
-        timer.start();
-       setHealthToOk();
-   }
-    else
-    {
-        setHealthToSick("source is null");
-    }
-//    reader.start();
 }
 
 QList<RobotModule*> Module_ScanningSonar::getDependencies()

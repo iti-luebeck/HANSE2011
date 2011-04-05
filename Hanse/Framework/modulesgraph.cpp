@@ -9,7 +9,6 @@
 #include <Module_IMU/module_imu.h>
 #include <Module_Compass/module_compass.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
-//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
@@ -68,7 +67,7 @@ void ModulesGraph::build()
 //    this->modules.append(adc1);
 
     logger->debug("Creating Module_ScanningSonar");
-    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop,sim);
+    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar", sim);
     this->modules.append(sonar);
 
     logger->debug("Creating Module_EchoSounder");
