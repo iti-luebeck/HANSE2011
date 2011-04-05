@@ -205,7 +205,7 @@ void SonarEchoFilter::applyHeuristic()
         int absolut = abs(wcPrev-wcCurr);
         if((absolut > deltaTH) && candidates[i-1].hasWallCandidate() && candidates[i].hasWallCandidate())
         {
-            qDebug() << " wc " <<wcPrev << wcCurr;
+//            qDebug() << " wc " <<wcPrev << wcCurr;
             candidates[i].setWallCandidate(-1);
             candidates[i].setClassLabel(0);
         }
@@ -247,50 +247,79 @@ void SonarEchoFilter::grouping()
 //        qDebug() << "tempArea " << temp_area;
         if(temp_area > cutTH)
         {
+
+            if(candidates.size() == 0)
+            {
+                qDebug() << "size is zero ";
+                qDebug() << "area " << temp_area;
+                qDebug() << "group " << groupID;
+                qDebug() << "diff " << diff;
+            }
             //TODO search backwards for darkness
-//            QList<SonarEchoData> tmp;
-//            tmp.clear();
-//            int darknessArea = 17;
-//            int darknessCount = darknessArea;
-//            for(int i = candidates.size()-1; i > 0; i--)
+            QList<SonarEchoData> tmp;
+            tmp.clear();
+            int darknessArea = 17;
+            int darknessCount = darknessArea;
+            for(int i = candidates.size()-1; i > 0; i--)
+            {
+                if(candidates[i].getClassLabel() == 1)
+                {
+                    qDebug() << " can size " << candidates.size() << " i " << i ;
+                    tmp.push_front(candidates[i]);
+                    candidates.removeAt(i);
+                    darknessCount = darknessArea;
+                }
+                else
+                {
+                    darknessCount--;
+                }
+                if(darknessCount == 0)
+                {
+                    groupID++;
+                    this->sendImage();
+                    temp_area = 0;
+                    diff = 0;
+                    newDirection = 0;
+
+                    candidates.clear();
+                    for(int j = 0; j<tmp.size();j++)
+                    {
+                        tmp[j].setGroupID(groupID);
+                        candidates.append(tmp[j]);
+                    }
+                    tmp.clear();
+                    break;
+                }
+
+            }
+
+            //if there is no darkness just emit the whole candidate list
+            if(tmp.size() != 0)
+            {
+                qDebug() << "No Darkness. Cutting Candidates at 360 degrees";
+                for(int i = 0; i < tmp.size(); i++)
+                    candidates.append(tmp[i]);
+                tmp.clear();
+
+                groupID++;
+                this->sendImage();
+                temp_area = 0;
+                diff = 0;
+                newDirection = 0;
+            }
+
+            //check if last 10 candidates are negativ. If so, cut.
+//            int windowSize = 10;
+//            bool darkness = true;
+//            for(int i = candidates.size()-1; i > candidates.size()-windowSize; i--)
 //            {
 //                if(candidates[i].getClassLabel() == 1)
-//                {
-//                    tmp.push_front(candidates[i]);
-//                    candidates.removeAt(i);
-//                    darknessCount = darknessArea;
-//                }
-//                else
-//                {
-//                    darknessCount--;
-//                }
-//                if(darknessCount == 0)
-//                {
-//                    groupID++;
-//                    this->sendImage();
-//                    temp_area = 0;
-//                    diff = 0;
-//                    newDirection = 0;
-
-//                    candidates.clear();
-//                    for(int j = 0; j<tmp.size();j++)
-//                    {
-//                        tmp[j].setGroupID(groupID);
-//                        candidates.append(tmp[j]);
-//                    }
-//                    tmp.clear();
-//                }
-
+//                    darkness = false;
 //            }
 
-//            //if there is no darkness just emit the whole candidate list
-//            if(tmp.size() != 0)
-//            {
-//                qDebug() << "No Darkness. Cutting Candidates at 360 degrees";
-//                for(int i = 0; i < tmp.size(); i++)
-//                    candidates.append(tmp[i]);
-//                tmp.clear();
 
+//            if(temp_area > 360 || darkness)
+//               {
 //                groupID++;
 //                this->sendImage();
 //                temp_area = 0;
@@ -298,24 +327,6 @@ void SonarEchoFilter::grouping()
 //                newDirection = 0;
 //            }
 
-            //check if last 10 candidates are negativ. If so, cut.
-            int windowSize = 10;
-            bool darkness = true;
-            for(int i = candidates.size()-1; i > candidates.size()-windowSize; i--)
-            {
-                if(candidates[i].getClassLabel() == 1)
-                    darkness = false;
-            }
-
-
-            if(temp_area > 360 || darkness)
-               {
-                groupID++;
-                this->sendImage();
-                temp_area = 0;
-                diff = 0;
-                newDirection = 0;
-            }
         }
         else
         {
