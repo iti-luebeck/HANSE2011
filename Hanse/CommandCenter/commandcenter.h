@@ -1,12 +1,13 @@
 #ifndef COMMANDCENTER_H
 #define COMMANDCENTER_H
 
-#include "Framework/robotmodule.h"
+#include <Framework/robotmodule.h>
 #include <QtCore>
 
 class Module_Simulation;
 
-class CommandCenter : public RobotModule{
+class CommandCenter : public RobotModule
+{
     Q_OBJECT
 
      public:
@@ -30,6 +31,8 @@ public:
 public slots:
     void reset();
     void terminate();
+
+    void newSchedule();
 
 private slots:
     void gotEnabledChanged(bool);

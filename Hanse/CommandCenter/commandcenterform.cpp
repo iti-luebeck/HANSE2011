@@ -6,6 +6,11 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     ui(new Ui::CommandCenterForm)
 {
     ui->setupUi(this);
+    this->com = commandcenter;
+    schedule = "";
+
+    QObject::connect(this,SIGNAL(newSchedule()),com,SLOT(newSchedule()));
+
 }
 
 CommandCenterForm::~CommandCenterForm()
@@ -23,4 +28,35 @@ void CommandCenterForm::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+
+void CommandCenterForm::on_addButton_clicked(){
+   // ui->scheduleList->setText(ui->scheduleInput->currentText());
+    qDebug("addButtonClicked");
+    ui->scheduleList->insertPlainText(ui->scheduleInput->currentText()+"\n");
+    schedule = schedule+ui->scheduleInput->currentText()+",";
+    qDebug()<<schedule;
+}
+
+void CommandCenterForm::on_revertButton_clicked(){
+    // readOnly must be switched off
+    ui->scheduleList->cut();
+}
+
+void CommandCenterForm::on_clearButton_clicked(){
+   // ui->scheduleList->setText(ui->scheduleInput->currentText());
+    qDebug("clearButtonClicked");
+    ui->scheduleList->clear();
+    schedule = "";
+}
+
+void CommandCenterForm::on_startButton_clicked(){
+    qDebug("startButtonClicked");
+    emit newSchedule();
+}
+
+void CommandCenterForm::on_stopButton_clicked(){
+    qDebug("stopButtonClicked");
+
 }

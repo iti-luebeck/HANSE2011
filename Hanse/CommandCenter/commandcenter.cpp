@@ -18,6 +18,7 @@ CommandCenter::~CommandCenter(){
 void CommandCenter::init(){
 
     connect(this, SIGNAL(enabled(bool)), this, SLOT(gotEnabledChanged(bool)));
+
 }
 
 
@@ -58,4 +59,8 @@ void CommandCenter::gotEnabledChanged(bool state)
     if(!state){
         reset();
     }
+}
+
+void CommandCenter::newSchedule(){
+    qDebug("Ab gehts!");
 }

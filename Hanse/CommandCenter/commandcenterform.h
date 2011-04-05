@@ -22,6 +22,8 @@ public:
     CommandCenterForm(CommandCenter *command, QWidget *parent = 0);
     ~CommandCenterForm();
 
+    QString schedule;
+
 protected:
     void changeEvent(QEvent *e);
 
@@ -29,14 +31,19 @@ private:
     Log4Qt::Logger *logger;
 
     Ui::CommandCenterForm *ui;
-    CommandCenter* command;
+    CommandCenter* com;
 
 signals:
+    void newSchedule();
 
 public slots:
 
 private slots:
-
+    void on_addButton_clicked();
+    void on_revertButton_clicked();
+    void on_clearButton_clicked();
+    void on_startButton_clicked();
+    void on_stopButton_clicked();
 };
 
 #endif // COMMANDCENTERFORM_H
