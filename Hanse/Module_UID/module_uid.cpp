@@ -45,7 +45,7 @@ void Module_UID::init()
 
 void Module_UID::reset()
 {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
 
     RobotModule::reset();
 
@@ -80,7 +80,7 @@ void Module_UID::terminate()
 
 QextSerialPort* Module_UID::findUIDPort()
 {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
 
     QString Id = getSettingsValue("uidId").toString();
 
@@ -114,7 +114,7 @@ QextSerialPort* Module_UID::findUIDPort()
 
 QextSerialPort* Module_UID::tryOpenPort(QString Id, QextPortInfo *port)
 {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
 
 #ifdef OS_UNIX // this platform-independent library puts the port name in different fields depending on the platform
     QextSerialPort* sport = new QextSerialPort( port->physName, *portSettings, QextSerialPort::Polling);
@@ -190,7 +190,7 @@ bool Module_UID::SendCheckCommand(const QByteArray &send, char* recv, int recv_l
 {
     QTime blub;
     blub.restart();
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     this->dataLockerMutex.lock();
     if(mutexWaitTime.size() > 9)
         mutexWaitTime.pop_front();
@@ -203,7 +203,7 @@ bool Module_UID::SendCheckCommand(const QByteArray &send, char* recv, int recv_l
 
 bool Module_UID::CheckErrorcode()
 {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     logger->trace("CheckErrorcode");
 
     char r[1];
@@ -220,7 +220,7 @@ bool Module_UID::CheckErrorcode()
 }
 
 bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_length) {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     logger->trace("SendCommand2");
 
     QTime start(QTime::currentTime());
@@ -290,7 +290,7 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
 
 
 QString Module_UID::UID_Revision() {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     logger->trace("UID_Revision");
 
     QString identify;
@@ -304,7 +304,7 @@ QString Module_UID::UID_Revision() {
 
 bool Module_UID::UID_Available()
 {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     return uid != NULL;
 }
 
@@ -391,9 +391,7 @@ bool Module_UID::I2C_Read(unsigned char address, short byteCount, char* result) 
 //}
 
 QString Module_UID::UID_Identify() {
-    // deadlock if commented in
-    //QMutexLocker l(&this->moduleMutex);
-    moduleMutex.lock();
+    QMutexLocker l(&this->dataLockerMutex);
 
     logger->trace("UID_Identify");
 
@@ -404,13 +402,10 @@ QString Module_UID::UID_Identify() {
     bool ret = SendCheckCommand(send,result,9);
     if (!ret) {
         setHealthToSick(getLastError());
-        moduleMutex.unlock();
         return "";
     }
 
-    moduleMutex.unlock();
     return QString::fromAscii(result);
-
 }
 
 bool Module_UID::I2C_WriteRegister(unsigned char address, unsigned char reg, const char* data, short byteCount) {
@@ -454,7 +449,7 @@ bool Module_UID::I2C_ReadRegisters(unsigned char address, unsigned char reg, sho
 //}
 
 QVector<unsigned char> Module_UID::I2C_Scan() {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     logger->trace("I2C_Scan");
     char sequence[] = {Module_UID::I2C_SCAN};
     QVector<unsigned char> slaves(0);

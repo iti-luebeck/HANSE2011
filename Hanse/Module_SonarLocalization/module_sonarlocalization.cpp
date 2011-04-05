@@ -72,15 +72,15 @@ void Module_SonarLocalization::newPositionEst(QVector3D p)
 
 void Module_SonarLocalization::setLocalization(QVector2D position)
 {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     pf.setLocalization(position);
 }
 
 Position Module_SonarLocalization::getLocalization()
 {
-    this->moduleMutex.lock();
+    this->dataLockerMutex.lock();
     QVector3D p = pf.getBestEstimate();
-    this->moduleMutex.unlock();
+    this->dataLockerMutex.unlock();
     Position r;
     r.setX(p.x());
     r.setY(p.y());
@@ -94,7 +94,7 @@ Position Module_SonarLocalization::getLocalization()
 
 float Module_SonarLocalization::getLocalizationConfidence()
 {
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
     return pf.getParticles()[0].w();
 }
 

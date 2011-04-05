@@ -425,7 +425,7 @@ void Module_Simulation::parse_input(QString input){
 void Module_Simulation::readResponse()
 {
     //qDebug("Client read...");
-    QMutexLocker l(&this->moduleMutex);
+    QMutexLocker l(&this->dataLockerMutex);
 
     QDataStream input_stream2(tcpSocket);
     input_stream2.setVersion(QDataStream::Qt_4_7);

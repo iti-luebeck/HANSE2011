@@ -164,12 +164,8 @@ public slots:
 protected:
 
     /**
-      * general purpose module. not used by RobotModule itself. may be freely used by sub classes
-      */
-    QMutex moduleMutex;
-
-    /**
-      * mutex to lock access to data or settings map
+      * mutex to lock access to data or settings map. this is the main mutex of the module.
+      * the module should protect all of its datastructures using this mutex.
       */
     QMutex dataLockerMutex;
 
