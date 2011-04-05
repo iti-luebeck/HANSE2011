@@ -67,6 +67,7 @@ double SonarReturnData::getHeadPosition() const
 {
     int headPos = THCHeadPosDecoder(packet[5], packet[6]);
     return (0.15*(headPos - 1400))+90;
+    //+90 offset
 }
 
 int SonarReturnData::getDataBytes() const

@@ -71,6 +71,8 @@ private:
     cv::RNG rand;
 
     QVector3D sampleGauss(const QVector3D& mean, const QVector3D& variance);
+    double sampleGauss(double m, double sigma);
+    double sampleUni(double min, double max);
 
     QVector2D map2img(const QVector2D& mapPoint);
     QVector2D img2map(const QVector2D& imgPoint);

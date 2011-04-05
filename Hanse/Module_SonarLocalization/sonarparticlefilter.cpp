@@ -164,10 +164,24 @@ void SonarParticleFilter::sortParticles()
 QVector3D SonarParticleFilter::sampleGauss(const QVector3D& mean, const QVector3D& variance)
 {
     QVector3D g;
-    g.setX(rand.gaussian(sqrt(variance.x())));
-    g.setY(rand.gaussian(sqrt(variance.y())));
-    g.setZ(rand.gaussian(sqrt(variance.z())));
+    g.setX(sampleGauss(0, sqrt(variance.x())));
+    g.setY(sampleGauss(0, sqrt(variance.y())));
+    g.setZ(sampleGauss(0, sqrt(variance.z())));
     return mean + g;
+}
+
+double SonarParticleFilter::sampleGauss(double m, double sigma)
+{
+    double U1 = sampleUni(0, 1);
+    double U2 = sampleUni(0, 1);
+    return m + sigma * sigma * (sqrt(-2*std::log(U1))*cos(2 * CV_PI * U2));
+}
+
+double SonarParticleFilter::sampleUni(double min, double max)
+{
+    double a = (double)qrand();
+    double r = (a + 1) / RAND_MAX;
+    return min + (max - min)*r;
 }
 
 double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations)
@@ -186,7 +200,7 @@ double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observ
     this->mapPointsFlann->knnSearch(zPoints, indices, dists, 1, cv::flann::SearchParams(32));
     double index = 1;
     for (int i=0; i<N; i++) {
-        double bestVal = sqrt(dists.at<float>(i,0));
+        double bestVal = dists.at<float>(i,0);
         index *= std::exp(-bestVal/b);
     }
 

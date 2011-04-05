@@ -247,6 +247,38 @@ void SonarEchoFilter::grouping()
 //        qDebug() << "tempArea " << temp_area;
         if(temp_area > cutTH)
         {
+            //TODO search backwards for darkness
+            QList<SonarEchoData> tmp;
+//            bool darkness = true;
+//            int darknessArea = 12;
+//            int darknessCount = darknessArea;
+//            for(int i = candidates.size()-1; i > 0; i--)
+//            {
+//                if(candidates[i].getClassLabel() == 1)
+//                {
+//                    darkness = false;
+//                    tmp.push_front(candidates[i]);
+//                    darknessCount = darknessArea;
+//                }
+//                else
+//                {
+//                    darknessCount--;
+//                }
+//                if(darknessCount == 0)
+//                {
+//                    groupID++;
+//                    this->sendImage();
+//                    temp_area = 0;
+//                    diff = 0;
+//                    newDirection = 0;
+
+//                }
+
+//            }
+
+
+
+
             //TODO search for darkness to cut if TH reached
 
             //search for first wallcandidate and cut points before
