@@ -23,6 +23,10 @@ public:
 
     bool isActive();
 
+    bool echoTest;
+
+QTimer *echoControllTimer;
+
 
 private:
      //QTimer timer;
@@ -60,6 +64,8 @@ public slots:
      // Module_EchoSounder -> Behaviour_WallFollowing
      void newWallBehaviourData(const EchoReturnData data, float avgDistance);
 
+     void testEchoModule();
+
 signals:
      void timerStart( int msec );
      void timerStop();
@@ -73,6 +79,7 @@ signals:
      // Behaviour_WallFollowing -> WallFollowingForm
      void newWallUiData(const EchoReturnData data, float avgDistance);
      void updateWallCase(QString caseW);
+
 };
 
 

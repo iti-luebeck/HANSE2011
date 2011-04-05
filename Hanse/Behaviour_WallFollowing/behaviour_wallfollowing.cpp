@@ -23,6 +23,9 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
     QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
     QObject::connect(this,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
+
+    running = false;
+
 }
 bool Behaviour_WallFollowing::isActive()
 {
@@ -39,6 +42,10 @@ void Behaviour_WallFollowing::init()
     this->updateFromSettings();
     avgDistance = 1.0;
     distanceInput = 1.0;
+
+    echoControllTimer = new QTimer(this);
+    connect(echoControllTimer, SIGNAL(timeout()), this, SLOT(testEchoModule()));
+
 }
 
 void Behaviour_WallFollowing::startBehaviour()
@@ -50,12 +57,11 @@ void Behaviour_WallFollowing::startBehaviour()
     this->setEnabled(true);
     emit started(this);
     running = true;
+    echoControllTimer->start(1000);
 
     //qDebug() << "wall thread id";
     //qDebug() << QThread::currentThreadId();
-
 }
-
 
 
 void Behaviour_WallFollowing::stop()
@@ -63,7 +69,7 @@ void Behaviour_WallFollowing::stop()
     running = false;
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
-    // timer.stop();
+
     if (this->isActive())
     {
         logger->info( "Behaviour stopped" );
@@ -73,8 +79,10 @@ void Behaviour_WallFollowing::stop()
         emit dataChanged(this);
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);
-        setEnabled(false);
+        this->setEnabled(false);
         emit finished(this,false);
+
+        echoControllTimer->stop();
     }
 }
 
@@ -153,7 +161,7 @@ void Behaviour_WallFollowing::controlWallFollow()
 
 void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, float avgDistance)
 {
-    if(this->isActive()){
+    if(this->isActive() && this->running == true){
         if(echo->isEnabled()){
             emit newWallUiData(data, avgDistance);
             this->avgDistance = avgDistance;
@@ -169,7 +177,6 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
             }
         } else if(!echo->isEnabled()){
             emit dataError();
-            qDebug("Wallfollowing: Echomodule not enabled!");
         } else {
             this->setHealthToSick("Something is really wrong, stop thruster");
             emit forwardSpeed(0.0);
@@ -182,6 +189,8 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
     } else {
         wallCase = "Wallfollowing not activated!";
         emit updateWallCase(wallCase);
+        addData("Current Case: ",wallCase);
+        emit dataChanged(this);
     }
 }
 
@@ -203,3 +212,13 @@ void Behaviour_WallFollowing::stopOnEchoError(){
     emit dataChanged(this);
 }
 
+void Behaviour_WallFollowing::testEchoModule(){
+    //qDebug("Test");
+    if(this->isEnabled()){
+        if(!echo->isEnabled()){
+            qDebug("EchoModule not enabled!");
+            emit dataError();
+        }
+    }
+
+}
