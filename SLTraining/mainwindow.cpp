@@ -130,7 +130,8 @@ void MainWindow::on_loadSonarFile_clicked()
 //    QString path = "/home/kluessi/Downloads/untertrave.852";
 
 
-    QDateTime time = QDateTime::fromString("20100331 14:39","yyyyMMdd hh:mm");
+//    QDateTime time = QDateTime::fromString("20100331 14:39","yyyyMMdd hh:mm");
+    QDateTime time = QDateTime::fromString("20100827 13:42","yyyyMMdd hh:mm");
     qDebug() << "time " << time.toString("yyyyMMdd");
 
     SonarDataSourceFile *file = NULL;
@@ -150,7 +151,7 @@ void MainWindow::on_loadSonarFile_clicked()
         rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 1000;
+        int count = 2000;
         currSample = simpleViewWidth/2;
         viewSamplePointer = currSample;
         sam.clear();

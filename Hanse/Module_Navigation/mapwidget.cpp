@@ -334,7 +334,7 @@ void MapWidget::on_showVisSLAM_toggled(bool checked)
         nav->setSettingsValue("showVisSLAM", checked);
 }
 
-void MapWidget::on_pushButton_clicked()
+void MapWidget::on_initialLocalizationBtn_clicked()
 {
     startSonarLocalization();
 }
