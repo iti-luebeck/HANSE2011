@@ -8,7 +8,6 @@ using namespace cv;
 using namespace std;
 
 SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization& sonar, SonarEchoFilter& filter)
-//    : s(sonar->getSettings()),
     :
       particlesMutex(QMutex::Recursive),
       controlVariance(0,0,0),
@@ -69,6 +68,10 @@ void SonarParticleFilter::reset()
 
 void SonarParticleFilter::loadMap()
 {
+    if (!QFile(sonar.getSettingsValue("mapFile").toString()).exists()) {
+        logger->error("No localization map found!");
+        return;
+    }
     logger->debug("Loading sonar map");
     Mat combinedMap = Mat(cvLoadImage(sonar.getSettingsValue("mapFile").toString().toStdString().c_str(), 1));
     if (combinedMap.data == NULL) {
