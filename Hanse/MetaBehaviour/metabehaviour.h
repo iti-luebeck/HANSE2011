@@ -14,13 +14,14 @@ class Behaviour_BallFollowing;
 class Behaviour_TurnOneEighty;
 class Behaviour_WallFollowing;
 class MetaBehaviourForm;
+class CommandCenter;
 
 class MetaBehaviour : public RobotModule
 {
     friend class MetaBehaviourForm;
     Q_OBJECT
 public:
-    MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe,Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall);
+    MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Behaviour_PipeFollowing* pipe,Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, CommandCenter* comm);
 
     QList<RobotModule*> getDependencies();
 
@@ -35,6 +36,7 @@ private:
     Behaviour_BallFollowing* ball;
     Behaviour_TurnOneEighty* o80;
     Behaviour_WallFollowing* wall;
+    CommandCenter* comm;
     ModulesGraph* craph;
     QList<RobotBehaviour*> behaviours;
     QTimer depthWaitTimer;

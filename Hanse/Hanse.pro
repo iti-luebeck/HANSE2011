@@ -109,7 +109,9 @@ HEADERS += Framework/healthstatus.h \
     Module_SonarLocalization/sonarechofilter.h \
     Module_SonarLocalization/sonarechodata.h \
     Framework/pidcontroller.h \
-    Framework/pidwidget.h
+    Framework/pidwidget.h \
+    CommandCenter/commandcenterform.h \
+    CommandCenter/commandcenter.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -201,7 +203,9 @@ SOURCES += Framework/robotmodule.cpp \
     Module_SonarLocalization/SVMClassifier.cpp \
     Module_SonarLocalization/sonarechodata.cpp \
     Framework/pidcontroller.cpp \
-    Framework/pidwidget.cpp
+    Framework/pidwidget.cpp \
+    CommandCenter/commandcenterform.cpp \
+    CommandCenter/commandcenter.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -230,5 +234,6 @@ FORMS += Framework/mainwindow.ui \
     Module_ADC/adc_form.ui \
     Module_EchoSounder/echosounderform.ui \
     Behaviour_WallFollowing/wallfollowingform.ui \
-    Framework/pidwidget.ui
+    Framework/pidwidget.ui \
+    CommandCenter/commandcenterform.ui
 OTHER_FILES += bin/log4qt.properties

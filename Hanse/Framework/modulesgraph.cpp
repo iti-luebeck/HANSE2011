@@ -21,6 +21,7 @@
 #include <Module_Simulation/module_simulation.h>
 #include <Module_EchoSounder/module_echosounder.h>
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
+#include <CommandCenter/commandcenter.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -115,9 +116,13 @@ void ModulesGraph::build()
 //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
 //    this->modules.append(behavComp);
 
+    logger->debug("Creating CommandCenter");
+    CommandCenter* commCent = new CommandCenter("commandCenter", sim);
+    this->modules.append(commCent);
+
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
     logger->debug("Creating MetaBehaviour");
-    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn, behavWall);
+    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn, behavWall, commCent);
     this->modules.append(metaBehaviour);
 
 
