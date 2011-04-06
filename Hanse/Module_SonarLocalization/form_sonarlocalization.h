@@ -54,14 +54,15 @@ private:
     void createPlot();
     void createMap();
 
+    void updateSonarView();
+    void updateSonarViewUnfiltered();
+
+
     public slots:
-    void updateSonarView(SonarEchoData data);
-    void updateSonarViewUnfiltered(SonarEchoData unfiltered);
+    void updateSonarViewList(QList<SonarEchoData> list);
 
 private slots:
     void on_selSVM_clicked();
-    void on_enableFilteredView_clicked(bool checked);
-    void on_enableUnfilteredOutput_clicked(bool checked);
     void on_selSat_clicked();
     void on_selMap_clicked();
     void on_spinBox_valueChanged(int );

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>543</width>
-    <height>631</height>
+    <width>925</width>
+    <height>648</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -476,7 +476,7 @@
       <widget class="QGraphicsViewExtended" name="graphicsView">
        <property name="geometry">
         <rect>
-         <x>70</x>
+         <x>10</x>
          <y>20</y>
          <width>401</width>
          <height>311</height>
@@ -496,26 +496,11 @@
         <string>Enable Output</string>
        </property>
       </widget>
-     </widget>
-     <widget class="QWidget" name="tab_7">
-      <attribute name="title">
-       <string>Unfiltered</string>
-      </attribute>
-      <widget class="QGraphicsViewExtended" name="unfilteredView">
-       <property name="geometry">
-        <rect>
-         <x>50</x>
-         <y>30</y>
-         <width>401</width>
-         <height>311</height>
-        </rect>
-       </property>
-      </widget>
       <widget class="QCheckBox" name="enableUnfilteredOutput">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>350</y>
+         <x>420</x>
+         <y>340</y>
          <width>151</width>
          <height>22</height>
         </rect>
@@ -524,6 +509,21 @@
         <string>Enable Output</string>
        </property>
       </widget>
+      <widget class="QGraphicsViewExtended" name="unfilteredView">
+       <property name="geometry">
+        <rect>
+         <x>420</x>
+         <y>20</y>
+         <width>401</width>
+         <height>311</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_7">
+      <attribute name="title">
+       <string>Unfiltered</string>
+      </attribute>
      </widget>
     </widget>
    </item>

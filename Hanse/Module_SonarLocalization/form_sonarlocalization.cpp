@@ -51,7 +51,7 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     for(int i =0; i<100; i++)
         dataQueueUnfiltered.append(gi);
 
-
+    connect(m,SIGNAL(newSonarEchoData(QList<SonarEchoData>)),this,SLOT(updateSonarViewList(QList<SonarEchoData>)));
 //    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
 //    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
 }
@@ -318,16 +318,33 @@ void Form_SonarLocalization::on_selSat_clicked()
         ui->config_satImage->setText(fileName);
 }
 
-void Form_SonarLocalization::updateSonarView(SonarEchoData data)
+void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
+{
+    int viewWidth = 100;
+    sonarEchoDataList.clear();
+    for(int i = 0; i < list.length(); i++)
+    {
+        sonarEchoDataList.append(list.takeFirst());
+    }
+    while(sonarEchoDataList.size() < viewWidth)
+        sonarEchoDataList.append(SonarEchoData());
+
+    if(this->ui->enableUnfilteredOutput->isChecked())
+        this->updateSonarViewUnfiltered();
+    if(this->ui->enableFilteredView->isChecked())
+        this->updateSonarView();
+}
+
+void Form_SonarLocalization::updateSonarView()
 {
 //    qDebug() << "new candidate " << WallCandidate;
     int viewWidth = 100;
-    sonarEchoDataList.append(data);
-    while(sonarEchoDataList.size() < viewWidth)
-        sonarEchoDataList.append(data);
+//    sonarEchoDataList.append(data);
+//    while(sonarEchoDataList.size() < viewWidth)
+//        sonarEchoDataList.append(data);
 
-    if(sonarEchoDataList.size() > viewWidth)
-        sonarEchoDataList.removeFirst();
+//    while(sonarEchoDataList.size() > viewWidth)
+//        sonarEchoDataList.removeFirst();
 
     float range = sonarEchoDataList.first().getRange();
 
@@ -339,8 +356,8 @@ void Form_SonarLocalization::updateSonarView(SonarEchoData data)
 //        faktor = faktor * 10;
     if(true)
     {
-        for(int i = 1; i<range+1; i++)
-            scene2.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+//        for(int i = 1; i<range+1; i++)
+//            scene2.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
 
         for(int j=0; j<viewWidth; j++)
         {
@@ -376,17 +393,19 @@ void Form_SonarLocalization::updateSonarView(SonarEchoData data)
     }
 }
 
-void Form_SonarLocalization::updateSonarViewUnfiltered(SonarEchoData unfiltered)
+void Form_SonarLocalization::updateSonarViewUnfiltered()
 {
     int viewWidth = 100;
-    sonarEchoDataUnfilteredList.append(unfiltered);
-    while(sonarEchoDataUnfilteredList.size() < viewWidth)
-        sonarEchoDataUnfilteredList.append(unfiltered);
 
-    if(sonarEchoDataUnfilteredList.size() > viewWidth)
-        sonarEchoDataUnfilteredList.removeFirst();
 
-    float range = sonarEchoDataUnfilteredList.first().getRange();
+//    sonarEchoDataUnfilteredList.append(unfiltered);
+//    while(sonarEchoDataUnfilteredList.size() < viewWidth)
+//        sonarEchoDataUnfilteredList.append(unfiltered);
+
+//    if(sonarEchoDataUnfilteredList.size() > viewWidth)
+//        sonarEchoDataUnfilteredList.removeFirst();
+
+    float range = sonarEchoDataList.first().getRange();
     float n = 250;
 
     sceneUnfiltered.clear();
@@ -397,15 +416,15 @@ void Form_SonarLocalization::updateSonarViewUnfiltered(SonarEchoData unfiltered)
     if(true)
     {
 
-        for(int i = 1; i<range+1; i++)
-            sceneUnfiltered.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+//        for(int i = 1; i<range+1; i++)
+//            sceneUnfiltered.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
 
         for(int j=0; j<viewWidth; j++)
         {
             QLinearGradient gi(0,0,0,279);
             for (int i = 0; i < n; i++) {
 //                QByteArray data = curDataSet.at(j);
-                QByteArray data = sonarEchoDataUnfilteredList[j].getFiltered();
+                QByteArray data = sonarEchoDataList[j].getFiltered();
 //                QByteArray data = sam[viewSamplePointer+j].getRawData();
                 char b = data[i];
 //                if(j == (curDataSet.length()/2))
@@ -438,21 +457,6 @@ void Form_SonarLocalization::updateSonarViewUnfiltered(SonarEchoData unfiltered)
     }
 }
 
-
-void Form_SonarLocalization::on_enableUnfilteredOutput_clicked(bool checked)
-{
-    disconnect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarViewUnfiltered(SonarEchoData)));
-    if(checked)
-        connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarViewUnfiltered(SonarEchoData)));
-}
-
-void Form_SonarLocalization::on_enableFilteredView_clicked(bool checked)
-{
-     disconnect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarView(SonarEchoData)));
-     if(checked)
-         connect(m,SIGNAL(newSonarEchoData(SonarEchoData)),this,SLOT(updateSonarView(SonarEchoData)));
-
-}
 
 void Form_SonarLocalization::on_selSVM_clicked()
 {

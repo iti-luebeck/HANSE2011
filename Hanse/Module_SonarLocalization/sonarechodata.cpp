@@ -2,6 +2,10 @@
 
 SonarEchoData::SonarEchoData()
 {
+    this->raw = QByteArray(250,0);
+    this->filtered = QByteArray(250,0);
+    this->classLabel = 0;
+    this->wallCandidate = -1;
 
 }
 

@@ -41,12 +41,11 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     this->findWall(currData);
     this->extractFeatures(currData);
     CvMat feat = currData.getFeatures();
-    int predClass = 1;
+    int predClass = 0;
     if(svm->isSVM())
         predClass = svm->svmClassification(&feat);
     currData.setClassLabel(predClass);
     candidates.append(currData);
-    emit newSonarEchoData(currData);
 
 //    this->applyHeuristic();
     this->grouping();
@@ -359,6 +358,7 @@ void SonarEchoFilter::sendImage()
      }
      logger->debug("New Image");
     emit newImage(posArray);
+    emit newSonarEchoData(candidates);
     //reset local variables
     candidates.clear();
     groupID++;
