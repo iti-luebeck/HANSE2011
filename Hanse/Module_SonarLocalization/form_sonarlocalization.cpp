@@ -129,7 +129,7 @@ void Form_SonarLocalization::setFields()
     ui->initVariance->setText((m->getSettingsValue("initVariance").toString()));
     ui->distanceCutoff->setText((m->getSettingsValue("distanceCutoff").toString()));
     ui->particleCount->setText((m->getSettingsValue("particleCount").toString()));
-    ui->boltzmann->setText((m->getSettingsValue("boltzmann").toString()));
+    ui->boltzmann->setText((m->getSettingsValue("observationVariance").toString()));
 
     ui->configure_SVM->setText(m->getSettingsValue("Path2SVM").toString());
 }
@@ -225,7 +225,7 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->setSettingsValue("initVariance", ui->initVariance->text());
     m->setSettingsValue("distanceCutoff", ui->distanceCutoff->text());
     m->setSettingsValue("particleCount", ui->particleCount->text());
-    m->setSettingsValue("boltzmann", ui->boltzmann->text());
+    m->setSettingsValue("observationVariance", ui->boltzmann->text());
 
     m->reset();
 }

@@ -187,7 +187,10 @@ double SonarParticleFilter::sampleUni(double min, double max)
 double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations)
 {
     int N = observations.size();
-    float b = sonar.getSettingsValue("boltzmann").toFloat();
+
+    float sigma2 = sonar.getSettingsValue("observationVariance").toFloat();
+    float cutoff2 = sonar.getSettingsValue("distanceCutoff").toFloat();
+    cutoff2 *= cutoff2;
 
     // TODO: this data copying can be avoided by doing all math in opencv data structures
     Mat zPoints(N, 2, CV_32F);
@@ -200,8 +203,12 @@ double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observ
     this->mapPointsFlann->knnSearch(zPoints, indices, dists, 1, cv::flann::SearchParams(32));
     double index = 1;
     for (int i=0; i<N; i++) {
-        double bestVal = dists.at<float>(i,0);
-        index *= std::exp(-bestVal/b);
+//        QVector2D diff = mapPoints[indices.at<int>(i,0)] - observations[i];
+        double diff = dists.at<float>(i,0);
+        if (diff > cutoff2) {
+            diff = cutoff2;
+        }
+        index *= std::exp(-0.5 * diff / sigma2);
     }
 
     return index;
@@ -293,7 +300,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
         }
 
         if (isPositionForbidden(newPos.toVector2D())) {
-            weights[i] = NAN;
+            weights[i] = 0;
         } else {
             // meassure it.
             double index = meassureObservation(observationsTransformed);
@@ -305,14 +312,15 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
     }
 
     // normalize particle weights
-    double minW = min(weights);
-    for (int i=0; i<N; i++) {
-        if (isnan(weights[i]))
-            weights[i] = minW;
-    }
-    for (int i=0; i<N; i++) {
-        weights[i] -= minW;
-    }
+//    double minW = min(weights);
+//    for (int i=0; i<N; i++) {
+//        if (isnan(weights[i]))
+//            weights[i] = minW;
+//    }
+//    for (int i=0; i<N; i++) {
+//        weights[i] -= minW;
+//    }
+
     double sumW = sum(weights);
     QVector<double> cumsum(N+1);
     cumsum[N]=1; // safety entry on top
