@@ -24,38 +24,6 @@
        <string>Parameters</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout_2">
-       <item row="5" column="1">
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>K2image</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-          </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>darkness count</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="darknessCnt"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>swiped area</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="swipedArea"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="6" column="0">
         <widget class="QPushButton" name="pushButton">
          <property name="text">
@@ -248,54 +216,87 @@
            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
           </property>
           <item row="0" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>gauss factor</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="gaussFactor"/>
-          </item>
-          <item row="1" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
              <string>variance threshold (2.25)</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="0" column="1">
            <widget class="QLineEdit" name="varTH"/>
           </item>
-          <item row="3" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
              <string>wall window size (39</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="2" column="1">
            <widget class="QLineEdit" name="wallWindowSize"/>
           </item>
-          <item row="4" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label_10">
             <property name="text">
              <string>large peak TH (3.75)</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="3" column="1">
            <widget class="QLineEdit" name="largePeakTH"/>
           </item>
-          <item row="5" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_11">
             <property name="text">
              <string>mean behind TH (7.5)</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="4" column="1">
            <widget class="QLineEdit" name="meanBehindTH"/>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="medianFilterCB">
+            <property name="text">
+             <string>MedianFilter</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>Heuristics</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>DeltaKH</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="darknessCnt"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="deltaKHCB">
+            <property name="text">
+             <string>DeltaKH</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="singlePointCB">
+            <property name="text">
+             <string>SinglePoint</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

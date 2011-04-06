@@ -115,10 +115,10 @@ void Form_SonarLocalization::setFields()
 
     ui->debug->setChecked((m->getSettingsValue("debug").toBool()));
 
-    ui->gaussFactor->setText((m->getSettingsValue("gaussFactor").toString()));
-
+    ui->medianFilterCB->setChecked(m->getSettingsValue("medianFilter",true).toBool());
     ui->darknessCnt->setText((m->getSettingsValue("darknessCnt").toString()));
-    ui->swipedArea->setText((m->getSettingsValue("swipedArea").toString()));
+    ui->singlePointCB->setChecked(m->getSettingsValue("singlePoint",true).toBool());
+    ui->deltaKHCB->setChecked(m->getSettingsValue("deltaKH",true).toBool());
 
     ui->wallWindowSize->setText((m->getSettingsValue("wallWindowSize").toString()));
     ui->varTH->setText((m->getSettingsValue("varTH").toString()));
@@ -217,10 +217,11 @@ void Form_SonarLocalization::on_pushButton_clicked()
 
     m->setSettingsValue("debug", ui->debug->isChecked());
 
-    m->setSettingsValue("gaussFactor", ui->gaussFactor->text());
+    m->setSettingsValue("medianFilter",ui->medianFilterCB->isChecked());
 
     m->setSettingsValue("darknessCnt", ui->darknessCnt->text());
-    m->setSettingsValue("swipedArea", ui->swipedArea->text());
+    m->setSettingsValue("deltaKH",ui->deltaKHCB->isChecked());
+    m->setSettingsValue("singlePoint",ui->singlePointCB->isChecked());
 
     m->setSettingsValue("wallWindowSize", ui->wallWindowSize->text());
     m->setSettingsValue("varTH", ui->varTH->text());

@@ -18,9 +18,6 @@ public:
 
     QByteArray getRawData() const;
     QByteArray getFiltered();
-    bool isClassified();
-    bool hasWallCandidate();
-    bool isFiltered();
     int getWallCandidate();
     int getClassLabel();
     float getRange();
@@ -45,9 +42,6 @@ public:
 
 private:
     QByteArray raw;
-    bool bClassified;
-    bool bWallCandidate;
-    bool bFiltered;
     int classLabel;
     QByteArray filtered;
     int wallCandidate;

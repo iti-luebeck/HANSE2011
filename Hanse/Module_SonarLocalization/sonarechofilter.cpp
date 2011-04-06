@@ -36,7 +36,8 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 
     SonarEchoData currData = SonarEchoData(data);
     this->filterEcho(currData);
-    this->gaussFilter(currData);
+    if(this->sloc->getSettingsValue("medianFilter").toBool())
+        this->gaussFilter(currData);
     this->findWall(currData);
     this->extractFeatures(currData);
     CvMat feat = currData.getFeatures();
@@ -151,7 +152,7 @@ void SonarEchoFilter::findWall(SonarEchoData &data)
 
 void SonarEchoFilter::extractFeatures(SonarEchoData &data)
 {
-    if(!data.hasWallCandidate())
+    if(data.getWallCandidate() == -1)
         return;
 
     Mat echo = this->byteArray2Mat(data.getFiltered());
@@ -208,8 +209,8 @@ void SonarEchoFilter::extractFeatures(SonarEchoData &data)
 void SonarEchoFilter::applyHeuristic()
 {
     int deltaTH = this->sloc->getSettingsValue("darknessCnt").toInt();
-    bool singlePoint = true;
-    bool deltaK = true;
+    bool singlePoint = this->sloc->getSettingsValue("singlePoint").toBool();
+    bool deltaK = this->sloc->getSettingsValue("deltaKH").toBool();
 
     //SinglePoint Method
     if(singlePoint)

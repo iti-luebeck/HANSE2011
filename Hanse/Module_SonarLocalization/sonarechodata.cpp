@@ -13,15 +13,11 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     arr.clear();
     this->filtered.clear();
     this->classLabel = -1;
-    this->bClassified = false;
-    this->bFiltered = false;
-    this->bWallCandidate = false;
     this->wallCandidate = -1;
     this->headPosition = data.getHeadPosition();
     this->range = data.getRange();
     this->gain = data.switchCommand.startGain;
     this->group = -1;
-
     this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
 
@@ -30,9 +26,6 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
 SonarEchoData::SonarEchoData(const SonarEchoData& dat)
 {
     this->raw = dat.raw;
-    this->bClassified = dat.bClassified;
-    this->bWallCandidate = dat.bWallCandidate;
-    this->bFiltered = dat.bFiltered;
     this->classLabel = dat.classLabel;
     this->filtered = dat.filtered;
     this->wallCandidate = dat.wallCandidate;
@@ -53,29 +46,12 @@ cv::Mat SonarEchoData::getFeatures()
 
 int SonarEchoData::getClassLabel()
 {
-    if(this->bClassified)
-        return this->classLabel;
-    return NULL;
+    return this->classLabel;
 }
 
 int SonarEchoData::getWallCandidate()
 {
     return this->wallCandidate;
-}
-
-bool SonarEchoData::isClassified()
-{
-    return this->bClassified;
-}
-
-bool SonarEchoData::isFiltered()
-{
-    return this->bFiltered;
-}
-
-bool SonarEchoData::hasWallCandidate()
-{
-    return this->bWallCandidate;
 }
 
 QByteArray SonarEchoData::getRawData() const
@@ -126,27 +102,20 @@ void SonarEchoData::addFeature(int index, float value)
 
 void SonarEchoData::setClassLabel(int label)
 {
-    this->bClassified = false;
    if(label > 0)
         this->classLabel = 1;
    else
        this->classLabel = 0;
-    if(this->wallCandidate != -1)
-        this->bClassified = true;
 }
 
 void SonarEchoData::setFiltered(QByteArray data)
 {
     this->filtered = data;
-    this->bFiltered = true;
 }
 
 void SonarEchoData::setWallCandidate(int bin)
 {
     this->wallCandidate = bin;
-    this->bWallCandidate = false;
-    if(bin != -1)
-        this->bWallCandidate = true;
 }
 
 QVector2D SonarEchoData::getEuclidean()
