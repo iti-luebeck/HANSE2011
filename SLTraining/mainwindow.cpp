@@ -101,7 +101,7 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
                     int wc = sam[viewSamplePointer+currSample].getWallCandidate();
 //                    int wc = wallCandidates.first();
                      if((i >= (wc - wws)) && (i <= (wc + wws)))
-                        gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
+                        gi.setColorAt(1.0*i/n,QColor(/*skalarM*b*/255,0,0));
                      else
                          gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
                 }
@@ -131,7 +131,7 @@ void MainWindow::on_loadSonarFile_clicked()
 
 
 //    QDateTime time = QDateTime::fromString("20100331 14:39","yyyyMMdd hh:mm");
-    QDateTime time = QDateTime::fromString("20100827 13:42","yyyyMMdd hh:mm");
+    QDateTime time = QDateTime::fromString("20100627 13:42","yyyyMMdd hh:mm");
     qDebug() << "time " << time.toString("yyyyMMdd");
 
     SonarDataSourceFile *file = NULL;
@@ -159,6 +159,7 @@ void MainWindow::on_loadSonarFile_clicked()
         {
             SonarEchoData data = SonarEchoData(dat);
             filter->filterEcho(data);
+            filter->gaussFilter(data);
             filter->findWall(data);
             sam.append(data);
             count--;
@@ -311,7 +312,7 @@ void MainWindow::on_testSVM_clicked()
 
 void MainWindow::applyHeuristic()
 {
-    int deltaTH = 20;
+    int deltaTH = 1;
     bool singlePoint = true;
     bool deltaK = true;
 
@@ -340,7 +341,7 @@ void MainWindow::applyHeuristic()
             int wcPrev = sam[i-1].getWallCandidate();
             int wcCurr = sam[i].getWallCandidate();
             int absolut = abs(wcPrev-wcCurr);
-            if((absolut > deltaTH) && sam[i-1].hasWallCandidate() && sam[i].hasWallCandidate())
+            if((absolut > deltaTH) /*&& sam[i-1].hasWallCandidate() && sam[i].hasWallCandidate()*/)
             {
                 qDebug() << " wc " <<wcPrev << wcCurr;
                 sam[i].setWallCandidate(-1);
