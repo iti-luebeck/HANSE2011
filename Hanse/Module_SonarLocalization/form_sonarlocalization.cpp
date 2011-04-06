@@ -93,7 +93,7 @@ void Form_SonarLocalization::createMap()
     QGraphicsPixmapItem *result = scene->addPixmap(QPixmap::fromImage(satImg));
     result->setPos(0,0);
     result->setZValue(-1);
-    result->setScale(0.161616);
+    result->setScale(m->getSettingsValue("scaleMap").toFloat());
 
     QVector<QVector4D> particles = m->pf.getParticles();
     foreach (QVector4D p, particles) {
@@ -111,6 +111,7 @@ void Form_SonarLocalization::setFields()
 
     ui->config_mapFile->setText(m->getSettingsValue("mapFile").toString());
     ui->config_satImage->setText(m->getSettingsValue("satImgFile").toString());
+    ui->scaleMap->setText(m->getSettingsValue("scaleMap").toString());
 
     ui->debug->setChecked((m->getSettingsValue("debug").toBool()));
 
@@ -135,6 +136,7 @@ void Form_SonarLocalization::setFields()
 
     ui->groupingDarknessCnt->setText(m->getSettingsValue("groupingDarkness").toString());
     ui->groupingMaxArea->setText(m->getSettingsValue("groupingMaxArea").toString());
+
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -210,6 +212,8 @@ void Form_SonarLocalization::on_pushButton_clicked()
 {
     m->setSettingsValue("mapFile", ui->config_mapFile->text());
     m->setSettingsValue("satImgFile", ui->config_satImage->text());
+
+    m->setSettingsValue("scaleMap",ui->scaleMap->text());
 
     m->setSettingsValue("debug", ui->debug->isChecked());
 

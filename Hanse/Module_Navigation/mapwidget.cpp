@@ -264,7 +264,7 @@ void MapWidget::newSonarLocEstimate()
     masterObsPoint = scene->addLine(0,0,0,0);
     masterObsPoint->setVisible(ui->showSonarObs->isChecked());
     QList<QVector2D> zList = nav->sonarLoc->particleFilter().getLatestObservation();
-    zList.append(QVector2D(1,1));
+//    zList.append(QVector2D(1,1));
     foreach (QVector2D o, zList) {
 
         QTransform rotM = QTransform().rotate(particle.z()/M_PI*180) * QTransform().translate(particle.x(), particle.y());
