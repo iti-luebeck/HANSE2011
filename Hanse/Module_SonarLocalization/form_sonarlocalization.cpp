@@ -337,124 +337,57 @@ void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
 
 void Form_SonarLocalization::updateSonarView()
 {
-//    qDebug() << "new candidate " << WallCandidate;
     int viewWidth = 100;
-//    sonarEchoDataList.append(data);
-//    while(sonarEchoDataList.size() < viewWidth)
-//        sonarEchoDataList.append(data);
-
-//    while(sonarEchoDataList.size() > viewWidth)
-//        sonarEchoDataList.removeFirst();
-
-    float range = sonarEchoDataList.first().getRange();
-
     float n = 250;
     scene2.clear();
-    int height = ui->graphicsView->height()-1;
-    float faktor = (height/range);
-//    if(range > 20.0)
-//        faktor = faktor * 10;
-    if(true)
-    {
 //        for(int i = 1; i<range+1; i++)
 //            scene2.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
 
-        for(int j=0; j<viewWidth; j++)
-        {
-            QLinearGradient gi(0,0,0,279);
-            for (int i = 0; i < n; i++) {
-                int skalarM = 1;
-                int cl = sonarEchoDataList[j].getClassLabel();
-                int wc = sonarEchoDataList[j].getWallCandidate();
-//                qDebug() << "current wc " << wc;
-
-                //mark groups
-//                if(i<=2)
-//                {
-//                if(echoList.last().getGroupID()%2 == 0)
-//                    gi.setColorAt(1.0*i/n,QColor(255,0,0));
-//                else
-//                    gi.setColorAt(1.0*i/n,QColor(0,0,255));
-//                }
-
-                if(((cl != 0) && (wc != -1)  && (i > wc- skalarM ) && (i < wc + skalarM)))
-                    gi.setColorAt(1.0*i/n,QColor(0,255,0));
-                else
-                    gi.setColorAt(1.0*i/n,QColor(0,0,0));
-
-            }
-            dataQueue.append(gi);
-            dataQueue.pop_front();
+    for(int j=0; j<viewWidth; j++)
+    {
+        QLinearGradient gi(0,0,0,279);
+        for (int i = 0; i < n; i++) {
+            int skalarM = 1;
+            int cl = sonarEchoDataList[j].getClassLabel();
+            int wc = sonarEchoDataList[j].getWallCandidate();
+            if(((cl != 0) && (wc != -1)  && (i > wc- skalarM ) && (i < wc + skalarM)))
+                gi.setColorAt(1.0*i/n,QColor(0,255,0));
+            else
+                gi.setColorAt(1.0*i/n,QColor(0,0,0));
 
         }
-
-        for(int i =0; i<viewWidth; i++)
-            scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
+        dataQueue.append(gi);
+        dataQueue.pop_front();
     }
+
+    for(int i =0; i<viewWidth; i++)
+        scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
+
 }
 
 void Form_SonarLocalization::updateSonarViewUnfiltered()
 {
     int viewWidth = 100;
-
-
-//    sonarEchoDataUnfilteredList.append(unfiltered);
-//    while(sonarEchoDataUnfilteredList.size() < viewWidth)
-//        sonarEchoDataUnfilteredList.append(unfiltered);
-
-//    if(sonarEchoDataUnfilteredList.size() > viewWidth)
-//        sonarEchoDataUnfilteredList.removeFirst();
-
-    float range = sonarEchoDataList.first().getRange();
     float n = 250;
-
     sceneUnfiltered.clear();
-    int height = ui->unfilteredView->height()-1;
-    float faktor = (height/range);
-//    if(range > 20.0)
-//        faktor = faktor * 10;
-    if(true)
+    for(int j=0; j<viewWidth; j++)
     {
-
-//        for(int i = 1; i<range+1; i++)
-//            sceneUnfiltered.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
-
-        for(int j=0; j<viewWidth; j++)
+        QLinearGradient gi(0,0,0,279);
+        for (int i = 0; i < n; i++)
         {
-            QLinearGradient gi(0,0,0,279);
-            for (int i = 0; i < n; i++) {
-//                QByteArray data = curDataSet.at(j);
-                QByteArray data = sonarEchoDataList[j].getFiltered();
-//                QByteArray data = sam[viewSamplePointer+j].getRawData();
-                char b = data[i];
-//                if(j == (curDataSet.length()/2))
-
-                int wws = 2;
-                int skalarM = 7;
-
-//                qDebug() << " WErt " << (int)b;
-
-//                if((j == (viewWidth/2)))
-//                {
-//                    int wc = sonarEchoDataUnfilteredList[j].getWallCandidate();
-////                    int wc = wallCandidates.first();
-//                     if((i >= (wc - wws)) && (i <= (wc + wws)))
-//                        gi.setColorAt(1.0*i/n,QColor(skalarM*b,0,0));
-//                     else
-//                         gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
-//                }
-//                else
-                    gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
-            }
-            dataQueueUnfiltered.append(gi);
-            dataQueueUnfiltered.pop_front();
-
+            QByteArray data = sonarEchoDataList[j].getFiltered();
+            char b = data[i];
+            int wws = 2;
+            int skalarM = 7;
+            gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
         }
-
-        for(int i =0; i<viewWidth; i++)
-            sceneUnfiltered.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueueUnfiltered[i]));
+        dataQueueUnfiltered.append(gi);
+        dataQueueUnfiltered.pop_front();
 
     }
+
+    for(int i =0; i<viewWidth; i++)
+        sceneUnfiltered.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueueUnfiltered[i]));
 }
 
 
