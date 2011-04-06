@@ -93,7 +93,7 @@ void Form_SonarLocalization::createMap()
     QGraphicsPixmapItem *result = scene->addPixmap(QPixmap::fromImage(satImg));
     result->setPos(0,0);
     result->setZValue(-1);
-    result->setScale(0.2);
+    result->setScale(0.161616);
 
     QVector<QVector4D> particles = m->pf.getParticles();
     foreach (QVector4D p, particles) {
@@ -134,6 +134,7 @@ void Form_SonarLocalization::setFields()
     ui->configure_SVM->setText(m->getSettingsValue("Path2SVM").toString());
 
     ui->groupingDarknessCnt->setText(m->getSettingsValue("groupingDarkness").toString());
+    ui->groupingMaxArea->setText(m->getSettingsValue("groupingMaxArea").toString());
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -230,6 +231,7 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->setSettingsValue("observationVariance", ui->boltzmann->text());
 
     m->setSettingsValue("groupingDarkness",ui->groupingDarknessCnt->text());
+    m->setSettingsValue("groupingMaxArea",ui->groupingMaxArea->text());
 
     m->reset();
 }

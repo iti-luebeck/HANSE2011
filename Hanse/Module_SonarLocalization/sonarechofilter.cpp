@@ -216,7 +216,7 @@ void SonarEchoFilter::grouping()
 {
     QVector<int> noNoise;
     this->getNoNoiseFilter(noNoise);
-    int maxCutTH = 355;
+    int maxCutTH = this->sloc->getSettingsValue("groupingMaxArea",360).toInt();
 
 //    if(noNoise.at(candidates[candidates.size()-1].getGain()) == 0)
 //        qDebug("no noise Information");
@@ -277,7 +277,7 @@ void SonarEchoFilter::grouping()
             }
             else
             {
-                qDebug() << "cut at " << cutIndex;
+                qDebug() << "cut at " << cutIndex << " of " << candidates.size();
                 QList<SonarEchoData> tmp;
                 tmp.clear();
                 int tmp_area = 0;
@@ -287,29 +287,25 @@ void SonarEchoFilter::grouping()
                 for(int i = cutIndex; i < candidates.size(); i++)
                 {
                     int last = candidates.size()-1;
-                    if(candidates.last().getClassLabel() == 1)
-                    {
                     tmp_diff = abs(candidates[last-1].getHeadPosition()-candidates[last].getHeadPosition());
                     if (tmp_diff>180)
                         tmp_diff = abs(tmp_diff - 360);
                     tmp_area+= tmp_diff;
-                    tmp.append(candidates.takeLast());
-                    }
+
+                    //just keep positiv wallCandidates
+                    if(candidates.last().getClassLabel() == 1)
+                        tmp.append(candidates.takeLast());
                     else
-                    {
                         candidates.removeLast();
-                    }
 
                 }
                 this->sendImage();
                 candidates.clear();
+                //restore candidates
                 temp_area = tmp_area;
                 for(int i = 0; i < tmp.size(); i++)
-                {
                     candidates.append(tmp.takeFirst());
-                }
             }
-
         }
         else
         {
