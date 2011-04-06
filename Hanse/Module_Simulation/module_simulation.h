@@ -39,6 +39,7 @@ public slots:
     void requestThrusterSpeedSlot(QString id,int speed);
     void requestAnglesSlot();
     void requestIMUSlot();
+    void requestPingerSlot();
 
     void readResponse();
     void Hello_SIMAUV_Server();
@@ -58,6 +59,7 @@ signals:
     void newSonarSideData(EchoReturnData echodat);
     void newIMUData(float accl_x,float accl_y,float accl_z,float angvel_x,float angvel_y,float angvel_z);
     void newImageData(cv::Mat simframe);
+    void newPingerData(float angle);
 
 protected:
     virtual void doHealthCheck();
@@ -86,6 +88,7 @@ private:
     void requestSonarSide();
     void requestIMU();
     void requestImage();
+    void requestPinger();
 };
 
 #endif // MODULE_SIMULATION_H

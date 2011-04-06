@@ -177,6 +177,15 @@ void Module_Simulation::requestImage()
     }
 }
 
+void Module_Simulation::requestPinger()
+{
+    if(client_running){
+        QString request = QString("Pinger ").append("ping").append("\n");
+        tcpSocket->write(request.toAscii().data(), request.length());
+        tcpSocket->flush();
+    }
+}
+
 void Module_Simulation::requestImageSlot(){
     requestImage();
 }
@@ -213,6 +222,10 @@ void Module_Simulation::requestIMUSlot(){
     requestIMU();
 }
 
+void Module_Simulation::requestPingerSlot(){
+    requestPinger();
+}
+
 void Module_Simulation::parse_input(QString input){
     QDataStream input_stream2(tcpSocket);
     if(input.startsWith("Depth"))
@@ -238,7 +251,6 @@ void Module_Simulation::parse_input(QString input){
     {
         QString temp_name;
         input_stream2 >> temp_name;
-//        logger->debug(temp_name);
 
         QString inputdata;
         input_stream2 >> inputdata;
@@ -277,13 +289,11 @@ void Module_Simulation::parse_input(QString input){
     {
         QString inputdata;
         input_stream2 >> inputdata;
-//        logger->debug(inputdata);
     }
     else if(input.startsWith("Angles"))
     {
         QString compass_name;
         input_stream2 >> compass_name;
-//        logger->debug(compass_name);
 
         QString input2;
         input_stream2 >> input2;
@@ -304,7 +314,6 @@ void Module_Simulation::parse_input(QString input){
     {
         QString sonar_name;
         input_stream2 >> sonar_name;
-//        logger->debug(sonar_name);
 
         QByteArray inputdata;
         input_stream2 >> inputdata;
@@ -334,7 +343,6 @@ void Module_Simulation::parse_input(QString input){
     {
         QString sonar_name;
         input_stream2 >> sonar_name;
-        //logger->debug(sonar_name);
 
         QByteArray inputdata;
         input_stream2 >> inputdata;
@@ -397,11 +405,24 @@ void Module_Simulation::parse_input(QString input){
 
         emit newIMUData(accelX,accelY,accelZ,angvel_x,angvel_y,angvel_z);
     }
+    else if(input.startsWith("Pinger"))
+    {
+        QString pinger_name;
+        input_stream2 >> pinger_name;
+
+        QString input2;
+        input_stream2 >> input2;
+
+        QString qs = input2.section(' ',1,1);
+        float angle = qs.toFloat();
+        addData("angle", angle);
+
+        emit newPingerData(angle);
+    }
     else if(input.startsWith("HELLO"))
     {
         QString inputdata;
         input_stream2 >> inputdata;
-        //logger->debug(inputdata);
 
         logger->debug("Received HELLO from host...");
         sending_AUV_ID();
@@ -410,7 +431,6 @@ void Module_Simulation::parse_input(QString input){
     {
         QString inputdata;
         input_stream2 >> inputdata;
-        //logger->debug(inputdata);
 
         logger->debug(QString("Received AUV_ID ").append(inputdata).append(" from host..."));
         client_running = true;
