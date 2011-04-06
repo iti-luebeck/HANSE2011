@@ -231,12 +231,18 @@ void MapWidget::newSonarLocEstimate()
     masterParticle = scene->addLine(0,0,0,0);
     masterParticle->setVisible(ui->showParticles->isChecked());
     QVector<QVector4D> particles = nav->sonarLoc->particleFilter().getParticles();
+    qreal maxWeight = 0;
+    foreach (QVector4D p, particles) {
+        if (p.w() > maxWeight) maxWeight = p.w();
+    }
+
     foreach (QVector4D p, particles) {
         QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), 1,1, masterParticle);
-        qreal pint = 255 * p.w();
-        qDebug() << "real " << pint;
-        int weight = (int)pint;
-        qDebug() << "gewicht " << weight;
+        qreal pint = 255 * (p.w() / maxWeight);
+//        qDebug() << "real " << pint;
+        int weight = (int) pint;
+
+//        qDebug() << "gewicht " << weight;
         if(weight < 0)
         {
             weight = 0;

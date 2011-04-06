@@ -151,7 +151,7 @@ void MainWindow::on_loadSonarFile_clicked()
         rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 2000;
+        int count = 200000;
         currSample = simpleViewWidth/2;
         viewSamplePointer = currSample;
         sam.clear();
