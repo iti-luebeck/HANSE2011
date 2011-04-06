@@ -29,6 +29,9 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     ui->forwardTimeEdit->setText( nav->getSettingsValue( QString( "forward_time" ),
                                                   NAV_FORWARD_TIME).toString() );
     ui->headingBox->setCurrentIndex(nav->getSettingsValue("heading_sensor").toInt());
+
+    ui->maxAngularSpeed->setText(nav->getSettingsValue("angular_max_speed").toString());
+    ui->minAngularSpeed->setText(nav->getSettingsValue("angular_min_speed").toString());
     qRegisterMetaType<Position>("Position");
     connect(this,SIGNAL(goToPosition(QString,Position)),nav,SLOT(gotoWayPoint(QString,Position)));
 }
@@ -186,6 +189,25 @@ void Form_Navigation::on_applyButton_clicked()
         return;
     }
 
+    float angular_max_speed = ui->maxAngularSpeed->text().toFloat( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect max. angular speed" );
+        msgBox.exec();
+        return;
+    }
+
+    float angular_min_speed = ui->maxAngularSpeed->text().toFloat( &ok );
+    if ( !ok )
+    {
+        QMessageBox msgBox;
+        msgBox.setText( "Incorrect min. angular speed" );
+        msgBox.exec();
+        return;
+    }
+
+
 //    QSettings& settings = nav->getSettings();
     nav->setSettingsValue( "p_heading", p_heading );
     nav->setSettingsValue( "hysteresis_heading", hysteresis_heading );
@@ -196,6 +218,8 @@ void Form_Navigation::on_applyButton_clicked()
     nav->setSettingsValue( "forward_max_speed", forward_max_speed );
     nav->setSettingsValue( "forward_max_dist", forward_max_dist );
     nav->setSettingsValue( "heading_sensor", ui->headingBox->currentIndex() );
+    nav->setSettingsValue("angular_max_speed",angular_max_speed);
+    nav->setSettingsValue("angular_min_speed",angular_min_speed);
 }
 
 void Form_Navigation::on_gotoButton_clicked()

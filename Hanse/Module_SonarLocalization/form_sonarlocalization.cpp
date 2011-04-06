@@ -86,14 +86,14 @@ void Form_SonarLocalization::createMap()
 {
     ui->mapView->setScene(scene);
     ui->mapView->scale(5,5);
-
     ui->PFactive->setVisible(false);
 
     QImage satImg(m->getSettingsValue("satImgFile").toString());
     QGraphicsPixmapItem *result = scene->addPixmap(QPixmap::fromImage(satImg));
     result->setPos(0,0);
     result->setZValue(-1);
-    result->setScale(m->getSettingsValue("scaleMap").toFloat());
+    //0.2
+    result->setScale(m->getSettingsValue("scaleMap").toReal());
 
     QVector<QVector4D> particles = m->pf.getParticles();
     foreach (QVector4D p, particles) {

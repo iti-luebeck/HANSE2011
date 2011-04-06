@@ -135,12 +135,15 @@ void SonarParticleFilter::addToList(QVector<QVector2D>& list, const QVector2D p)
 
 QVector2D SonarParticleFilter::map2img(const QVector2D& mapPoint)
 {
-    return mapPoint/0.2;
+    //0.2
+    qreal r = sonar.getSettingsValue("scaleMap").toReal();
+    return mapPoint/r;
 }
 
 QVector2D SonarParticleFilter::img2map(const QVector2D& imgPoint)
 {
-    return imgPoint*0.2;
+    qreal r = sonar.getSettingsValue("scaleMap").toReal();
+    return imgPoint*r;
 }
 
 QVector3D SonarParticleFilter::getBestEstimate()

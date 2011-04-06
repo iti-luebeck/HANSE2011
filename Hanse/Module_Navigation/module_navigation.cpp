@@ -273,13 +273,15 @@ void Module_Navigation::sonarPositionUpdate()
                 if ( fabs( diffHeading ) >
                      getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
                 {
-                    // positiv: drehhung nach rechts.
+                    // positive: rotate right (clockwise)
+                    float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
+                    float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
                     float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat()
                                 * diffHeading;
-                    if (val > 0.3) val = 0.3;
-                    if (val < -0.3) val = -0.3;
-                    if (val > 0 && val < 0.2) val = 0.2;
-                    if (val < 0 && val > -0.2) val = -0.2;
+                    if (val > maxAngSpeed) val = maxAngSpeed;
+                    if (val < -maxAngSpeed) val = -maxAngSpeed;
+                    if (val > 0 && val < minAngSpeed) val = minAngSpeed;
+                    if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
                     emit newANGSpeed(val);
                 }
                 else
