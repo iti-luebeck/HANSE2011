@@ -92,28 +92,32 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 
     // Calculate gradient (and at the same time the maximum value,
     // which may be used as the wall candidate).
-//    QList<int> ks = {3, 5, 7,12};
-//    foreach(int k in ks)
-//    {
-    int k = 20;
+    QList<int> ks;
+    ks.clear();
+    ks.append(3);
+    ks.append(5);
+    ks.append(7);
+    ks.append(12);
+    int k;
     float maxVal = 0;
     int maxIdx = 0;
-    for (int j = 0; j < N; j++) {
-        int up = qMax(0, j - k);
-        int down = qMin(j + k, N - 1);
-        float gradient = 0;
-        if (up == j - k && down == j + k) {
-            gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up));
+    foreach(k, ks)
+    {
+        for (int j = 0; j < N; j++) {
+            int up = qMax(0, j - k);
+            int down = qMin(j + k, N - 1);
+            float gradient = 0;
+            if (up == j - k && down == j + k) {
+                gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up));
+            }
+            if (gradient > maxVal) {
+                maxVal = gradient;
+                maxIdx = j;
+            }
+            echoFiltered.at<float>(0,j) *= gradient;
         }
-        if (gradient > maxVal) {
-            maxVal = gradient;
-            maxIdx = j;
-        }
-        echoFiltered.at<float>(0,j) *= gradient;
-    }
 
-//}
-    //TODO manipulate maxVal and maxIdx via ui
+    }
     int maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toInt();
     int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
     if (maxVal > maxValTH && maxIdx > maxIdxTH) {
