@@ -199,30 +199,42 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
     Mat echoFiltered = Mat::zeros(1,N,CV_32F);
     Mat echo = this->byteArray2Mat(data.getRawData());
 
+    // Estimate signal to noise ratio.
     int gain = data.getGain();
     for(int j=0;j<N;j++)
     {
         if(gain < 17)
         {
             float newVal = 0.0;
-            if(noiseMat.at<float>(gain-1,j) != 0.0)
-            {
-//                qDebug() << "point " << gain << "," << j;
-//                qDebug() << "Divide " << echo.at<float>(0,j) << " by " << noiseMat.at<float>(gain-1,j);
+            if (noiseMat.at<float>(gain-1,j) != 0.0) {
                 newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain-1,j);
             }
-            if(newVal < 0.0)
-            {
-//                qDebug() << "deleting data";
+            if (newVal < 1.0) {
                 newVal = 0.0;
             }
             echoFiltered.at<float>(0,j) = newVal;
         } else
         {
-            qDebug() << "gain to big :'-(";
             echoFiltered.at<float>(0,j) = 0.0;
         }
     }
+
+    // Do some more image processing.
+    Mat integral = echoFiltered.clone();
+
+    // Calculate integral image.
+    for (int j = 1; j < N; j++) {
+        integral.at<float>(0,j) = integral.at<float>(0,j-1) + integral.at<float>(0,j);
+    }
+
+    // Calculate gradient.
+    int k = 2;
+    for (int j = 0; j < N; j++) {
+        int up = qMax(0, j - k);
+        int down = qMin(j + k, N - 1);
+        echoFiltered.at<float>(0,j) = 2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down);
+    }
+
     data.setFiltered(this->mat2byteArray(echoFiltered));
 }
 
