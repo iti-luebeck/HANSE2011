@@ -177,29 +177,35 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
             if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
                 Behaviour_WallFollowing::controlWallFollow();
             } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
-                emit forwardSpeed(0.0);
-                emit angularSpeed(angSpeed);
-                wallCase = "Case 4: No average distance (no wall)?! Only turn right...";
-                emit updateWallCase(wallCase);
-                addData("Current Case: ",wallCase);
-                emit dataChanged(this);
+                if(wallCase!="Case 4: No average distance (no wall)?! Only turn right..."){
+                    emit forwardSpeed(0.0);
+                    emit angularSpeed(angSpeed);
+                    wallCase = "Case 4: No average distance (no wall)?! Only turn right...";
+                    emit updateWallCase(wallCase);
+                    addData("Current Case: ",wallCase);
+                    emit dataChanged(this);
+                }
             }
         } else if(!echo->isEnabled()){
             emit dataError();
         } else {
             this->setHealthToSick("Something is really wrong, stop thruster");
-            emit forwardSpeed(0.0);
-            emit angularSpeed(0.0);
-            wallCase = "Something is really wrong, stop thruster";
+            if(wallCase!="Something is really wrong, stop thruster"){
+                emit forwardSpeed(0.0);
+                emit angularSpeed(0.0);
+                wallCase = "Something is really wrong, stop thruster";
+                emit updateWallCase(wallCase);
+                addData("Current Case: ",wallCase);
+                emit dataChanged(this);
+            }
+        }
+    } else {
+        if(wallCase!="Wallfollowing not activated!"){
+            wallCase = "Wallfollowing not activated!";
             emit updateWallCase(wallCase);
             addData("Current Case: ",wallCase);
             emit dataChanged(this);
         }
-    } else {
-        wallCase = "Wallfollowing not activated!";
-        emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
-        emit dataChanged(this);
     }
 }
 
@@ -225,7 +231,6 @@ void Behaviour_WallFollowing::testEchoModule(){
     //qDebug("Test");
     if(this->isEnabled()){
         if(!echo->isEnabled()){
-            qDebug("EchoModule not enabled!");
             emit dataError();
         }
     }
