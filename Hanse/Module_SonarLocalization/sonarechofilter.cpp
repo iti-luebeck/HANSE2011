@@ -372,8 +372,11 @@ void SonarEchoFilter::sendImage()
      QList<QVector2D> posArray;
      for(int i = 0; i < candidates.size(); i++)
      {
-         if(candidates[i].getWallCandidate() > 0)
-            posArray.append(candidates[i].getEuclidean());
+         if(candidates[i].getClassLabel() == 1)
+         {
+             QVector2D vec = candidates[i].getEuclidean();
+            posArray.append(vec);
+        }
      }
      logger->debug("New Image");
     emit newImage(posArray);

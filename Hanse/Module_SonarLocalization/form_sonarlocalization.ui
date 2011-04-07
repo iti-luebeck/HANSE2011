@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>5</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -303,6 +303,57 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_6">
+      <attribute name="title">
+       <string>DataView</string>
+      </attribute>
+      <widget class="QGraphicsViewExtended" name="graphicsView">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>401</width>
+         <height>311</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="enableFilteredView">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>340</y>
+         <width>171</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Show Wallcandidates</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="enableUnfilteredOutput">
+       <property name="geometry">
+        <rect>
+         <x>420</x>
+         <y>340</y>
+         <width>161</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Show Filtered Echo</string>
+       </property>
+      </widget>
+      <widget class="QGraphicsViewExtended" name="unfilteredView">
+       <property name="geometry">
+        <rect>
+         <x>420</x>
+         <y>20</y>
+         <width>401</width>
+         <height>311</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
        <string>Live view</string>
@@ -468,62 +519,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-     <widget class="QWidget" name="tab_6">
-      <attribute name="title">
-       <string>DataView</string>
-      </attribute>
-      <widget class="QGraphicsViewExtended" name="graphicsView">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>401</width>
-         <height>311</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="enableFilteredView">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>340</y>
-         <width>131</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable Output</string>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="enableUnfilteredOutput">
-       <property name="geometry">
-        <rect>
-         <x>420</x>
-         <y>340</y>
-         <width>151</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable Output</string>
-       </property>
-      </widget>
-      <widget class="QGraphicsViewExtended" name="unfilteredView">
-       <property name="geometry">
-        <rect>
-         <x>420</x>
-         <y>20</y>
-         <width>401</width>
-         <height>311</height>
-        </rect>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="tab_7">
-      <attribute name="title">
-       <string>Unfiltered</string>
-      </attribute>
      </widget>
     </widget>
    </item>
