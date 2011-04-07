@@ -94,19 +94,29 @@ void MainWindow::updateSonarView2(const QList<QByteArray> curDataSet)
 //                if(j == (curDataSet.length()/2))
 
                 int wws = ui->wallwindowsize->text().toInt();
-                int skalarM = 7;//25;
+                int skalarM = 4;//25;
 
                 if((j == (currSample)))
                 {
                     int wc = sam[viewSamplePointer+currSample].getWallCandidate();
 //                    int wc = wallCandidates.first();
                      if((i >= (wc - wws)) && (i <= (wc + wws)))
-                        gi.setColorAt(1.0*i/n,QColor(/*skalarM*b*/255,0,0));
+                        gi.setColorAt(1.0*i/n,QColor(/*skalarM*b*/0,0,255));
                      else
-                         gi.setColorAt(1.0*i/n,QColor(0,0,skalarM*b));
+                     {
+                         if(b < 0)
+                             gi.setColorAt(1.0*i/n,QColor(-skalarM*b,0,0));
+                         else
+                             gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
+                     }
                 }
                 else
-                    gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
+                {
+                    if(b < 0)
+                        gi.setColorAt(1.0*i/n,QColor(-skalarM*b,0,0));
+                    else
+                        gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
+                }
             }
             dataQueue.append(gi);
             dataQueue.pop_front();
@@ -131,12 +141,13 @@ void MainWindow::on_loadSonarFile_clicked()
 
 
 //    QDateTime time = QDateTime::fromString("20100331 14:39","yyyyMMdd hh:mm");
-    QDateTime time = QDateTime::fromString("20100627 13:42","yyyyMMdd hh:mm");
-    qDebug() << "time " << time.toString("yyyyMMdd");
-
+//    QDateTime time = QDateTime::fromString("20100827 13:42","yyyyMMdd hh:mm");
+//    qDebug() << "time " << time.toString("yyyyMMdd");
+    QDateTime time = ui->startTime->dateTime();
+qDebug() << "time " << time.toString("yyyyMMdd");
     SonarDataSourceFile *file = NULL;
     file = new SonarDataSourceFile(this,path);
-    file->fileReaderDelay = 10;
+    file->fileReaderDelay = 0;
     file->startTime = time;
     if(!file->isOpen())
     {
@@ -151,7 +162,7 @@ void MainWindow::on_loadSonarFile_clicked()
         rawData.clear();
         SonarReturnData dat = file->getNextPacket();
         range = dat.getRange();
-        int count = 200000;
+        int count = ui->maxSamples->text().toInt();
         currSample = simpleViewWidth/2;
         viewSamplePointer = currSample;
         sam.clear();
@@ -193,7 +204,7 @@ void MainWindow::positivSample()
     if(sam[viewSamplePointer+currSample].getWallCandidate() != -1)
     {
         qDebug() << "positive ";
-        sam[viewSamplePointer+currSample].setClassLabel(true);
+        sam[viewSamplePointer+currSample].setClassLabel(1);
     }
     skipSample();
 }
@@ -203,7 +214,7 @@ void MainWindow::negativSample()
     if(sam[viewSamplePointer+currSample].getWallCandidate() != -1)
     {
         qDebug() << "negative ";
-        sam[viewSamplePointer+currSample].setClassLabel(false);
+        sam[viewSamplePointer+currSample].setClassLabel(0);
     }
     skipSample();
 }
@@ -279,7 +290,7 @@ void MainWindow::on_testSVM_clicked()
     classifiedData.clear();
     for(int j=0;j<sam.size();j++)
     {
-        if(sam[j].hasWallCandidate())
+        if(sam[j].getWallCandidate() > 1)
         {
             SonarEchoData dat = sam[j];
             filter->extractFeatures(dat);
@@ -312,17 +323,35 @@ void MainWindow::on_testSVM_clicked()
 
 void MainWindow::applyHeuristic()
 {
-    int deltaTH = 1;
+    int deltaTH = 7;
     bool singlePoint = true;
     bool deltaK = true;
+
+   //DeltaKMethod
+    if(deltaK)
+    {
+        for(int i = 1; i<sam.size();i++)
+        {
+            int wcPrev = sam[i-1].getWallCandidate();
+            int wcCurr = sam[i].getWallCandidate();
+            int absolut = abs(wcPrev-wcCurr);
+            if((absolut > deltaTH) && sam[i-1].getWallCandidate() > 0)
+            {
+                qDebug() << " wc " <<wcPrev << wcCurr;
+                sam[i].setWallCandidate(-1);
+                sam[i].setClassLabel(0);
+            }
+
+        }
+    }
 
     //SinglePoint Method
     if(singlePoint)
     {
         for(int i = 1; i<sam.size()-1;i++)
         {
-            bool prev = sam[i-1].hasWallCandidate();
-            bool next = sam[i+1].hasWallCandidate();
+            bool prev = sam[i-1].getWallCandidate() > 1;
+            bool next = sam[i+1].getWallCandidate() > 1;
             if(!prev && !next)
             {
                 qDebug() << "heuristic remove single WallCandidate";
@@ -333,23 +362,6 @@ void MainWindow::applyHeuristic()
         }
     }
 
-    //DeltaKMethod
-    if(deltaK)
-    {
-        for(int i = 1; i<sam.size();i++)
-        {
-            int wcPrev = sam[i-1].getWallCandidate();
-            int wcCurr = sam[i].getWallCandidate();
-            int absolut = abs(wcPrev-wcCurr);
-            if((absolut > deltaTH) /*&& sam[i-1].hasWallCandidate() && sam[i].hasWallCandidate()*/)
-            {
-                qDebug() << " wc " <<wcPrev << wcCurr;
-                sam[i].setWallCandidate(-1);
-                sam[i].setClassLabel(0);
-            }
-
-        }
-    }
 
 }
 
@@ -442,13 +454,12 @@ void MainWindow::getClassCount(int &pos, int &neg)
 
     for(int i=0; i<sam.size();i++)
     {
-        if(sam[i].isClassified())
-        {
-            if(sam[i].getClassLabel() == 1)
-                pos++;
-            else if(sam[i].getClassLabel() == 0)
-                neg++;
-        }
+
+        if(sam[i].getClassLabel() == 1)
+            pos++;
+        else if(sam[i].getClassLabel() == 0)
+            neg++;
+
     }
 }
 
@@ -460,43 +471,14 @@ void MainWindow::on_trainSVM_clicked()
     int neg = 0;
     this->getClassCount(pos,neg);
 
+    qDebug() << "POS " << pos << "NEG " << neg;
     if(pos == 0)
     {
-        qDebug() << "POS " << pos << "NEG " << neg;
         return;
     }
 
-
-//    CvMat samples;
-////    cv::Mat clasLab = cv::Mat::ones(1,pos+neg,CV_32S);
-//    CvMat *classes = cvCreateMat(pos+neg,1, CV_32S);
-
-//    cvSet(classes, cvScalar(1));
-//    for(int i=0;i<neg;i++)
-//    {
-////        clasLab.at<int>(0,i+pos) = -1;
-//        cvSet2D(classes, i + pos, 0, cvScalar(0));
-//    }
-////    clasLab = clasLab.t();
-
-////    for (int i = 0; i < clasLab.cols; i++) {
-////        qDebug("%d", clasLab.at<int>(0,i));
-////    }
-
-//    samples = cvtList2Mat();
-////    classes = clasLab;
-
-
     CvMat *classes = cvCreateMat(pos+neg,1, CV_32S);
-//    CvMat *sampls = cvCreateMat(pos+neg,9,CV_32F);
-
     cv::Mat sampls = cv::Mat::zeros(pos+neg,9,CV_32FC1);
-//    cv::Mat labl1 = cv::Mat(pos+neg,1,CV_32S);
-
-
-//    int pos = 0;
-//    int neg = 0;
-//    this->getClassCount(pos,neg);
     qDebug() << " rows " << sampls.rows << " cols " << sampls.cols;
     qDebug() << " rows " << classes->rows << " cols " << classes->cols;
 
@@ -506,48 +488,36 @@ void MainWindow::on_trainSVM_clicked()
     int cfs = 0;
     for(int i=0; i<sam.size();i++)
     {
-        if(sam[i].isClassified())
+        if(sam[i].getClassLabel() != -1)
         {
-//            if(!sam[i].isFiltered())
-                filter->extractFeatures(sam[i]);
-//            array = sam[i].getFeatures();
+            filter->extractFeatures(sam[i]);
             features = sam[i].getFeatures();
+
             for(int j=0;j<sampls.cols;j++)
             {
                 sampls.at<float>(cfs,j) = features.at<float>(0,j);
-                qDebug() << " add feature " << features.at<float>(0,j);
+                //            qDebug() << j << " add feature " << features.at<float>(0,j);
             }
+
             int u = (int)sam[i].getClassLabel();
-//            qDebug() << cfs << "<= " << pos+neg << " CL " << u;
+            qDebug() << cfs << "<= " << pos+neg << " CL " << u;
             cvSet2D(classes,cfs,0,cvScalar(u));
             cfs++;
+
             if(cfs == pos+neg)
             {
                 qDebug("found all marked samples");
                 break;
             }
-//            if(sam[i].getClassLabel() == 1)
-//                cvSet2D(classes,i,0,cvScalar(1));
-//            else if((sam[i].getClassLabel() == 0))
-//                cvSet2D(classes,i,0,cvScalar(0));
-//            else
-//                qDebug("wieso gibt es keine klasse?");
-
         }
     }
 
-//    this->createSamples(s1,l1);
-//    CvMat classes = l1.clone();
-//    CvMat sampls = s1.clone();
-//    &sampls = s1.clone();
-
-
-        CvMat samplsCvt = sampls;
-    qDebug() << "Dimension " << sampls.rows << " " << sampls.cols;
-//    qDebug() << "Dimension2 " << l1.rows << " " << l1.cols;
+    qDebug() << "trying to convert ";
+    CvMat samplsCvt = sampls;
+    qDebug() << "Dimension " << sampls.rows << " " << sampls.cols;    
     svm->train(&samplsCvt,classes);
-//    cvReleaseMat(&classes);
-//    cvReleaseMat(&sampls);
+    //    cvReleaseMat(&classes);
+    //    cvReleaseMat(&sampls);
 
 }
 

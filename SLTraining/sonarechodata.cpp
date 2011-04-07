@@ -1,5 +1,14 @@
 #include "sonarechodata.h"
 
+SonarEchoData::SonarEchoData()
+{
+    this->raw = QByteArray(250,0);
+    this->filtered = QByteArray(250,0);
+    this->classLabel = 0;
+    this->wallCandidate = -1;
+
+}
+
 SonarEchoData::SonarEchoData(SonarReturnData data)
 {
     QByteArray arr = data.getEchoData();
@@ -8,18 +17,28 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     arr.clear();
     this->filtered.clear();
     this->classLabel = -1;
-    this->bClassified = false;
-    this->bFiltered = false;
-    this->bWallCandidate = false;
     this->wallCandidate = -1;
     this->headPosition = data.getHeadPosition();
     this->range = data.getRange();
     this->gain = data.switchCommand.startGain;
     this->group = -1;
-
     this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
 
+}
+
+SonarEchoData::SonarEchoData(const SonarEchoData& dat)
+{
+    this->raw = dat.raw;
+    this->classLabel = dat.classLabel;
+    this->filtered = dat.filtered;
+    this->wallCandidate = dat.wallCandidate;
+    this->headPosition = dat.headPosition;
+    this->range = dat.range;
+    this->timestamp = dat.timestamp;
+    this->features = dat.features;
+    this->gain = dat.gain;
+    this->group = dat.group;
 }
 
 cv::Mat SonarEchoData::getFeatures()
@@ -31,9 +50,7 @@ cv::Mat SonarEchoData::getFeatures()
 
 int SonarEchoData::getClassLabel()
 {
-    if(this->bClassified)
-        return this->classLabel;
-    return NULL;
+    return this->classLabel;
 }
 
 int SonarEchoData::getWallCandidate()
@@ -41,22 +58,7 @@ int SonarEchoData::getWallCandidate()
     return this->wallCandidate;
 }
 
-bool SonarEchoData::isClassified()
-{
-    return this->bClassified;
-}
-
-bool SonarEchoData::isFiltered()
-{
-    return this->bFiltered;
-}
-
-bool SonarEchoData::hasWallCandidate()
-{
-    return this->bWallCandidate;
-}
-
-QByteArray SonarEchoData::getRawData()
+QByteArray SonarEchoData::getRawData() const
 {
     return this->raw;
 }
@@ -104,27 +106,20 @@ void SonarEchoData::addFeature(int index, float value)
 
 void SonarEchoData::setClassLabel(int label)
 {
-    this->bClassified = false;
    if(label > 0)
         this->classLabel = 1;
    else
        this->classLabel = 0;
-    if(this->wallCandidate != -1)
-        this->bClassified = true;
 }
 
 void SonarEchoData::setFiltered(QByteArray data)
 {
     this->filtered = data;
-    this->bFiltered = true;
 }
 
 void SonarEchoData::setWallCandidate(int bin)
 {
     this->wallCandidate = bin;
-    this->bWallCandidate = false;
-    if(bin != -1)
-        this->bWallCandidate = true;
 }
 
 QVector2D SonarEchoData::getEuclidean()
@@ -135,5 +130,10 @@ QVector2D SonarEchoData::getEuclidean()
     y = sin(this->getHeadPosition()/180*M_PI)*this->getWallCandidate()*range/N;
     QVector2D vec = QVector2D(x,y);
     return vec;
+}
+
+void SonarEchoData::addOffsetToHeadPos(float degree)
+{
+    this->headPosition = this->headPosition + degree;
 }
 

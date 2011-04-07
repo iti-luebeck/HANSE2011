@@ -230,6 +230,23 @@ void SonarEchoFilter::applyHeuristic()
     bool singlePoint = this->sloc->getSettingsValue("singlePoint").toBool();
     bool deltaK = this->sloc->getSettingsValue("deltaKH").toBool();
 
+    //DeltaKMethod
+    if(deltaK)
+    {
+        for(int i = 1; i < candidates.size(); i++)
+        {
+            int wcPrev = candidates[i-1].getWallCandidate();
+            int wcCurr = candidates[i].getWallCandidate();
+            int absolut = abs(wcPrev-wcCurr);
+            if((absolut > deltaTH) && (wcPrev > 1))
+            {
+//                qDebug() << i << " wc " <<wcPrev << wcCurr;
+                candidates[i].setWallCandidate(-1);
+                candidates[i].setClassLabel(0);
+            }
+        }
+    }
+
     //SinglePoint Method
     if(singlePoint)
     {
@@ -237,26 +254,12 @@ void SonarEchoFilter::applyHeuristic()
         {
             bool prev = (candidates[i-1].getWallCandidate() > 1);//candidates[i-1].hasWallCandidate();
             bool next = (candidates[i+1].getWallCandidate() > 1);//candidates[i+1].hasWallCandidate();
+            prev = (candidates[i-1].getClassLabel() == 1);
+            next = (candidates[i+1].getClassLabel() == 1);
+            int cl = candidates[i].getClassLabel();
+
             if(!prev && !next)
             {
-                //            logger->debug("heuristic removes single point");;
-                candidates[i].setWallCandidate(-1);
-                candidates[i].setClassLabel(0);
-            }
-        }
-    }
-    //DeltaKMethod
-    if(deltaK)
-    {
-        for(int i = 1; i < candidates.size(); i++)
-        {
-            int i = candidates.size() -1;
-            int wcPrev = candidates[i-1].getWallCandidate();
-            int wcCurr = candidates[i].getWallCandidate();
-            int absolut = abs(wcPrev-wcCurr);
-            if((absolut > deltaTH) && (candidates[i-1].getWallCandidate() > 1)/* && candidates[i-1].hasWallCandidate() && candidates[i].hasWallCandidate()*/)
-            {
-                //            qDebug() << " wc " <<wcPrev << wcCurr;
                 candidates[i].setWallCandidate(-1);
                 candidates[i].setClassLabel(0);
             }

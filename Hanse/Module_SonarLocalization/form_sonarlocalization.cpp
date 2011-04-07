@@ -377,9 +377,13 @@ void Form_SonarLocalization::updateSonarViewUnfiltered()
         {
             QByteArray data = sonarEchoDataList[j].getFiltered();
             char b = data[i];
-            int wws = 2;
-            int skalarM = 7;
-            gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
+            //interval of [-70,70]
+            //negative bad!
+            int skalarM = 4;
+            if(b < 0)
+                gi.setColorAt(1.0*i/n,QColor(-skalarM*b,0,0));
+            else
+                gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
         }
         dataQueueUnfiltered.append(gi);
         dataQueueUnfiltered.pop_front();

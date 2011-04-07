@@ -6,16 +6,18 @@
 #include "sonarreturndata.h"
 #include <opencv/cv.h>
 
+#define POSITIVE_CLASS  1;
+#define NEGATIVE_CLASS  0;
+
 class SonarEchoData
 {
 public:
     SonarEchoData(SonarReturnData data);
+    SonarEchoData(const SonarEchoData& dat);
+    SonarEchoData();
 
-    QByteArray getRawData();
+    QByteArray getRawData() const;
     QByteArray getFiltered();
-    bool isClassified();
-    bool hasWallCandidate();
-    bool isFiltered();
     int getWallCandidate();
     int getClassLabel();
     float getRange();
@@ -28,6 +30,7 @@ public:
     void setFiltered(QByteArray data);
     void setWallCandidate(int bin);
     void addFeature(int index, float value);
+    void addOffsetToHeadPos(float degree);
 
     void setGroupID(int id);
     int getGroupID();
@@ -39,9 +42,6 @@ public:
 
 private:
     QByteArray raw;
-    bool bClassified;
-    bool bWallCandidate;
-    bool bFiltered;
     int classLabel;
     QByteArray filtered;
     int wallCandidate;
