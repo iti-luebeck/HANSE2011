@@ -207,7 +207,7 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         {
             float newVal = 0.0;
             if (noiseMat.at<float>(gain-1,j) != 0.0) {
-                newVal = qMax(0, echo.at<float>(0,j) / noiseMat.at<float>(gain-1,j) - 1);
+                newVal = qMax(0.0f, echo.at<float>(0,j) / noiseMat.at<float>(gain-1,j) - 1);
             }
             echoFiltered.at<float>(0,j) = newVal * noiseMat.at<float>(gain-1,j);
         } else

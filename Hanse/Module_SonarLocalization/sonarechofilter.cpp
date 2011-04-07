@@ -38,7 +38,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     this->filterEcho(currData);
     if(this->sloc->getSettingsValue("medianFilter").toBool())
         this->gaussFilter(currData);
-    this->findWall(currData);
+//    this->findWall(currData);
     this->extractFeatures(currData);
     CvMat feat = currData.getFeatures();
     int predClass = 0;
@@ -65,12 +65,9 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         {
             float newVal = 0.0;
             if (noiseMat.at<float>(gain-1,j) != 0.0) {
-                newVal = echo.at<float>(0,j)/noiseMat.at<float>(gain-1,j);
+                newVal = qMax(0.0f, echo.at<float>(0,j) / noiseMat.at<float>(gain-1,j) - 1);
             }
-            if (newVal < 1.0) {
-                newVal = 0.0;
-            }
-            echoFiltered.at<float>(0,j) = newVal;
+            echoFiltered.at<float>(0,j) = newVal * noiseMat.at<float>(gain-1,j);
         } else
         {
             echoFiltered.at<float>(0,j) = 0.0;
@@ -85,13 +82,25 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         integral.at<float>(0,j) = integral.at<float>(0,j-1) + integral.at<float>(0,j);
     }
 
-    // Calculate gradient.
-    int k = 2;
+    // Calculate gradient (and at the same time the maximum value,
+    // which may be used as the wall candidate).
+    int k = 15;
+    float maxVal = 0;
+    int maxIdx = 0;
     for (int j = 0; j < N; j++) {
         int up = qMax(0, j - k);
         int down = qMin(j + k, N - 1);
-        echoFiltered.at<float>(0,j) = 2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down);
+        float gradient = 0;
+        if (up == j - k && down == j + k) {
+            gradient = (2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up);
+        }
+        if (gradient > maxVal) {
+            maxVal = gradient;
+            maxIdx = j;
+        }
+        echoFiltered.at<float>(0,j) = gradient;
     }
+    data.setWallCandidate(maxIdx);
 
     data.setFiltered(this->mat2byteArray(echoFiltered));
 }
