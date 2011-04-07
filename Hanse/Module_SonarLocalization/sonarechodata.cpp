@@ -4,6 +4,7 @@ SonarEchoData::SonarEchoData()
 {
     this->raw = QByteArray(250,0);
     this->filtered = QByteArray(250,0);
+    this->gradient = QByteArray(250,0);
     this->classLabel = 0;
     this->wallCandidate = -1;
 
@@ -16,6 +17,7 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->raw = arr;
     arr.clear();
     this->filtered.clear();
+    this->gradient.clear();
     this->classLabel = -1;
     this->wallCandidate = -1;
     this->headPosition = data.getHeadPosition();
@@ -32,6 +34,7 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
     this->raw = dat.raw;
     this->classLabel = dat.classLabel;
     this->filtered = dat.filtered;
+    this->gradient = dat.gradient;
     this->wallCandidate = dat.wallCandidate;
     this->headPosition = dat.headPosition;
     this->range = dat.range;
@@ -66,6 +69,11 @@ QByteArray SonarEchoData::getRawData() const
 QByteArray SonarEchoData::getFiltered()
 {
     return this->filtered;
+}
+
+QByteArray SonarEchoData::getGradient()
+{
+    return this->gradient;
 }
 
 QDateTime SonarEchoData::getTimeStamp()
@@ -115,6 +123,11 @@ void SonarEchoData::setClassLabel(int label)
 void SonarEchoData::setFiltered(QByteArray data)
 {
     this->filtered = data;
+}
+
+void SonarEchoData::setGradient(QByteArray data)
+{
+    this->gradient = data;
 }
 
 void SonarEchoData::setWallCandidate(int bin)

@@ -1,6 +1,6 @@
-#include "sonardatasourcefile.h"
+#include "sonardatasourcefilereader.h"
 #include "QtCore"
-#include "sonarswitchcommand.h"
+#include "Module_ScanningSonar/sonarswitchcommand.h"
 
 class sotoSleep : public QThread
 {

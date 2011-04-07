@@ -226,7 +226,7 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
 
     // Calculate gradient (and at the same time the maximum value,
     // which may be used as the wall candidate).
-    int k = 15;
+    int k = 20;
     float maxVal = 0;
     int maxIdx = 0;
     for (int j = 0; j < N; j++) {
@@ -234,7 +234,7 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         int down = qMin(j + k, N - 1);
         float gradient = 0;
         if (up == j - k && down == j + k) {
-            gradient = (2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up);
+            gradient = qMax(0.0f, (2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up));
         }
         if (gradient > maxVal) {
             maxVal = gradient;
@@ -242,7 +242,11 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         }
         echoFiltered.at<float>(0,j) = gradient;
     }
-    data.setWallCandidate(maxIdx);
+    if (maxVal > 10) {
+        data.setWallCandidate(maxIdx);
+    } else {
+        data.setWallCandidate(-1);
+    }
 
     data.setFiltered(this->mat2byteArray(echoFiltered));
 }

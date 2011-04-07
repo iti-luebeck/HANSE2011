@@ -105,13 +105,16 @@ HEADERS += Framework/healthstatus.h \
     Module_EchoSounder/echodata852recorder.h \
     Behaviour_WallFollowing/wallfollowingform.h \
     Behaviour_WallFollowing/behaviour_wallfollowing.h \
-    Module_SonarLocalization/SVMClassifier.h \
     Module_SonarLocalization/sonarechofilter.h \
     Module_SonarLocalization/sonarechodata.h \
     Framework/pidcontroller.h \
     Framework/pidwidget.h \
     CommandCenter/commandcenterform.h \
-    CommandCenter/commandcenter.h
+    CommandCenter/commandcenter.h \
+    Module_SLTraining/sltrainingui.h \
+    Module_SLTraining/SVMClassifier.h \
+    Module_SLTraining/ui_sltrainingui.h \
+    Module_SLTraining/sonardatasourcefilereader.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -200,12 +203,14 @@ SOURCES += Framework/robotmodule.cpp \
     Module_EchoSounder/echodata852recorder.cpp \
     Behaviour_WallFollowing/wallfollowingform.cpp \
     Behaviour_WallFollowing/behaviour_wallfollowing.cpp \
-    Module_SonarLocalization/SVMClassifier.cpp \
     Module_SonarLocalization/sonarechodata.cpp \
     Framework/pidcontroller.cpp \
     Framework/pidwidget.cpp \
     CommandCenter/commandcenterform.cpp \
-    CommandCenter/commandcenter.cpp
+    CommandCenter/commandcenter.cpp \
+    Module_SLTraining/sltrainingui.cpp \
+    Module_SLTraining/SVMClassifier.cpp \
+    Module_SLTraining/sonardatasourcefilereader.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -235,5 +240,6 @@ FORMS += Framework/mainwindow.ui \
     Module_EchoSounder/echosounderform.ui \
     Behaviour_WallFollowing/wallfollowingform.ui \
     Framework/pidwidget.ui \
-    CommandCenter/commandcenterform.ui
+    CommandCenter/commandcenterform.ui \
+    Module_SLTraining/sltrainingui.ui
 OTHER_FILES += bin/log4qt.properties

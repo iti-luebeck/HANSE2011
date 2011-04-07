@@ -9,6 +9,7 @@
 
 #include "sonarechofilter.h"
 #include "sonarparticlefilter.h"
+#include "Module_SLTraining/sltrainingui.h"
 
 Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLocalization* m) :
     QWidget(parent),
@@ -137,6 +138,10 @@ void Form_SonarLocalization::setFields()
     ui->groupingDarknessCnt->setText(m->getSettingsValue("groupingDarkness").toString());
     ui->groupingMaxArea->setText(m->getSettingsValue("groupingMaxArea").toString());
 
+    ui->enableSVM->setChecked(m->getSettingsValue("enableSVM").toBool());
+    ui->gradMaxVal->setText(m->getSettingsValue("gradientMaxVal").toString());
+    ui->gradMaxIdx->setText(m->getSettingsValue("gradientMaxIdx").toString());
+
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -238,6 +243,10 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->setSettingsValue("groupingDarkness",ui->groupingDarknessCnt->text());
     m->setSettingsValue("groupingMaxArea",ui->groupingMaxArea->text());
 
+    m->setSettingsValue("enableSVM",ui->enableSVM->isChecked());
+    m->setSettingsValue("gradientMaxVal",ui->gradMaxVal->text());
+    m->setSettingsValue("gradientMaxIdx",ui->gradMaxIdx->text());
+
     m->reset();
 }
 
@@ -320,9 +329,10 @@ void Form_SonarLocalization::on_selSat_clicked()
 
 void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
 {
+    qDebug() << "list length = " << list.length();
     int viewWidth = 100;
     sonarEchoDataList.clear();
-    for(int i = 0; i < list.length(); i++)
+    while (!list.empty())
     {
         sonarEchoDataList.append(list.takeFirst());
     }
@@ -341,7 +351,7 @@ void Form_SonarLocalization::updateSonarView()
     float n = 250;
     scene2.clear();
 //        for(int i = 1; i<range+1; i++)
-//            scene2.addLine(0,(i*faktor),viewWidth,(i*faktor),QPen(QColor(200,83,83,255)))->setZValue(10);
+    scene2.addLine(0,20,sonarEchoDataList.length(),20,QPen(QColor(200,83,83,255)))->setZValue(10);
 
     for(int j=0; j<viewWidth; j++)
     {
@@ -350,7 +360,8 @@ void Form_SonarLocalization::updateSonarView()
             int skalarM = 1;
             int cl = sonarEchoDataList[j].getClassLabel();
             int wc = sonarEchoDataList[j].getWallCandidate();
-            if(((cl != 0) && (wc != -1)  && (i > wc- skalarM ) && (i < wc + skalarM)))
+//            qDebug() << wc;
+            if(((cl == 1) && (wc > 0)  && (i > wc- skalarM ) && (i < wc + skalarM)))
                 gi.setColorAt(1.0*i/n,QColor(0,255,0));
             else
                 gi.setColorAt(1.0*i/n,QColor(0,0,0));
@@ -406,4 +417,10 @@ void Form_SonarLocalization::on_selSVM_clicked()
         this->m->setSettingsValue("Path2SVM",fileName);
     }
 
+}
+
+void Form_SonarLocalization::on_sltraining_clicked()
+{
+//    SLTrainingUI slt;
+//    slt.show();
 }

@@ -6,7 +6,7 @@
 #include <QtCore>
 #include <log4qt/logger.h>
 #include <Module_SonarLocalization/sonarechodata.h>
-#include "SVMClassifier.h"
+#include "Module_SLTraining/SVMClassifier.h"
 
 class Module_SonarLocalization;
 
@@ -29,7 +29,18 @@ public:
     QMap<QDateTime, QVector<double> > varHistory;
     QMap<QDateTime, QVector<double> > meanHistory;
 
+    //filter chain
+    void filterEcho(SonarEchoData &data);
+    void medianFilter(SonarEchoData &data);
+    void findWall(SonarEchoData &data);
+    void gradientFilter(SonarEchoData &data);
+    void extractFeatures(SonarEchoData &data);
 
+    cv::Mat byteArray2Mat(QByteArray array);
+    QVector<double> mat2QVector(cv::Mat& mat);
+    QByteArray mat2byteArray(cv::Mat& mat);
+
+    void getNoNoiseFilter(QVector<int> &vec);
 
 signals:
     void newImage(QList<QVector2D> observations);
@@ -71,22 +82,14 @@ private:
     Log4Qt::Logger *logger;
 
     //filter chain
-    void filterEcho(SonarEchoData &data);
-    void gaussFilter(SonarEchoData &data);
-    void findWall(SonarEchoData &data);
-    void extractFeatures(SonarEchoData &data);
     void applyHeuristic();
     void grouping();
     void sendImage();
     //other
-    void getNoNoiseFilter(QVector<int> &vec);
     cv::Mat noiseMat;
     void initNoiseMat();
     float prevWallCandidate;
     //helpers
-    cv::Mat byteArray2Mat(QByteArray array);
-    QVector<double> mat2QVector(cv::Mat& mat);
-    QByteArray mat2byteArray(cv::Mat& mat);
 
 };
 

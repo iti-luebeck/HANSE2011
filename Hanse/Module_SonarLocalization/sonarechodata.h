@@ -18,6 +18,7 @@ public:
 
     QByteArray getRawData() const;
     QByteArray getFiltered();
+    QByteArray getGradient();
     int getWallCandidate();
     int getClassLabel();
     float getRange();
@@ -28,6 +29,7 @@ public:
 
     void setClassLabel(int label);
     void setFiltered(QByteArray data);
+    void setGradient(QByteArray data);
     void setWallCandidate(int bin);
     void addFeature(int index, float value);
     void addOffsetToHeadPos(float degree);
@@ -44,6 +46,7 @@ private:
     QByteArray raw;
     int classLabel;
     QByteArray filtered;
+    QByteArray gradient;
     int wallCandidate;
     float headPosition;
     float range;

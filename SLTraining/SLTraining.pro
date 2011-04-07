@@ -2,14 +2,15 @@ TARGET = SLTraining
 include(../OpenCV.pri)
 
 SOURCES += main.cpp \
-    mainwindow.cpp \
     sonarechofilter.cpp \
     sonarswitchcommand.cpp \
     sonarreturndata.cpp \
     sonardatasourcefile.cpp \
     qgraphicsviewextended.cpp \
     SVMClassifier.cpp \
-    sonarechodata.cpp
+    sonarechodata.cpp \
+    sltrainingui.cpp
+
 HEADERS += \
     sonarechofilter.h \
     sonarswitchcommand.h \
@@ -17,9 +18,9 @@ HEADERS += \
     sonardatasourcefile.h \
     qgraphicsviewextended.h \
     SVMClassifier.h \
-    mainwindow.h \
-    sonarechodata.h
+    sonarechodata.h \
+    sltrainingui.h
 
-FORMS += mainwindow.ui
+FORMS += sltrainingui.ui
 DESTDIR = ../build
 CONFIG += console

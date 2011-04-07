@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>925</width>
-    <height>648</height>
+    <height>676</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,82 +24,9 @@
        <string>Parameters</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout_2">
-       <item row="6" column="0">
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>Apply</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QGroupBox" name="groupBox_6">
-         <property name="title">
-          <string>Particle filter</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout_5">
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>Distance cutoff</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="distanceCutoff"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Control variance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="controlVariance"/>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Initial variance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="initVariance"/>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Particle count</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="particleCount"/>
-          </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>obs. variance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLineEdit" name="boltzmann"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>image min pixels</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="imgMinPixels"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
        <item row="2" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
@@ -170,42 +97,6 @@
          </layout>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>Grouping</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout_4">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>darkness count</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="groupingDarknessCnt"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>max area</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="groupingMaxArea"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QCheckBox" name="debug">
-         <property name="text">
-          <string>Enable debugging</string>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="0">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
@@ -262,6 +153,62 @@
             </property>
            </widget>
           </item>
+          <item row="5" column="1">
+           <widget class="QCheckBox" name="enableSVM">
+            <property name="text">
+             <string>SVM</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>Gradient maxVal:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Gradient maxIdx:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="gradMaxVal"/>
+          </item>
+          <item row="7" column="1">
+           <widget class="QLineEdit" name="gradMaxIdx"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>Grouping</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>darkness count</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="groupingDarknessCnt"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>max area</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="groupingMaxArea"/>
+          </item>
          </layout>
         </widget>
        </item>
@@ -295,6 +242,99 @@
            <widget class="QCheckBox" name="singlePointCB">
             <property name="text">
              <string>SinglePoint</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Apply</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QCheckBox" name="debug">
+         <property name="text">
+          <string>Enable debugging</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Particle filter</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_5">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>image min pixels</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="imgMinPixels"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>Distance cutoff</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="distanceCutoff"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>Control variance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="controlVariance"/>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Initial variance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="initVariance"/>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Particle count</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="particleCount"/>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>obs. variance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="boltzmann"/>
+          </item>
+          <item row="7" column="0">
+           <widget class="QPushButton" name="sltraining">
+            <property name="text">
+             <string>SLTraining</string>
             </property>
            </widget>
           </item>

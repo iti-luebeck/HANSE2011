@@ -37,17 +37,16 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     SonarEchoData currData = SonarEchoData(data);
     this->filterEcho(currData);
     if(this->sloc->getSettingsValue("medianFilter").toBool())
-        this->gaussFilter(currData);
+        this->medianFilter(currData);
 //    this->findWall(currData);
+    this->gradientFilter(currData);
     this->extractFeatures(currData);
     CvMat feat = currData.getFeatures();
-    int predClass = 0;
-    if(svm->isSVM())
+    int predClass = 1;
+    if(this->sloc->getSettingsValue("enableSVM").toBool())
         predClass = svm->svmClassification(&feat);
     currData.setClassLabel(predClass);
     candidates.append(currData);
-
-//    this->applyHeuristic();
     this->grouping();
 
 }
@@ -74,8 +73,17 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         }
     }
 
+    data.setFiltered(this->mat2byteArray(echoFiltered));
+}
+
+void SonarEchoFilter::gradientFilter(SonarEchoData &data)
+{
+    Mat echoFiltered = this->byteArray2Mat(data.getFiltered());
+
     // Do some more image processing.
     Mat integral = echoFiltered.clone();
+
+    echoFiltered = Mat::ones(1,250,CV_32F);
 
     // Calculate integral image.
     for (int j = 1; j < N; j++) {
@@ -84,7 +92,10 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
 
     // Calculate gradient (and at the same time the maximum value,
     // which may be used as the wall candidate).
-    int k = 15;
+//    QList<int> ks = {3, 5, 7,12};
+//    foreach(int k in ks)
+//    {
+    int k = 20;
     float maxVal = 0;
     int maxIdx = 0;
     for (int j = 0; j < N; j++) {
@@ -92,20 +103,28 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
         int down = qMin(j + k, N - 1);
         float gradient = 0;
         if (up == j - k && down == j + k) {
-            gradient = (2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up);
+            gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up));
         }
         if (gradient > maxVal) {
             maxVal = gradient;
             maxIdx = j;
         }
-        echoFiltered.at<float>(0,j) = gradient;
+        echoFiltered.at<float>(0,j) *= gradient;
     }
-    data.setWallCandidate(maxIdx);
 
-    data.setFiltered(this->mat2byteArray(echoFiltered));
+//}
+    //TODO manipulate maxVal and maxIdx via ui
+    int maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toInt();
+    int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
+    if (maxVal > maxValTH && maxIdx > maxIdxTH) {
+        data.setWallCandidate(maxIdx);
+    } else {
+        data.setWallCandidate(-1);
+    }
+    data.setGradient(this->mat2byteArray(echoFiltered));
 }
 
-void SonarEchoFilter::gaussFilter(SonarEchoData &data)
+void SonarEchoFilter::medianFilter(SonarEchoData &data)
 {
     QByteArray echo = data.getFiltered();
     int w = 1;
@@ -322,7 +341,7 @@ void SonarEchoFilter::grouping()
             int darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
             for(int i = candidates.size()-1; i > 0; i--)
             {
-                if(candidates[i].getClassLabel() == 1)
+                if(candidates[i].getWallCandidate() > 1 && candidates[i].getClassLabel() == 1)
                     darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
                 else
                     darknessCount--;
@@ -382,17 +401,20 @@ void SonarEchoFilter::sendImage()
 {
     this->applyHeuristic();
      QList<QVector2D> posArray;
+     posArray.clear();
+     QList<SonarEchoData> bla;
      for(int i = 0; i < candidates.size(); i++)
      {
-         if(candidates[i].getClassLabel() == 1)
+         if(candidates[i].getWallCandidate() > 0 && candidates[i].getClassLabel() == 1)
          {
              QVector2D vec = candidates[i].getEuclidean();
             posArray.append(vec);
+            bla.append(candidates[i]);
         }
      }
      logger->debug("New Image");
     emit newImage(posArray);
-    emit newSonarEchoData(candidates);
+    emit newSonarEchoData(bla);
     //reset local variables
     candidates.clear();
     groupID++;
@@ -467,10 +489,8 @@ void SonarEchoFilter::reset()
     {
         QByteArray ba = path.toLatin1();
           const char *c_str2 = ba.data();
-        if(svm->loadClassifier(c_str2))
-            logger->info("SVM Classifier loaded");
-        else
-            logger->error("Could not load SVM. No Classification possible");
+          svm->loadClassifier(c_str2);
+
     }
 }
 

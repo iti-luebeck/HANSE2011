@@ -14,15 +14,15 @@ public:
 
 private:
 	CvSVM* svm;
-        bool loaded;
+
+private:
 
 public:
         int svmClassification(CvMat* sample);
 	void train(CvMat* data, CvMat *classes);
 	CvMat* classify(CvMat* data);
 	void saveClassifier(const char* fileName);
-        bool loadClassifier(const char* fileName);
-        bool isSVM();
+	void loadClassifier(const char* fileName);
 };
 
 #endif

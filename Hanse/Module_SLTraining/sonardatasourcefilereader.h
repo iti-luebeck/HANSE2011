@@ -1,7 +1,7 @@
 #ifndef SONARDATASOURCEFILEREADER_H
 #define SONARDATASOURCEFILEREADER_H
 
-#include "sonarreturndata.h"
+#include "Module_ScanningSonar/sonarreturndata.h"
 
 class QFile;
 class QDataStream;
