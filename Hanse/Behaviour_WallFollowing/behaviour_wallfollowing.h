@@ -32,7 +32,7 @@ private:
      //QTimer timer;
      void init();
      QString wallCase;
-
+    QString tempAs;
      void controlWallFollow();
 
 

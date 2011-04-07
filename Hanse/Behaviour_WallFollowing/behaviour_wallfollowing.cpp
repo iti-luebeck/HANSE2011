@@ -135,21 +135,30 @@ void Behaviour_WallFollowing::controlWallFollow()
     addData("Desired distance: ",distanceInput);
     addData("Avg distance: ",avgDistance);
     emit dataChanged(this);
-
+    tempAs ="";
     if(running==true){
-        if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
-            wallCase ="Case 1: No turn - only forward";
-            emit forwardSpeed(fwdSpeed);
-            emit angularSpeed(0.0);
+        if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){          
+            if(wallCase!="Case 1: No turn - only forward"){
+                wallCase ="Case 1: No turn - only forward";
+                emit forwardSpeed(fwdSpeed);
+                emit angularSpeed(0.0);
+                //qDebug("Case1");
+            }
         } else if(avgDistance > distanceInput ){
-            wallCase = "Case 3: Turn left";
-            temp =angSpeed*(-1.0);
-            emit forwardSpeed(fwdSpeed);
-            emit angularSpeed(temp);
-        } else if(avgDistance < distanceInput){
-            wallCase = "Case 2: Turn right";
-            emit forwardSpeed(fwdSpeed);
-            emit angularSpeed(angSpeed);
+            if(wallCase!="Case 3: Turn left"){
+                wallCase = "Case 3: Turn left";
+                temp =angSpeed*(-1.0);
+                emit forwardSpeed(fwdSpeed);
+                emit angularSpeed(temp);
+                //qDebug("Case3");
+            }
+        } else if(avgDistance < distanceInput){   
+            if(wallCase!="Case 2: Turn right"){
+                wallCase = "Case 2: Turn right";
+                emit forwardSpeed(fwdSpeed);
+                emit angularSpeed(angSpeed);
+                //qDebug("Case2");
+            }
         }
     }
     emit updateWallCase(wallCase);
