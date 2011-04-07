@@ -350,8 +350,8 @@ void MainWindow::applyHeuristic()
     {
         for(int i = 1; i<sam.size()-1;i++)
         {
-            bool prev = sam[i-1].getWallCandidate() > 1;
-            bool next = sam[i+1].getWallCandidate() > 1;
+            bool prev = sam[i-1].getClassLabel() == 1;
+            bool next = sam[i+1].getClassLabel() == 1;
             if(!prev && !next)
             {
                 qDebug() << "heuristic remove single WallCandidate";
