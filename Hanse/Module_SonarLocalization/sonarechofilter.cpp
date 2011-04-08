@@ -22,6 +22,7 @@ SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent)
     svm = new SVMClassifier();
     reset();
     this->lastMaxValue = -1;
+    this->lastMaxValues.clear();
 }
 
 /**
@@ -429,6 +430,21 @@ void SonarEchoFilter::sendImage()
 
         }
     }
+    //history of lastMaxValues
+    lastMaxValues.append(lastMaxValue);
+    while(lastMaxValues.size() < this->sloc->getSettingsValue("histMaxVal").toInt()+1)
+        lastMaxValues.append(lastMaxValue);
+    lastMaxValues.pop_front();
+
+    //compute lastMaxValue as maximum of lastMaxValues
+    float maxi = 0.0f;
+    for(int i = 0; i < lastMaxValues.size(); i++)
+    {
+        if(lastMaxValues[i] > maxi)
+            maxi = lastMaxValues[i];
+    }
+    lastMaxValue = maxi;
+
     logger->debug("New Image");
     emit newImage(posArray);
     emit newSonarEchoData(bla);

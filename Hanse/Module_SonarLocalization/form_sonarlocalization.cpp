@@ -141,6 +141,7 @@ void Form_SonarLocalization::setFields()
     ui->enableSVM->setChecked(m->getSettingsValue("enableSVM").toBool());
     ui->gradMaxVal->setText(m->getSettingsValue("gradientMaxVal").toString());
     ui->gradMaxIdx->setText(m->getSettingsValue("gradientMaxIdx").toString());
+    ui->histMaxVal->setText(m->getSettingsValue("histMaxVal").toString());
 
 }
 
@@ -246,6 +247,7 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->setSettingsValue("enableSVM",ui->enableSVM->isChecked());
     m->setSettingsValue("gradientMaxVal",ui->gradMaxVal->text());
     m->setSettingsValue("gradientMaxIdx",ui->gradMaxIdx->text());
+    m->setSettingsValue("histMaxVal",ui->histMaxVal->text());
 
     m->reset();
 }

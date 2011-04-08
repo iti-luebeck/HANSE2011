@@ -70,6 +70,7 @@ private:
     double swipedArea;
     int darknessCount;
     float lastMaxValue;
+    QList<float> lastMaxValues;
 
     void addToList(QList<QVector2D>& list, const QVector2D p);
 
