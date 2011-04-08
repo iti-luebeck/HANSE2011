@@ -4,7 +4,8 @@ SonarEchoData::SonarEchoData()
 {
     this->raw = QByteArray(250,0);
     this->filtered = QByteArray(250,0);
-    this->gradient = QByteArray(250,0);
+    this->gradient = QList<float>();
+    for (int i = 0; i < 250; i++) this->gradient.append(0.0f);
     this->classLabel = 0;
     this->wallCandidate = -1;
 
@@ -34,13 +35,17 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
     this->raw = dat.raw;
     this->classLabel = dat.classLabel;
     this->filtered = dat.filtered;
-    this->gradient = dat.gradient;
     this->wallCandidate = dat.wallCandidate;
     this->headPosition = dat.headPosition;
     this->range = dat.range;
     this->timestamp = dat.timestamp;
     this->features = dat.features;
     this->gain = dat.gain;
+
+    this->gradient.clear();
+    for (int i = 0; i < dat.gradient.size(); i++) {
+        this->gradient.push_back(dat.gradient[i]);
+    }
     this->group = dat.group;
 }
 
@@ -71,7 +76,7 @@ QByteArray SonarEchoData::getFiltered()
     return this->filtered;
 }
 
-QByteArray SonarEchoData::getGradient()
+QList<float> SonarEchoData::getGradient()
 {
     return this->gradient;
 }
@@ -125,9 +130,12 @@ void SonarEchoData::setFiltered(QByteArray data)
     this->filtered = data;
 }
 
-void SonarEchoData::setGradient(QByteArray data)
+void SonarEchoData::setGradient(QList<float> data)
 {
-    this->gradient = data;
+    this->gradient.clear();
+    for (int i = 0; i < data.size(); i++) {
+        this->gradient.push_back(data[i]);
+    }
 }
 
 void SonarEchoData::setWallCandidate(int bin)

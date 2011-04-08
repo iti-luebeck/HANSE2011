@@ -52,6 +52,8 @@ public:
 
 
     SonarParticleFilter& particleFilter();
+    SonarEchoFilter& sonarEchoFilter();
+
 
 public slots:
     void reset();

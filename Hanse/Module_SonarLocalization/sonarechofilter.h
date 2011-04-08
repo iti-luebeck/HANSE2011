@@ -39,6 +39,7 @@ public:
     cv::Mat byteArray2Mat(QByteArray array);
     QVector<double> mat2QVector(cv::Mat& mat);
     QByteArray mat2byteArray(cv::Mat& mat);
+    QList<float> mat2List(cv::Mat& mat);
 
     void getNoNoiseFilter(QVector<int> &vec);
 
@@ -68,6 +69,7 @@ private:
     int currentID;
     double swipedArea;
     int darknessCount;
+    float lastMaxValue;
 
     void addToList(QList<QVector2D>& list, const QVector2D p);
 

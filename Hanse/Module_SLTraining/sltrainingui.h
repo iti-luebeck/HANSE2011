@@ -20,7 +20,7 @@ class SLTrainingUI : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit SLTrainingUI(QWidget *parent = 0, Module_SonarLocalization* sonarLoc = NULL);
+    explicit SLTrainingUI(SonarEchoFilter* filter, QWidget *parent = 0);
     ~SLTrainingUI();
 
 private:
@@ -55,7 +55,7 @@ private:
     QAction *actionNext;
 
     void askForClasses();
-    SonarEchoFilter *filter;
+    SonarEchoFilter* filter;
     void clearActions();
     cv::Mat cvtList2Mat();
 

@@ -21,6 +21,7 @@ SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent)
     this->initNoiseMat();
     svm = new SVMClassifier();
     reset();
+    this->lastMaxValue = -1;
 }
 
 /**
@@ -37,7 +38,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     SonarEchoData currData = SonarEchoData(data);
     this->filterEcho(currData);
     if(this->sloc->getSettingsValue("medianFilter").toBool())
-        this->medianFilter(currData);
+    this->medianFilter(currData);
 //    this->findWall(currData);
     this->gradientFilter(currData);
     this->extractFeatures(currData);
@@ -62,11 +63,7 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
     {
         if(gain < 17)
         {
-            float newVal = 0.0;
-            if (noiseMat.at<float>(gain-1,j) != 0.0) {
-                newVal = qMax(0.0f, echo.at<float>(0,j) / noiseMat.at<float>(gain-1,j) - 1);
-            }
-            echoFiltered.at<float>(0,j) = newVal * noiseMat.at<float>(gain-1,j);
+            echoFiltered.at<float>(0,j) = qMax(0.0f, echo.at<float>(0,j) - noiseMat.at<float>(gain-1,j));
         } else
         {
             echoFiltered.at<float>(0,j) = 0.0;
@@ -94,13 +91,10 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
     // which may be used as the wall candidate).
     QList<int> ks;
     ks.clear();
-    ks.append(3);
-    ks.append(5);
-    ks.append(7);
-    ks.append(12);
+    ks.append(16);
+    ks.append(8);
+    ks.append(4);
     int k;
-    float maxVal = 0;
-    int maxIdx = 0;
     foreach(k, ks)
     {
         for (int j = 0; j < N; j++) {
@@ -108,24 +102,33 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
             int down = qMin(j + k, N - 1);
             float gradient = 0;
             if (up == j - k && down == j + k) {
-                gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (down - up));
+                gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (2*k));
             }
-            if (gradient > maxVal) {
-                maxVal = gradient;
-                maxIdx = j;
-            }
-            echoFiltered.at<float>(0,j) *= gradient;
+            echoFiltered.at<float>(0,j) = echoFiltered.at<float>(0,j) * gradient;
         }
-
     }
-    int maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toInt();
+    data.setGradient(this->mat2List(echoFiltered));
+
+    //estimate wallcandidate
+    float maxVal = 0;
+    int maxIdx = 0;
+    for (int i = 0; i < N; i++) {
+        if (echoFiltered.at<float>(0,i) > maxVal) {
+            maxVal = echoFiltered.at<float>(0,i);
+            maxIdx = i;
+        }
+    }
+    float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
     int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
+    if (lastMaxValue > 0) {
+        maxValTH = maxValTH*lastMaxValue;
+    }
     if (maxVal > maxValTH && maxIdx > maxIdxTH) {
         data.setWallCandidate(maxIdx);
     } else {
         data.setWallCandidate(-1);
     }
-    data.setGradient(this->mat2byteArray(echoFiltered));
+
 }
 
 void SonarEchoFilter::medianFilter(SonarEchoData &data)
@@ -404,19 +407,29 @@ void SonarEchoFilter::grouping()
 void SonarEchoFilter::sendImage()
 {
     this->applyHeuristic();
-     QList<QVector2D> posArray;
-     posArray.clear();
-     QList<SonarEchoData> bla;
-     for(int i = 0; i < candidates.size(); i++)
-     {
-         if(candidates[i].getWallCandidate() > 0 && candidates[i].getClassLabel() == 1)
-         {
-             QVector2D vec = candidates[i].getEuclidean();
+    QList<QVector2D> posArray;
+    posArray.clear();
+    QList<SonarEchoData> bla;
+    for(int i = 0; i < candidates.size(); i++)
+    {
+        if(candidates[i].getWallCandidate() > 0 && candidates[i].getClassLabel() == 1)
+        {
+            QVector2D vec = candidates[i].getEuclidean();
             posArray.append(vec);
             bla.append(candidates[i]);
         }
-     }
-     logger->debug("New Image");
+    }
+    lastMaxValue = 0.0f;
+    for(int j = 0; j < bla.size(); j++) {
+        QList<float> data = bla[j].getGradient();
+        for (int i = 0; i < data.size(); i++) {
+            if (data[i] > lastMaxValue) {
+                lastMaxValue = data[i];
+            }
+
+        }
+    }
+    logger->debug("New Image");
     emit newImage(posArray);
     emit newSonarEchoData(bla);
     //reset local variables
@@ -506,6 +519,18 @@ QByteArray SonarEchoFilter::mat2byteArray(cv::Mat &mat)
         arr.append(mat.at<float>(0,i));
     }
     for(int i=arr.size();i<252;i++)
+        arr.append(0.0);
+    return arr;
+}
+
+QList<float> SonarEchoFilter::mat2List(cv::Mat &mat)
+{
+    QList<float> arr;
+    for(int i=0;i<mat.cols;i++)
+    {
+        arr.append(mat.at<float>(0,i));
+    }
+    for(int i=arr.size();i<250;i++)
         arr.append(0.0);
     return arr;
 }

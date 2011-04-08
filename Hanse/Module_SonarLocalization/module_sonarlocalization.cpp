@@ -66,6 +66,11 @@ SonarParticleFilter& Module_SonarLocalization::particleFilter()
     return this->pf;
 }
 
+SonarEchoFilter& Module_SonarLocalization::sonarEchoFilter()
+{
+    return this->filter;
+}
+
 void Module_SonarLocalization::newPositionEst(QVector3D p)
 {
     emit newLocalizationEstimate();

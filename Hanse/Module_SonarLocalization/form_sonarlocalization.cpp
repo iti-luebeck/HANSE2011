@@ -334,7 +334,8 @@ void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
     sonarEchoDataList.clear();
     while (!list.empty())
     {
-        sonarEchoDataList.append(list.takeFirst());
+        SonarEchoData d = list.takeFirst();
+        sonarEchoDataList.append(d);
     }
     while(sonarEchoDataList.size() < viewWidth)
         sonarEchoDataList.append(SonarEchoData());
@@ -381,20 +382,28 @@ void Form_SonarLocalization::updateSonarViewUnfiltered()
     int viewWidth = 100;
     float n = 250;
     sceneUnfiltered.clear();
+    float maxVal = 0.00001;
+    for(int j = 0; j < viewWidth; j++) {
+        QList<float> data = sonarEchoDataList[j].getGradient();
+        for (int i = 0; i < n; i++) {
+            if (data[i] > maxVal) {
+                maxVal = data[i];
+            }
+
+        }
+    }
     for(int j=0; j<viewWidth; j++)
     {
         QLinearGradient gi(0,0,0,279);
+        QList<float> data = sonarEchoDataList[j].getGradient();
         for (int i = 0; i < n; i++)
         {
-            QByteArray data = sonarEchoDataList[j].getFiltered();
-            char b = data[i];
-            //interval of [-70,70]
-            //negative bad!
-            int skalarM = 4;
+            unsigned char b = (unsigned char) (255 * data[i] / maxVal);
+
             if(b < 0)
-                gi.setColorAt(1.0*i/n,QColor(-skalarM*b,0,0));
+                gi.setColorAt(1.0*i/n,QColor(-1*b,0,0));
             else
-                gi.setColorAt(1.0*i/n,QColor(0,skalarM*b,0));
+                gi.setColorAt(1.0*i/n,QColor(0,b,0));
         }
         dataQueueUnfiltered.append(gi);
         dataQueueUnfiltered.pop_front();
@@ -421,6 +430,7 @@ void Form_SonarLocalization::on_selSVM_clicked()
 
 void Form_SonarLocalization::on_sltraining_clicked()
 {
+    SLTrainingUI slt(&m->sonarEchoFilter());
 //    SLTrainingUI slt;
 //    slt.show();
 }

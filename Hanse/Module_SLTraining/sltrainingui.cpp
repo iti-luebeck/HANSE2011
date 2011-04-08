@@ -5,12 +5,13 @@
 #include "Module_SonarLocalization/sonarechofilter.h"
 
 
-SLTrainingUI::SLTrainingUI(QWidget *parent, Module_SonarLocalization* sonarLoc) :
+SLTrainingUI::SLTrainingUI(SonarEchoFilter* filter, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SLTrainingUI)
 {
     ui->setupUi(this);
-    this->sloc = sonarLoc;
+//    this->sloc = sonarLoc;
+    this->filter = filter;
     //define Actions for classification
     actionPos = new QAction(this);
     actionPos->setShortcut(Qt::Key_1);
@@ -47,7 +48,7 @@ SLTrainingUI::SLTrainingUI(QWidget *parent, Module_SonarLocalization* sonarLoc) 
     nWallCand.clear();
     range = 0.0;
     currSample = 0;
-    filter = new SonarEchoFilter(sloc);
+//    filter = new SonarEchoFilter(sloc);
 
     svm = new SVMClassifier();
 }
