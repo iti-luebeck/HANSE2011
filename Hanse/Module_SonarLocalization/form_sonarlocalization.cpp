@@ -431,6 +431,5 @@ void Form_SonarLocalization::on_selSVM_clicked()
 void Form_SonarLocalization::on_sltraining_clicked()
 {
     SLTrainingUI slt(&m->sonarEchoFilter());
-//    SLTrainingUI slt;
-//    slt.show();
+    QTimer::singleShot(0,&slt,SLOT(show()));
 }
