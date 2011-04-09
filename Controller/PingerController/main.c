@@ -45,7 +45,9 @@ int main() {
 
 		/* Variable used to send and receive data. */
 	uint8_t sendData;
-	uint8_t receivedData;
+	uint8_t receivedData1;
+	uint8_t receivedData2;
+	uint8_t tmp8;
 
   	// PC3 (TXD0) as output.
 	PORTF.DIRSET   = PIN3_bm;
@@ -68,18 +70,50 @@ int main() {
 	USART_Rx_Enable(&USART);
 	USART_Tx_Enable(&USART);
 
+	/* SPI */
+	// define !SS as output
+	PORTC.DIRSET = PIN4_bm;
+	// define MOSI as output
+	PORTC.DIRSET = PIN5_bm;
+	// define SCK as output
+	PORTC.DIRSET = PIN7_bm;
 
-	/* Assume that everything is OK. */
-//	success = true;
-	/* Send data from 255 down to 0*/
-	sendData = 255;
-	while(sendData) {
-	    /* Send one char. */
-		do{
-		/* Wait until it is possible to put data into TX data register.
-		 * NOTE: If TXDataRegister never becomes empty this will be a DEADLOCK. */
-		}while(!USART_IsTXDataRegisterEmpty(&USART));
-		USART_PutChar(&USART, 0x39);
+	// define CS as output
+	PORTC.DIRSET = PIN3_bm;
+	PORTC.OUTSET = PIN3_bm;
+
+	// initialize SPI master
+	SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_MODE_3_gc | SPI_PRESCALER_DIV16_gc;
+
+	PORTD.OUT &= ~PIN0_bm;
+	while (1) {
+		// set chip active
+		PORTC.OUTCLR = PIN3_bm;
+		// transreceive byte
+		SPIC.DATA = 0;
+		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+		receivedData1 = SPIC.DATA;
+		SPIC.DATA = 0;
+		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+		receivedData2 = SPIC.DATA;
+		// set chip back to acquisition mode
+		PORTC.OUTSET = PIN3_bm;
+		SPIC.DATA = 0;
+		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+
+		for (int i=0; i<8; i++) {
+			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+			tmp8 = receivedData1 << i;
+			tmp8 = tmp8 >> 7;
+			USART_PutChar(&USART, tmp8 + '0');
+		}
+		for (int i=0; i<8; i++) {
+			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+//			USART_PutChar(&USART, 0x39);
+			USART_PutChar(&USART, (((receivedData2<<i) & 0x80)>>7) + '0');
+		}
+		while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+		USART_PutChar(&USART, '\r');
 
 		uint16_t timeout = 1000;
 		/* Receive one char. */
@@ -87,7 +121,7 @@ int main() {
 		/* Wait until data received or a timeout.*/
 		timeout--;
 		}while(!USART_IsRXComplete(&USART) && timeout!=0);
-		receivedData = USART_GetChar(&USART);
+//		receivedData = USART_GetChar(&USART);
 		if (timeout > 0) {
 			PORTD.OUTTGL = PIN0_bm;
 		}
@@ -103,53 +137,12 @@ int main() {
 //		PORTD.OUT &= ~PIN0_bm;
 	}
 
-//	/* Use USARTF0 and initialize buffers. */
-//	USART_InterruptDriver_Initialize(&USART_data, &USARTF0, USART_DREINTLVL_LO_gc);
-//
-//	/* USARTF0, 8 Data bits, No Parity, 1 Stop bit. */
-//	USART_Format_Set(USART_data.usart, USART_CHSIZE_8BIT_gc,
-//                     USART_PMODE_DISABLED_gc, false);
-
-	/* Enable RXC interrupt. */
-	//USART_RxdInterruptLevel_Set(USART_data.usart, USART_RXCINTLVL_LO_gc);
-
-	/* Set Baudrate to 9600 bps:
-	 * Do not use the baudrate scale factor
-	 *
-	 * Baudrate select = (I/O clock frequency)/(16 * Baudrate) - 1
-	 *                 16000000/(16*9600)-1 = 103
-	 */
-//	USART_Baudrate_Set(&USARTF0, 103 , 0);
-////	USART_Baudrate_Set(&USARTF0, 12 , 0);
-//
-//	/* Enable both RX and TX. */
-//	//USART_Rx_Enable(USART_data.usart);
-//	USART_Tx_Enable(USART_data.usart);
-//
-//	/* Enable PMIC interrupt level low. */
-//	PMIC.CTRL |= PMIC_LOLVLEX_bm;
-//
-//	/* Enable global interrupts. */
-//	sei();
-//
-//	/* counter variable. */
-//	uint8_t i;
-
-	/* Send sendArray. */
 
 	while (1) {
 		_delay_ms(1000);
 		PORTD.OUT |= PIN0_bm;
 		_delay_ms(1000);
 		PORTD.OUT &= ~PIN0_bm;
-//		i = 0;
-//		while (i < NUM_BYTES) {
-//			bool byteToBuffer;
-//			byteToBuffer = USART_TXBuffer_PutByte(&USART_data, sendArray[i]);
-//			if(byteToBuffer){
-//				i++;
-//			}
-//		}
 	}
 	return 0;
 }
