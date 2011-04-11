@@ -287,6 +287,9 @@ void Module_Simulation::parse_input(QString input){
     }
     else if(input.startsWith("Thruster"))
     {
+        QString thruster_name;
+        input_stream2 >> thruster_name;
+
         QString inputdata;
         input_stream2 >> inputdata;
     }
@@ -372,6 +375,9 @@ void Module_Simulation::parse_input(QString input){
     }
     else if(input.startsWith("IMU"))
     {
+        QString imu_name;
+        input_stream2 >> imu_name;
+
         QString input2;
         input_stream2 >> input2;
 
