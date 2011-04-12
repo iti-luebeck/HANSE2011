@@ -20,6 +20,7 @@
 #include <Module_ADC/module_adc.h>
 #include <Module_Simulation/module_simulation.h>
 #include <Module_EchoSounder/module_echosounder.h>
+#include <Module_XsensMTi/module_xsensmti.h>
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 #include <CommandCenter/commandcenter.h>
 
@@ -57,6 +58,9 @@ void ModulesGraph::build()
 
     Module_Compass *compass = new Module_Compass("compass", uid,sim);
     this->modules.append(compass);
+
+    Module_XsensMTi *xsens = new Module_XsensMTi("xsens", sim);
+    this->modules.append(xsens);
 
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);

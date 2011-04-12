@@ -114,7 +114,13 @@ HEADERS += Framework/healthstatus.h \
     Module_SLTraining/sltrainingui.h \
     Module_SLTraining/SVMClassifier.h \
     Module_SLTraining/ui_sltrainingui.h \
-    Module_SLTraining/sonardatasourcefilereader.h
+    Module_SLTraining/sonardatasourcefilereader.h \
+    Module_XsensMTi/module_xsensmti.h \
+    Module_XsensMTi/MTi/MTMessage.h \
+    Module_XsensMTi/MTi/MTi.h \
+    Module_XsensMTi/MTi/MTDataTypes.h \
+    Module_XsensMTi/MTi/CerealPort.h \
+    Module_XsensMTi/xsens_form.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \
@@ -210,7 +216,12 @@ SOURCES += Framework/robotmodule.cpp \
     CommandCenter/commandcenter.cpp \
     Module_SLTraining/sltrainingui.cpp \
     Module_SLTraining/SVMClassifier.cpp \
-    Module_SLTraining/sonardatasourcefilereader.cpp
+    Module_SLTraining/sonardatasourcefilereader.cpp \
+    Module_XsensMTi/module_xsensmti.cpp \
+    Module_XsensMTi/MTi/MTMessage.cpp \
+    Module_XsensMTi/MTi/MTi.cpp \
+    Module_XsensMTi/MTi/CerealPort.cpp \
+    Module_XsensMTi/xsens_form.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -241,5 +252,6 @@ FORMS += Framework/mainwindow.ui \
     Behaviour_WallFollowing/wallfollowingform.ui \
     Framework/pidwidget.ui \
     CommandCenter/commandcenterform.ui \
-    Module_SLTraining/sltrainingui.ui
+    Module_SLTraining/sltrainingui.ui \
+    Module_XsensMTi/xsens_form.ui
 OTHER_FILES += bin/log4qt.properties
