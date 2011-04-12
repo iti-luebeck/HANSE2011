@@ -8,7 +8,7 @@ SonarEchoData::SonarEchoData()
     for (int i = 0; i < 250; i++) this->gradient.append(0.0f);
     this->classLabel = 0;
     this->wallCandidate = -1;
-
+    this->headingIncrement = 0;
 }
 
 SonarEchoData::SonarEchoData(SonarReturnData data)
@@ -27,7 +27,7 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->group = -1;
     this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
-
+    this->headingIncrement = 0;
 }
 
 SonarEchoData::SonarEchoData(const SonarEchoData& dat)
@@ -47,6 +47,7 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
         this->gradient.push_back(dat.gradient[i]);
     }
     this->group = dat.group;
+    this->headingIncrement = dat.headingIncrement;
 }
 
 cv::Mat SonarEchoData::getFeatures()
@@ -88,7 +89,7 @@ QDateTime SonarEchoData::getTimeStamp()
 
 float SonarEchoData::getHeadPosition()
 {
-    return this->headPosition;
+    return this->headPosition + this->headingIncrement;
 }
 
 float SonarEchoData::getRange()
@@ -109,6 +110,16 @@ int SonarEchoData::getGroupID()
 void SonarEchoData::setGroupID(int id)
 {
     this->group = id;
+}
+
+float SonarEchoData::getHeadingIncrement()
+{
+    return this->headingIncrement;
+}
+
+void SonarEchoData::setHeadingIncrement(float inc)
+{
+    this->headingIncrement = inc;
 }
 
 void SonarEchoData::addFeature(int index, float value)
@@ -147,8 +158,8 @@ QVector2D SonarEchoData::getEuclidean()
 {
     double x,y;
     float range = this->getRange();
-    x = cos(this->getHeadPosition()/180*M_PI)*this->getWallCandidate()*range/N;
-    y = sin(this->getHeadPosition()/180*M_PI)*this->getWallCandidate()*range/N;
+    x = cos(this->getHeadPosition() / 180 * M_PI) * this->getWallCandidate() * range / N;
+    y = sin(this->getHeadPosition() / 180 * M_PI) * this->getWallCandidate() * range / N;
     QVector2D vec = QVector2D(x,y);
     return vec;
 }

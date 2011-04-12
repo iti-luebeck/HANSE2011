@@ -24,6 +24,7 @@ public:
     float getRange();
     float getHeadPosition();
     float getGain();
+    float getHeadingIncrement();
     QDateTime getTimeStamp();
     cv::Mat getFeatures();
 
@@ -33,6 +34,7 @@ public:
     void setWallCandidate(int bin);
     void addFeature(int index, float value);
     void addOffsetToHeadPos(float degree);
+    void setHeadingIncrement(float inc);
 
     void setGroupID(int id);
     int getGroupID();
@@ -51,11 +53,11 @@ private:
     float headPosition;
     float range;
     QDateTime timestamp;
-//    QByteArray features;
     cv::Mat features;
     float gain;
-//    float features;
     int group;
+    float headingIncrement;
+//    QByteArray features;
 };
 
 #endif // SONARECHODATA_H

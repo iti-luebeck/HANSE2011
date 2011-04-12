@@ -9,13 +9,14 @@
 #include "Module_SLTraining/SVMClassifier.h"
 
 class Module_SonarLocalization;
+class Module_XsensMTi;
 
 class SonarEchoFilter: public QObject
 {
     Q_OBJECT
 
 public:
-    SonarEchoFilter(Module_SonarLocalization* sonar);
+    SonarEchoFilter(Module_SonarLocalization* sonar, Module_XsensMTi *mti);
 
     const static int N = 250;
 
@@ -78,6 +79,7 @@ private:
 //    QSettings& s;
 
     Module_SonarLocalization* sloc;
+    Module_XsensMTi *mti;
 
     /**
       * Logger instance for this module
@@ -92,7 +94,6 @@ private:
     cv::Mat noiseMat;
     void initNoiseMat();
     float prevWallCandidate;
-    //helpers
 
 };
 

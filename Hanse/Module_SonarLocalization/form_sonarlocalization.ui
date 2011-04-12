@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>925</width>
-    <height>681</height>
+    <height>769</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -167,15 +167,15 @@
             </property>
            </widget>
           </item>
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="gradMaxVal"/>
+          </item>
           <item row="7" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Gradient maxIdx:</string>
             </property>
            </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLineEdit" name="gradMaxVal"/>
           </item>
           <item row="7" column="1">
            <widget class="QLineEdit" name="gradMaxIdx"/>
@@ -190,34 +190,12 @@
           <item row="8" column="1">
            <widget class="QLineEdit" name="histMaxVal"/>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>Grouping</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout_4">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_20">
+          <item row="9" column="0">
+           <widget class="QCheckBox" name="xsensBox">
             <property name="text">
-             <string>darkness count</string>
+             <string>Use Xsens Correction</string>
             </property>
            </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="groupingDarknessCnt"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>max area</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="groupingMaxArea"/>
           </item>
          </layout>
         </widget>
@@ -347,6 +325,35 @@
              <string>SLTraining</string>
             </property>
            </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>Grouping</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>darkness count</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="groupingDarknessCnt"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>max area</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="groupingMaxArea"/>
           </item>
          </layout>
         </widget>

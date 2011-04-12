@@ -6,15 +6,17 @@
 #include <Module_ScanningSonar/module_scanningsonar.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_SonarLocalization/svm.h>
+#include <Module_XsensMTi/module_xsensmti.h>
 
 
 
 using namespace cv;
 
-SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent)
+SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent, Module_XsensMTi *mti)
 //    : s(parent->getSettingsCopy())
 {
     this->sloc = parent;
+    this->mti = mti;
 
     logger = Log4Qt::Logger::logger("SonarFilter");
 
@@ -37,6 +39,11 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
         return;
 
     SonarEchoData currData = SonarEchoData(data);
+
+    if (this->sloc->getSettingsValue("use xsens").toBool()) {
+        currData.setHeadingIncrement(mti->getHeadingIncrement());
+    }
+
     this->filterEcho(currData);
     if(this->sloc->getSettingsValue("medianFilter").toBool())
     this->medianFilter(currData);
@@ -394,7 +401,7 @@ void SonarEchoFilter::grouping()
                 candidates.clear();
                 //restore candidates
                 temp_area = tmp_area;
-                for(int i = 0; i < tmp.size(); i++)
+                for (int i = 0; i < tmp.size(); i++)
                     candidates.append(tmp.takeFirst());
             }
         }
@@ -410,19 +417,33 @@ void SonarEchoFilter::sendImage()
     this->applyHeuristic();
     QList<QVector2D> posArray;
     posArray.clear();
-    QList<SonarEchoData> bla;
-    for(int i = 0; i < candidates.size(); i++)
-    {
-        if(candidates[i].getWallCandidate() > 0 && candidates[i].getClassLabel() == 1)
-        {
-            QVector2D vec = candidates[i].getEuclidean();
-            posArray.append(vec);
-            bla.append(candidates[i]);
+    QList<SonarEchoData> wallFeatures;
+
+    // Set heading increments for correction of the sonar values. We do this
+    // from back to front to obtain a correction relative to the most recent
+    // sonar reading.
+    float accumulatedHeadingIncrement = 0;
+    if (this->sloc->getSettingsValue("use xsens").toBool()) {
+        for (int i = candidates.size() - 1; i >= 0; i--) {
+            float headingIncrement = candidates[i].getHeadingIncrement();
+            candidates[i].setHeadingIncrement(accumulatedHeadingIncrement);
+            accumulatedHeadingIncrement -= headingIncrement;
         }
     }
+
+    // Get Euclidian representation of wall features.
+    for (int i = 0; i < candidates.size(); i++) {
+        if (candidates[i].getWallCandidate() > 0 && candidates[i].getClassLabel() == 1) {
+            QVector2D vec  = candidates[i].getEuclidean();
+            posArray.append(vec);
+            wallFeatures.append(candidates[i]);
+        }
+    }
+
+    // Calculate maximum value in the current frame.
     lastMaxValue = 0.0f;
-    for(int j = 0; j < bla.size(); j++) {
-        QList<float> data = bla[j].getGradient();
+    for(int j = 0; j < wallFeatures.size(); j++) {
+        QList<float> data = wallFeatures[j].getGradient();
         for (int i = 0; i < data.size(); i++) {
             if (data[i] > lastMaxValue) {
                 lastMaxValue = data[i];
@@ -430,24 +451,27 @@ void SonarEchoFilter::sendImage()
 
         }
     }
-    //history of lastMaxValues
+
+    // Store a history of maximum values.
     lastMaxValues.append(lastMaxValue);
-    while(lastMaxValues.size() < this->sloc->getSettingsValue("histMaxVal").toInt()+1)
+    while(lastMaxValues.size() < this->sloc->getSettingsValue("histMaxVal").toInt()+1) {
         lastMaxValues.append(lastMaxValue);
+    }
     lastMaxValues.pop_front();
 
-    //compute lastMaxValue as maximum of lastMaxValues
+    // Compute lastMaxValue as maximum of lastMaxValues
     float maxi = 0.0f;
-    for(int i = 0; i < lastMaxValues.size(); i++)
-    {
-        if(lastMaxValues[i] > maxi)
+    for (int i = 0; i < lastMaxValues.size(); i++) {
+        if (lastMaxValues[i] > maxi) {
             maxi = lastMaxValues[i];
+        }
     }
     lastMaxValue = maxi;
 
     logger->debug("New Image");
     emit newImage(posArray);
-    emit newSonarEchoData(bla);
+    emit newSonarEchoData(wallFeatures);
+
     //reset local variables
     candidates.clear();
     groupID++;

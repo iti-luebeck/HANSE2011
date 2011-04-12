@@ -41,7 +41,6 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     for(int i =0; i<100; i++)
     {
         dataQueue.append(gi);
-
     }
 
     //unfiltered View
@@ -109,7 +108,6 @@ void Form_SonarLocalization::createMap()
 
 void Form_SonarLocalization::setFields()
 {
-
     ui->config_mapFile->setText(m->getSettingsValue("mapFile").toString());
     ui->config_satImage->setText(m->getSettingsValue("satImgFile").toString());
     ui->scaleMap->setText(m->getSettingsValue("scaleMap").toString());
@@ -143,6 +141,7 @@ void Form_SonarLocalization::setFields()
     ui->gradMaxIdx->setText(m->getSettingsValue("gradientMaxIdx").toString());
     ui->histMaxVal->setText(m->getSettingsValue("histMaxVal").toString());
 
+    ui->xsensBox->setChecked(m->getSettingsValue("use xsens").toBool());
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -248,6 +247,8 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->setSettingsValue("gradientMaxVal",ui->gradMaxVal->text());
     m->setSettingsValue("gradientMaxIdx",ui->gradMaxIdx->text());
     m->setSettingsValue("histMaxVal",ui->histMaxVal->text());
+
+    m->setSettingsValue("use xsens",ui->xsensBox->isChecked());
 
     m->reset();
 }

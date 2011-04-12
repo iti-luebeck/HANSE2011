@@ -1,27 +1,23 @@
 #include "module_sonarlocalization.h"
-#include <QtGui>
+#include <QtCore>
 #include "form_sonarlocalization.h"
-#include "sonarechofilter.h"
-#include "sonarparticlefilter.h"
-#include <opencv/cv.h>
 #include <Module_ScanningSonar/module_scanningsonar.h>
 #include <Module_PressureSensor/module_pressuresensor.h>
-#include <qfile.h>
-#include <qtextstream.h>
 #include <Module_ScanningSonar/sonardatasourcefile.h>
+#include <Module_XsensMTi/module_xsensmti.h>
 
 using namespace cv;
 
-Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_PressureSensor* pressure)
+Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti)
     : RobotModule(id),
-        filter(this),
+        filter(this, mti),
         pf(*this, filter)
 {
-       filter.moveToThread(this);
-       pf.moveToThread(this);
+    filter.moveToThread(this);
+    pf.moveToThread(this);
 
-       this->sonar = sonar;
-
+    this->sonar = sonar;
+    this->mti = mti;
 }
 
 void Module_SonarLocalization::init()
@@ -90,9 +86,6 @@ Position Module_SonarLocalization::getLocalization()
     Position r;
     r.setX(p.x());
     r.setY(p.y());
-//    if(pressure)
-//    if(pressure && pressure->isEnabled() && pressure->getHealthStatus().isHealthOk())
-//        r.setZ(pressure->getDepth());
     r.setZ(0);
     r.setYaw(p.z()*180/M_PI);
     return r;
