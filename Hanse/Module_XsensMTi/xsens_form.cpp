@@ -28,4 +28,5 @@ void Xsens_Form::on_pushButton_clicked()
     mti->setSettingsValue("updaterate", updateRate);
     mti->setSettingsValue("port", portName);
     mti->setSettingsValue("baudrate", baudRate);
+    QTimer::singleShot(0, mti, SLOT(reset()));
 }

@@ -15,6 +15,14 @@ Module_XsensMTi::Module_XsensMTi(QString id, Module_Simulation *sim)
     timer.moveToThread(this);
 }
 
+Module_XsensMTi::~Module_XsensMTi() {
+    terminate();
+
+    if (mti != NULL) {
+        delete(mti);
+    }
+}
+
 void Module_XsensMTi::init()
 {
     connect(&timer, SIGNAL(timeout()), this, SLOT(refreshData()));
@@ -55,6 +63,8 @@ void Module_XsensMTi::reset()
         connected = false;
     }
 
+    sleep(1);
+
     mti = new Xsens::MTi();
 
     if(!mti->openPort((char*)getSettingsValue("port").toString().toStdString().c_str(), getSettingsValue("baudrate").toInt())) {
@@ -93,6 +103,10 @@ QList<RobotModule*> Module_XsensMTi::getDependencies()
 QWidget* Module_XsensMTi::createView(QWidget* parent)
 {
     return new Xsens_Form(this, parent);
+}
+
+void Module_XsensMTi::doHealthCheck() {
+
 }
 
 void Module_XsensMTi::refreshData()

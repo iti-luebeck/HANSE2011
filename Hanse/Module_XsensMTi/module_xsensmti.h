@@ -34,7 +34,7 @@ signals:
     void requestAngles();
 
 protected slots:
-    virtual void doHealthCheck();
+    void doHealthCheck();
 
 private slots:
     void refreshData();

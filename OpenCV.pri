@@ -10,4 +10,4 @@ win32 {
 }
 
 # debian/ubuntu: aptitude install libcv-dev libcvaux-dev libhighgui-dev libswscale-dev
-unix:LIBS += -lcv -lcxcore -lcvaux
+unix:LIBS += -lcv -lcxcore -lcvaux -lboost_thread
