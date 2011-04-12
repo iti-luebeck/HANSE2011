@@ -13,6 +13,7 @@ Module_XsensMTi::Module_XsensMTi(QString id, Module_Simulation *sim)
     connected = false;
     mti = NULL;
     timer.moveToThread(this);
+    heading = 0;
 }
 
 Module_XsensMTi::~Module_XsensMTi() {
@@ -118,9 +119,9 @@ void Module_XsensMTi::refreshData()
         emit requestAngles();
     }
     else {
-        addData("yaw", mti->yaw());
-        addData("pitch", mti->pitch());
-        addData("roll", mti->roll());
+        addData("yaw", 180 * mti->yaw() / M_PI);
+        addData("pitch", 180 * mti->pitch() / M_PI);
+        addData("roll", 180 * mti->roll() / M_PI);
 
         if (getHealthStatus().isHealthOk()) {
             emit dataChanged(this);
@@ -130,9 +131,9 @@ void Module_XsensMTi::refreshData()
 
 void Module_XsensMTi::refreshSimData(float angle_yaw, float angle_pitch, float angle_roll)
 {
-    addData("yaw",angle_yaw);
-    addData("pitch",angle_pitch);
-    addData("roll",angle_roll);
+    addData("yaw", angle_yaw);
+    addData("pitch", angle_pitch);
+    addData("roll", angle_roll);
     if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
     }
@@ -143,15 +144,15 @@ float Module_XsensMTi::getHeading() {
 }
 
 float Module_XsensMTi::getHeadingIncrement() {
-    addData("yaw", mti->yaw());
-    addData("pitch", mti->pitch());
-    addData("roll", mti->roll());
+    addData("yaw", 180 * mti->yaw() / M_PI);
+    addData("pitch", 180 * mti->pitch() / M_PI);
+    addData("roll", 180 * mti->roll() / M_PI);
 
     float increment = getDataValue("heading").toFloat() - lastHeading;
-    if (increment > M_PI) {
-        increment -= 2 * M_PI;
-    } else if (increment <= -M_PI) {
-        increment += 2 * M_PI;
+    if (increment > 180) {
+        increment -= 360;
+    } else if (increment <= -180) {
+        increment += 360;
     }
 
     lastHeading = getDataValue("heading").toFloat();

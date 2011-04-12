@@ -93,7 +93,7 @@ void ModulesGraph::build()
     this->modules.append( cams );
 
     logger->debug("Creating Module_Navigation");
-    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, controlLoop, pressure, compass );
+    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, controlLoop, pressure, compass, xsens );
     this->modules.append(navi);
 
     logger->debug("Creating Behaviour_PipeFollowing");

@@ -142,31 +142,6 @@
         <string>Controller Configuration</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="headingBox">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>110</y>
-         <width>121</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <item>
-        <property name="text">
-         <string>Compass</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Visual SLAM</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Sonar</string>
-        </property>
-       </item>
-      </widget>
       <widget class="QLabel" name="label_7">
        <property name="geometry">
         <rect>
@@ -175,6 +150,12 @@
          <width>121</width>
          <height>16</height>
         </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="text">
         <string>Heading Sensor</string>
@@ -302,6 +283,45 @@
          <widget class="QLineEdit" name="minAngularSpeed"/>
         </item>
        </layout>
+      </widget>
+      <widget class="QCheckBox" name="headingBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>131</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use Heading</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="compassButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>140</y>
+         <width>117</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Compass</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="xsensButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>160</y>
+         <width>117</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Xsens</string>
+       </property>
       </widget>
      </widget>
     </widget>

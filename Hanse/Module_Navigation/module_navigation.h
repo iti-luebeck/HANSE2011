@@ -6,14 +6,15 @@
 #include <Framework/robotmodule.h>
 #include <Framework/position.h>
 
-#define NAV_STATE_IDLE                  500
-#define NAV_STATE_GO_TO_GOAL            501
-#define NAV_STATE_FAILED_TO_GO_TO_GOAL  502
-#define NAV_STATE_REACHED_GOAL          503
+#define NAV_STATE_IDLE                  "idle"
+#define NAV_STATE_GO_TO_GOAL            "go to goal"
+#define NAV_STATE_FAILED_TO_GO_TO_GOAL  "go to goal failed"
+#define NAV_STATE_REACHED_GOAL          "reached goal"
 
-#define NAV_SUBSTATE_ADJUST_DEPTH       600
-#define NAV_SUBSTATE_ADJUST_HEADING     601
-#define NAV_SUBSTATE_MOVE_FORWARD       602
+#define NAV_SUBSTATE_ADJUST_DEPTH       "adjust depth"
+#define NAV_SUBSTATE_ADJUST_HEADING     "adjust heading"
+#define NAV_SUBSTATE_MOVE_FORWARD       "move forward"
+#define NAV_SUBSTATE_DONE               "done"
 
 #define NAV_P_HEADING           0.005
 #define NAV_HYSTERESIS_HEADING  10
@@ -24,12 +25,11 @@
 #define NAV_FORWARD_MAX_DIST    4
 #define NAV_FORWARD_TIME        5
 
-class Module_Localization;
 class Module_SonarLocalization;
-class Module_VisualSLAM;
 class Module_ThrusterControlLoop;
 class Module_PressureSensor;
 class Module_Compass;
+class Module_XsensMTi;
 
 class MapWidget;
 
@@ -42,7 +42,8 @@ public:
                        Module_SonarLocalization *sonarLoc,
                        Module_ThrusterControlLoop* tcl,
                        Module_PressureSensor *pressure,
-                       Module_Compass *compass );
+                       Module_Compass *compass,
+                       Module_XsensMTi *mti );
 
     QWidget* createView(QWidget* parent);
 
@@ -97,6 +98,8 @@ private:
     void saveWaypoints( QTextStream &ts );
     void loadWaypoints( QTextStream &ts );
     void init();
+    float pi2pi(float ang);
+    float ang2ang(float ang);
 
 public slots:
     /**
@@ -117,8 +120,8 @@ public slots:
     void save( QString path );
     void load( QString path );
 
-    void depthUpdate(float depth);
-    void headingUpdate( RobotModule * );
+    void compassUpdate(RobotModule *);
+    void xsensUpdate(RobotModule *);
     void sonarPositionUpdate();
     void forwardDone();
 
@@ -140,21 +143,26 @@ protected:
 
 private:    
     Position defaultPos;
+
     Module_SonarLocalization *sonarLoc;
     Module_ThrusterControlLoop* tcl;
     Module_PressureSensor *pressure;
     Module_Compass *compass;
+    Module_XsensMTi *mti;
+
     QMap<QDateTime, QString> history;
     QMap<QString, Position> waypoints;
 
     QString currentGoalName;
     Position currentGoalPosition;
+
     double headingToGoal;
     double distanceToGoal;
     float initialCompassHeading;
+    float initialXsensHeading;
 
-    int state;
-    int substate;
+    QString state;
+    QString substate;
 
 };
 #endif // MODULE_NAVIGATION_H

@@ -11,29 +11,39 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     this->nav = nav;
     ui->mapWidget->setNavigation(nav);
 
-//    QSettings& settings = nav->getSettings();
-    ui->headingPEdit->setText( nav->getSettingsValue( QString( "p_heading" ),
-                                               NAV_P_HEADING ).toString() );
-    ui->headingHysteresisEdit->setText( nav->getSettingsValue( QString( "hysteresis_heading" ),
-                                                        NAV_HYSTERESIS_HEADING ).toString() );
-    ui->goalHysteresisEdit->setText( nav->getSettingsValue( QString( "hysteresis_goal" ),
-                                                    NAV_HYSTERESIS_GOAL ).toString() );
-    ui->depthHysteresisEdit->setText( nav->getSettingsValue( QString( "hysteresis_depth" ),
-                                                      NAV_HYSTERESIS_DEPTH ).toString() );    
-    ui->forwardSpeedEdit->setText( nav->getSettingsValue( "p_forward",
-                                                   NAV_P_FORWARD).toString() );
-    ui->forwardMaxDistEdit->setText( nav->getSettingsValue( "forward_max_dist",
-                                                     NAV_FORWARD_MAX_DIST).toString() );
-    ui->forwardMaxSpeedEdit->setText( nav->getSettingsValue( "forward_max_speed",
-                                                      NAV_FORWARD_MAX_SPEED).toString() );
-    ui->forwardTimeEdit->setText( nav->getSettingsValue( QString( "forward_time" ),
-                                                  NAV_FORWARD_TIME).toString() );
-    ui->headingBox->setCurrentIndex(nav->getSettingsValue("heading_sensor").toInt());
-
+    ui->headingPEdit->setText(nav->getSettingsValue(QString("p_heading"), NAV_P_HEADING).toString());
+    ui->headingHysteresisEdit->setText(nav->getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toString());
+    ui->goalHysteresisEdit->setText(nav->getSettingsValue(QString("hysteresis_goal"), NAV_HYSTERESIS_GOAL).toString());
+    ui->depthHysteresisEdit->setText(nav->getSettingsValue(QString("hysteresis_depth"), NAV_HYSTERESIS_DEPTH).toString());
+    ui->forwardSpeedEdit->setText(nav->getSettingsValue("p_forward", NAV_P_FORWARD).toString());
+    ui->forwardMaxDistEdit->setText(nav->getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST).toString());
+    ui->forwardMaxSpeedEdit->setText( nav->getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toString());
+    ui->forwardTimeEdit->setText(nav->getSettingsValue(QString("forward_time"), NAV_FORWARD_TIME).toString());
     ui->maxAngularSpeed->setText(nav->getSettingsValue("angular_max_speed").toString());
     ui->minAngularSpeed->setText(nav->getSettingsValue("angular_min_speed").toString());
+
+    bool useCompass = nav->getSettingsValue("use compass", true).toBool();
+    bool useXsens = nav->getSettingsValue("use xsens", false).toBool();
+
+    if (useCompass || useXsens) {
+        ui->headingBox->setChecked(true);
+    } else {
+        ui->headingBox->setChecked(false);
+    }
+
+    if (useXsens) {
+        ui->xsensButton->setChecked(true);
+    } else if (useCompass) {
+        ui->compassButton->setChecked(true);
+    }
+
     qRegisterMetaType<Position>("Position");
-    connect(this,SIGNAL(goToPosition(QString,Position)),nav,SLOT(gotoWayPoint(QString,Position)));
+
+    QObject::connect(this,SIGNAL(goToPosition(QString,Position)),nav,SLOT(gotoWayPoint(QString,Position)));
+    QObject::connect( nav, SIGNAL( updatedWaypoints(QMap<QString,Position>) ),
+                      this, SLOT( updateList(QMap<QString,Position>) ) );
+    QObject::connect( this, SIGNAL( removedWaypoint(QString) ),
+                      nav, SLOT( removeWaypoint(QString) ) );
 }
 
 Form_Navigation::~Form_Navigation()
@@ -207,19 +217,28 @@ void Form_Navigation::on_applyButton_clicked()
         return;
     }
 
+    bool useCompass = false;
+    bool useXsens = false;
+    if (ui->headingBox->isChecked()) {
+        if (ui->xsensButton->isChecked()) {
+            useXsens = true;
+        } else if (ui->compassButton->isChecked()) {
+            useCompass = true;
+        }
+    }
 
-//    QSettings& settings = nav->getSettings();
-    nav->setSettingsValue( "p_heading", p_heading );
-    nav->setSettingsValue( "hysteresis_heading", hysteresis_heading );
-    nav->setSettingsValue( "hysteresis_goal", hysteresis_goal );
-    nav->setSettingsValue( "hysteresis_depth", hysteresis_depth );
-    nav->setSettingsValue( "p_forward", p_forward );
-    nav->setSettingsValue( "forward_time", forward_time );
-    nav->setSettingsValue( "forward_max_speed", forward_max_speed );
-    nav->setSettingsValue( "forward_max_dist", forward_max_dist );
-    nav->setSettingsValue( "heading_sensor", ui->headingBox->currentIndex() );
-    nav->setSettingsValue("angular_max_speed",angular_max_speed);
-    nav->setSettingsValue("angular_min_speed",angular_min_speed);
+    nav->setSettingsValue("p_heading", p_heading );
+    nav->setSettingsValue("hysteresis_heading", hysteresis_heading );
+    nav->setSettingsValue("hysteresis_goal", hysteresis_goal );
+    nav->setSettingsValue("hysteresis_depth", hysteresis_depth );
+    nav->setSettingsValue("p_forward", p_forward );
+    nav->setSettingsValue("forward_time", forward_time );
+    nav->setSettingsValue("forward_max_speed", forward_max_speed );
+    nav->setSettingsValue("forward_max_dist", forward_max_dist );
+    nav->setSettingsValue("angular_max_speed", angular_max_speed);
+    nav->setSettingsValue("angular_min_speed", angular_min_speed);
+    nav->setSettingsValue("use xsens", useXsens);
+    nav->setSettingsValue("use compass", useCompass);
 }
 
 void Form_Navigation::on_gotoButton_clicked()
@@ -230,7 +249,6 @@ void Form_Navigation::on_gotoButton_clicked()
     {
         QString goal = selectedItems[0]->text();
         emit goToPosition(goal, Position());
-//        nav->gotoWayPoint( goal, Position() );
     }
 }
 

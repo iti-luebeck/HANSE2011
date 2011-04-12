@@ -1,39 +1,39 @@
 #include "module_navigation.h"
 
-#include <QtGui>
-#include "form_navigation.h"
+//#include <QtGui>
+#include <Module_Navigation/form_navigation.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
-//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include <Module_Compass/module_compass.h>
+#include <Module_XsensMTi/module_xsensmti.h>
 
 Module_Navigation::Module_Navigation( QString id,
                                       Module_SonarLocalization *sonarLoc,
                                       Module_ThrusterControlLoop *tcl,
                                       Module_PressureSensor *pressure,
-                                      Module_Compass *compass ) :
+                                      Module_Compass *compass,
+                                      Module_XsensMTi *mti ) :
         RobotModule(id)
 {
     this->sonarLoc = sonarLoc;
     this->tcl = tcl;
     this->pressure = pressure;
     this->compass = compass;
-
-
+    this->mti = mti;
 }
 
 void Module_Navigation::init()
 {
-        qRegisterMetaType< QMap<QString,Position> >("QMap<QString,Position>");
+    qRegisterMetaType< QMap<QString,Position> >("QMap<QString,Position>");
 
     // Connect to signals from the sensors.
-//    QObject::connect( pressure, SIGNAL(newDepthData(float)),
-//                      this, SLOT( depthUpdate(float) ) );
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( headingUpdate(RobotModule*) ) );
+                      this, SLOT( compassUpdate(RobotModule*) ) );
     QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
                       this, SLOT( sonarPositionUpdate() ) );
+    QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
+                      this, SLOT( xsensUpdate(RobotModule*) ) );
 
     connect(this,SIGNAL(newDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
@@ -57,20 +57,17 @@ void Module_Navigation::terminate()
 QList<RobotModule*> Module_Navigation::getDependencies()
 {
     QList<RobotModule*> ret;
-    ret.append( sonarLoc );
-    ret.append( tcl );
-    ret.append( pressure );
-    ret.append( compass );
+    ret.append(sonarLoc);
+    ret.append(tcl);
+    ret.append(pressure);
+    ret.append(compass);
+    ret.append(mti);
     return ret;
 }
 
 QWidget* Module_Navigation::createView(QWidget* parent)
 {
     Form_Navigation *form = new Form_Navigation( this, parent );
-    QObject::connect( this, SIGNAL( updatedWaypoints(QMap<QString,Position>) ),
-                      form, SLOT( updateList(QMap<QString,Position>) ) );
-    QObject::connect( form, SIGNAL( removedWaypoint(QString) ),
-                      SLOT( removeWaypoint(QString) ) );
     updatedWaypoints( waypoints );
     return form;
 }
@@ -120,196 +117,140 @@ void Module_Navigation::clearGoal()
     clearedGoal();
 }
 
-void Module_Navigation::depthUpdate( float depth)
+void Module_Navigation::compassUpdate( RobotModule * )
 {
-    float currentDepth = depth;
-    switch ( state )
-    {
-    case NAV_STATE_IDLE:
-        break;
-    case NAV_STATE_GO_TO_GOAL:
-        switch ( substate )
-        {
-        case NAV_SUBSTATE_ADJUST_DEPTH:
-            if ( fabs( currentDepth - currentGoalPosition.getZ() ) <
-                 getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() )
-            {
-                substate = NAV_SUBSTATE_ADJUST_HEADING;
-                addData("substate", substate);
-                emit dataChanged( this );
+    if (!getSettingsValue("enabled").toBool())
+        return;
+
+    if (getSettingsValue("use compass", false).toBool()) {
+        float compassHeading = compass->getHeading();
+        if (state == NAV_STATE_GO_TO_GOAL) {
+            if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
+                float diffHeading = pi2pi(initialCompassHeading - compassHeading);
+                if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
+                    float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
+                    emit newANGSpeed(val);
+                } else {
+                    emit newANGSpeed(.0);
+                }
             }
-            break;
-        case NAV_SUBSTATE_ADJUST_HEADING:
-        case NAV_SUBSTATE_MOVE_FORWARD:
-            break;
         }
-        break;
-    case NAV_STATE_FAILED_TO_GO_TO_GOAL:
-    case NAV_STATE_REACHED_GOAL:
-        break;
     }
 }
 
-void Module_Navigation::headingUpdate( RobotModule * )
+void Module_Navigation::xsensUpdate( RobotModule * )
 {
-    double compassHeading = compass->getHeading();
-    int headingSensor = getSettingsValue( "heading_sensor", 0 ).toInt();
-    return;
-    switch ( state )
-    {
-    case NAV_STATE_IDLE:
-        break;
-    case NAV_STATE_GO_TO_GOAL:
-        switch ( substate )
-        {
-        case NAV_SUBSTATE_ADJUST_DEPTH:
-            break;
-        case NAV_SUBSTATE_ADJUST_HEADING:
-            if ( headingSensor == 0 )
-            {
-                // Adjust the heading with a P controller.
-                if ( fabs( headingToGoal - compassHeading ) >
-                     getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
-                {
-                    // positiv: drehhung nach rechts.
-                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toDouble()
-                                * ( headingToGoal - compassHeading );
-                    emit newANGSpeed(val);
-//                    tcl->setAngularSpeed(  );
-                }
-                else
-                {
-                    emit newANGSpeed(.0);
-//                    tcl->setAngularSpeed( .0 );
-                    float speed = getSettingsValue( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
-                    if ( distanceToGoal < getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
-                    {
-                        speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
-                                 ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
-                    }
-                    emit newFFSpeed(speed);
-//                    tcl->setForwardSpeed( speed );
-                    substate = NAV_SUBSTATE_MOVE_FORWARD;
-                    initialCompassHeading = compass->getHeading();
+    if (!getSettingsValue("enabled").toBool())
+        return;
 
-                    // Go forward for "forward_time" seconds.
-                    QTimer::singleShot( 1000 * getSettingsValue( "forward_time", NAV_FORWARD_TIME ).toDouble(),
-                                        this, SLOT( forwardDone() ) );
+    if (getSettingsValue("use xsens", true).toBool()) {
+        float xsensHeading = mti->getHeading();
+        if (state == NAV_STATE_GO_TO_GOAL) {
+            if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
+                float diffHeading = pi2pi(initialXsensHeading - xsensHeading);
+                if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
+                    float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
+                    emit newANGSpeed(val);
+                } else {
+                    emit newANGSpeed(.0);
                 }
-            }
-            break;
-        case NAV_SUBSTATE_MOVE_FORWARD:            
-            if ( fabs( initialCompassHeading - compassHeading ) >
-                 getSettingsValue(QString( "hysteresis_heading" ), NAV_HYSTERESIS_HEADING ).toDouble() )
-            {
-                float val = getSettingsValue( QString( "p_heading" ), NAV_P_HEADING ).toDouble()
-                            * ( initialCompassHeading - compassHeading );
-                emit newANGSpeed(val);
-//                tcl->setAngularSpeed(  );
-            }
-            else
-            {
-                emit newANGSpeed(.0);
-//                tcl->setAngularSpeed( .0 );
             }
         }
-        break;
-    case NAV_STATE_FAILED_TO_GO_TO_GOAL:
-    case NAV_STATE_REACHED_GOAL:
-        break;
     }
-
-    addData("state", state);
-    addData("substate", substate);
-    dataChanged( this );
 }
 
 void Module_Navigation::sonarPositionUpdate()
 {
-    logger->info("update sonar position");
+    if (!getSettingsValue("enabled").toBool())
+        return;
+
+    // Update all important values.
     float currentDepth = pressure->getDepth();
-    double currentHeading = sonarLoc->getLocalization().getYaw();
-    int headingSensor = getSettingsValue( "heading_sensor", 2 ).toInt();
+    Position currentPosition = sonarLoc->getLocalization();
+    double currentHeading = currentPosition.getYaw();
+    float diffHeading = ang2ang(headingToGoal - currentHeading);
 
-    //check depth
-    if ( fabs( currentDepth - currentGoalPosition.getZ() ) <
-         getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() )
-        substate = NAV_SUBSTATE_ADJUST_HEADING;
-    else
-        substate = NAV_SUBSTATE_ADJUST_DEPTH;
-    addData("substate", substate);
-    emit dataChanged( this );
-
-    // Adjust the heading with a P controller.
-    float diffHeading = headingToGoal - currentHeading;
-    while (diffHeading >= 180 ) diffHeading -= 360;
-    while (diffHeading < -180 ) diffHeading += 360;
     addData("diffHeading", diffHeading);
 
-    // Check if the goal has already been reached.
-    Position currentPosition = sonarLoc->getLocalization();
-    if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
-               ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
-        < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() )
-    {
-        state = NAV_STATE_REACHED_GOAL;
-        emit newFFSpeed(.0);
-        emit newANGSpeed(.0);
-        emit reachedWaypoint( currentGoalName );
-    }
+    if (state == NAV_STATE_GO_TO_GOAL) {
+        // Check if we are close enough to the goal.
+        if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
+                   ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
+            < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
+            state = NAV_STATE_REACHED_GOAL;
+            substate = NAV_SUBSTATE_ADJUST_HEADING;
+            emit newFFSpeed(.0);
+            emit newANGSpeed(.0);
+        } else {
+            // First adjust the depth.
+            if (substate == NAV_SUBSTATE_ADJUST_DEPTH) {
+                if ( fabs( currentDepth - currentGoalPosition.getZ() ) <
+                     getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() ) {
+                    substate = NAV_SUBSTATE_ADJUST_HEADING;
+                }
+            }
 
-    switch ( state )
-    {
-    case NAV_STATE_IDLE:
-        break;
-    case NAV_STATE_GO_TO_GOAL:
-        switch ( substate )
-        {
-        case NAV_SUBSTATE_ADJUST_DEPTH:
-            break;
-        case NAV_SUBSTATE_ADJUST_HEADING:
-            if ( headingSensor == 2 )
-            {
-                if ( fabs( diffHeading ) >
-                     getSettingsValue( "hysteresis_heading", NAV_HYSTERESIS_HEADING ).toDouble() )
-                {
+            // Then adjust the heading towards the goal.
+            if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
+                // Check whether the heading needs to be corrected.
+                if ( fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
                     // positive: rotate right (clockwise)
                     float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                     float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
-                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat()
-                                * diffHeading;
+                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
                     if (val > maxAngSpeed) val = maxAngSpeed;
                     if (val < -maxAngSpeed) val = -maxAngSpeed;
                     if (val > 0 && val < minAngSpeed) val = minAngSpeed;
                     if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
                     emit newANGSpeed(val);
-                }
-                else
-                {
+                } else {
+                    // If heading does not need to be adjusted, move forward.
                     emit newANGSpeed(.0);
-                    float speed = getSettingsValue( "forward_max_speed", NAV_FORWARD_MAX_SPEED ).toFloat();
-                    if ( distanceToGoal < getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() )
-                    {
+                    float speed = getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat();
+
+                    // Move slower if we are close to the goal.
+                    if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
                         speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
                     }
                     emit newFFSpeed(speed);
-                    substate = NAV_SUBSTATE_MOVE_FORWARD;
-                    initialCompassHeading = compass->getHeading();
 
-                    // Go forward for "forward_time" seconds.
+                    substate = NAV_SUBSTATE_MOVE_FORWARD;
+
+                    initialCompassHeading = compass->getHeading();
+                    initialXsensHeading = mti->getHeading();
+
+                    // Move forward for "forward_time" seconds.
                     QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
                                         this, SLOT( forwardDone() ) );
                 }
             }
-            break;
-        case NAV_SUBSTATE_MOVE_FORWARD:
-            break;
         }
-        break;
-    case NAV_STATE_FAILED_TO_GO_TO_GOAL:
-    case NAV_STATE_REACHED_GOAL:
-        break;
+    }
+
+    // If the goal was reached, the exit orientation must be adjusted.
+    if (state == NAV_STATE_REACHED_GOAL) {
+        float exitAngle = currentGoalPosition.getExitAngle();
+        if (exitAngle >= -180 && exitAngle <= 180) {
+            float diffHeadingExit = ang2ang(exitAngle - currentHeading);
+            if (fabs(diffHeadingExit) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
+                // positive: rotate right (clockwise)
+                float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
+                float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
+                float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeadingExit;
+                if (val > maxAngSpeed) val = maxAngSpeed;
+                if (val < -maxAngSpeed) val = -maxAngSpeed;
+                if (val > 0 && val < minAngSpeed) val = minAngSpeed;
+                if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
+                emit newANGSpeed(val);
+            } else {
+                emit newANGSpeed(.0);
+                emit reachedWaypoint( currentGoalName );
+            }
+        } else {
+            emit newANGSpeed(.0);
+            emit reachedWaypoint( currentGoalName );
+        }
     }
 
     addData("state", state);
@@ -347,15 +288,6 @@ void Module_Navigation::removeWaypoint( QString name )
 
 void Module_Navigation::save( QString path )
 {
-    QString slamPath = path;
-    slamPath.append( "/slam.txt" );
-
-//    QFile slamFile( slamPath );
-//    slamFile.open( QIODevice::WriteOnly );
-//    QTextStream slamTS( &slamFile );
-//    visSLAM->save( slamTS );
-//    slamFile.close();
-
     QString waypointPath = path;
     waypointPath.append( "/waypoint.txt" );
 
@@ -384,15 +316,6 @@ void Module_Navigation::saveWaypoints( QTextStream &ts )
 
 void Module_Navigation::load( QString path )
 {
-    QString slamPath = path;
-    slamPath.append( "/slam.txt" );
-
-//    QFile slamFile( slamPath );
-//    slamFile.open( QIODevice::ReadOnly );
-//    QTextStream slamTS( &slamFile );
-//    visSLAM->load( slamTS );
-//    slamFile.close();
-
     QString waypointPath = path;
     waypointPath.append( "/waypoint.txt" );
 
@@ -428,4 +351,26 @@ void Module_Navigation::loadWaypoints( QTextStream &ts )
     }
 
     updatedWaypoints( waypoints );
+}
+
+float Module_Navigation::pi2pi(float ang)
+{
+    while (ang > M_PI) {
+        ang -= 2*M_PI;
+    }
+    while (ang <= -M_PI) {
+        ang += 2*M_PI;
+    }
+    return ang;
+}
+
+float Module_Navigation::ang2ang(float ang)
+{
+    while (ang > 180) {
+        ang -= 360;
+    }
+    while (ang <= -180) {
+        ang += 360;
+    }
+    return ang;
 }
