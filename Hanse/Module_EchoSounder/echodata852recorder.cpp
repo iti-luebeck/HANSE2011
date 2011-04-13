@@ -88,11 +88,11 @@ void EchoData852Recorder::store(const EchoReturnData &edata)
 //    if (edata.switchcommand.stepSize==2)
 //      flags |= 0x01;
 
-    if (edata.switchCommand.origFileHeader.length()<38){
+    /*if (edata.switchCommand.origFileHeader.length()<38){
        logger()->error("data.switchCommand.origFileHeader has length "+QString::number(edata.switchCommand.origFileHeader.length()));
     } else {
        flags = edata.switchCommand.origFileHeader[37];
-    }
+    }*/
     *stream <<  flags;
 
     *stream << edata.switchCommand.startGain; // Start Gain
