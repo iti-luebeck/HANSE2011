@@ -10,6 +10,9 @@
 
 //#define F_CPU 16000000UL
 
+extern void ledOff();
+extern void ledOn();
+extern int16_t readADC();
 
 /*
  * Enable external 16 MHz oscillator.
@@ -48,12 +51,21 @@ int main() {
 	uint8_t receivedData1;
 	uint8_t receivedData2;
 	uint8_t tmp8;
+	int16_t result;
 
   	// PC3 (TXD0) as output.
 	PORTF.DIRSET   = PIN3_bm;
 	// PC2 (RXD0) as input.
 	PORTF.DIRCLR   = PIN2_bm;
 
+	PORTCFG.VPCTRLA=PORTCFG_VP0MAP_PORTD_gc;
+	PORTCFG.VPCTRLA=PORTCFG_VP1MAP_PORTC_gc;
+//	while (1) {
+//		_delay_ms(1000);
+//		ledOff();
+//		_delay_ms(1000);
+//		ledOn();
+//	}
 
 	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
 	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
@@ -78,40 +90,73 @@ int main() {
 	// define SCK as output
 	PORTC.DIRSET = PIN7_bm;
 
+	// define MISO as input
+	PORTC.DIRCLR = PIN6_bm;
+
 	// define CS as output
 	PORTC.DIRSET = PIN3_bm;
 	PORTC.OUTSET = PIN3_bm;
 
 	// initialize SPI master
-	SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_MODE_3_gc | SPI_PRESCALER_DIV16_gc;
+//	SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_MODE_3_gc | SPI_PRESCALER_DIV16_gc;
 
 	PORTD.OUT &= ~PIN0_bm;
 	while (1) {
+		PORTD.OUTTGL = PIN0_bm;
 		// set chip active
-		PORTC.OUTCLR = PIN3_bm;
-		// transreceive byte
-		SPIC.DATA = 0;
-		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-		receivedData1 = SPIC.DATA;
-		SPIC.DATA = 0;
-		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-		receivedData2 = SPIC.DATA;
-		// set chip back to acquisition mode
-		PORTC.OUTSET = PIN3_bm;
-		SPIC.DATA = 0;
-		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+//		PORTC.OUTCLR = PIN3_bm;
+		// receive data
+		result = readADC();
 
+//		// transreceive byte
+//		SPIC.DATA = 0;
+//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+//		receivedData1 = SPIC.DATA;
+//		SPIC.DATA = 0;
+//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+//		receivedData2 = SPIC.DATA;
+//		// set chip back to acquisition mode
+//		PORTC.OUTSET = PIN3_bm;
+//		SPIC.DATA = 0;
+//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+
+		int16_t a;
+		a = (result << 2);
+//		a = (receivedData1 << 10) | (receivedData2 << 2);
+		double x = a;
+		x = x * 3.4 / 32768;
+		int32_t y = x * 100000;
+		char outchar[8];
+		if (y >= 0) {
+			outchar[0] = ' ';
+		} else {
+			y *= -1;
+			outchar[0] = '-';
+		}
+		for (int i=7; i>1; i--) {
+			int8_t r = y % 10;
+			if (r<0) r += 10;
+			outchar[i] = r + '0';
+			y = y / 10;
+		}
+		outchar[1] = outchar[2];
+		outchar[2] = '.';
 		for (int i=0; i<8; i++) {
 			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-			tmp8 = receivedData1 << i;
-			tmp8 = tmp8 >> 7;
-			USART_PutChar(&USART, tmp8 + '0');
+			USART_PutChar(&USART, outchar[i]);
 		}
-		for (int i=0; i<8; i++) {
-			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-//			USART_PutChar(&USART, 0x39);
-			USART_PutChar(&USART, (((receivedData2<<i) & 0x80)>>7) + '0');
-		}
+
+//		for (int i=0; i<8; i++) {
+//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+//			tmp8 = receivedData1 << i;
+//			tmp8 = tmp8 >> 7;
+//			USART_PutChar(&USART, tmp8 + '0');
+//		}
+//		for (int i=0; i<8; i++) {
+//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+////			USART_PutChar(&USART, 0x39);
+//			USART_PutChar(&USART, (((receivedData2<<i) & 0x80)>>7) + '0');
+//		}
 		while(!USART_IsTXDataRegisterEmpty(&USART)) {};
 		USART_PutChar(&USART, '\r');
 
