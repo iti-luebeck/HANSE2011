@@ -208,7 +208,7 @@ void Form_Navigation::on_applyButton_clicked()
         return;
     }
 
-    float angular_min_speed = ui->maxAngularSpeed->text().toFloat( &ok );
+    float angular_min_speed = ui->minAngularSpeed->text().toFloat( &ok );
     if ( !ok )
     {
         QMessageBox msgBox;

@@ -65,6 +65,7 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
     Mat echoFiltered = Mat::zeros(1,N,CV_32F);
     Mat echo = this->byteArray2Mat(data.getRawData());
 
+    /*
     // Estimate signal to noise ratio.
     int gain = data.getGain();
     for(int j=0;j<N;j++)
@@ -77,23 +78,39 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
             echoFiltered.at<float>(0,j) = 0.0;
         }
     }
+    */
 
-    data.setFiltered(this->mat2byteArray(echoFiltered));
+    data.setFiltered(this->mat2byteArray(echo));
 }
 
 void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 {
     Mat echoFiltered = this->byteArray2Mat(data.getFiltered());
 
+    float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
+    int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
+    float maxVal = 0;
+    int maxIdx = 0;
+    for (int i = 0; i < N; i++) {
+        if (echoFiltered.at<float>(0,i) > maxVal) {
+            maxVal = echoFiltered.at<float>(0,i);
+            maxIdx = i;
+        }
+    }
+
+    // Calculate integral image.
+    if (maxVal > 0) {
+        data.setWallCandidate(maxIdx);
+    } else {
+        data.setWallCandidate(-1);
+    }
+    data.setGradient(this->mat2List(echoFiltered));
+    return;
+
     // Do some more image processing.
     Mat integral = echoFiltered.clone();
 
     echoFiltered = Mat::ones(1,250,CV_32F);
-
-    // Calculate integral image.
-    for (int j = 1; j < N; j++) {
-        integral.at<float>(0,j) = integral.at<float>(0,j-1) + integral.at<float>(0,j);
-    }
 
     // Calculate gradient (and at the same time the maximum value,
     // which may be used as the wall candidate).
@@ -115,19 +132,18 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
             echoFiltered.at<float>(0,j) = echoFiltered.at<float>(0,j) * gradient;
         }
     }
+
     data.setGradient(this->mat2List(echoFiltered));
 
     //estimate wallcandidate
-    float maxVal = 0;
-    int maxIdx = 0;
+    maxVal = 0;
+    maxIdx = 0;
     for (int i = 0; i < N; i++) {
         if (echoFiltered.at<float>(0,i) > maxVal) {
             maxVal = echoFiltered.at<float>(0,i);
             maxIdx = i;
         }
     }
-    float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
-    int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
     if (lastMaxValue > 0) {
         maxValTH = maxValTH*lastMaxValue;
     }
@@ -546,7 +562,7 @@ void SonarEchoFilter::reset()
     {
         QByteArray ba = path.toLatin1();
           const char *c_str2 = ba.data();
-          svm->loadClassifier(c_str2);
+//          svm->loadClassifier(c_str2);
 
     }
 }

@@ -202,6 +202,7 @@ void Module_Navigation::sonarPositionUpdate()
                     if (val < -maxAngSpeed) val = -maxAngSpeed;
                     if (val > 0 && val < minAngSpeed) val = minAngSpeed;
                     if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
+                    emit newFFSpeed(.0);
                     emit newANGSpeed(val);
                 } else {
                     // If heading does not need to be adjusted, move forward.

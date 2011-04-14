@@ -140,22 +140,27 @@ void Module_XsensMTi::refreshSimData(float angle_yaw, float angle_pitch, float a
 }
 
 float Module_XsensMTi::getHeading() {
-    return getDataValue("heading").toFloat();
+    return getDataValue("yaw").toFloat();
 }
 
 float Module_XsensMTi::getHeadingIncrement() {
-    addData("yaw", 180 * mti->yaw() / M_PI);
-    addData("pitch", 180 * mti->pitch() / M_PI);
-    addData("roll", 180 * mti->roll() / M_PI);
+    float increment = 0;
+    if (sim->isEnabled()) {
+        increment = getDataValue("yaw").toFloat() - lastHeading;
+    } else {
+        addData("yaw", 180 * mti->yaw() / M_PI);
+        addData("pitch", 180 * mti->pitch() / M_PI);
+        addData("roll", 180 * mti->roll() / M_PI);
 
-    float increment = getDataValue("heading").toFloat() - lastHeading;
+        increment = getDataValue("yaw").toFloat() - lastHeading;
+    }
     if (increment > 180) {
         increment -= 360;
     } else if (increment <= -180) {
         increment += 360;
     }
 
-    lastHeading = getDataValue("heading").toFloat();
+    lastHeading = getDataValue("yaw").toFloat();
     return increment;
 }
 

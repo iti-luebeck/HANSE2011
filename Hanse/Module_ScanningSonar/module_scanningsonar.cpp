@@ -141,7 +141,7 @@ void Module_ScanningSonar::reset()
     if (sim->isEnabled())
     {
 
-        timer.setInterval(120);
+        timer.setInterval(100);
         timer.start();
 
     } else {
