@@ -3,11 +3,13 @@
 #include "sonarechofilter.h"
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+#include <Module_XsensMTi/module_xsensmti.h>
+#include <Framework/Angles.h>
 
 using namespace cv;
 using namespace std;
 
-SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization& sonar, SonarEchoFilter& filter)
+SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization& sonar, Module_XsensMTi *mti, SonarEchoFilter& filter)
     :
       particlesMutex(QMutex::Recursive),
       controlVariance(0,0,0),
@@ -15,6 +17,8 @@ SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization& sonar, SonarE
       sonar(sonar),
       filter(filter)
 {
+    this->mti = mti;
+
     logger = Log4Qt::Logger::logger("SonarFilter");
 
     logger->debug("ParticleFilter constructor");
@@ -64,6 +68,8 @@ void SonarParticleFilter::reset()
     for (int i=0; i<N; i++) {
         particles[i] = sampleGauss(initialPos, initialVariance).toVector4D();
     }
+
+    lastCompassHeading = -10000;
 }
 
 void SonarParticleFilter::loadMap()
@@ -290,13 +296,27 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
 
         QVector3D oldPos = oldParticles[i].toVector3D();
 
+        // Update orientation with information from Xsens MTi.
+        if (sonar.getSettingsValue("use xsens").toBool()) {
+            float compassHeading = mti->getHeading();
+            if (lastCompassHeading < -1000) {
+                lastCompassHeading = compassHeading;
+            } else {
+                float diffHeading = Angles::deg2pi(compassHeading - lastCompassHeading);
+                sonar.addData("particle diff heading", Angles::deg2deg(diffHeading));
+                float newHeading = Angles::pi2pi(oldPos.z() + diffHeading);
+                oldPos.setZ(newHeading);
+                lastCompassHeading = compassHeading;
+            }
+        }
+
         QVector3D newPos = oldPos + sampleGauss(QVector3D(), controlVariance);
         oldParticles[i] = newPos.toVector4D();
 
         QVector<QVector2D> observationsTransformed(observations.size());
 
         // transform observation from local (particle relative) to global system
-        QTransform rotM = QTransform().rotate(newPos.z()/M_PI*180) * QTransform().translate(newPos.x(), newPos.y());
+        QTransform rotM = QTransform().rotate(Angles::pi2deg(newPos.z())) * QTransform().translate(newPos.x(), newPos.y());
 
         for(int j=0; j<observations.size(); j++) {
             QPointF p = rotM.map(observations[j].toPointF());

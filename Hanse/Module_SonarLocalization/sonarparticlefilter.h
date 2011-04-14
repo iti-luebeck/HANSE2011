@@ -14,6 +14,7 @@ using namespace cv;
 using namespace std;
 
 class Module_SonarLocalization;
+class Module_XsensMTi;
 class SonarEchoFilter;
 
 class SonarParticleFilter : public QObject
@@ -22,7 +23,7 @@ Q_OBJECT
 
 public:
 
-    SonarParticleFilter(Module_SonarLocalization& sonar, SonarEchoFilter& filter);
+    SonarParticleFilter(Module_SonarLocalization& sonar, Module_XsensMTi *mti, SonarEchoFilter& filter);
 
     void reset();
 
@@ -54,6 +55,8 @@ private:
     QVector3D initialVariance;
 
     Module_SonarLocalization& sonar;
+    Module_XsensMTi *mti;
+
     SonarEchoFilter& filter;
     QVector<QVector4D> particles;
 
@@ -62,6 +65,8 @@ private:
     Mat* mapPointsMat;
 
     Mat forbiddenArea;
+
+    float lastCompassHeading;
 
     void loadMap();
 

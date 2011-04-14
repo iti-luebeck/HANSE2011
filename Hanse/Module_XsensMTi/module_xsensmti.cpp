@@ -1,6 +1,7 @@
 #include "module_xsensmti.h"
 #include <Module_XsensMTi/xsens_form.h>
 #include <Module_Simulation/module_simulation.h>
+#include <Framework/Angles.h>
 
 Module_XsensMTi::Module_XsensMTi(QString id, Module_Simulation *sim)
         : RobotModule(id)
@@ -119,9 +120,9 @@ void Module_XsensMTi::refreshData()
         emit requestAngles();
     }
     else {
-        addData("yaw", 180 * mti->yaw() / M_PI);
-        addData("pitch", 180 * mti->pitch() / M_PI);
-        addData("roll", 180 * mti->roll() / M_PI);
+        addData("yaw", Angles::pi2deg(mti->yaw()));
+        addData("pitch", Angles::pi2deg(mti->pitch()));
+        addData("roll", Angles::pi2deg(mti->roll()));
 
         if (getHealthStatus().isHealthOk()) {
             emit dataChanged(this);
@@ -131,9 +132,9 @@ void Module_XsensMTi::refreshData()
 
 void Module_XsensMTi::refreshSimData(float angle_yaw, float angle_pitch, float angle_roll)
 {
-    addData("yaw", angle_yaw);
-    addData("pitch", angle_pitch);
-    addData("roll", angle_roll);
+    addData("yaw", Angles::deg2deg(angle_yaw));
+    addData("pitch", Angles::deg2deg(angle_pitch));
+    addData("roll", Angles::deg2deg(angle_roll));
     if (getHealthStatus().isHealthOk()) {
         emit dataChanged(this);
     }
@@ -146,18 +147,13 @@ float Module_XsensMTi::getHeading() {
 float Module_XsensMTi::getHeadingIncrement() {
     float increment = 0;
     if (sim->isEnabled()) {
-        increment = getDataValue("yaw").toFloat() - lastHeading;
+        increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
     } else {
-        addData("yaw", 180 * mti->yaw() / M_PI);
-        addData("pitch", 180 * mti->pitch() / M_PI);
-        addData("roll", 180 * mti->roll() / M_PI);
+        addData("yaw", Angles::pi2deg(mti->yaw()));
+        addData("pitch", Angles::pi2deg(mti->pitch()));
+        addData("roll", Angles::pi2deg(mti->roll()));
 
-        increment = getDataValue("yaw").toFloat() - lastHeading;
-    }
-    if (increment > 180) {
-        increment -= 360;
-    } else if (increment <= -180) {
-        increment += 360;
+        increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
     }
 
     lastHeading = getDataValue("yaw").toFloat();

@@ -7,6 +7,7 @@
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include <Module_Compass/module_compass.h>
 #include <Module_XsensMTi/module_xsensmti.h>
+#include <Framework/Angles.h>
 
 Module_Navigation::Module_Navigation( QString id,
                                       Module_SonarLocalization *sonarLoc,
@@ -126,7 +127,7 @@ void Module_Navigation::compassUpdate( RobotModule * )
         float compassHeading = compass->getHeading();
         if (state == NAV_STATE_GO_TO_GOAL) {
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
-                float diffHeading = pi2pi(initialCompassHeading - compassHeading);
+                float diffHeading = Angles::pi2pi(initialCompassHeading - compassHeading);
                 if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
                     float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
                     emit newANGSpeed(val);
@@ -147,7 +148,7 @@ void Module_Navigation::xsensUpdate( RobotModule * )
         float xsensHeading = mti->getHeading();
         if (state == NAV_STATE_GO_TO_GOAL) {
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
-                float diffHeading = pi2pi(initialXsensHeading - xsensHeading);
+                float diffHeading = Angles::pi2pi(initialXsensHeading - xsensHeading);
                 if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
                     float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
                     emit newANGSpeed(val);
@@ -168,7 +169,7 @@ void Module_Navigation::sonarPositionUpdate()
     float currentDepth = pressure->getDepth();
     Position currentPosition = sonarLoc->getLocalization();
     double currentHeading = currentPosition.getYaw();
-    float diffHeading = ang2ang(headingToGoal - currentHeading);
+    float diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
 
     addData("diffHeading", diffHeading);
 
@@ -233,7 +234,7 @@ void Module_Navigation::sonarPositionUpdate()
     if (state == NAV_STATE_REACHED_GOAL) {
         float exitAngle = currentGoalPosition.getExitAngle();
         if (exitAngle >= -180 && exitAngle <= 180) {
-            float diffHeadingExit = ang2ang(exitAngle - currentHeading);
+            float diffHeadingExit = Angles::deg2deg(exitAngle - currentHeading);
             if (fabs(diffHeadingExit) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
                 // positive: rotate right (clockwise)
                 float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
@@ -352,26 +353,4 @@ void Module_Navigation::loadWaypoints( QTextStream &ts )
     }
 
     updatedWaypoints( waypoints );
-}
-
-float Module_Navigation::pi2pi(float ang)
-{
-    while (ang > M_PI) {
-        ang -= 2*M_PI;
-    }
-    while (ang <= -M_PI) {
-        ang += 2*M_PI;
-    }
-    return ang;
-}
-
-float Module_Navigation::ang2ang(float ang)
-{
-    while (ang > 180) {
-        ang -= 360;
-    }
-    while (ang <= -180) {
-        ang += 360;
-    }
-    return ang;
 }

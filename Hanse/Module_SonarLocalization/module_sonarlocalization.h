@@ -9,6 +9,7 @@
 
 class Module_ScanningSonar;
 class Module_XsensMTi;
+class Module_Simulation;
 
 class Module_SonarLocalization : public RobotModule {
     Q_OBJECT
@@ -16,7 +17,7 @@ class Module_SonarLocalization : public RobotModule {
     friend class Form_SonarLocalization;
 
 public:
-    Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti);
+    Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti, Module_Simulation *sim);
 
     QWidget* createView(QWidget* parent);
 

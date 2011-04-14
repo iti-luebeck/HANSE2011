@@ -7,16 +7,16 @@
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_SonarLocalization/svm.h>
 #include <Module_XsensMTi/module_xsensmti.h>
-
-
+#include <Module_Simulation/module_simulation.h>
 
 using namespace cv;
 
-SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent, Module_XsensMTi *mti)
+SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent, Module_XsensMTi *mti, Module_Simulation *sim)
 //    : s(parent->getSettingsCopy())
 {
     this->sloc = parent;
     this->mti = mti;
+    this->sim = sim;
 
     logger = Log4Qt::Logger::logger("SonarFilter");
 
@@ -62,97 +62,109 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 
 void SonarEchoFilter::filterEcho(SonarEchoData &data)
 {
-    Mat echoFiltered = Mat::zeros(1,N,CV_32F);
     Mat echo = this->byteArray2Mat(data.getRawData());
 
-    /*
-    // Estimate signal to noise ratio.
-    int gain = data.getGain();
-    for(int j=0;j<N;j++)
-    {
-        if(gain < 17)
-        {
-            echoFiltered.at<float>(0,j) = qMax(0.0f, echo.at<float>(0,j) - noiseMat.at<float>(gain-1,j));
-        } else
-        {
-            echoFiltered.at<float>(0,j) = 0.0;
-        }
-    }
-    */
+    // No filtering on simulator image.
+    if (sim->isEnabled()) {
+        data.setFiltered(this->mat2byteArray(echo));
+    } else {
+        Mat echoFiltered = Mat::zeros(1,N,CV_32F);
 
-    data.setFiltered(this->mat2byteArray(echo));
+        // Estimate signal to noise ratio.
+        int gain = data.getGain();
+        for(int j=0;j<N;j++)
+        {
+            if(gain < 17)
+            {
+                echoFiltered.at<float>(0,j) = qMax(0.0f, echo.at<float>(0,j) - noiseMat.at<float>(gain-1,j));
+            } else
+            {
+                echoFiltered.at<float>(0,j) = 0.0;
+            }
+        }
+        data.setFiltered(this->mat2byteArray(echoFiltered));
+    }
 }
 
 void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 {
     Mat echoFiltered = this->byteArray2Mat(data.getFiltered());
 
-    float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
-    int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
-    float maxVal = 0;
-    int maxIdx = 0;
-    for (int i = 0; i < N; i++) {
-        if (echoFiltered.at<float>(0,i) > maxVal) {
-            maxVal = echoFiltered.at<float>(0,i);
-            maxIdx = i;
-        }
-    }
-
-    // Calculate integral image.
-    if (maxVal > 0) {
-        data.setWallCandidate(maxIdx);
-    } else {
-        data.setWallCandidate(-1);
-    }
-    data.setGradient(this->mat2List(echoFiltered));
-    return;
-
-    // Do some more image processing.
-    Mat integral = echoFiltered.clone();
-
-    echoFiltered = Mat::ones(1,250,CV_32F);
-
-    // Calculate gradient (and at the same time the maximum value,
-    // which may be used as the wall candidate).
-    QList<int> ks;
-    ks.clear();
-    ks.append(16);
-    ks.append(8);
-    ks.append(4);
-    int k;
-    foreach(k, ks)
-    {
-        for (int j = 0; j < N; j++) {
-            int up = qMax(0, j - k);
-            int down = qMin(j + k, N - 1);
-            float gradient = 0;
-            if (up == j - k && down == j + k) {
-                gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (2*k));
+    if (sim->isEnabled()) {
+        // In simulation, we have perfect data. A wall is indicated by
+        // a value > 0.
+        float maxVal = 0;
+        int maxIdx = 0;
+        for (int i = 0; i < N; i++) {
+            if (echoFiltered.at<float>(0,i) > maxVal) {
+                maxVal = echoFiltered.at<float>(0,i);
+                maxIdx = i;
             }
-            echoFiltered.at<float>(0,j) = echoFiltered.at<float>(0,j) * gradient;
         }
-    }
 
-    data.setGradient(this->mat2List(echoFiltered));
-
-    //estimate wallcandidate
-    maxVal = 0;
-    maxIdx = 0;
-    for (int i = 0; i < N; i++) {
-        if (echoFiltered.at<float>(0,i) > maxVal) {
-            maxVal = echoFiltered.at<float>(0,i);
-            maxIdx = i;
+        if (maxVal > 0) {
+            data.setWallCandidate(maxIdx);
+        } else {
+            data.setWallCandidate(-1);
         }
-    }
-    if (lastMaxValue > 0) {
-        maxValTH = maxValTH*lastMaxValue;
-    }
-    if (maxVal > maxValTH && maxIdx > maxIdxTH) {
-        data.setWallCandidate(maxIdx);
+        data.setGradient(this->mat2List(echoFiltered));
     } else {
-        data.setWallCandidate(-1);
-    }
+        // Do some more image processing.
+        Mat integral = echoFiltered.clone();
 
+        // Calculate integral image.
+        for (int i = 1; i < N; i++) {
+            integral.at<float>(0,i) = integral.at<float>(0,i) + integral.at<float>(0,i-1);
+        }
+
+        echoFiltered = Mat::ones(1,250,CV_32F);
+
+        // Calculate gradient (and at the same time the maximum value,
+        // which may be used as the wall candidate).
+        QList<int> ks;
+        ks.clear();
+        ks.append(16);
+        ks.append(8);
+        ks.append(4);
+        int k;
+        foreach(k, ks)
+        {
+            for (int j = 0; j < N; j++) {
+                int up = qMax(0, j - k);
+                int down = qMin(j + k, N - 1);
+                float gradient = 0;
+                if (up == j - k && down == j + k) {
+                    gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (2*k));
+                }
+                echoFiltered.at<float>(0,j) = echoFiltered.at<float>(0,j) * gradient;
+            }
+        }
+
+        data.setGradient(this->mat2List(echoFiltered));
+
+        // Estimate wall candidate as bin with maximum response.
+        float maxVal = 0;
+        float maxIdx = 0;
+        for (int i = 0; i < N; i++) {
+            if (echoFiltered.at<float>(0,i) > maxVal) {
+                maxVal = echoFiltered.at<float>(0,i);
+                maxIdx = i;
+            }
+        }
+
+        // Set as wall, if response is above some threshold (depending on
+        // maximum value in the last frames).
+        float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
+        int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
+        if (lastMaxValue > 0) {
+            maxValTH = maxValTH*lastMaxValue;
+        }
+        if (maxVal > maxValTH && maxIdx > maxIdxTH) {
+            data.setWallCandidate(maxIdx);
+        } else {
+            data.setWallCandidate(-1);
+        }
+    }
 }
 
 void SonarEchoFilter::medianFilter(SonarEchoData &data)

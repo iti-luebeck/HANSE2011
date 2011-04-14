@@ -98,8 +98,6 @@ private:
     void saveWaypoints( QTextStream &ts );
     void loadWaypoints( QTextStream &ts );
     void init();
-    float pi2pi(float ang);
-    float ang2ang(float ang);
 
 public slots:
     /**

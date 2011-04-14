@@ -8,10 +8,10 @@
 
 using namespace cv;
 
-Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti)
+Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti, Module_Simulation *sim)
     : RobotModule(id),
-        filter(this, mti),
-        pf(*this, filter)
+        filter(this, mti, sim),
+        pf(*this, mti, filter)
 {
     filter.moveToThread(this);
     pf.moveToThread(this);

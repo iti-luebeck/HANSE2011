@@ -120,7 +120,8 @@ HEADERS += Framework/healthstatus.h \
     Module_XsensMTi/MTi/MTi.h \
     Module_XsensMTi/MTi/MTDataTypes.h \
     Module_XsensMTi/MTi/CerealPort.h \
-    Module_XsensMTi/xsens_form.h
+    Module_XsensMTi/xsens_form.h \
+    Framework/Angles.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
     Framework/datarecorder.cpp \

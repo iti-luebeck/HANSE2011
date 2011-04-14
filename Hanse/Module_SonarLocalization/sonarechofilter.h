@@ -10,13 +10,14 @@
 
 class Module_SonarLocalization;
 class Module_XsensMTi;
+class Module_Simulation;
 
 class SonarEchoFilter: public QObject
 {
     Q_OBJECT
 
 public:
-    SonarEchoFilter(Module_SonarLocalization* sonar, Module_XsensMTi *mti);
+    SonarEchoFilter(Module_SonarLocalization* sonar, Module_XsensMTi *mti, Module_Simulation *sim);
 
     const static int N = 250;
 
@@ -80,6 +81,7 @@ private:
 
     Module_SonarLocalization* sloc;
     Module_XsensMTi *mti;
+    Module_Simulation *sim;
 
     /**
       * Logger instance for this module
