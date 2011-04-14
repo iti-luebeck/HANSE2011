@@ -25,7 +25,7 @@ public:
 
     bool echoTest;
 
-QTimer *echoControllTimer;
+    QTimer *echoControllTimer;
 
 
 private:
@@ -52,6 +52,7 @@ private:
      float fwdSpeed;
      float corridorWidth;
      void timerSlotExecute();
+     int wallTime;
 
 public slots:
      void updateFromSettings();

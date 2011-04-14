@@ -19,6 +19,8 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     setDefaultValue("desiredDistance",1.0);
     setDefaultValue("corridorWidth",0.2);
 
+    setDefaultValue("wallTime",2000);
+
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
     QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
@@ -57,7 +59,7 @@ void Behaviour_WallFollowing::startBehaviour()
     this->setEnabled(true);
     emit started(this);
     running = true;
-    echoControllTimer->start(1000);
+    echoControllTimer->start(wallTime);
 
     //qDebug() << "wall thread id";
     //qDebug() << QThread::currentThreadId();
@@ -216,6 +218,7 @@ void Behaviour_WallFollowing::updateFromSettings()
     this->fwdSpeed = this->getSettingsValue("forwardSpeed").toFloat();
     this->angSpeed = this->getSettingsValue("angularSpeed").toFloat();
     this->corridorWidth = this->getSettingsValue("corridorWidth").toFloat();
+    this->wallTime = this->getSettingsValue("wallTime").toInt();
 }
 
 void Behaviour_WallFollowing::stopOnEchoError(){
@@ -234,5 +237,8 @@ void Behaviour_WallFollowing::testEchoModule(){
             emit dataError();
         }
     }
+    wallCase = "";
+
+
 
 }

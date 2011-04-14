@@ -34,6 +34,7 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     this->ui->distanceInput->setText(wallfollow->getSettingsValue("desiredDistance").toString());
     this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
     this->ui->updateView->setChecked(false);
+    this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTimer").toString());
 }
 
 WallFollowingForm::~WallFollowingForm()
@@ -60,6 +61,7 @@ void WallFollowingForm::on_startButton_clicked()
     wallfollow->setSettingsValue("forwardSpeed", ui->forwardInput->text());
     wallfollow->setSettingsValue("angularSpeed", ui->angularInput->text());
     wallfollow->setSettingsValue("corridorWidth", ui->corridorInput->text());
+    wallfollow->setSettingsValue("wallTimer", ui->timerInput->text());
     //qDebug("startButton clicked");
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
     //qDebug("startButton clicked2");
