@@ -29,6 +29,11 @@ void Module_Thruster::initController()
     if (!getSettingsValue("enabled").toBool())
         return;
 
+    if(sim->isEnabled()){
+        setHealthToOk();
+        return;
+    }
+
     char sendValue[] = { 0x01 };
     unsigned char address = getSettingsValue("i2cAddress").toInt();
     bool ret = uid->I2C_WriteRegister(address,REG_MODE,sendValue,0x01);
@@ -139,8 +144,10 @@ void Module_Thruster::doHealthCheck()
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    if(sim->isEnabled())
+    if(sim->isEnabled()){
+        setHealthToOk();
         return;
+    }
 
     int address = getSettingsValue("i2cAddress").toInt();
     char data[1];

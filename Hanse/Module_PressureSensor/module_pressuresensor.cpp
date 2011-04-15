@@ -197,8 +197,10 @@ void Module_PressureSensor::doHealthCheck()
     if (!isEnabled())
         return;
 
-    if(sim->isEnabled())
+    if(sim->isEnabled()){
+        setHealthToOk();
         return;
+    }
 
     char readBuffer[1];
 
