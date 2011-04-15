@@ -27,6 +27,9 @@ MetaBehaviour::MetaBehaviour(QString id, ModulesGraph* graph, Module_ThrusterCon
     setDefaultValue("depthErrorVariance",0.05);
     setDefaultValue("timeout",600);
     setDefaultValue("forwardSpeed",0.3);
+
+    timeoutTimer.moveToThread(this);
+    depthWaitTimer.moveToThread(this);
 }
 
 void MetaBehaviour::init()
