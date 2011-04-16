@@ -11,6 +11,7 @@
 workreg  = 16
 workreg2 = 17
 workreg3 = 18
+workreg4 = 19
 
 //; ** Setze alle Pins von PortD auf Ausgang **
 //; keine Parameter, keine Rückgabe
@@ -40,6 +41,7 @@ readADC:
   push workreg
   push workreg2
   push workreg3
+  push workreg4
 
   cbi _SFR_IO_ADDR(VPORT1_OUT), PIN3_bp // cs low
   rcall some_sleep
@@ -60,8 +62,12 @@ readADC:
 read_loop:
   lsl workreg // shift 16bit result
   rol workreg2
-  sbic _SFR_IO_ADDR(VPORT1_IN), PIN6_bp // read bit from MISO
+  in workreg4, _SFR_IO_ADDR(VPORT1_IN) // read bit from MISO
+  and workreg4, 24
+  brbs 1, lowBit
+  //sbic _SFR_IO_ADDR(VPORT1_IN), PIN6_bp
   sbr workreg, 0x01
+  lowBit:
 
   sbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk high
   rcall some_sleep
@@ -90,6 +96,7 @@ read_loop:
   //ldi workreg2, 0xFF
 	movw r24, workreg
 
+  pop workreg4
   pop workreg3
   pop workreg2
   pop workreg
