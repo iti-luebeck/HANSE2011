@@ -54,16 +54,15 @@ readADC:
   push workreg6 // adc3
 
   cbi _SFR_IO_ADDR(VPORT1_OUT), PIN3_bp // cs low
-  rcall some_sleep
 
   cbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk low
-  rcall some_sleep
+  nop
   sbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk high
-  rcall some_sleep
+  nop
   cbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk low
-  rcall some_sleep
+  nop
   sbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk high
-  rcall some_sleep
+  nop
   cbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk low
 
 	ldi workreg1, 0x0E
@@ -111,19 +110,16 @@ read_loop:
 	sts adc_res_3, workreg6
 
   sbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk high
-  rcall some_sleep
+  nop
   sbi _SFR_IO_ADDR(VPORT1_OUT), PIN3_bp // cs high
-  nop
-  nop
 
   cbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk low
-  rcall some_sleep
+  nop
   sbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk high
-  rcall some_sleep
+  nop
   cbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk low
-  rcall some_sleep
+  nop
   sbi _SFR_IO_ADDR(VPORT1_OUT), PIN7_bp // sclk high
-  rcall some_sleep
 
   //ldi workreg, 0x00
   //ldi workreg2, 0xFF
@@ -144,8 +140,5 @@ store_high_byte:
 	sts adc_res_2+1, workreg5
 	sts adc_res_3+1, workreg6
   rjmp ret_from_store_high_byte
-
-some_sleep:
-  ret
 
 .end
