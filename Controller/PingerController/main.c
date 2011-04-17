@@ -12,7 +12,9 @@
 
 extern void ledOff();
 extern void ledOn();
-extern int16_t readADC(uint8_t pin_bm);
+extern void readADC();
+
+extern uint16_t adc_res_0, adc_res_1, adc_res_2, adc_res_3;
 
 /*
  * Enable external 16 MHz oscillator.
@@ -52,7 +54,6 @@ int main() {
 	uint8_t receivedData2;
 	uint8_t tmp8;
 	int16_t result;
-	uint8_t adc_pins[] = {PIN6_bm, PIN1_bm, PIN2_bm, PIN0_bm};
 
   	// PC3 (TXD0) as output.
 	PORTF.DIRSET   = PIN3_bm;
@@ -104,14 +105,16 @@ int main() {
 	// initialize SPI master
 //	SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_MODE_3_gc | SPI_PRESCALER_DIV16_gc;
 
+	uint16_t* adcs[] = {&adc_res_0, &adc_res_1, &adc_res_2, &adc_res_3};
+
 	PORTD.OUT &= ~PIN0_bm;
 	while (1) {
 		PORTD.OUTTGL = PIN0_bm;
+		// receive data
+		readADC();
 		for (int p=0; p<4; p++) {
 			// set chip active
 	//		PORTC.OUTCLR = PIN3_bm;
-			// receive data
-			result = readADC(adc_pins[p]);
 
 	//		// transreceive byte
 	//		SPIC.DATA = 0;
@@ -126,7 +129,7 @@ int main() {
 	//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
 
 			int16_t a;
-			a = (result << 2);
+			a = (*adcs[p] << 2);
 	//		a = (receivedData1 << 10) | (receivedData2 << 2);
 			double x = a;
 			x = x * 3.4 / 32768;
