@@ -33,10 +33,22 @@ void set_external_oscillator() {
 //	  PORTD.OUTTGL = PIN0_bm;
 	}
 
+	// PLL source XOSC, factor 2
+	OSC.PLLCTRL = OSC_PLLSRC_XOSC_gc | (2 << OSC_PLLFAC_gp);
+
+	// Enable PLL
+	OSC.CTRL |= OSC_PLLEN_bm;
+
+	// wait for PLL to get ready
+	while( (OSC.STATUS & OSC_PLLRDY_bm) == 0) {
+//	  PORTD.OUTTGL = PIN0_bm;
+	}
+
 	// CLK.CTRL is protected, so we have to allow modification by the following command.
 	CCP = CCP_IOREG_gc;
 	// SCLKSEL is used to select the source for the System Clock.
-	CLK.CTRL = CLK_SCLKSEL_XOSC_gc;
+	//CLK.CTRL = CLK_SCLKSEL_XOSC_gc;
+	CLK.CTRL = CLK_SCLKSEL_PLL_gc;
 }
 
 #define USART USARTF0
@@ -78,7 +90,8 @@ int main() {
 	 * Baudrate select = (I/O clock frequency)/(16 * Baudrate) - 1
 	 *                 16000000/(16*9600)-1 = 103
 	 */
-	USART_Baudrate_Set(&USART, 103 , 0);
+//	USART_Baudrate_Set(&USART, 103 , 0);
+	USART_Baudrate_Set(&USART, 206 , 0);
 
 	/* Enable both RX and TX. */
 	USART_Rx_Enable(&USART);
