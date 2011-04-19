@@ -139,6 +139,23 @@ int main() {
 	// PC2 (RXD0) as input.
 	PORTF.DIRCLR   = PIN2_bm;
 
+	long baud = 9600;
+	int8_t bScale = 0;
+	uint16_t baud_setting = F_CPU / 16 / baud - 1;
+    USART.BAUDCTRLA = (uint8_t)baud_setting;
+    USART.BAUDCTRLB = (bScale << USART_BSCALE0_bp) | (baud_setting >> 8);
+
+    // enable Tx
+	USART.CTRLB |= USART_TXEN_bm;
+
+	// Char size, parity and stop bits: 8N1
+	USART.CTRLC = USART_CHSIZE_8BIT_gc | USART_PMODE_DISABLED_gc;
+
+	while (1) {
+		while ( !(USART.STATUS & USART_DREIF_bm) );
+		USART.DATA = 'x';
+	}
+
 	PORTCFG.VPCTRLA=PORTCFG_VP0MAP_PORTD_gc;
 	PORTCFG.VPCTRLA=PORTCFG_VP1MAP_PORTC_gc;
 //	while (1) {
