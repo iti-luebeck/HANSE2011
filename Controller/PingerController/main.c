@@ -41,7 +41,7 @@ void set_external_oscillator() {
 
 	// wait for PLL to get ready
 	while( (OSC.STATUS & OSC_PLLRDY_bm) == 0) {
-//	  PORTD.OUTTGL = PIN0_bm;
+	  PORTD.OUTTGL = PIN0_bm;
 	}
 
 	// CLK.CTRL is protected, so we have to allow modification by the following command.
@@ -134,26 +134,58 @@ int main() {
 	uint8_t tmp8;
 	int16_t result;
 
-  	// PC3 (TXD0) as output.
+
+	// Pulling output of TXD0 high is very important. And how important it is.
+	// Never remove this, or you will be unhappy!!! (Hint from XMega Datasheet.)
+	PORTF.OUTSET   = PIN3_bm;
+
+	// PC3 (TXD0) as output.
 	PORTF.DIRSET   = PIN3_bm;
-	// PC2 (RXD0) as input.
-	PORTF.DIRCLR   = PIN2_bm;
 
-	long baud = 9600;
-	int8_t bScale = 0;
-	uint16_t baud_setting = F_CPU / 16 / baud - 1;
+	// x = N[64*(32000000/(16*921600) - 1)]
+	// N[32000000/(16*((2^(-6)*Floor[x]) + 1))]/921600
+	uint16_t baud_setting = 192; // 74 for 921600, 192 for 500000;
     USART.BAUDCTRLA = (uint8_t)baud_setting;
-    USART.BAUDCTRLB = (bScale << USART_BSCALE0_bp) | (baud_setting >> 8);
-
-    // enable Tx
-	USART.CTRLB |= USART_TXEN_bm;
+    USART.BAUDCTRLB = 0xA0 | (baud_setting >> 8);
+    //(bScale << USART_BSCALE0_bp) |
 
 	// Char size, parity and stop bits: 8N1
 	USART.CTRLC = USART_CHSIZE_8BIT_gc | USART_PMODE_DISABLED_gc;
 
+    // enable Tx
+	USART.CTRLB |= USART_TXEN_bm;
+
+	uint16_t count = 0;
+	while (0) {
+		for (count=0; count < 65535; count++) {
+			while ( !(USART.STATUS & USART_DREIF_bm) );
+			USART.DATA = 'b';
+		}
+		PORTD.OUTTGL = PIN0_bm;
+		for (count=0; count < 65535; count++) {
+			while ( !(USART.STATUS & USART_DREIF_bm) );
+			USART.DATA = 'c';
+		}
+		PORTD.OUTTGL = PIN0_bm;
+	}
+
+	char c = 'a';
 	while (1) {
 		while ( !(USART.STATUS & USART_DREIF_bm) );
-		USART.DATA = 'x';
+		USART.DATA = c;
+		c++;
+		if (c>'z') {
+			while ( !(USART.STATUS & USART_DREIF_bm) );
+			USART.DATA = '\r';
+			while ( !(USART.STATUS & USART_DREIF_bm) );
+			USART.DATA = '\n';
+			c='a';
+		}
+//		count++;
+//		if (count > 65000) {
+//			_delay_ms(1000);
+//			count = 0;
+//		}
 	}
 
 	PORTCFG.VPCTRLA=PORTCFG_VP0MAP_PORTD_gc;
