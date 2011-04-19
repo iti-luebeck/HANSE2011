@@ -53,6 +53,73 @@ void set_external_oscillator() {
 
 #define USART USARTF0
 
+
+void send_char(char c) {
+	while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+	USART_PutChar(&USART, c);
+}
+
+void send_as_voltage(uint16_t* adcs[]) {
+	for (int p=0; p<4; p++) {
+		// set chip active
+//		PORTC.OUTCLR = PIN3_bm;
+
+//		// transreceive byte
+//		SPIC.DATA = 0;
+//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+//		receivedData1 = SPIC.DATA;
+//		SPIC.DATA = 0;
+//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+//		receivedData2 = SPIC.DATA;
+//		// set chip back to acquisition mode
+//		PORTC.OUTSET = PIN3_bm;
+//		SPIC.DATA = 0;
+//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
+
+		int16_t a;
+		a = (*adcs[p] << 2);
+//		a = (receivedData1 << 10) | (receivedData2 << 2);
+		double x = a;
+		x = x * 3.4 / 32768;
+		int32_t y = x * 100000;
+		char outchar[8];
+		if (y >= 0) {
+			outchar[0] = ' ';
+		} else {
+			y *= -1;
+			outchar[0] = '-';
+		}
+		for (int i=7; i>1; i--) {
+			int8_t r = y % 10;
+			if (r<0) r += 10;
+			outchar[i] = r + '0';
+			y = y / 10;
+		}
+		outchar[1] = outchar[2];
+		outchar[2] = '.';
+		for (int i=0; i<8; i++) {
+			send_char(outchar[i]);
+		}
+
+//		for (int i=0; i<8; i++) {
+//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+//			tmp8 = receivedData1 << i;
+//			tmp8 = tmp8 >> 7;
+//			USART_PutChar(&USART, tmp8 + '0');
+//		}
+//		for (int i=0; i<8; i++) {
+//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
+////			USART_PutChar(&USART, 0x39);
+//			USART_PutChar(&USART, (((receivedData2<<i) & 0x80)>>7) + '0');
+//		}
+		if (p==3) {
+			send_char('\r');
+		} else {
+			send_char(';');
+		}
+	}
+}
+
 int main() {
 	PORTD.DIRSET |= PIN0_bm;
 	PORTD.OUT |= PIN0_bm;
@@ -90,9 +157,11 @@ int main() {
 	 * Baudrate select = (I/O clock frequency)/(16 * Baudrate) - 1
 	 *                 16000000/(16*9600)-1 = 103
 	 */
-//	USART_Baudrate_Set(&USART, 103 , 0);
-	USART_Baudrate_Set(&USART, 206 , 0);
-
+	//4*6+1 = 25 byte/timestep (8 byte data)
+	//40kHz => 40.000*25*8=8G
+	// 921600 baud
+	//USART_Baudrate_Set(&USART, 103 , 0);
+	USART_Baudrate_Set(&USART, 1110, -7);
 	/* Enable both RX and TX. */
 	USART_Rx_Enable(&USART);
 	USART_Tx_Enable(&USART);
@@ -125,77 +194,18 @@ int main() {
 		PORTD.OUTTGL = PIN0_bm;
 		// receive data
 		readADC();
-		for (int p=0; p<4; p++) {
-			// set chip active
-	//		PORTC.OUTCLR = PIN3_bm;
+		send_as_voltage(adcs);
 
-	//		// transreceive byte
-	//		SPIC.DATA = 0;
-	//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-	//		receivedData1 = SPIC.DATA;
-	//		SPIC.DATA = 0;
-	//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-	//		receivedData2 = SPIC.DATA;
-	//		// set chip back to acquisition mode
-	//		PORTC.OUTSET = PIN3_bm;
-	//		SPIC.DATA = 0;
-	//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-
-			int16_t a;
-			a = (*adcs[p] << 2);
-	//		a = (receivedData1 << 10) | (receivedData2 << 2);
-			double x = a;
-			x = x * 3.4 / 32768;
-			int32_t y = x * 100000;
-			char outchar[8];
-			if (y >= 0) {
-				outchar[0] = ' ';
-			} else {
-				y *= -1;
-				outchar[0] = '-';
-			}
-			for (int i=7; i>1; i--) {
-				int8_t r = y % 10;
-				if (r<0) r += 10;
-				outchar[i] = r + '0';
-				y = y / 10;
-			}
-			outchar[1] = outchar[2];
-			outchar[2] = '.';
-			for (int i=0; i<8; i++) {
-				while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-				USART_PutChar(&USART, outchar[i]);
-			}
-
-	//		for (int i=0; i<8; i++) {
-	//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-	//			tmp8 = receivedData1 << i;
-	//			tmp8 = tmp8 >> 7;
-	//			USART_PutChar(&USART, tmp8 + '0');
-	//		}
-	//		for (int i=0; i<8; i++) {
-	//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-	////			USART_PutChar(&USART, 0x39);
-	//			USART_PutChar(&USART, (((receivedData2<<i) & 0x80)>>7) + '0');
-	//		}
-			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-			if (p==3) {
-				USART_PutChar(&USART, '\r');
-			} else {
-				USART_PutChar(&USART, ';');
-			}
-		}
-
-		uint16_t timeout = 1000;
+//		uint16_t timeout = 1000;
 		/* Receive one char. */
-		do{
-		/* Wait until data received or a timeout.*/
-		timeout--;
-		}while(!USART_IsRXComplete(&USART) && timeout!=0);
-//		receivedData = USART_GetChar(&USART);
-		if (timeout > 0) {
-			PORTD.OUTTGL = PIN0_bm;
-		}
+//		do{
+//		/* Wait until data received or a timeout.*/
+//		timeout--;
+//		}while(!USART_IsRXComplete(&USART) && timeout!=0);
+////		receivedData = USART_GetChar(&USART);
+//		if (timeout > 0) {
+//			PORTD.OUTTGL = PIN0_bm;
+//		}
 
 		/* Check the received data. */
 //		if (receivedData != sendData){
