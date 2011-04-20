@@ -188,10 +188,13 @@ void init_spi() {
 void init_and_start_timer(TC_CLKSEL_t clockSelection, uint16_t period) {
 	// period
     TCC0.PER =  period;
+//    TCC1.PER =  65535;
     // prescaler
 	TCC0.CTRLA = ( TCC0.CTRLA & ~TC0_CLKSEL_gm ) | clockSelection;
+//	TCC1.CTRLA = ( TCC1.CTRLA & ~TC1_CLKSEL_gm ) | clockSelection;
     // Timer Mode: Normal
     TCC0.CTRLB = 0x00;
+//    TCC1.CTRLB = 0x00;
 	// Configure as high level interrupt.
 	TCC0.INTCTRLA = TC0_OVFINTLVL_gm;
 }
@@ -264,6 +267,11 @@ int main() {
 	// Start timer.
 	init_and_start_timer(TC_CLKSEL_DIV64_gc, 21); // minimum: 169
 
+	// khz = N[2*14745600/64/21]
+	// 21942.9
+	// baud = N[khz*(17/4)*8]
+	// 746057.
+
 	// Enable global interrupts.
 	sei();
 	// High, Medium and Low Level Interrupt Enable
@@ -272,13 +280,17 @@ int main() {
 //	PORTD.OUTSET = PIN0_bm;
 	while (1) {
 		PORTD.OUTTGL = PIN0_bm;
-		// receive data
+//		PORTD.OUTCLR = PIN0_bm;
 		while (!read_request) {};
-		PORTD.OUTCLR = PIN0_bm;
+//		if (TCC1.CNT >= TCC0.PER) {
+//			PORTD.OUTSET = PIN7_bm;
+//		}
+//		while (TCC0.CNT>2) {};
+//		PORTD.OUTSET = PIN0_bm;
+//		TCC1.CNT = 0;
 		get_adc_values();
 		//send_as_voltage();
 		send_as_single_byte_sequence();
-//		PORTD.OUTSET = PIN0_bm;
 
 		read_request = 0;
 	}
