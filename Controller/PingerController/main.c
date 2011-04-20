@@ -14,6 +14,11 @@ extern void get_adc_values();
 
 extern volatile uint16_t adc_res_0, adc_res_1, adc_res_2, adc_res_3;
 const uint16_t* adcs[] = {&adc_res_0, &adc_res_1, &adc_res_2, &adc_res_3};
+uint8_t sync_char_cnt;
+uint8_t usart_buffer_bytes;
+uint8_t usart_buffer[4];
+
+char volatile read_request;
 
 /*
  * Enable external 16 MHz oscillator.
@@ -51,11 +56,50 @@ void set_external_oscillator() {
  * Send character via usart as soon as interface gets ready.
  */
 void send_char(char c) {
+	// without interrupts
 	while ( !(USART.STATUS & USART_DREIF_bm) );
 	USART.DATA = c;
+	// with interrupts
+//	while ( usart_buffer_bytes == 3 ) {};
+//	usart_buffer[usart_buffer_bytes++] = c;
+//	USART.CTRLA |= (USART.CTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_LO_gc;
 }
 
-void send_as_voltage(uint16_t* adcs[]) {
+/*
+ * Send data as raw bytes. High byte will not be transmitted, but taken care of for senseful lowbyte-only information.
+ */
+void send_as_single_byte_sequence() {
+	sync_char_cnt++;
+	// sync char every x*4 bytes
+	if (sync_char_cnt == 4) {
+		send_char(-128);
+		sync_char_cnt = 0;
+
+	}
+	for (int p=0; p<4; p++) {
+		int8_t a = (int8_t)(*adcs[p] >> 8);
+		int8_t b = (int8_t)(*adcs[p]) & 0b01111111;
+		if (a<0) {
+			b |= 0x80;
+		}
+		if (a != 0) {
+			if (a > 0) {
+				b = 127;
+			} else {
+				b = -127;
+			}
+		}
+		if (b == -128) {
+			b = -127;
+		}
+		send_char(b);
+	}
+}
+
+/*
+ * Send data as nice ASCII string containing voltage information.
+ */
+void send_as_voltage() {
 	for (int p=0; p<4; p++) {
 		int16_t a;
 		a = (*adcs[p] << 2);
@@ -116,6 +160,43 @@ void init_usart() {
 }
 
 /*
+ * Initialize SPI for ADC chips.
+ */
+void init_spi() {
+	// define MOSI pin as output
+	PORTC.DIRSET = PIN5_bm;
+	// define SCK pin as output
+	PORTC.DIRSET = PIN7_bm;
+	// define CS pin as output
+	PORTC.DIRSET = PIN3_bm;
+
+	// define four MISO pins as input
+	PORTC.DIRCLR = PIN6_bm;
+	PORTC.DIRCLR = PIN0_bm;
+	PORTC.DIRCLR = PIN1_bm;
+	PORTC.DIRCLR = PIN2_bm;
+
+	// Set CS high (idle state).
+	PORTC.OUTSET = PIN3_bm;
+	// Be sure not to start the first ADC conversion before idle state was processed.
+	_delay_us(10);
+}
+
+/*
+ * Initialize and start timer.
+ */
+void init_and_start_timer(TC_CLKSEL_t clockSelection, uint16_t period) {
+	// period
+    TCC0.PER =  period;
+    // prescaler
+	TCC0.CTRLA = ( TCC0.CTRLA & ~TC0_CLKSEL_gm ) | clockSelection;
+    // Timer Mode: Normal
+    TCC0.CTRLB = 0x00;
+	// Configure as high level interrupt.
+	TCC0.INTCTRLA = TC0_OVFINTLVL_gm;
+}
+
+/*
  * Let led blink for testing.
  */
 void led_blinking() {
@@ -150,6 +231,9 @@ void send_usart_test_sequence() {
 }
 
 int main() {
+	sync_char_cnt = 0;
+	usart_buffer_bytes = 0;
+
 	// green onboard led, low active
 	PORTD.DIRSET = PIN0_bm;
 	PORTD.OUTSET = PIN0_bm;
@@ -168,38 +252,60 @@ int main() {
 	// For tests:
 	// send_usart_test_sequence();
 
-	/* SPI */
-
-	// define MOSI pin as output
-	PORTC.DIRSET = PIN5_bm;
-	// define SCK pin as output
-	PORTC.DIRSET = PIN7_bm;
-	// define CS pin as output
-	PORTC.DIRSET = PIN3_bm;
-
-	// define four MISO pins as input
-	PORTC.DIRCLR = PIN6_bm;
-	PORTC.DIRCLR = PIN0_bm;
-	PORTC.DIRCLR = PIN1_bm;
-	PORTC.DIRCLR = PIN2_bm;
-
-	// Set CS high (idle).
-	PORTC.OUTSET = PIN3_bm;
-	// Be sure not to start the first adc conversion before idle state was processed.
-	_delay_us(10);
+	// Initialize SPI for ADC chips.
+	init_spi();
 
 	// Map ports for assembler.
 	PORTCFG.VPCTRLA = PORTCFG_VP0MAP_PORTC_gc | PORTCFG_VP1MAP_PORTD_gc;
 
-	PORTD.OUT &= ~PIN0_bm;
+	// This variable will be set by ISR to trigger adc conversion.
+	read_request = 0;
+
+	// Start timer.
+	init_and_start_timer(TC_CLKSEL_DIV64_gc, 21); // minimum: 169
+
+	// Enable global interrupts.
+	sei();
+	// High, Medium and Low Level Interrupt Enable
+	PMIC.CTRL |= PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_LOLVLEN_bm;
+
+//	PORTD.OUTSET = PIN0_bm;
 	while (1) {
 		PORTD.OUTTGL = PIN0_bm;
 		// receive data
+		while (!read_request) {};
+		PORTD.OUTCLR = PIN0_bm;
 		get_adc_values();
-		send_as_voltage(adcs);
+		//send_as_voltage();
+		send_as_single_byte_sequence();
+//		PORTD.OUTSET = PIN0_bm;
 
-		_delay_ms(300);
+		read_request = 0;
 	}
 
 	return 0;
 }
+
+/*
+ * ISR for Timer. This will trigger ADC conversion and USART transmission.
+ */
+ISR(TCC0_OVF_vect){
+	if (read_request) {
+		PORTD.OUTSET = PIN7_bm;
+	} else {
+		read_request = 1;
+	}
+}
+
+/*
+ * ISR for USART. Transmit byte, if buffer not empty and USART ready.
+ */
+//ISR(USARTF0_DRE_vect)
+//{
+//	if (usart_buffer_bytes > 0) {
+//		USART.DATA = usart_buffer[--usart_buffer_bytes];
+//	} else {
+//		// disable interrupt
+//		USART.CTRLA |= (USART.CTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_OFF_gc;
+//	}
+//}
