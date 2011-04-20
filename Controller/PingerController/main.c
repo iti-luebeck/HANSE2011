@@ -8,13 +8,12 @@
 #include <util/delay.h>
 #include "usart_driver.h"
 
-//#define F_CPU 16000000UL
+#define USART USARTF0
 
-extern void ledOff();
-extern void ledOn();
-extern void readADC();
+extern void get_adc_values();
 
-extern uint16_t adc_res_0, adc_res_1, adc_res_2, adc_res_3;
+extern volatile uint16_t adc_res_0, adc_res_1, adc_res_2, adc_res_3;
+const uint16_t* adcs[] = {&adc_res_0, &adc_res_1, &adc_res_2, &adc_res_3};
 
 /*
  * Enable external 16 MHz oscillator.
@@ -29,9 +28,7 @@ void set_external_oscillator() {
 
 	// Page 87: The	external clock source should be allowed time to become stable before
 	// it is selected as source for	the System Clock.
-	while( (OSC.STATUS & OSC_XOSCRDY_bm) == 0) {
-//	  PORTD.OUTTGL = PIN0_bm;
-	}
+	while( (OSC.STATUS & OSC_XOSCRDY_bm) == 0) {}
 
 	// PLL source XOSC, factor 2
 	OSC.PLLCTRL = OSC_PLLSRC_XOSC_gc | (2 << OSC_PLLFAC_gp);
@@ -40,9 +37,7 @@ void set_external_oscillator() {
 	OSC.CTRL |= OSC_PLLEN_bm;
 
 	// wait for PLL to get ready
-	while( (OSC.STATUS & OSC_PLLRDY_bm) == 0) {
-	  PORTD.OUTTGL = PIN0_bm;
-	}
+	while( (OSC.STATUS & OSC_PLLRDY_bm) == 0) {}
 
 	// CLK.CTRL is protected, so we have to allow modification by the following command.
 	CCP = CCP_IOREG_gc;
@@ -51,34 +46,19 @@ void set_external_oscillator() {
 	CLK.CTRL = CLK_SCLKSEL_PLL_gc;
 }
 
-#define USART USARTF0
 
-
+/*
+ * Send character via usart as soon as interface gets ready.
+ */
 void send_char(char c) {
-	while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-	USART_PutChar(&USART, c);
+	while ( !(USART.STATUS & USART_DREIF_bm) );
+	USART.DATA = c;
 }
 
 void send_as_voltage(uint16_t* adcs[]) {
 	for (int p=0; p<4; p++) {
-		// set chip active
-//		PORTC.OUTCLR = PIN3_bm;
-
-//		// transreceive byte
-//		SPIC.DATA = 0;
-//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-//		receivedData1 = SPIC.DATA;
-//		SPIC.DATA = 0;
-//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-//		receivedData2 = SPIC.DATA;
-//		// set chip back to acquisition mode
-//		PORTC.OUTSET = PIN3_bm;
-//		SPIC.DATA = 0;
-//		while (!(SPIC.STATUS & SPI_IF_bm)) {};
-
 		int16_t a;
 		a = (*adcs[p] << 2);
-//		a = (receivedData1 << 10) | (receivedData2 << 2);
 		double x = a;
 		x = x * 3.4 / 32768;
 		int32_t y = x * 100000;
@@ -101,17 +81,6 @@ void send_as_voltage(uint16_t* adcs[]) {
 			send_char(outchar[i]);
 		}
 
-//		for (int i=0; i<8; i++) {
-//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-//			tmp8 = receivedData1 << i;
-//			tmp8 = tmp8 >> 7;
-//			USART_PutChar(&USART, tmp8 + '0');
-//		}
-//		for (int i=0; i<8; i++) {
-//			while(!USART_IsTXDataRegisterEmpty(&USART)) {};
-////			USART_PutChar(&USART, 0x39);
-//			USART_PutChar(&USART, (((receivedData2<<i) & 0x80)>>7) + '0');
-//		}
 		if (p==3) {
 			send_char('\r');
 		} else {
@@ -120,21 +89,10 @@ void send_as_voltage(uint16_t* adcs[]) {
 	}
 }
 
-int main() {
-	PORTD.DIRSET |= PIN0_bm;
-	PORTD.OUT |= PIN0_bm;
-
-	// Enable external 16 MHz oscillator.
-	set_external_oscillator();
-
-		/* Variable used to send and receive data. */
-	uint8_t sendData;
-	uint8_t receivedData1;
-	uint8_t receivedData2;
-	uint8_t tmp8;
-	int16_t result;
-
-
+/*
+ * Initialize and enable USART.
+ */
+void init_usart() {
 	// Pulling output of TXD0 high is very important. And how important it is.
 	// Never remove this, or you will be unhappy!!! (Hint from XMega Datasheet.)
 	PORTF.OUTSET   = PIN3_bm;
@@ -142,43 +100,45 @@ int main() {
 	// PC3 (TXD0) as output.
 	PORTF.DIRSET   = PIN3_bm;
 
-	// x = N[64*(32000000/(16*921600) - 1)]
-	// N[32000000/(16*((2^(-6)*Floor[x]) + 1))]/921600
-	uint16_t baud_setting = 192; // 74 for 921600, 192 for 500000;
-    USART.BAUDCTRLA = (uint8_t)baud_setting;
-    USART.BAUDCTRLB = 0xA0 | (baud_setting >> 8);
-    //(bScale << USART_BSCALE0_bp) |
+	// Set baudrate to 921600.
+	// BSEL = 128, BSCALE = -7
+	// BSEL = N[128*(2*14745600/(16*921600) - 1)]
+	// error = N[2*14745600/(16*((2^(-7)*Floor[BSEL]) + 1))]/921600
+	uint16_t bsel = 128;
+    USART.BAUDCTRLA = (uint8_t)bsel;
+    USART.BAUDCTRLB = (0x09 << USART_BSCALE0_bp) | (bsel >> 8);
 
-	// Char size, parity and stop bits: 8N1
+	// Frame format: 8 data bits, no parity and one stop bit (8N1).
 	USART.CTRLC = USART_CHSIZE_8BIT_gc | USART_PMODE_DISABLED_gc;
 
     // enable Tx
 	USART.CTRLB |= USART_TXEN_bm;
+}
 
-	uint16_t count = 0;
-	while (0) {
-		for (count=0; count < 65535; count++) {
-			while ( !(USART.STATUS & USART_DREIF_bm) );
-			USART.DATA = 'b';
-		}
-		PORTD.OUTTGL = PIN0_bm;
-		for (count=0; count < 65535; count++) {
-			while ( !(USART.STATUS & USART_DREIF_bm) );
-			USART.DATA = 'c';
-		}
-		PORTD.OUTTGL = PIN0_bm;
+/*
+ * Let led blink for testing.
+ */
+void led_blinking() {
+	while (1) {
+		_delay_ms(1000);
+		PORTD.OUT |= PIN0_bm;
+		_delay_ms(1000);
+		PORTD.OUT &= ~PIN0_bm;
 	}
+}
 
+/*
+ * Send test pattern.
+ */
+void send_usart_test_sequence() {
+//	uint16_t count = 0;
 	char c = 'a';
 	while (1) {
-		while ( !(USART.STATUS & USART_DREIF_bm) );
-		USART.DATA = c;
+		send_char(c);
 		c++;
 		if (c>'z') {
-			while ( !(USART.STATUS & USART_DREIF_bm) );
-			USART.DATA = '\r';
-			while ( !(USART.STATUS & USART_DREIF_bm) );
-			USART.DATA = '\n';
+			send_char('\r');
+			send_char('\n');
 			c='a';
 		}
 //		count++;
@@ -187,92 +147,59 @@ int main() {
 //			count = 0;
 //		}
 	}
+}
 
-	PORTCFG.VPCTRLA=PORTCFG_VP0MAP_PORTD_gc;
-	PORTCFG.VPCTRLA=PORTCFG_VP1MAP_PORTC_gc;
-//	while (1) {
-//		_delay_ms(1000);
-//		ledOff();
-//		_delay_ms(1000);
-//		ledOn();
-//	}
+int main() {
+	// green onboard led, low active
+	PORTD.DIRSET = PIN0_bm;
+	PORTD.OUTSET = PIN0_bm;
+	// red error led, high active
+	PORTD.DIRSET = PIN7_bm;
 
-	/* USARTC0, 8 Data bits, No Parity, 1 Stop bit. */
-	USART_Format_Set(&USART, USART_CHSIZE_8BIT_gc, USART_PMODE_DISABLED_gc, false);
+	// Enable external 16 MHz oscillator.
+	set_external_oscillator();
 
-	/* Set Baudrate to 9600 bps:
-	 * Do not use the baudrate scale factor
-	 *
-	 * Baudrate select = (I/O clock frequency)/(16 * Baudrate) - 1
-	 *                 16000000/(16*9600)-1 = 103
-	 */
-	//4*6+1 = 25 byte/timestep (8 byte data)
-	//40kHz => 40.000*25*8=8G
-	// 921600 baud
-	//USART_Baudrate_Set(&USART, 103 , 0);
-	USART_Baudrate_Set(&USART, 1110, -7);
-	/* Enable both RX and TX. */
-	USART_Rx_Enable(&USART);
-	USART_Tx_Enable(&USART);
+	// For tests:
+	// led_blinking();
+
+	// Initialize USART.
+	init_usart();
+
+	// For tests:
+	// send_usart_test_sequence();
 
 	/* SPI */
-	// define !SS as output
-	PORTC.DIRSET = PIN4_bm;
-	// define MOSI as output
-	PORTC.DIRSET = PIN5_bm;
-	// define SCK as output
-	PORTC.DIRSET = PIN7_bm;
 
-	// define MISO as input
+	// define MOSI pin as output
+	PORTC.DIRSET = PIN5_bm;
+	// define SCK pin as output
+	PORTC.DIRSET = PIN7_bm;
+	// define CS pin as output
+	PORTC.DIRSET = PIN3_bm;
+
+	// define four MISO pins as input
 	PORTC.DIRCLR = PIN6_bm;
 	PORTC.DIRCLR = PIN0_bm;
 	PORTC.DIRCLR = PIN1_bm;
 	PORTC.DIRCLR = PIN2_bm;
 
-	// define CS as output
-	PORTC.DIRSET = PIN3_bm;
+	// Set CS high (idle).
 	PORTC.OUTSET = PIN3_bm;
+	// Be sure not to start the first adc conversion before idle state was processed.
+	_delay_us(10);
 
-	// initialize SPI master
-//	SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_MODE_3_gc | SPI_PRESCALER_DIV16_gc;
-
-	uint16_t* adcs[] = {&adc_res_0, &adc_res_1, &adc_res_2, &adc_res_3};
+	// Map ports for assembler.
+	PORTCFG.VPCTRLA = PORTCFG_VP0MAP_PORTC_gc | PORTCFG_VP1MAP_PORTD_gc;
 
 	PORTD.OUT &= ~PIN0_bm;
 	while (1) {
 		PORTD.OUTTGL = PIN0_bm;
 		// receive data
-		readADC();
+		get_adc_values();
 		send_as_voltage(adcs);
 
-//		uint16_t timeout = 1000;
-		/* Receive one char. */
-//		do{
-//		/* Wait until data received or a timeout.*/
-//		timeout--;
-//		}while(!USART_IsRXComplete(&USART) && timeout!=0);
-////		receivedData = USART_GetChar(&USART);
-//		if (timeout > 0) {
-//			PORTD.OUTTGL = PIN0_bm;
-//		}
-
-		/* Check the received data. */
-//		if (receivedData != sendData){
-//			success = false;
-//		}
-//		sendData--;
 		_delay_ms(300);
-//		PORTD.OUT |= PIN0_bm;
-//		_delay_ms(300);
-//		PORTD.OUT &= ~PIN0_bm;
 	}
 
-
-	while (1) {
-		_delay_ms(1000);
-		PORTD.OUT |= PIN0_bm;
-		_delay_ms(1000);
-		PORTD.OUT &= ~PIN0_bm;
-	}
 	return 0;
 }

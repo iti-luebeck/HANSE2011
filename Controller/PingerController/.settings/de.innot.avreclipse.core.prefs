@@ -1,5 +1,5 @@
-#Tue Apr 19 17:48:09 CEST 2011
-avrtarget/ClockFrequency=32000000
+#Wed Apr 20 11:47:15 CEST 2011
+avrtarget/ClockFrequency=29491200
 avrtarget/ExtRAMSize=0
 avrtarget/ExtendedRAM=false
 avrtarget/MCUType=atxmega128a3
