@@ -1,3 +1,8 @@
+INCLUDEPATH += ../qextserialport
+
+unix:DEFINES += OS_UNIX
+win32:DEFINES += OS_WIN32
+
 HEADERS                 += $$PWD/qextserialport.h \
                           $$PWD/qextserialenumerator.h \
                           $$PWD/qextserialport_global.h
