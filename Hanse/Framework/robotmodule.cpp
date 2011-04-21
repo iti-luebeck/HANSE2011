@@ -9,7 +9,6 @@ RobotModule::RobotModule(QString newId)
 {
     moveToThread(this);
     setDefaultValue("enabled", true);
-    setDefaultValue("enableLogging", true);
 
     settings.beginGroup(id);
     logger = Log4Qt::Logger::logger(id);

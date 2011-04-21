@@ -33,7 +33,6 @@ void DataRecorder::open()
 
     QStringList settingsKeysNew = module.getSettingKeys();
     settingsKeysNew.sort();
-    settingsKeysNew.removeOne("enableLogging");
 
     bool listsChanged = isChanged(dataKeys, dataKeysNew) || isChanged(settingsKeys, settingsKeysNew);
 
@@ -62,7 +61,6 @@ void DataRecorder::open()
 
         settingsKeys = module.getSettingKeys();
         settingsKeys.sort();
-        settingsKeys.removeOne("enableLogging");
 
         *stream << ";time,healthStatus,healthErrorMsg";
         foreach (QString key, settingsKeys) {
@@ -81,10 +79,6 @@ void DataRecorder::open()
 
 void DataRecorder::newDataReceived(RobotModule *module)
 {
-    if (!module->getSettingsValue("enableLogging").toBool()) {
-        return;
-    }
-
     open();
 
     if (!file->isOpen()) {
@@ -102,8 +96,6 @@ void DataRecorder::newDataReceived(RobotModule *module)
     settingsMap = module->getSettingsCopy();
 
     foreach (QString key, settingsKeys) {
-        if (key == "enableLogging")
-            continue;
 
         QVariant value =settingsMap.value(key);
 //        QVariant value = module->getSettingsValue(key);
