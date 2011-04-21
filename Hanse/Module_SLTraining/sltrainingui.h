@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include "sonardatasourcefilereader.h"
-#include "a.out.h"
 #include "SVMClassifier.h"
 #include "Module_SonarLocalization/sonarechodata.h"
 #include "Module_SonarLocalization/module_sonarlocalization.h"
