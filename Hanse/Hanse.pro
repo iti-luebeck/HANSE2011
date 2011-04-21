@@ -14,6 +14,7 @@ include(../qextserialport/qextserialport.pri)
 include(../log4qt/log4qt.pri)
 include(../OpenCV.pri)
 include(../qwt.pri)
+include(Module_XsensMTi/Module_XsensMTi.pri)
 unix:DEFINES += OS_UNIX
 win32:DEFINES += OS_WIN32
 HEADERS += Framework/healthstatus.h \
@@ -105,7 +106,6 @@ HEADERS += Framework/healthstatus.h \
     Module_EchoSounder/echodata852recorder.h \
     Behaviour_WallFollowing/wallfollowingform.h \
     Behaviour_WallFollowing/behaviour_wallfollowing.h \
-    Module_SonarLocalization/sonarechofilter.h \
     Module_SonarLocalization/sonarechodata.h \
     Framework/pidcontroller.h \
     Framework/pidwidget.h \
@@ -115,12 +115,6 @@ HEADERS += Framework/healthstatus.h \
     Module_SLTraining/SVMClassifier.h \
     Module_SLTraining/ui_sltrainingui.h \
     Module_SLTraining/sonardatasourcefilereader.h \
-    Module_XsensMTi/module_xsensmti.h \
-    Module_XsensMTi/MTi/MTMessage.h \
-    Module_XsensMTi/MTi/MTi.h \
-    Module_XsensMTi/MTi/MTDataTypes.h \
-    Module_XsensMTi/MTi/CerealPort.h \
-    Module_XsensMTi/xsens_form.h \
     Framework/Angles.h
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
@@ -217,12 +211,7 @@ SOURCES += Framework/robotmodule.cpp \
     CommandCenter/commandcenter.cpp \
     Module_SLTraining/sltrainingui.cpp \
     Module_SLTraining/SVMClassifier.cpp \
-    Module_SLTraining/sonardatasourcefilereader.cpp \
-    Module_XsensMTi/module_xsensmti.cpp \
-    Module_XsensMTi/MTi/MTMessage.cpp \
-    Module_XsensMTi/MTi/MTi.cpp \
-    Module_XsensMTi/MTi/CerealPort.cpp \
-    Module_XsensMTi/xsens_form.cpp
+    Module_SLTraining/sonardatasourcefilereader.cpp
 FORMS += Framework/mainwindow.ui \
     Framework/graphview.ui \
     Module_UID/form_uid.ui \
@@ -253,6 +242,5 @@ FORMS += Framework/mainwindow.ui \
     Behaviour_WallFollowing/wallfollowingform.ui \
     Framework/pidwidget.ui \
     CommandCenter/commandcenterform.ui \
-    Module_SLTraining/sltrainingui.ui \
-    Module_XsensMTi/xsens_form.ui
+    Module_SLTraining/sltrainingui.ui
 OTHER_FILES += bin/log4qt.properties

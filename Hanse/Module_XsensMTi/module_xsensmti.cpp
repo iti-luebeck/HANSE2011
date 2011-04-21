@@ -3,6 +3,10 @@
 #include <Module_Simulation/module_simulation.h>
 #include <Framework/Angles.h>
 
+#ifdef ENABLE_XSENS
+#include "Module_XsensMTi/MTi/MTi.h"
+#endif
+
 Module_XsensMTi::Module_XsensMTi(QString id, Module_Simulation *sim)
         : RobotModule(id)
 {
@@ -15,14 +19,6 @@ Module_XsensMTi::Module_XsensMTi(QString id, Module_Simulation *sim)
     mti = NULL;
     timer.moveToThread(this);
     heading = 0;
-}
-
-Module_XsensMTi::~Module_XsensMTi() {
-    terminate();
-
-    if (mti != NULL) {
-        delete(mti);
-    }
 }
 
 void Module_XsensMTi::init()
@@ -60,13 +56,16 @@ void Module_XsensMTi::reset()
     if(sim->isEnabled())
         return;
 
+#ifdef ENABLE_XSENS
     if (mti != NULL) {
         delete(mti);
         connected = false;
     }
+#endif
 
     sleep(1);
 
+#ifdef ENABLE_XSENS
     mti = new Xsens::MTi();
 
     if(!mti->openPort((char*)getSettingsValue("port").toString().toStdString().c_str(), getSettingsValue("baudrate").toInt())) {
@@ -93,6 +92,7 @@ void Module_XsensMTi::reset()
             connected = true;
         }
     }
+#endif
 }
 
 QList<RobotModule*> Module_XsensMTi::getDependencies()
@@ -120,6 +120,7 @@ void Module_XsensMTi::refreshData()
         emit requestAngles();
     }
     else {
+#ifdef ENABLE_XSENS
         addData("yaw", Angles::pi2deg(mti->yaw()));
         addData("pitch", Angles::pi2deg(mti->pitch()));
         addData("roll", Angles::pi2deg(mti->roll()));
@@ -127,6 +128,7 @@ void Module_XsensMTi::refreshData()
         if (getHealthStatus().isHealthOk()) {
             emit dataChanged(this);
         }
+#endif
     }
 }
 
@@ -149,11 +151,13 @@ float Module_XsensMTi::getHeadingIncrement() {
     if (sim->isEnabled()) {
         increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
     } else {
+#ifdef ENABLE_XSENS
         addData("yaw", Angles::pi2deg(mti->yaw()));
         addData("pitch", Angles::pi2deg(mti->pitch()));
         addData("roll", Angles::pi2deg(mti->roll()));
 
         increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
+#endif
     }
 
     lastHeading = getDataValue("yaw").toFloat();

@@ -3,9 +3,14 @@
 
 #include <QtCore>
 #include <Framework/robotmodule.h>
-#include "Module_XsensMTi/MTi/MTi.h"
 
 class Module_Simulation;
+
+// forward declaration. this type is never defined under win32 and
+// must therefore never be used there
+namespace Xsens {
+    class MTi;
+}
 
 class Module_XsensMTi : public RobotModule
 {
@@ -13,7 +18,6 @@ class Module_XsensMTi : public RobotModule
 
 public:
     Module_XsensMTi(QString id, Module_Simulation *sim);
-    ~Module_XsensMTi();
 
     QWidget* createView(QWidget* parent);
 

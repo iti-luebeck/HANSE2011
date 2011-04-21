@@ -9,5 +9,5 @@ win32 {
     LIBS += -lvideoInput -lddraw -ldxguid -lstrmbase -lstrmiids -luuid -lole32 -loleaut32
 }
 
-# debian/ubuntu: aptitude install libcv-dev libcvaux-dev libhighgui-dev libswscale-dev
-unix:LIBS += -lcv -lcxcore -lcvaux -lboost_thread
+# debian/ubuntu (10.10 oder neuer): aptitude install libcv-dev libcvaux-dev
+unix:LIBS += -lcv -lcxcore -lcvaux
