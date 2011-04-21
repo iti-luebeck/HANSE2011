@@ -15,8 +15,8 @@ extern void get_adc_values();
 extern volatile uint16_t adc_res_0, adc_res_1, adc_res_2, adc_res_3;
 const uint16_t* adcs[] = {&adc_res_0, &adc_res_1, &adc_res_2, &adc_res_3};
 uint8_t sync_char_cnt;
-uint8_t usart_buffer_bytes;
-uint8_t usart_buffer[4];
+uint8_t volatile usart_buffer_bytes;
+uint8_t volatile usart_buffer[4];
 
 char volatile read_request;
 
@@ -55,14 +55,16 @@ void set_external_oscillator() {
 /*
  * Send character via usart as soon as interface gets ready.
  */
-void send_char(char c) {
+inline void send_char(char c) {
 	// without interrupts
 	while ( !(USART.STATUS & USART_DREIF_bm) );
 	USART.DATA = c;
 	// with interrupts
+//	PORTD.OUTTGL = PIN0_bm;
 //	while ( usart_buffer_bytes == 3 ) {};
 //	usart_buffer[usart_buffer_bytes++] = c;
-//	USART.CTRLA |= (USART.CTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_LO_gc;
+//	USART.CTRLA = (USART.CTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_HI_gc;
+//	USART.CTRLA |= USART_DREINTLVL_HI_gc;
 }
 
 /*
@@ -76,7 +78,7 @@ void send_as_single_byte_sequence() {
 		sync_char_cnt = 0;
 
 	}
-	for (int p=0; p<4; p++) {
+	for (int p=0; p<2; p++) {
 		int8_t a = (int8_t)(*adcs[p] >> 8);
 		int8_t b = (int8_t)(*adcs[p]) & 0b01111111;
 		if (a<0) {
@@ -104,7 +106,8 @@ void send_as_voltage() {
 		int16_t a;
 		a = (*adcs[p] << 2);
 		double x = a;
-		x = x * 3.4 / 32768;
+		// x = x * 3.4 / 32768;
+		x = x * 1.0 / 32768.0;
 		int32_t y = x * 100000;
 		char outchar[8];
 		if (y >= 0) {
@@ -246,6 +249,11 @@ int main() {
 	// Enable external 16 MHz oscillator.
 	set_external_oscillator();
 
+	// Enable global interrupts.
+	sei();
+	// High, Medium and Low Level Interrupt Enable
+	PMIC.CTRL |= PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_LOLVLEN_bm;
+
 	// For tests:
 	// led_blinking();
 
@@ -265,32 +273,27 @@ int main() {
 	read_request = 0;
 
 	// Start timer.
-	init_and_start_timer(TC_CLKSEL_DIV64_gc, 21); // minimum: 169
+	init_and_start_timer(TC_CLKSEL_DIV64_gc, 21000); // minimum: 21
 
 	// khz = N[2*14745600/64/21]
 	// 21942.9
 	// baud = N[khz*(17/4)*8]
 	// 746057.
 
-	// Enable global interrupts.
-	sei();
-	// High, Medium and Low Level Interrupt Enable
-	PMIC.CTRL |= PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_LOLVLEN_bm;
-
 //	PORTD.OUTSET = PIN0_bm;
 	while (1) {
-		PORTD.OUTTGL = PIN0_bm;
-//		PORTD.OUTCLR = PIN0_bm;
+//		PORTD.OUTTGL = PIN0_bm;
 		while (!read_request) {};
 //		if (TCC1.CNT >= TCC0.PER) {
 //			PORTD.OUTSET = PIN7_bm;
 //		}
 //		while (TCC0.CNT>2) {};
-//		PORTD.OUTSET = PIN0_bm;
 //		TCC1.CNT = 0;
 		get_adc_values();
-		//send_as_voltage();
-		send_as_single_byte_sequence();
+		send_as_voltage();
+//		PORTD.OUTCLR = PIN0_bm;
+		//send_as_single_byte_sequence();
+//		PORTD.OUTSET = PIN0_bm;
 
 		read_request = 0;
 	}
@@ -312,12 +315,12 @@ ISR(TCC0_OVF_vect){
 /*
  * ISR for USART. Transmit byte, if buffer not empty and USART ready.
  */
-//ISR(USARTF0_DRE_vect)
-//{
-//	if (usart_buffer_bytes > 0) {
-//		USART.DATA = usart_buffer[--usart_buffer_bytes];
-//	} else {
-//		// disable interrupt
-//		USART.CTRLA |= (USART.CTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_OFF_gc;
-//	}
-//}
+ISR(USARTF0_DRE_vect)
+{
+//	PORTD.OUTTGL = PIN7_bm;
+	USART.DATA = usart_buffer[--usart_buffer_bytes];
+	if (usart_buffer_bytes == 0) {
+		// disable interrupt
+		USART.CTRLA = (USART.CTRLA & ~USART_DREINTLVL_gm) | USART_DREINTLVL_OFF_gc;
+	}
+}
