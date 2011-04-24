@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -408,6 +408,29 @@
          <width>401</width>
          <height>311</height>
         </rect>
+       </property>
+      </widget>
+      <widget class="QGraphicsViewExtended" name="rawView">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>370</y>
+         <width>401</width>
+         <height>311</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="enableRawView">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>340</y>
+         <width>171</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Show Raw</string>
        </property>
       </widget>
      </widget>

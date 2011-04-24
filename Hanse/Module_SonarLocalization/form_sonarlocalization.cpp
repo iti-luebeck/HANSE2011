@@ -35,21 +35,26 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
     gi.setColorAt(0,QColor("black"));
     gi.setColorAt(1,QColor("black"));
 
+    viewWidth = 100;
+    //filtered view
     scene2.clear();
-    dataQueue.clear();
     sonarEchoDataList.clear();
-    for(int i =0; i<100; i++)
-    {
-        dataQueue.append(gi);
-    }
-
     //unfiltered View
     this->ui->unfilteredView->setScene(&sceneUnfiltered);
     sceneUnfiltered.clear();
+    //raw view
+    this->ui->rawView->setScene(&sceneRaw);
+    sceneRaw.clear();
+    //init data queues for views
+    dataQueue.clear();
     dataQueueUnfiltered.clear();
-    sonarEchoDataUnfilteredList.clear();
-    for(int i =0; i<100; i++)
+    rawQueue.clear();
+    for(int i =0; i<viewWidth; i++)
+    {
+        dataQueue.append(gi);
         dataQueueUnfiltered.append(gi);
+        rawQueue.append(gi);
+    }
 
     connect(m,SIGNAL(newSonarEchoData(QList<SonarEchoData>)),this,SLOT(updateSonarViewList(QList<SonarEchoData>)));
 //    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
@@ -333,7 +338,6 @@ void Form_SonarLocalization::on_selSat_clicked()
 void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
 {
     qDebug() << "list length = " << list.length();
-    int viewWidth = 100;
     sonarEchoDataList.clear();
     while (!list.empty())
     {
@@ -347,11 +351,12 @@ void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
         this->updateSonarViewUnfiltered();
     if(this->ui->enableFilteredView->isChecked())
         this->updateSonarView();
+    if(this->ui->enableRawView->isChecked())
+        this->updateSonarViewRaw();
 }
 
 void Form_SonarLocalization::updateSonarView()
 {
-    int viewWidth = 100;
     float n = 250;
     scene2.clear();
 //        for(int i = 1; i<range+1; i++)
@@ -382,7 +387,6 @@ void Form_SonarLocalization::updateSonarView()
 
 void Form_SonarLocalization::updateSonarViewUnfiltered()
 {
-    int viewWidth = 100;
     float n = 250;
     sceneUnfiltered.clear();
     float maxVal = 0.00001;
@@ -417,6 +421,28 @@ void Form_SonarLocalization::updateSonarViewUnfiltered()
         sceneUnfiltered.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueueUnfiltered[i]));
 }
 
+void Form_SonarLocalization::updateSonarViewRaw()
+{
+    float n = 250;
+    sceneRaw.clear();
+
+    for(int j=0; j<viewWidth; j++)
+    {
+        QLinearGradient gi(0,0,0,279);
+        QByteArray data = sonarEchoDataList[j].getRawData();
+        for (int i = 0; i < n; i++)
+        {
+            unsigned char b = (unsigned char) (data[i]);
+            gi.setColorAt(1.0*i/n,QColor(0,2*b,0));
+        }
+        rawQueue.append(gi);
+        rawQueue.pop_front();
+
+    }
+
+    for(int i =0; i<viewWidth; i++)
+        sceneRaw.addRect(i,1,1,274,(Qt::NoPen),QBrush(rawQueue[i]));
+}
 
 void Form_SonarLocalization::on_selSVM_clicked()
 {

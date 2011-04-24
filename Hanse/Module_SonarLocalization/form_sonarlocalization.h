@@ -31,11 +31,14 @@ private:
     QGraphicsScene scene2;
     QQueue<QLinearGradient> dataQueue;
     QList<SonarEchoData> sonarEchoDataList;
-
     //UnfilteredView
     QGraphicsScene sceneUnfiltered;
     QQueue<QLinearGradient> dataQueueUnfiltered;
-    QList<SonarEchoData> sonarEchoDataUnfilteredList;
+    //raw View
+    QGraphicsScene sceneRaw;
+    QQueue<QLinearGradient> rawQueue;
+    //view width
+    int viewWidth;
 
 
     Ui::Form_SonarLocalization *ui;
@@ -56,7 +59,7 @@ private:
 
     void updateSonarView();
     void updateSonarViewUnfiltered();
-
+    void updateSonarViewRaw();
 
     public slots:
     void updateSonarViewList(QList<SonarEchoData> list);
