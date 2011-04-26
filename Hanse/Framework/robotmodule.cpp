@@ -26,6 +26,7 @@ void RobotModule::run()
 {
     this->init();
     this->exec();
+    this->terminate();
 }
 
 
@@ -182,11 +183,11 @@ void RobotModule::addData(QString key, QVariant value)
 void RobotModule::terminate()
 {
     recorder->close();
-    this->exit(0);
 }
 
-bool RobotModule::waitForThreadToStop()
+bool RobotModule::shutdown()
 {
+    this->exit(0);
     this->wait();
 }
 
@@ -202,11 +203,6 @@ void RobotModule::reset()
 }
 
 void RobotModule::msleep(int millies)
-{
-    MyQThread::msleep(millies);
-}
-
-void RobotModule::MyQThread::msleep(int millies)
 {
     QThread::msleep(millies);
 }

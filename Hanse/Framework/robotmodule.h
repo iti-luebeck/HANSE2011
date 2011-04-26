@@ -106,9 +106,11 @@ public:
     HealthStatus getHealthStatus();
 
     /**
-      * waits until the module has been terminated
+      * stops the module from the outside.
+      *
+      * waits until the module-thread is shutdown
       */
-    virtual bool waitForThreadToStop();
+    virtual bool shutdown();
 
 signals:
     /**
@@ -147,20 +149,6 @@ public slots:
       */
     void setEnabled(bool value);
 
-    /**
-      * This method is called when the module is destroyed (in other words:
-      * the program terminates)
-      *
-      * The module should clean its mess up in this method; close/flush open
-      * files, close serial ports and of cource terminate any threads it started.
-      *
-      * This method is called exactly once during the lifetime of a module.
-      * The modules are terminated in reversed order of creation: It is guaranteed
-      * that all dependencies of a module A remain alive until this module A is
-      * terminated.
-      */
-    virtual void terminate();
-
 protected:
 
     /**
@@ -197,6 +185,32 @@ protected:
       */
     virtual void msleep(int millies);
 
+    /**
+      * init module.
+      *
+      * this method is called only once, right after the constructor.,
+      * all initialisation should be performed in this method.
+      * This method is called from the module's own thread.
+      */
+    virtual void init();
+
+    /**
+      * This method is called when the module is destroyed (in other words:
+      * the program terminates)
+      *
+      * The module should clean its mess up in this method; close/flush open
+      * files, close serial ports and of cource terminate any threads it started.
+      *
+      * This method is called exactly once during the lifetime of a module.
+      * The modules are terminated in reversed order of creation: It is guaranteed
+      * that all dependencies of a module A remain alive until this module A is
+      * terminated.
+      *
+      * This method is called from the module's own thread.
+      */
+    virtual void terminate();
+
+
 protected slots:
     /**
       * Do a health check.
@@ -209,17 +223,6 @@ protected slots:
     virtual void doHealthCheck();
 
 private:
-    class MyQThread: public QThread
-    {
-    public:
-        static void msleep(int millies);
-    };
-
-    /**
-      * init module components. called by run.
-      *
-      */
-    virtual void init();
 
     /**
       * All persistent configuration of the module is stored in here
