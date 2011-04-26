@@ -8,8 +8,6 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-
-
 CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TestTask2 *tt2)
     : RobotModule(id)
 {
@@ -88,16 +86,22 @@ void CommandCenter::startCC(){
     RobotModule::reset();
     running = true;
     this->setEnabled(true);
-    qDebug("CommandCenter started");
+    //qDebug("CommandCenter started");
     logger->info("CommandCenter started");
-    qDebug("Scheduled tasks:");
-    for(int i = schedule.length()-1; i>=0; i--){
-        qDebug()<<schedule.at(i);
-    }
+
+//    qDebug("Scheduled tasks:");
+//    for(int i = schedule.length()-1; i>=0; i--){
+//        qDebug()<<schedule.at(i);
+//    }
 
     if(this->getSettingsValue("subEx").toBool() == true){
-        qDebug("Submerged execution");
+       // qDebug("Submerged execution!");
+        addData("Submerged",true);
+        emit dataChanged(this);
         submergedExecute();
+    } else {
+        addData("Submerged",false);
+        emit dataChanged(this);
     }
     commandCenterControl();
 }
@@ -105,9 +109,9 @@ void CommandCenter::startCC(){
 void CommandCenter::stopCC(){
     RobotModule::reset();
 
-    qDebug("CommandCenter stoped");
+    //qDebug("CommandCenter stoped");
     logger->info("CommandCenter stoped");
-    this->setHealthToSick("stopped command center!");
+    this->setHealthToSick("CommandCenter stoped");
     this->setEnabled(false);
 
     schedule.clear();
@@ -150,7 +154,7 @@ QWidget* CommandCenter::createView(QWidget *parent)
 
 void CommandCenter::commandCenterControl(){
 
-    qDebug("Control cc");
+    //qDebug("Control cc");
    //depthWaitTimer.singleShot(6000,this, SLOT(timeout()));
 
 
@@ -181,12 +185,12 @@ void CommandCenter::commandCenterControl(){
         emit newError("Task not found, try to process next task...");
         emit newAborted(temp);
         commandCenterControl();
-        qDebug("Schedule error, task not found!");
+        //qDebug("Schedule error, task not found!");
         cStop();
     }
     count++;
     } else {
-        qDebug("Schedule error, no existing tasks!");
+        //qDebug("Schedule error, no existing tasks!");
 
         emit newError("No existing task");
     }
@@ -212,22 +216,25 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
 
 
 void CommandCenter::doNextTask(){
-    qDebug("Do next task");
+    //qDebug("Do next task");
     commandCenterControl();
 }
 
 
 void CommandCenter::timeout()
 {
-    qDebug("timeout in cc");
-    stopCC();
+    //qDebug("timeout in cc");
+
     emit setDepth(0);
     emit setForwardSpeed(0);
     emit setAngularSpeed(0);
+    stopCC();
 }
 
 void CommandCenter::submergedExecute()
 {
+    addData("Sub.exec.depth", this->getSettingsValue("targetDepth").toFloat());
+    emit dataChanged(this);
     emit setDepth(this->getSettingsValue("targetDepth").toFloat());
-    qDebug()<<this->getSettingsValue("targetDepth").toString();
+    //qDebug()<<this->getSettingsValue("targetDepth").toString();
 }

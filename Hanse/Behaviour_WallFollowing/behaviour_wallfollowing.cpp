@@ -214,7 +214,7 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
 
 void Behaviour_WallFollowing::updateFromSettings()
 {
-    qDebug("Update Settings");
+    //qDebug("Wall: Update Settings");
     this->distanceInput = this->getSettingsValue("desiredDistance").toFloat();
     this->fwdSpeed = this->getSettingsValue("forwardSpeed").toFloat();
     this->angSpeed = this->getSettingsValue("angularSpeed").toFloat();

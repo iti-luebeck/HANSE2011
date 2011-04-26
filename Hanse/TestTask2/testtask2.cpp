@@ -56,6 +56,12 @@ void TestTask2::startBehaviour()
     this->wall->setSettingsValue("corridorWidth",0.1);
     this->wall->updateFromSettings();
 
+    addData("forwardSpeed", this->wall->getSettingsValue("forwardSpeed"));
+    addData("angularSpeed", this->wall->getSettingsValue("angularSpeed"));
+    addData("desiredDistance", this->wall->getSettingsValue("desiredDistance"));
+    addData("corridorWidth", this->wall->getSettingsValue("corridorWidth"));
+    emit dataChanged(this);
+
     this->reset();
     logger->info("TestTastk started" );
     running = true;
@@ -83,6 +89,7 @@ void TestTask2::stop()
         this->wall->echo->setEnabled(false);
         this->setEnabled(false);
         emit finished(this,true);
+
     }
 }
 
@@ -105,10 +112,12 @@ void TestTask2::emergencyStop()
 
 void TestTask2::countdown()
 {
-    qDebug("Testtask2: start countdown");
+    //qDebug("Testtask2: start countdown");
     // 1 min = 60000 msec
-    testTimer.singleShot(30000,this, SLOT(stop()));
-
+    int msec = 30000;
+    testTimer.singleShot(msec,this, SLOT(stop()));
+    addData("Tasktime msec", msec);
+    emit dataChanged(this);
     //stop();
 }
 
