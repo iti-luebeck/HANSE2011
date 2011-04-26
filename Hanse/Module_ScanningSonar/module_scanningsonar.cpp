@@ -9,7 +9,7 @@
 #include "sonardata852recorder.h"
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_Simulation/module_simulation.h>
-Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim)
+Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim)
     : RobotModule(id)
 {
     this->sim = sim;
@@ -52,9 +52,7 @@ void Module_ScanningSonar::init()
 
 void Module_ScanningSonar::terminate()
 {
-
     QTimer::singleShot(0,&timer,SLOT(stop()));
-
     logger->debug("Destroying sonar data source and recorder.");
     if (this->source != NULL) {
         delete this->source;
@@ -140,7 +138,7 @@ void Module_ScanningSonar::reset()
 
     if (sim->isEnabled())
     {
-
+        // XXX: this is inadequate for small sonar ranges
         timer.setInterval(100);
         timer.start();
 

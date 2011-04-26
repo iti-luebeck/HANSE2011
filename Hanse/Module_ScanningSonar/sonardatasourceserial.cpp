@@ -42,7 +42,7 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
     else
         expectedLength = 265;
 
-    int timeout = 100;
+    int timeout = 1000; // if takes longer than a second, just drop the packet
     while(timeout>0 && (retData.length()==0 || retData[retData.length()-1] != (char)0xFC)) {
         QByteArray ret = port->read(expectedLength - retData.length());
         retData.append(ret);

@@ -6,6 +6,7 @@
 #include <QtCore>
 
 class QextSerialPort;
+//class SonarReturnData;
 class SonarDataSource;
 class SonarDataRecorder;
 class Module_ThrusterControlLoop;
@@ -18,7 +19,7 @@ class Module_ScanningSonar : public RobotModule {
     friend class SonarDataSourceSerial;
 
 public:
-    Module_ScanningSonar(QString id, Module_Simulation *sim);
+    Module_ScanningSonar(QString id,Module_ThrusterControlLoop *tcl,Module_Simulation *sim);
     ~Module_ScanningSonar();
 
     QWidget* createView(QWidget* parent);
@@ -28,13 +29,15 @@ public:
     void emitSonarSignal();
 
 public slots:
+    bool doNextScan();
+
+public slots:
     void reset();
     void terminate();
 
 private slots:
     void gotEnabledChanged(bool);
     void refreshSimData(SonarReturnData data);
-    bool doNextScan();
 
 signals:
     void newSonarData(const SonarReturnData data);
@@ -45,7 +48,6 @@ private:
     QTimer timer;
     SonarDataSource* source;
     SonarDataRecorder* recorder;
-
     void init();
 };
 
