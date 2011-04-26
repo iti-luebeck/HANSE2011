@@ -11,9 +11,15 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
      //qRegisterMetaType<QList<QString> >("QList<QString>");
      QObject::connect(this,SIGNAL(startCommandCenter()),com,SLOT(startCC()));
    // QObject::connect(this,SIGNAL(startCommandCenter(QList<QString>)),com,SLOT(startCommandCenter(QList<QString>)));
-     connect(this,SIGNAL(stopCommandCenter()),com,SLOT(stopCC()));
 
-    connect(com,SIGNAL(nData(QString)),this,SLOT(updateCcUI(QString)));
+
+    connect(com,SIGNAL(currentTask(QString)),this,SLOT(updateTask(QString)));
+    connect(com,SIGNAL(newError(QString)),this,SLOT(updateError(QString)));
+
+    connect(com,SIGNAL(newList(QString)),this,SLOT(updateLists(QString)));
+    connect(com,SIGNAL(newAborted(QString)),this,SLOT(updateAborted(QString)));
+
+    connect(this,SIGNAL(stopCommandCenter()),com,SLOT(stopCC()));
 
     ui->setupUi(this);
 }
@@ -58,11 +64,14 @@ void CommandCenterForm::on_revertButton_clicked(){
 void CommandCenterForm::on_clearButton_clicked(){
    // ui->scheduleList->setText(ui->scheduleInput->currentText());
     qDebug("clearButtonClicked");
+
     ui->scheduleList->clear();
     this->com->schedule.clear();
+    ui->errorOutput->setText("Schedule list cleared");
 }
 
 void CommandCenterForm::on_startButton_clicked(){
+    ui->finishedList->clear();
     qDebug("startButtonClicked");
     if(!this->com->schedule.isEmpty()){
         qDebug("emit startCommandCenter");
@@ -72,16 +81,46 @@ void CommandCenterForm::on_startButton_clicked(){
         ui->errorOutput->setText("No existing schedule!");
         ui->activeOutput->clear();
     }
+
 }
 
 void CommandCenterForm::on_stopButton_clicked(){
     qDebug("stopButtonClicked");
-    emit stopCommandCenter();
+
     ui->activeOutput->clear();
+    for(int i = 0; i<this->com->schedule.length(); i++){
+        ui->abortedList->insertPlainText(this->com->schedule.at(i)+"\n");
+    }
+    emit stopCommandCenter();
+    ui->scheduleList->clear();
     ui->errorOutput->setText("Command center stopped!");
+
 }
 
-void CommandCenterForm::updateCcUI(QString s){
+void CommandCenterForm::updateTask(QString s){
     ui->activeOutput->setText(s);
     ui->errorOutput->clear();
+}
+
+void CommandCenterForm::updateError(QString s){
+    ui->errorOutput->setText(s);
+    ui->activeOutput->clear();
+}
+
+void CommandCenterForm::updateLists(QString s){
+    ui->scheduleList->clear();
+    for(int i = this->com->schedule.length()-1; i>=0; i--){
+        ui->scheduleList->insertPlainText(this->com->schedule.at(i)+"\n");
+    }
+    if(s!=""){
+       ui->finishedList->insertPlainText(s+"\n");
+    }
+}
+
+void CommandCenterForm::updateAborted(QString s){
+    ui->scheduleList->clear();
+    for(int i = this->com->schedule.length()-1; i>=0; i--){
+        ui->scheduleList->insertPlainText(this->com->schedule.at(i)+"\n");
+    }
+    ui->abortedList->insertPlainText(s+"\n");
 }

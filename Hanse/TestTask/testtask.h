@@ -21,10 +21,9 @@ public:
 
     bool echoTest;
 
-    QTimer *testTimer;
+    QTimer testTimer;
 
-    void startBehaviour();
-    void stop();
+
 
 private:
     void init();
@@ -37,11 +36,17 @@ private:
     void terminate();
     void countdown();
 
+
 signals:
     void timerStart( int msec );
     void timerStop();
     void dataError();
+    void end();
 
+public slots:
+    void startBehaviour();
+    void stop();
+    void emergencyStop();
 };
 
 #endif // TESTTASK_H

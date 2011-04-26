@@ -6,7 +6,7 @@
 #include <QWidget>
 #include <log4qt/logger.h>
 
-class TestTask;
+class TestTask2;
 class Module_Simulation;
 
 namespace Ui {

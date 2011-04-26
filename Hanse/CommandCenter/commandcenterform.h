@@ -46,7 +46,10 @@ private slots:
     void on_startButton_clicked();
     void on_stopButton_clicked();
 
-    void updateCcUI(QString s);
+    void updateTask(QString s);
+    void updateError(QString s);
+    void updateLists(QString s);
+    void updateAborted(QString s);
 };
 
 #endif // COMMANDCENTERFORM_H

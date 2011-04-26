@@ -4,15 +4,25 @@
 #include <stdio.h>
 #include <Module_Simulation/module_simulation.h>
 #include <CommandCenter/commandcenterform.h>
+#include <Module_PressureSensor/module_pressuresensor.h>
+#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
+#include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_Simulation *sim, TestTask *tt, TestTask2 *tt2)
+
+
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TestTask2 *tt2)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
     qDebug()<< QThread::currentThreadId();
+
+    this->tcl = tcl;
+    this->handControl = handControl;
+    this->pressure = pressure;
     this->sim = sim;
     this->testtask = tt;
     this->testtask2 = tt2;
+
     timer.moveToThread(this);
 
     setEnabled(false);
@@ -21,6 +31,37 @@ CommandCenter::CommandCenter(QString id, Module_Simulation *sim, TestTask *tt, T
     connect(testtask, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
      connect(testtask2, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     //connect(this, SIGNAL(startControl(RobotBehaviour*,bool)), this, SLOT(commandCenterControl(RobotBehaviour*,bool)));
+
+     connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
+     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+     connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
+
+     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));
+     connect(handControl, SIGNAL(startHandControl()), this, SLOT(startHandControl()));
+
+     connect(this,SIGNAL(startTestTask()),testtask,SLOT(startBehaviour()));
+     connect(this,SIGNAL(stopTestTask()),testtask,SLOT(stop()));
+     connect(this,SIGNAL(startTestTask2()),testtask2,SLOT(startBehaviour()));
+     connect(this,SIGNAL(stopTestTask2()),testtask2,SLOT(stop()));
+
+
+     connect(this,SIGNAL(stopAllBehaviours()),testtask,SLOT(emergencyStop()));
+     connect(this,SIGNAL(stopAllBehaviours()),testtask2,SLOT(emergencyStop()));
+
+
+     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
+
+     setDefaultValue("targetDepth",0.30);
+     setDefaultValue("forwardSpeed",0.3);
+     count = 1;
+
+     depthWaitTimer.setSingleShot(true);
+     depthWaitTimer.moveToThread(this);
+     //connect(&depthWaitTimer, SIGNAL(timeout()), this, SLOT(stateTimeout()));
+
+     //setDefaultValue("depthErrorVariance",0.05);
+     //setDefaultValue("timeout",600);
 }
 
 
@@ -38,7 +79,7 @@ void CommandCenter::init(){
 void CommandCenter::startCC(){
     RobotModule::reset();
     running = true;
-    this->enabled(true);
+    this->setEnabled(true);
     qDebug("CommandCenter started");
     logger->info("CommandCenter started");
     qDebug("Scheduled tasks:");
@@ -53,8 +94,17 @@ void CommandCenter::stopCC(){
 
     qDebug("CommandCenter stoped");
     logger->info("CommandCenter stoped");
-    this->setHealthToSick("stopCC!");
-    this->enabled(false);
+    this->setHealthToSick("stopped command center!");
+    this->setEnabled(false);
+
+    schedule.clear();
+    emit stopAllBehaviours();
+    emit resetTCL();
+
+    emit setDepth(0);
+    emit setForwardSpeed(0);
+    emit setAngularSpeed(0);
+
     if (sim->isEnabled())
     {
 
@@ -86,29 +136,71 @@ QWidget* CommandCenter::createView(QWidget *parent)
 }
 
 void CommandCenter::commandCenterControl(){
-    if(!schedule.isEmpty()){
+
+    qDebug("Control cc");
+   //depthWaitTimer.singleShot(6000,this, SLOT(timeout()));
+
+
+    if(!schedule.isEmpty() & this->isEnabled()){
     qDebug("Commandcenter control; Next scheduled task:");
     QString temp=schedule.last();
     qDebug()<<temp;
 
+    schedule.removeLast();
+    addData("Task Nr", count);
+    addData("Task Name", temp);
+    emit dataChanged(this);
+
     if(temp == "TestTask"){
-        testtask->startBehaviour();
-        schedule.removeLast();
-        emit nData(temp);
+        emit startTestTask();
+
+        emit newList("");
+        emit currentTask(temp);
+        lTask = temp;
+
     } else if(temp == "TestTask2") {
-        testtask2->startBehaviour();
-        emit nData(temp);
-        schedule.removeLast();
+        emit startTestTask2();
+
+        emit newList("");
+        emit currentTask(temp);
+        lTask = temp;
+    } else {
+        emit newError("Task not found, try to process next task...");
+
+         emit newAborted(temp);
+        commandCenterControl();
+        qDebug("Schedule error, task not found!");
     }
-} else {
+    count++;
+    } else {
         qDebug("Schedule error, no existing tasks!");
-        emit nData("No existing task");
+        emit newError("No existing task");
     }
 
 
 }
 
 void CommandCenter::finishedControl(RobotBehaviour *, bool success){
-    qDebug("One task has finished");
-    commandCenterControl();
+
+    if(success==true){
+        qDebug("One task has finished successfully");
+        emit newList(lTask);
+    } else {
+        qDebug("One task has finished unsuccessfully");
+        emit newAborted(lTask);
+        emit newList("");
+    }
+    if(this->isEnabled()){
+        commandCenterControl();
+    }
+}
+
+
+void CommandCenter::timeout()
+{
+    qDebug("timeout in cc");
+    stopCC();
+    emit setDepth(0);
+    emit setForwardSpeed(0);
+    emit setAngularSpeed(0);
 }

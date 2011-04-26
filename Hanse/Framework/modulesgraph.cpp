@@ -123,17 +123,17 @@ void ModulesGraph::build()
 //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
 //    this->modules.append(behavComp);
 
-    llogger->debug("Creating TestTask");
+    logger->debug("Creating TestTask");
     TestTask *testtask = new TestTask("testtask", behavWall, sim);
-    //this->modules.append(testtask);
+    this->modules.append(testtask);
 
     logger->debug("Creating TestTask2");
     TestTask2 *testtask2 = new TestTask2("testtask2", behavWall, sim);
-    //this->modules.append(testtask2);
+    this->modules.append(testtask2);
 
 
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("commandCenter", sim, testtask, testtask2);
+    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, testtask2);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules

@@ -8,12 +8,19 @@
 #include <TestTask2/testtask2.h>
 
 class Module_Simulation;
+class Module_ThrusterControlLoop;
+class Module_HandControl;
+class Module_PressureSensor;
+class Behaviour_PipeFollowing;
+class Behaviour_BallFollowing;
+class Behaviour_TurnOneEighty;
+class Behaviour_WallFollowing;
 
 class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_Simulation *sim, TestTask *tt, TestTask2 *tt2);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TestTask2 *tt2);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -23,10 +30,14 @@ public:
    //void pleaseStop();
    //void run(void);
     QList<QString> schedule;
+
+    QString lTask;
 private:
    CommandCenter* c;
    Module_Simulation* sim;
-
+   Module_ThrusterControlLoop* tcl;
+   Module_HandControl* handControl;
+   Module_PressureSensor* pressure;
 
    bool running;
 
@@ -34,6 +45,10 @@ private:
     TestTask *testtask;
     TestTask2 *testtask2;
    void commandCenterControl();
+    int count;
+
+   QTimer depthWaitTimer;
+
 public slots:
     void reset();
     void terminate();
@@ -43,13 +58,32 @@ public slots:
     void stopCC();
 
     void finishedControl(RobotBehaviour*, bool success);
+    void timeout();
 
 private slots:
     //void gotEnabledChanged(bool);
 
 signals:
     void error();
-    void nData(QString s);
+    void currentTask(QString s);
+    void newError(QString s);
+    void newAborted(QString s);
+
+    void setDepth(float depth);
+    void setForwardSpeed(float forwardSpeed);
+    void setAngularSpeed(float angularSpeed);
+    void stopAllBehaviours();
+    void resetTCL();
+
+    void startTestTask();
+    void stopTestTask();
+
+    void startTestTask2();
+    void stopTestTask2();
+
+    void taskTimeout();
+
+    void newList(QString s);
 
 private:
     QTimer timer;

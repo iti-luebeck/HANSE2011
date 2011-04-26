@@ -14,6 +14,9 @@ TestTask::TestTask(QString id, Behaviour_WallFollowing *w, Module_Simulation *si
 
     setEnabled(false);
     running = false;
+
+    testTimer.setSingleShot(true);
+    testTimer.moveToThread(this);
 }
 
 bool TestTask::isActive()
@@ -26,7 +29,7 @@ void TestTask::init()
 {
     logger->debug("testtask init");
     //timer.moveToThread(this);
-    testTimer = new QTimer(this);
+    //testTimer = new QTimer(this);
 
 
 }
@@ -36,11 +39,12 @@ void TestTask::startBehaviour()
     this->reset();
     logger->info("TestTastk started" );
     running = true;
-    this->setHealthToOk();
-    this->setEnabled(true);
+    setHealthToOk();
+    setEnabled(true);
     emit started(this);
     running = true;
     //this->wall->setEnabled(true);
+    this->wall->echo->setEnabled(true);
     this->wall->startBehaviour();
     countdown();
 }
@@ -49,26 +53,42 @@ void TestTask::startBehaviour()
 void TestTask::stop()
 {
     running = false;
-logger->info( "testTask stopped" );
+    logger->info( "testTask stopped" );
 
     if (this->isActive())
     {
-
+        this->testTimer.stop();
         this->wall->stop();
+        this->wall->echo->setEnabled(false);
+        this->setEnabled(false);
+        emit finished(this,true);
+    }
+}
+
+
+void TestTask::emergencyStop()
+{
+    running = false;
+    logger->info( "testTask emergency stopped" );
+
+    if (this->isActive())
+    {
+        this->testTimer.stop();
+        this->wall->stop();
+        this->wall->echo->setEnabled(false);
         this->setEnabled(false);
         emit finished(this,false);
     }
 }
 
 
-
 void TestTask::countdown()
 {
     qDebug("Testtask: start countdown");
     // 1 min = 60000 msec
-    //estTimer->start(60000);
-    //testTimer->singleShot(60000,this,SLOT(stop()));
-    stop();
+    testTimer.singleShot(6000,this, SLOT(stop()));
+
+    //stop();
 }
 
 void TestTask::terminate()

@@ -26,7 +26,7 @@ public:
     bool echoTest;
 
     QTimer *echoControllTimer;
-
+     Module_EchoSounder *echo;
 
 private:
      //QTimer timer;
@@ -39,7 +39,7 @@ private:
      // void timerSlotExecute();
 
      Module_ThrusterControlLoop * tcl;
-     Module_EchoSounder *echo;
+
      Module_Simulation *sim;
      EventThread updateThread;
 

@@ -24,7 +24,7 @@ bool TestTask2::isActive()
 
 void TestTask2::init()
 {
-    logger->debug("testtask init");
+    logger->debug("testtask2 init");
     //timer.moveToThread(this);
     testTimer = new QTimer(this);
 
@@ -56,7 +56,7 @@ void TestTask2::stop()
         logger->info( "testTask2 stopped" );
         this->wall->stop();
         this->setEnabled(false);
-        emit finished(this,false);
+        emit finished(this,true);
     }
 }
 
@@ -67,8 +67,8 @@ void TestTask2::countdown()
     qDebug("Testtask2: start countdown");
     // 1 min = 60000 msec
     //estTimer->start(60000);
-    //testTimer->singleShot(60000,this,SLOT(stop()));
-    stop();
+    testTimer->singleShot(6000,this,SLOT(stop()));
+    //stop();
 }
 
 void TestTask2::terminate()

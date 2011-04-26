@@ -23,8 +23,6 @@ public:
 
     QTimer *testTimer;
 
-    void startBehaviour();
-    void stop();
 
 private:
     void init();
@@ -41,6 +39,10 @@ signals:
     void timerStart( int msec );
     void timerStop();
     void dataError();
+
+public slots:
+    void startBehaviour();
+    void stop();
 
 };
 

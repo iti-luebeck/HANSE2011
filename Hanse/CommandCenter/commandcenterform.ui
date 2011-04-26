@@ -16,8 +16,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>20</y>
+     <x>170</x>
+     <y>0</y>
      <width>591</width>
      <height>81</height>
     </rect>
@@ -39,9 +39,9 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>130</y>
+     <y>70</y>
      <width>771</width>
-     <height>251</height>
+     <height>321</height>
     </rect>
    </property>
    <property name="title">
@@ -116,7 +116,7 @@ p, li { white-space: pre-wrap; }
       <x>320</x>
       <y>40</y>
       <width>141</width>
-      <height>192</height>
+      <height>261</height>
      </rect>
     </property>
     <property name="autoFillBackground">
@@ -145,14 +145,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>330</x>
       <y>20</y>
-      <width>51</width>
+      <width>111</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Schedule</string>
+     <string>Scheduled tasks:</string>
     </property>
    </widget>
    <widget class="QPushButton" name="revertButton">
@@ -166,6 +166,70 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Revert last input</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="finishedList">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>40</y>
+      <width>141</width>
+      <height>171</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="overwriteMode">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>20</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Finished tasks:</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="abortedList">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>260</y>
+      <width>141</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+    <property name="overwriteMode">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>230</y>
+      <width>181</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Unfinished/aborted tasks:</string>
     </property>
    </widget>
   </widget>
@@ -199,7 +263,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>30</x>
       <y>120</y>
-      <width>121</width>
+      <width>131</width>
       <height>16</height>
      </rect>
     </property>
@@ -223,7 +287,7 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextBrowser" name="activeOutput">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>170</x>
       <y>110</y>
       <width>141</width>
       <height>31</height>
@@ -233,9 +297,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>150</y>
-      <width>91</width>
+      <x>60</x>
+      <y>160</y>
+      <width>101</width>
       <height>16</height>
      </rect>
     </property>
@@ -246,8 +310,8 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextBrowser" name="healthOutput">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>140</y>
+      <x>170</x>
+      <y>150</y>
       <width>141</width>
       <height>31</height>
      </rect>
@@ -256,9 +320,9 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>410</x>
+      <x>500</x>
       <y>120</y>
-      <width>121</width>
+      <width>51</width>
       <height>16</height>
      </rect>
     </property>
@@ -269,10 +333,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextBrowser" name="errorOutput">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>110</y>
-      <width>141</width>
-      <height>31</height>
+      <x>570</x>
+      <y>80</y>
+      <width>181</width>
+      <height>91</height>
      </rect>
     </property>
    </widget>
