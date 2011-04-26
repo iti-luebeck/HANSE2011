@@ -7,7 +7,7 @@
 #include <log4qt/logger.h>
 
 class CommandCenter;
-class Module_Simulation;
+
 
 namespace Ui {
     class CommandCenterForm;
@@ -16,13 +16,11 @@ namespace Ui {
 class CommandCenterForm : public QWidget
 {
     Q_OBJECT
-
 public:
-
     CommandCenterForm(CommandCenter *command, QWidget *parent = 0);
     ~CommandCenterForm();
 
-    QString schedule;
+     //QList<QString> schedule;
 
 protected:
     void changeEvent(QEvent *e);
@@ -34,7 +32,10 @@ private:
     CommandCenter* com;
 
 signals:
-    void newSchedule();
+    void startCommandCenter();
+    //void startCommandCenter();
+    void stopCommandCenter();
+    //void newSchedule(QList<QString> s);
 
 public slots:
 
@@ -44,6 +45,8 @@ private slots:
     void on_clearButton_clicked();
     void on_startButton_clicked();
     void on_stopButton_clicked();
+
+    void updateCcUI(QString s);
 };
 
 #endif // COMMANDCENTERFORM_H

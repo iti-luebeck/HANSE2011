@@ -76,7 +76,11 @@ HEADERS += Module_UID/module_uid.h \
     Module_SLTraining/sltrainingui.h \
     Module_SLTraining/SVMClassifier.h \
     Module_SLTraining/ui_sltrainingui.h \
-    Module_SLTraining/sonardatasourcefilereader.h
+    Module_SLTraining/sonardatasourcefilereader.h \
+    TestTask/testtaskform.h \
+    TestTask/testtask.h \
+    TestTask2/testtask2form.h \
+    TestTask2/testtask2.h
 SOURCES += Module_UID/module_uid.cpp \
     Module_UID/form_uid.cpp \
     Module_ScanningSonar/sonardatasourcefile.cpp \
@@ -125,7 +129,11 @@ SOURCES += Module_UID/module_uid.cpp \
     Module_SonarLocalization/sonarechodata.cpp \
     Module_SLTraining/sltrainingui.cpp \
     Module_SLTraining/SVMClassifier.cpp \
-    Module_SLTraining/sonardatasourcefilereader.cpp
+    Module_SLTraining/sonardatasourcefilereader.cpp \
+    TestTask/testtaskform.cpp \
+    TestTask/testtask.cpp \
+    TestTask2/testtask2form.cpp \
+    TestTask2/testtask2.cpp
 FORMS +=     Module_UID/form_uid.ui \
     Module_Thruster/thruster_form.ui \
     Module_ThrusterControlLoop/tcl_form.ui \
@@ -141,5 +149,7 @@ FORMS +=     Module_UID/form_uid.ui \
     Behaviour_TestMT/testmtform.ui \
     Behaviour_CompassFollowing/compassfollowingform.ui \
     Behaviour_WallFollowing/wallfollowingform.ui \
-    Module_SLTraining/sltrainingui.ui
+    Module_SLTraining/sltrainingui.ui \
+    TestTask/testtaskform.ui \
+    TestTask2/testtask2form.ui
 OTHER_FILES += bin/log4qt.properties

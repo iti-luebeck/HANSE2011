@@ -58,6 +58,16 @@ p, li { white-space: pre-wrap; }
     </property>
     <item>
      <property name="text">
+      <string>TestTask</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>TestTask2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
       <string>Pipefollowing</string>
      </property>
     </item>
@@ -123,7 +133,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>120</y>
+      <y>160</y>
       <width>211</width>
       <height>28</height>
      </rect>
@@ -143,6 +153,19 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="text">
      <string>Schedule</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="revertButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>120</y>
+      <width>211</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Revert last input</string>
     </property>
    </widget>
   </widget>
@@ -225,6 +248,29 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>150</x>
       <y>140</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>120</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Errors:</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="errorOutput">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>110</y>
       <width>141</width>
       <height>31</height>
      </rect>

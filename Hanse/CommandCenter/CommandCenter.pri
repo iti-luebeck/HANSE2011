@@ -1,11 +1,13 @@
 
-HEADERS += CommandCenter/commandcenterform.h \
+HEADERS += \
+    CommandCenter/commandcenterform.h \
     CommandCenter/commandcenter.h
 
 
-SOURCES += CommandCenter/commandcenterform.cpp \
+SOURCES += \
+    CommandCenter/commandcenterform.cpp \
     CommandCenter/commandcenter.cpp
 
 
-FORMS += CommandCenter/commandcenterform.ui
-
+FORMS += \
+    CommandCenter/commandcenterform.ui
