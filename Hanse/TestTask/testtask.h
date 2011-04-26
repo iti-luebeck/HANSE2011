@@ -36,7 +36,6 @@ private:
     void terminate();
     void countdown();
 
-
 signals:
     void timerStart( int msec );
     void timerStop();

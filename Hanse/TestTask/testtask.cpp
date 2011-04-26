@@ -1,3 +1,9 @@
+/*
+
+   Dieser Task führt für eine Minute ein einfaches Wandverfolgungsverhalten mit den (voreingestellten) Standardparameter aus.
+
+*/
+
 #include "testtask.h"
 #include "testtaskform.h"
 #include <QtGui>
@@ -11,6 +17,9 @@ TestTask::TestTask(QString id, Behaviour_WallFollowing *w, Module_Simulation *si
     this->sim = sim;
     this->wall = w;
     this->wall->setEnabled(false);
+    this->wall->updateFromSettings();
+
+
 
     setEnabled(false);
     running = false;
@@ -34,8 +43,17 @@ void TestTask::init()
 
 }
 
+
+
 void TestTask::startBehaviour()
 {
+    qDebug("Set Settings");
+    this->wall->setSettingsValue("forwardSpeed",0.5);
+    this->wall->setSettingsValue("angularSpeed",0.3);
+    this->wall->setSettingsValue("desiredDistance",1.5);
+    this->wall->setSettingsValue("corridorWidth",0.2);
+    this->wall->updateFromSettings();
+
     this->reset();
     logger->info("TestTastk started" );
     running = true;
@@ -48,6 +66,7 @@ void TestTask::startBehaviour()
     this->wall->startBehaviour();
     countdown();
 }
+
 
 
 void TestTask::stop()
@@ -86,7 +105,7 @@ void TestTask::countdown()
 {
     qDebug("Testtask: start countdown");
     // 1 min = 60000 msec
-    testTimer.singleShot(6000,this, SLOT(stop()));
+    testTimer.singleShot(30000,this, SLOT(stop()));
 
     //stop();
 }
@@ -115,4 +134,5 @@ QList<RobotModule*> TestTask::getDependencies()
     ret.append(sim);
     return ret;
 }
+
 

@@ -22,6 +22,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     connect(this,SIGNAL(stopCommandCenter()),com,SLOT(stopCC()));
 
     ui->setupUi(this);
+    ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
 }
 
 CommandCenterForm::~CommandCenterForm()
@@ -81,7 +82,8 @@ void CommandCenterForm::on_startButton_clicked(){
         ui->errorOutput->setText("No existing schedule!");
         ui->activeOutput->clear();
     }
-
+    com->setSettingsValue("targetDepth", ui->depthInput->text());
+    com->setSettingsValue("subEx", ui->subBox->isChecked());
 }
 
 void CommandCenterForm::on_stopButton_clicked(){

@@ -31,7 +31,7 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     setDefaultValue("count", 0);
 
     setDefaultValue("scanTimer",100);
-    setDefaultValue("calcFactor",0.875);
+    setDefaultValue("calcFactor",0.3);
 
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
 

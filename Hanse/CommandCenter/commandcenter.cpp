@@ -46,18 +46,26 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
      connect(this,SIGNAL(stopTestTask2()),testtask2,SLOT(stop()));
 
 
-     connect(this,SIGNAL(stopAllBehaviours()),testtask,SLOT(emergencyStop()));
-     connect(this,SIGNAL(stopAllBehaviours()),testtask2,SLOT(emergencyStop()));
+     connect(this,SIGNAL(stopAllTasks()),testtask,SLOT(emergencyStop()));
+     connect(this,SIGNAL(stopAllTasks()),testtask2,SLOT(emergencyStop()));
 
 
      connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
 
      setDefaultValue("targetDepth",0.30);
      setDefaultValue("forwardSpeed",0.3);
+     setDefaultValue("subEx", false);
+
      count = 1;
 
      depthWaitTimer.setSingleShot(true);
      depthWaitTimer.moveToThread(this);
+
+
+     //controlTimer.setSingleShot(true);
+     controlTimer.moveToThread(this);
+
+     connect(this, SIGNAL(cStop()), this, SLOT(stopCC()));
      //connect(&depthWaitTimer, SIGNAL(timeout()), this, SLOT(stateTimeout()));
 
      //setDefaultValue("depthErrorVariance",0.05);
@@ -86,6 +94,11 @@ void CommandCenter::startCC(){
     for(int i = schedule.length()-1; i>=0; i--){
         qDebug()<<schedule.at(i);
     }
+
+    if(this->getSettingsValue("subEx").toBool() == true){
+        qDebug("Submerged execution");
+        submergedExecute();
+    }
     commandCenterControl();
 }
 
@@ -98,7 +111,7 @@ void CommandCenter::stopCC(){
     this->setEnabled(false);
 
     schedule.clear();
-    emit stopAllBehaviours();
+    emit stopAllTasks();
     emit resetTCL();
 
     emit setDepth(0);
@@ -166,14 +179,15 @@ void CommandCenter::commandCenterControl(){
         lTask = temp;
     } else {
         emit newError("Task not found, try to process next task...");
-
-         emit newAborted(temp);
+        emit newAborted(temp);
         commandCenterControl();
         qDebug("Schedule error, task not found!");
+        cStop();
     }
     count++;
     } else {
         qDebug("Schedule error, no existing tasks!");
+
         emit newError("No existing task");
     }
 
@@ -191,8 +205,15 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
         emit newList("");
     }
     if(this->isEnabled()){
-        commandCenterControl();
+        controlTimer.singleShot(5000,this, SLOT(doNextTask()) );
+
     }
+}
+
+
+void CommandCenter::doNextTask(){
+    qDebug("Do next task");
+    commandCenterControl();
 }
 
 
@@ -203,4 +224,10 @@ void CommandCenter::timeout()
     emit setDepth(0);
     emit setForwardSpeed(0);
     emit setAngularSpeed(0);
+}
+
+void CommandCenter::submergedExecute()
+{
+    emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+    qDebug()<<this->getSettingsValue("targetDepth").toString();
 }

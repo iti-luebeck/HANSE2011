@@ -128,7 +128,7 @@ void ModulesGraph::build()
     this->modules.append(testtask);
 
     logger->debug("Creating TestTask2");
-    TestTask2 *testtask2 = new TestTask2("testtask2", behavWall, sim);
+    TestTask2 *testtask2 = new TestTask2("testtask2", behavWall, sim, controlLoop);
     this->modules.append(testtask2);
 
 

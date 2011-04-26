@@ -16,7 +16,7 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     setDefaultValue("range", 5);
     setDefaultValue("forwardSpeed",0.5);
     setDefaultValue("angularSpeed",0.3);
-    setDefaultValue("desiredDistance",1.0);
+    setDefaultValue("desiredDistance",1.5);
     setDefaultValue("corridorWidth",0.2);
 
     setDefaultValue("wallTime",2000);
@@ -43,7 +43,7 @@ void Behaviour_WallFollowing::init()
 
     this->updateFromSettings();
     avgDistance = 1.0;
-    distanceInput = 1.0;
+    distanceInput = this->getSettingsValue("desiredDistance").toFloat();
 
     echoControllTimer = new QTimer(this);
     connect(echoControllTimer, SIGNAL(timeout()), this, SLOT(testEchoModule()));
@@ -214,11 +214,13 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
 
 void Behaviour_WallFollowing::updateFromSettings()
 {
+    qDebug("Update Settings");
     this->distanceInput = this->getSettingsValue("desiredDistance").toFloat();
     this->fwdSpeed = this->getSettingsValue("forwardSpeed").toFloat();
     this->angSpeed = this->getSettingsValue("angularSpeed").toFloat();
     this->corridorWidth = this->getSettingsValue("corridorWidth").toFloat();
     this->wallTime = this->getSettingsValue("wallTime").toInt();
+    updateUi();
 }
 
 void Behaviour_WallFollowing::stopOnEchoError(){

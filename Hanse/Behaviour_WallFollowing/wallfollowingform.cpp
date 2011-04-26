@@ -16,6 +16,8 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     connect(wallfollow,SIGNAL(newWallUiData(const EchoReturnData, float)),this,SLOT(updateWallUi(const EchoReturnData, float)));
     connect(wallfollow,SIGNAL(updateWallCase(QString)),this,SLOT(updateWallCase(QString)));
 
+    connect(wallfollow,SIGNAL(updateUi()),this,SLOT(updateUiView()));
+
     ui->setupUi(this);
 
     this->ui->graphicsView->setScene(&scene);
@@ -135,4 +137,14 @@ void WallFollowingForm::updateWallCase(QString caseW){
     ui->currentCase->setText(caseW);
 }
 
+void WallFollowingForm::updateUiView(){
+    this->ui->port->setText(wallfollow->getSettingsValue("serialPort").toString());
+    this->ui->echoRange->setText(wallfollow->getSettingsValue("range").toString());
+    this->ui->forwardInput->setText(wallfollow->getSettingsValue("forwardSpeed").toString());
+    this->ui->angularInput->setText(wallfollow->getSettingsValue("angularSpeed").toString());
+    this->ui->distanceInput->setText(wallfollow->getSettingsValue("desiredDistance").toString());
+    this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
+    this->ui->updateView->setChecked(false);
+    this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTime").toString());
+}
 

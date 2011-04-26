@@ -32,6 +32,9 @@ public:
     QList<QString> schedule;
 
     QString lTask;
+
+    QTimer controlTimer;
+
 private:
    CommandCenter* c;
    Module_Simulation* sim;
@@ -49,6 +52,8 @@ private:
 
    QTimer depthWaitTimer;
 
+   void submergedExecute();
+
 public slots:
     void reset();
     void terminate();
@@ -62,6 +67,7 @@ public slots:
 
 private slots:
     //void gotEnabledChanged(bool);
+    void doNextTask();
 
 signals:
     void error();
@@ -69,10 +75,11 @@ signals:
     void newError(QString s);
     void newAborted(QString s);
 
+
     void setDepth(float depth);
     void setForwardSpeed(float forwardSpeed);
     void setAngularSpeed(float angularSpeed);
-    void stopAllBehaviours();
+    void stopAllTasks();
     void resetTCL();
 
     void startTestTask();
@@ -84,6 +91,8 @@ signals:
     void taskTimeout();
 
     void newList(QString s);
+
+    void cStop();
 
 private:
     QTimer timer;

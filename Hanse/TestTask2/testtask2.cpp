@@ -1,19 +1,35 @@
+/*
+
+   Dieser Task führt für eine Minute ein Wandverfolgungsverhalten mit veränderten Parametern aus.
+   Zusätzlich wird aufgetaucht.
+
+*/
+
+
 #include "testtask2.h"
 #include "testtask2form.h"
 #include <QtGui>
 #include <Module_Simulation/module_simulation.h>
+#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
-TestTask2::TestTask2(QString id, Behaviour_WallFollowing *w, Module_Simulation *sim)
+TestTask2::TestTask2(QString id, Behaviour_WallFollowing *w, Module_Simulation *sim, Module_ThrusterControlLoop* t)
     : RobotBehaviour(id)
 {
     qDebug()<<"testtask2 thread id";
     qDebug()<< QThread::currentThreadId();
+    this->tcl = t;
     this->sim = sim;
     this->wall = w;
     this->wall->setEnabled(false);
 
+
+    connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
+
     setEnabled(false);
     running = false;
+
+    testTimer.setSingleShot(true);
+    testTimer.moveToThread(this);
 }
 
 bool TestTask2::isActive()
@@ -26,48 +42,73 @@ void TestTask2::init()
 {
     logger->debug("testtask2 init");
     //timer.moveToThread(this);
-    testTimer = new QTimer(this);
+    //testTimer = new QTimer(this);
 
 
 }
 
 void TestTask2::startBehaviour()
 {
+    emit setDepth(0);
+    this->wall->setSettingsValue("forwardSpeed",0.5);
+    this->wall->setSettingsValue("angularSpeed",0.3);
+    this->wall->setSettingsValue("desiredDistance",3.0);
+    this->wall->setSettingsValue("corridorWidth",0.1);
+    this->wall->updateFromSettings();
+
     this->reset();
-    logger->info("TestTask2 started" );
+    logger->info("TestTastk started" );
     running = true;
-    this->setHealthToOk();
-    this->setEnabled(true);
+    setHealthToOk();
+    setEnabled(true);
     emit started(this);
     running = true;
     //this->wall->setEnabled(true);
+    this->wall->echo->setEnabled(true);
     this->wall->startBehaviour();
     countdown();
 }
 
 
+
 void TestTask2::stop()
 {
     running = false;
-
+    logger->info( "testTask2 stopped" );
 
     if (this->isActive())
     {
-        logger->info( "testTask2 stopped" );
+        this->testTimer.stop();
         this->wall->stop();
+        this->wall->echo->setEnabled(false);
         this->setEnabled(false);
         emit finished(this,true);
     }
 }
 
 
+void TestTask2::emergencyStop()
+{
+    running = false;
+    logger->info( "testTask2 emergency stopped" );
+
+    if (this->isActive())
+    {
+        this->testTimer.stop();
+        this->wall->stop();
+        this->wall->echo->setEnabled(false);
+        this->setEnabled(false);
+        emit finished(this,false);
+    }
+}
+
 
 void TestTask2::countdown()
 {
     qDebug("Testtask2: start countdown");
     // 1 min = 60000 msec
-    //estTimer->start(60000);
-    testTimer->singleShot(6000,this,SLOT(stop()));
+    testTimer.singleShot(30000,this, SLOT(stop()));
+
     //stop();
 }
 
@@ -95,4 +136,5 @@ QList<RobotModule*> TestTask2::getDependencies()
     ret.append(sim);
     return ret;
 }
+
 

@@ -80,7 +80,7 @@ signals:
      // Behaviour_WallFollowing -> WallFollowingForm
      void newWallUiData(const EchoReturnData data, float avgDistance);
      void updateWallCase(QString caseW);
-
+     void updateUi();
 };
 
 

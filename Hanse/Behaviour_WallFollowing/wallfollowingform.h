@@ -39,6 +39,7 @@ public slots:
     // Behaviour_WallFollowing -> WallFollowingForm
     void updateWallUi(const EchoReturnData data,float dist);
     void updateWallCase(QString caseW);
+    void updateUiView();
 
 
 private slots:
