@@ -1,5 +1,6 @@
 #include "module_simulation.h"
 #include "simulation_form.h"
+#include <QtCore>
 
 Module_Simulation::Module_Simulation(QString id)
     : RobotModule(id)
@@ -232,10 +233,11 @@ void Module_Simulation::parse_input(QString input){
     {
         QString depth_name;
         input_stream2 >> depth_name;
-//        logger->debug(depth_name);
+        //logger->debug(depth_name);
 
         QString inputdata;
         input_stream2 >> inputdata;
+        //logger->debug(inputdata);
 
         float ff = inputdata.toFloat();
 
@@ -323,6 +325,7 @@ void Module_Simulation::parse_input(QString input){
 
         SonarSwitchCommand cmd;
         cmd.range = 50;
+        inputdata[7] = 50;
         cmd.startGain = 1;
         cmd.stepSize = 1;
         cmd.dataPoints = 25;
@@ -351,7 +354,8 @@ void Module_Simulation::parse_input(QString input){
         input_stream2 >> inputdata;
 
         EchoSwitchCommand cmd;
-        cmd.range = 50;
+        cmd.range = 5;
+        inputdata[7] = 5;
         cmd.startGain = 1;
         cmd.dataPoints = 25;
         /*cmd.time = other.time;
