@@ -79,13 +79,13 @@ void send_as_single_byte_sequence() {
 
 	}
 	for (int p=0; p<2; p++) {
-		int8_t a = (int8_t)(*adcs[p] >> 8);
+		int8_t a = (int8_t)(*adcs[p] >> 6);
 //		int8_t b = (int8_t)(*adcs[p]) & 0b01111111;
-		int8_t b = (int8_t)(*adcs[p] >> 1) & 0b01111111;
+		int8_t b = (int8_t)(*adcs[p] >> 0) & 0b01111111;
 		if (a<0) {
 			b |= 0x80;
 		}
-		if (a != 0) {
+		if (abs(a) > 4*1) {
 			if (a > 0) {
 				b = 127;
 			} else {
@@ -153,6 +153,7 @@ void init_usart() {
 	// BSEL = N[128*(2*14745600/(16*921600) - 1)]
 	// error = N[2*14745600/(16*((2^(-7)*Floor[BSEL]) + 1))]/921600
 	uint16_t bsel = 128;
+//	uint16_t bsel = 384;
     USART.BAUDCTRLA = (uint8_t)bsel;
     USART.BAUDCTRLB = (0x09 << USART_BSCALE0_bp) | (bsel >> 8);
 
@@ -274,10 +275,10 @@ int main() {
 	read_request = 0;
 
 	// Start timer.
-	init_and_start_timer(TC_CLKSEL_DIV64_gc, 21); // minimum: 21
+	init_and_start_timer(TC_CLKSEL_DIV64_gc, 11); // minimum: 21
 
-	// khz = N[2*14745600/64/21]
-	// 21942.9
+	// khz = N[2*14745600/64/12]
+	// 38400
 	// baud = N[khz*(17/4)*8]
 	// 746057.
 
@@ -291,7 +292,7 @@ int main() {
 //		while (TCC0.CNT>2) {};
 //		TCC1.CNT = 0;
 		get_adc_values();
-		//send_as_voltage();
+//		send_as_voltage();
 //		PORTD.OUTCLR = PIN0_bm;
 		send_as_single_byte_sequence();
 //		PORTD.OUTSET = PIN0_bm;
