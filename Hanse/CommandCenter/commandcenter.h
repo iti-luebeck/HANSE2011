@@ -27,66 +27,63 @@ public:
 
     bool isActive();
 
-   //void pleaseStop();
-   //void run(void);
     QList<QString> schedule;
-
     QString lTask;
 
-    QTimer controlTimer;
+
 
 private:
-   CommandCenter* c;
-   Module_Simulation* sim;
-   Module_ThrusterControlLoop* tcl;
-   Module_HandControl* handControl;
-   Module_PressureSensor* pressure;
+    void init();
+    QTimer timer;
 
-   bool running;
+    CommandCenter* c;
+    Module_Simulation* sim;
+    Module_ThrusterControlLoop* tcl;
+    Module_HandControl* handControl;
+    Module_PressureSensor* pressure;
 
     EventThread updateThread;
+
+    // Different tasks
     TestTask *testtask;
     TestTask2 *testtask2;
-   void commandCenterControl();
+
+    // Timer for a short pause between the different tasks
+    QTimer controlTimer;
+
     int count;
+    bool running;
 
-   QTimer depthWaitTimer;
-
-   void submergedExecute();
+    void commandCenterControl();
+    void submergedExecute();
 
 public slots:
+    void startCommandCenter();
+    void stopCommandCenter();
+
     void reset();
     void terminate();
-
-   // void startCommandCenter(QList<QString> s);
-    void startCC();
-    void stopCC();
 
     void finishedControl(RobotBehaviour*, bool success);
     void timeout();
 
 private slots:
-    //void gotEnabledChanged(bool);
     void doNextTask();
 
 signals:
-    void error();
+    void setDepth(float depth);
+    void setForwardSpeed(float forwardSpeed);
+    void setAngularSpeed(float angularSpeed);
+
+
+
     void currentTask(QString s);
     void newError(QString s);
     void newAborted(QString s);
 
 
-    void setDepth(float depth);
-    void setForwardSpeed(float forwardSpeed);
-    void setAngularSpeed(float angularSpeed);
     void stopAllTasks();
     void resetTCL();
-
-    void startTestTask();
-    void stopTestTask();
-
-    void startTestTask2();
-    void stopTestTask2();
 
     void taskTimeout();
 
@@ -94,10 +91,14 @@ signals:
 
     void cStop();
 
-private:
-    QTimer timer;
+    // Start and stop signals for every tasks
+    void startTestTask();
+    void stopTestTask();
 
-    void init();
+    void startTestTask2();
+    void stopTestTask2();
+
+
 };
 
 #endif // COMMANDCENTER_H

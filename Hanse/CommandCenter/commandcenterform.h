@@ -20,22 +20,19 @@ public:
     CommandCenterForm(CommandCenter *command, QWidget *parent = 0);
     ~CommandCenterForm();
 
-     //QList<QString> schedule;
+    //QList<QString> schedule;
 
 protected:
     void changeEvent(QEvent *e);
 
 private:
     Log4Qt::Logger *logger;
-
     Ui::CommandCenterForm *ui;
     CommandCenter* com;
 
 signals:
     void startCommandCenter();
-    //void startCommandCenter();
     void stopCommandCenter();
-    //void newSchedule(QList<QString> s);
 
 public slots:
 

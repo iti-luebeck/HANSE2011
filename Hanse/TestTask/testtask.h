@@ -32,7 +32,6 @@ private:
     EventThread updateThread;
 
     bool running;
-    void reset();
     void terminate();
     void countdown();
 

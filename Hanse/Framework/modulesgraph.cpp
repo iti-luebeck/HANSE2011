@@ -125,11 +125,11 @@ void ModulesGraph::build()
 
     logger->debug("Creating TestTask");
     TestTask *testtask = new TestTask("testtask", behavWall, sim);
-    this->modules.append(testtask);
+    //this->modules.append(testtask);
 
     logger->debug("Creating TestTask2");
     TestTask2 *testtask2 = new TestTask2("testtask2", behavWall, sim, controlLoop);
-    this->modules.append(testtask2);
+    //this->modules.append(testtask2);
 
 
     logger->debug("Creating CommandCenter");
@@ -159,6 +159,11 @@ void ModulesGraph::build()
     healthTimer.setInterval(1000);
 //    QTimer::singleShot(0,&healthTimer,SLOT(start()));
     healthTimer.start(1000);
+
+    // Few manual connects/starts for the Commandcenter-Tasks which have no GUI
+    connect(&healthTimer,SIGNAL(timeout()),testtask,SLOT(doHealthCheck()));
+    logger->debug("Starting Thread for "+testtask->getId());
+    testtask->start();
 }
 
 QList<RobotModule*> ModulesGraph::getModules()

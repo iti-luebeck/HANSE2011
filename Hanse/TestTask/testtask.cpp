@@ -1,9 +1,3 @@
-/*
-
-   Dieser Task führt für eine Minute ein einfaches Wandverfolgungsverhalten mit den (voreingestellten) Standardparameter aus.
-
-*/
-
 #include "testtask.h"
 #include "testtaskform.h"
 #include <QtGui>
@@ -19,8 +13,6 @@ TestTask::TestTask(QString id, Behaviour_WallFollowing *w, Module_Simulation *si
     this->wall->setEnabled(false);
     this->wall->updateFromSettings();
 
-
-
     setEnabled(false);
     running = false;
 
@@ -28,25 +20,18 @@ TestTask::TestTask(QString id, Behaviour_WallFollowing *w, Module_Simulation *si
     testTimer.moveToThread(this);
 }
 
-bool TestTask::isActive()
-{
+bool TestTask::isActive(){
     return isEnabled();
 }
 
 
-void TestTask::init()
-{
+void TestTask::init(){
     logger->debug("testtask init");
-    //timer.moveToThread(this);
-    //testTimer = new QTimer(this);
-
-
 }
 
 
 
-void TestTask::startBehaviour()
-{
+void TestTask::startBehaviour(){
     qDebug("Set Settings");
     this->wall->setSettingsValue("forwardSpeed",0.5);
     this->wall->setSettingsValue("angularSpeed",0.3);
@@ -71,7 +56,6 @@ void TestTask::startBehaviour()
     this->wall->startBehaviour();
     countdown();
 }
-
 
 
 void TestTask::stop()
@@ -108,26 +92,17 @@ void TestTask::emergencyStop()
 
 void TestTask::countdown()
 {
-    //qDebug("Testtask: start countdown");
     // 1 min = 60000 msec
     int msec = 30000;
     testTimer.singleShot(msec,this, SLOT(stop()));
     addData("Tasktime msec", msec);
     emit dataChanged(this);
-
-    //stop();
 }
 
 void TestTask::terminate()
 {
     this->stop();
     RobotModule::terminate();
-}
-
-void TestTask::reset()
-{
-
-
 }
 
 QWidget* TestTask::createView(QWidget *parent)
