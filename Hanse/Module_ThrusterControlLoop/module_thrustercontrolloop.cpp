@@ -24,11 +24,14 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     setDefaultValue("neutralSpeed", 0.0);
     setDefaultValue("minSpeed", -0.3);
     setDefaultValue("maxSpeed", 0.3);
+    setDefaultValue("neutralSpeed", 0.0);
+    setDefaultValue("minHysteresis", 0.0);
+    setDefaultValue("maxHysteresis", 0.2);
 
     setDefaultValue("horizSpM_exp", false);
     setDefaultValue("ignoreHealth", false);
 
-    pidController = new PIDController(0.5, 2, 0, 0, -0.3, 0.3);
+    pidController = new PIDController();
 }
 
 void Module_ThrusterControlLoop::terminate()
@@ -79,6 +82,8 @@ void Module_ThrusterControlLoop::updateConstantsFromInitNow()
     neutralSpeed = getSettingsValue("neutralSpeed").toFloat();
     minSpeed = getSettingsValue("minSpeed").toFloat();
     maxSpeed = getSettingsValue("maxSpeed").toFloat();
+    minHysteresis = getSettingsValue("minHysteresis").toFloat();
+    maxHysteresis = getSettingsValue("maxHysteresis").toFloat();
 
     horizSpM_exp = getSettingsValue("horizSpM_exp").toBool();
     ignoreHealth = getSettingsValue("ignoreHealth").toBool();
@@ -215,8 +220,11 @@ void Module_ThrusterControlLoop::setDepth(float depth)
 
     control_loop_enabled=true;
 
-    if (depth<0)
+    if (depth < 0)
         depth = 0;
+
+    if (depth > 5)
+        depth = 5;
 
     addData("depthSoll", depth);
 

@@ -1,15 +1,15 @@
 #include "pidcontroller.h"
 
-PIDController::PIDController(double Kp, double Ti, double Td, double offset, double min, double max)
+PIDController::PIDController()
 {
-    setValues(Kp, Ti, Td, offset, min, max);
+    setValues(0.0);
 
     y = 0;
 //    QTimer::singleShot(100, this, SLOT(test()));
 //    stest = 1.5;
 }
 
-void PIDController::setValues(double Kp, double Ti, double Td, double offset, double min, double max)
+void PIDController::setValues(double Kp, double Ti, double Td, double offset, double min, double max, double minHysteresis, double maxHysteresis)
 {
     this->Kp = Kp;
     this->Ti = Ti;
@@ -18,6 +18,9 @@ void PIDController::setValues(double Kp, double Ti, double Td, double offset, do
     this->offset = offset;
     this->min = min;
     this->max = max;
+
+    this->minHysteresis = minHysteresis;
+    this->maxHysteresis = maxHysteresis;
 }
 
 double PIDController::nextControlValue(double setpoint, double actual)
@@ -28,7 +31,12 @@ double PIDController::nextControlValue(double setpoint, double actual)
 
     if (ticks > 1) {
         double deltaT = time - lastTime;
-        u = lastu + Kp * ((1 + deltaT/Ti + Td/deltaT)*e - (1 + 2*Td/deltaT)*laste + (Td/deltaT)*lastlaste);
+        u = lastu + Kp * ((1 + deltaT*Ti + Td/deltaT)*e - (1 + 2*Td/deltaT)*laste + (Td/deltaT)*lastlaste);
+    }
+
+    if (setpoint >= minHysteresis && setpoint <= maxHysteresis &&
+        actual >= minHysteresis && actual <= maxHysteresis) {
+        u = 0;
     }
 
     u = u + offset;

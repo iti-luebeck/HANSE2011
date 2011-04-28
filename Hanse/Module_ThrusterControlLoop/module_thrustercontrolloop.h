@@ -113,6 +113,8 @@ private:
     float neutralSpeed;
     float minSpeed;
     float maxSpeed;
+    float minHysteresis;
+    float maxHysteresis;
 
     bool horizSpM_exp;
 
