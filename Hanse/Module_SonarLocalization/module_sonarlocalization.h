@@ -58,12 +58,14 @@ public slots:
     void reset();
     void terminate();
     void retrieveSonarEchoData(QList<SonarEchoData> data);
+    void retrieveSonarPlotData(QList<SonarEchoData> data);
     void setLocalization(QVector2D position);
 
 signals:
     void healthStatusChanged(HealthStatus data);
 
     void newSonarEchoData(QList<SonarEchoData> data);
+    void newSonarPlotData(QList<SonarEchoData> data);
     void newLocalizationEstimate();
     void lostLocalization();
 

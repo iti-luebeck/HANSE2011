@@ -143,6 +143,9 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 
         float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
         int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
+        if (lastMaxValue > 0) {
+            maxValTH = maxValTH*lastMaxValue;
+        }
 
         // Non-Maximum Suppression: in a small window, ignore those values that are not maximum.
         QList<int> maximums;

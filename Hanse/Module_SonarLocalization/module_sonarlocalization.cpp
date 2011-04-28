@@ -31,6 +31,7 @@ void Module_SonarLocalization::init()
     qRegisterMetaType< SonarEchoData > ("SonarEchoData");
     qRegisterMetaType< QList<SonarEchoData> > ("QList<SonarEchoData>");
     connect(&filter,SIGNAL(newSonarEchoData(QList<SonarEchoData>)),this,SLOT(retrieveSonarEchoData(QList<SonarEchoData>)));
+    connect(&filter,SIGNAL(newSonarPlotData(QList<SonarEchoData>)),this,SLOT(retrieveSonarPlotData(QList<SonarEchoData>)));
 }
 
 void Module_SonarLocalization::reset()
@@ -110,4 +111,9 @@ bool Module_SonarLocalization::isLocalizationLost()
 void Module_SonarLocalization::retrieveSonarEchoData(QList<SonarEchoData> data)
 {
     emit newSonarEchoData(data);
+}
+
+void Module_SonarLocalization::retrieveSonarPlotData(QList<SonarEchoData> data)
+{
+    emit newSonarPlotData(data);
 }
