@@ -30,33 +30,21 @@ Form_SonarLocalization::Form_SonarLocalization(QWidget *parent, Module_SonarLoca
 
     on_plotSelect_valueChanged(0);
 
-    this->ui->graphicsView->setScene(&scene2);
-    QLinearGradient gi(0,0,0,279);
-    gi.setColorAt(0,QColor("black"));
-    gi.setColorAt(1,QColor("black"));
-
-    viewWidth = 100;
-    //filtered view
-    scene2.clear();
     sonarEchoDataList.clear();
-    //unfiltered View
+
+    this->ui->graphicsView->setScene(&scene2);
+    scene2.clear();
+    scene2.setBackgroundBrush(QBrush(Qt::white));
+
     this->ui->unfilteredView->setScene(&sceneUnfiltered);
     sceneUnfiltered.clear();
-    //raw view
+    sceneUnfiltered.setBackgroundBrush(QBrush(Qt::white));
+
     this->ui->rawView->setScene(&sceneRaw);
     sceneRaw.clear();
-    //init data queues for views
-    dataQueue.clear();
-    dataQueueUnfiltered.clear();
-    rawQueue.clear();
-    for(int i =0; i<viewWidth; i++)
-    {
-        dataQueue.append(gi);
-        dataQueueUnfiltered.append(gi);
-        rawQueue.append(gi);
-    }
+    sceneRaw.setBackgroundBrush(QBrush(Qt::white));
 
-    connect(m,SIGNAL(newSonarEchoData(QList<SonarEchoData>)),this,SLOT(updateSonarViewList(QList<SonarEchoData>)));
+    connect(m,SIGNAL(newSonarPlotData(QList<SonarEchoData>)),this,SLOT(updateSonarViewList(QList<SonarEchoData>)));
 //    connect(m->pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEstimate(QVector3D)));
 //    connect(m->pf, SIGNAL(working(bool)), this, SLOT(particleFilterStatus(bool)));
 }
@@ -339,13 +327,10 @@ void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
 {
     qDebug() << "list length = " << list.length();
     sonarEchoDataList.clear();
-    while (!list.empty())
-    {
+    while (!list.empty()) {
         SonarEchoData d = list.takeFirst();
         sonarEchoDataList.append(d);
     }
-    while(sonarEchoDataList.size() < viewWidth)
-        sonarEchoDataList.append(SonarEchoData());
 
     if(this->ui->enableUnfilteredOutput->isChecked())
         this->updateSonarViewUnfiltered();
@@ -359,38 +344,44 @@ void Form_SonarLocalization::updateSonarView()
 {
     float n = 250;
     scene2.clear();
-//        for(int i = 1; i<range+1; i++)
-    scene2.addLine(0,20,sonarEchoDataList.length(),20,QPen(QColor(200,83,83,255)))->setZValue(10);
+    scene2.setBackgroundBrush(QBrush(Qt::white));
 
-    for(int j=0; j<viewWidth; j++)
-    {
-        QLinearGradient gi(0,0,0,279);
+    float width = scene2.width();
+    float height = scene2.height();
+    float stepWidth = width / sonarEchoDataList.length();
+
+    for (int j = 0; j < sonarEchoDataList.length(); j++) {
+        QLinearGradient gi(0,0,0,n);
         for (int i = 0; i < n; i++) {
             int skalarM = 1;
             int cl = sonarEchoDataList[j].getClassLabel();
             int wc = sonarEchoDataList[j].getWallCandidate();
-//            qDebug() << wc;
-            if(((cl == 1) && (wc > 0)  && (i > wc- skalarM ) && (i < wc + skalarM)))
-                gi.setColorAt(1.0*i/n,QColor(0,255,0));
-            else
-                gi.setColorAt(1.0*i/n,QColor(0,0,0));
+
+            if (((cl == 1) && (wc > 0)  && (i > wc- skalarM ) && (i < wc + skalarM))) {
+                gi.setColorAt(1.0*i/n, QColor(0,0,0));
+            } else {
+                gi.setColorAt(1.0*i/n, QColor(255,255,255));
+            }
 
         }
-        dataQueue.append(gi);
-        dataQueue.pop_front();
+
+        scene2.addRect(j, 1, stepWidth, height, Qt::NoPen, QBrush(gi));
     }
-
-    for(int i =0; i<viewWidth; i++)
-        scene2.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueue[i]));
-
 }
 
 void Form_SonarLocalization::updateSonarViewUnfiltered()
 {
     float n = 250;
     sceneUnfiltered.clear();
+    sceneUnfiltered.setBackgroundBrush(QBrush(Qt::white));
+
+    float width = sceneUnfiltered.width();
+    float height = sceneUnfiltered.height();
+    float stepWidth = width / sonarEchoDataList.length();
+
+    // Find maximum value for scaling.
     float maxVal = 0.00001;
-    for(int j = 0; j < viewWidth; j++) {
+    for (int j = 0; j < sonarEchoDataList.length(); j++) {
         QList<float> data = sonarEchoDataList[j].getGradient();
         for (int i = 0; i < n; i++) {
             if (data[i] > maxVal) {
@@ -399,49 +390,42 @@ void Form_SonarLocalization::updateSonarViewUnfiltered()
 
         }
     }
-    for(int j=0; j<viewWidth; j++)
-    {
-        QLinearGradient gi(0,0,0,279);
+
+    for (int j = 0; j < sonarEchoDataList.length(); j++) {
+        QLinearGradient gi(0,0,0,n);
         QList<float> data = sonarEchoDataList[j].getGradient();
-        for (int i = 0; i < n; i++)
-        {
-            unsigned char b = (unsigned char) (255 * data[i] / maxVal);
+        for (int i = 0; i < n; i++) {
+            unsigned char b = (unsigned char) (255 - 255 * data[i] / maxVal);
 
             if(b < 0)
-                gi.setColorAt(1.0*i/n,QColor(-1*b,0,0));
+                gi.setColorAt(1.0*i/n,QColor(-b,-b,-b));
             else
-                gi.setColorAt(1.0*i/n,QColor(0,b,0));
+                gi.setColorAt(1.0*i/n,QColor(b,b,b));
         }
-        dataQueueUnfiltered.append(gi);
-        dataQueueUnfiltered.pop_front();
 
+        sceneUnfiltered.addRect(j, 1, stepWidth, height, Qt::NoPen, QBrush(gi));
     }
-
-    for(int i =0; i<viewWidth; i++)
-        sceneUnfiltered.addRect(i,1,1,274,(Qt::NoPen),QBrush(dataQueueUnfiltered[i]));
 }
 
 void Form_SonarLocalization::updateSonarViewRaw()
 {
     float n = 250;
     sceneRaw.clear();
+    sceneRaw.setBackgroundBrush(QBrush(Qt::white));
 
-    for(int j=0; j<viewWidth; j++)
-    {
-        QLinearGradient gi(0,0,0,279);
+    float width = sceneRaw.width();
+    float height = sceneRaw.height();
+    float stepWidth = width / sonarEchoDataList.length();
+
+    for (int j = 0; j < sonarEchoDataList.length(); j++) {
+        QLinearGradient gi(0,0,0,n);
         QByteArray data = sonarEchoDataList[j].getRawData();
-        for (int i = 0; i < n; i++)
-        {
-            unsigned char b = (unsigned char) (data[i]);
-            gi.setColorAt(1.0*i/n,QColor(0,2*b,0));
+        for (int i = 0; i < n; i++) {
+            unsigned char b = (unsigned char) (2 * data[i]);
+            gi.setColorAt(1.0*i/n, QColor(b, b, b));
         }
-        rawQueue.append(gi);
-        rawQueue.pop_front();
-
+        sceneRaw.addRect(j, 1, stepWidth, height, Qt::NoPen, QBrush(gi));
     }
-
-    for(int i =0; i<viewWidth; i++)
-        sceneRaw.addRect(i,1,1,274,(Qt::NoPen),QBrush(rawQueue[i]));
 }
 
 void Form_SonarLocalization::on_selSVM_clicked()

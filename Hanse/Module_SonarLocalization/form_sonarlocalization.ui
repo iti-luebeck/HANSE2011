@@ -368,17 +368,17 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>20</y>
-         <width>401</width>
-         <height>311</height>
+         <y>10</y>
+         <width>241</width>
+         <height>301</height>
         </rect>
        </property>
       </widget>
       <widget class="QCheckBox" name="enableFilteredView">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>340</y>
+         <x>10</x>
+         <y>320</y>
          <width>171</width>
          <height>22</height>
         </rect>
@@ -390,8 +390,8 @@
       <widget class="QCheckBox" name="enableUnfilteredOutput">
        <property name="geometry">
         <rect>
-         <x>420</x>
-         <y>340</y>
+         <x>260</x>
+         <y>320</y>
          <width>161</width>
          <height>22</height>
         </rect>
@@ -403,28 +403,28 @@
       <widget class="QGraphicsViewExtended" name="unfilteredView">
        <property name="geometry">
         <rect>
-         <x>420</x>
-         <y>20</y>
-         <width>401</width>
-         <height>311</height>
+         <x>260</x>
+         <y>10</y>
+         <width>251</width>
+         <height>301</height>
         </rect>
        </property>
       </widget>
       <widget class="QGraphicsViewExtended" name="rawView">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>370</y>
-         <width>401</width>
-         <height>311</height>
+         <x>520</x>
+         <y>10</y>
+         <width>251</width>
+         <height>301</height>
         </rect>
        </property>
       </widget>
       <widget class="QCheckBox" name="enableRawView">
        <property name="geometry">
         <rect>
-         <x>220</x>
-         <y>340</y>
+         <x>520</x>
+         <y>320</y>
          <width>171</width>
          <height>22</height>
         </rect>

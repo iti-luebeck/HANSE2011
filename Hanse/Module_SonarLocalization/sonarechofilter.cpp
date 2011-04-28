@@ -127,8 +127,7 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
         ks.append(8);
         ks.append(4);
         int k;
-        foreach(k, ks)
-        {
+        foreach(k, ks) {
             for (int j = 0; j < N; j++) {
                 int up = qMax(0, j - k);
                 int down = qMin(j + k, N - 1);
@@ -142,28 +141,53 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 
         data.setGradient(this->mat2List(echoFiltered));
 
-        // Estimate wall candidate as bin with maximum response.
-        float maxVal = 0;
-        float maxIdx = 0;
-        for (int i = 0; i < N; i++) {
-            if (echoFiltered.at<float>(0,i) > maxVal) {
-                maxVal = echoFiltered.at<float>(0,i);
-                maxIdx = i;
+        float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
+        int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
+
+        // Non-Maximum Suppression: in a small window, ignore those values that are not maximum.
+        QList<int> maximums;
+        int K = 10;
+        for (int i = K; i < N - K - 1; i++) {
+            if (echoFiltered.at<float>(0,i) > maxValTH && echoFiltered.at<float>(0,i) > maxIdxTH) {
+                bool isMaximum = true;
+                for (int j = i - K; j <= i + K; j++) {
+                    if ((echoFiltered.at<float>(0,j) >= echoFiltered.at<float>(0,i)) && (j != i)) {
+                        isMaximum = false;
+                        break;
+                    }
+                }
+                if (isMaximum) {
+                    maximums.append(i);
+                }
             }
         }
 
-        // Set as wall, if response is above some threshold (depending on
-        // maximum value in the last frames).
-        float maxValTH = this->sloc->getSettingsValue("gradientMaxVal",20).toFloat();
-        int maxIdxTH = this->sloc->getSettingsValue("gradientMaxIdx",40).toInt();
-        if (lastMaxValue > 0) {
-            maxValTH = maxValTH*lastMaxValue;
-        }
-        if (maxVal > maxValTH && maxIdx > maxIdxTH) {
-            data.setWallCandidate(maxIdx);
+        if (maximums.size() > 0) {
+            data.setWallCandidate(maximums.last());
         } else {
             data.setWallCandidate(-1);
         }
+
+//        // Estimate wall candidate as bin with maximum response.
+//        float maxVal = 0;
+//        float maxIdx = 0;
+//        for (int i = 0; i < N; i++) {
+//            if (echoFiltered.at<float>(0,i) > maxVal) {
+//                maxVal = echoFiltered.at<float>(0,i);
+//                maxIdx = i;
+//            }
+//        }
+
+//        // Set as wall, if response is above some threshold (depending on
+//        // maximum value in the last frames).
+//        if (lastMaxValue > 0) {
+//            maxValTH = maxValTH*lastMaxValue;
+//        }
+//        if (maxVal > maxValTH && maxIdx > maxIdxTH) {
+//            data.setWallCandidate(maxIdx);
+//        } else {
+//            data.setWallCandidate(-1);
+//        }
     }
 }
 
@@ -499,6 +523,7 @@ void SonarEchoFilter::sendImage()
     logger->debug("New Image");
     emit newImage(posArray);
     emit newSonarEchoData(wallFeatures);
+    emit newSonarPlotData(candidates);
 
     //reset local variables
     candidates.clear();

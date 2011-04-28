@@ -27,19 +27,11 @@ private:
     QList<QGraphicsEllipseItem*> particleItems;
     QGraphicsEllipseItem* currentPos;
     QGraphicsScene* scene;
-    //WallCandidate View
-    QGraphicsScene scene2;
-    QQueue<QLinearGradient> dataQueue;
-    QList<SonarEchoData> sonarEchoDataList;
-    //UnfilteredView
-    QGraphicsScene sceneUnfiltered;
-    QQueue<QLinearGradient> dataQueueUnfiltered;
-    //raw View
-    QGraphicsScene sceneRaw;
-    QQueue<QLinearGradient> rawQueue;
-    //view width
-    int viewWidth;
 
+    QList<SonarEchoData> sonarEchoDataList;
+    QGraphicsScene scene2;
+    QGraphicsScene sceneUnfiltered;
+    QGraphicsScene sceneRaw;
 
     Ui::Form_SonarLocalization *ui;
     QwtPlot *plot;
