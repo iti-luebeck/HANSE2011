@@ -69,6 +69,7 @@ void CommandCenterForm::on_clearButton_clicked(){
 
 void CommandCenterForm::on_startButton_clicked(){
     // Commandcenter start
+    com->count=1;
     ui->finishedList->clear();
     ui->abortedList->clear();
     if(!this->com->schedule.isEmpty()){

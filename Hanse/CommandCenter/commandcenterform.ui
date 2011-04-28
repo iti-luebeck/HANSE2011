@@ -58,12 +58,12 @@ p, li { white-space: pre-wrap; }
     </property>
     <item>
      <property name="text">
-      <string>TestTask</string>
+      <string>TaskWallFollowing</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>TestTask2</string>
+      <string>TestTask</string>
      </property>
     </item>
     <item>

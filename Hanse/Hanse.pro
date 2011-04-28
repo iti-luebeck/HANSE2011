@@ -78,7 +78,9 @@ HEADERS += Module_UID/module_uid.h \
     Module_SLTraining/ui_sltrainingui.h \
     Module_SLTraining/sonardatasourcefilereader.h \
     TestTask/testtaskform.h \
-    TestTask/testtask.h
+    TestTask/testtask.h \
+    TaskWallFollowing/taskwallfollowingform.h \
+    TaskWallFollowing/taskwallfollowing.h
 SOURCES += Module_UID/module_uid.cpp \
     Module_UID/form_uid.cpp \
     Module_ScanningSonar/sonardatasourcefile.cpp \
@@ -129,7 +131,9 @@ SOURCES += Module_UID/module_uid.cpp \
     Module_SLTraining/SVMClassifier.cpp \
     Module_SLTraining/sonardatasourcefilereader.cpp \
     TestTask/testtaskform.cpp \
-    TestTask/testtask.cpp
+    TestTask/testtask.cpp \
+    TaskWallFollowing/taskwallfollowingform.cpp \
+    TaskWallFollowing/taskwallfollowing.cpp
 FORMS +=     Module_UID/form_uid.ui \
     Module_Thruster/thruster_form.ui \
     Module_ThrusterControlLoop/tcl_form.ui \
@@ -147,5 +151,5 @@ FORMS +=     Module_UID/form_uid.ui \
     Behaviour_WallFollowing/wallfollowingform.ui \
     Module_SLTraining/sltrainingui.ui \
     TestTask/testtaskform.ui \
-    TestTask2/testtask2form.ui
+    TaskWallFollowing/taskwallfollowingform.ui
 OTHER_FILES += bin/log4qt.properties

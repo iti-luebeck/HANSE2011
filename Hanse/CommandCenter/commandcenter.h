@@ -5,7 +5,7 @@
 #include <QtCore>
 #include <Framework/eventthread.h>
 #include <TestTask/testtask.h>
-
+#include <TaskWallFollowing/taskwallfollowing.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -20,7 +20,7 @@ class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *tw);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -29,7 +29,7 @@ public:
 
     QList<QString> schedule;
     QString lTask;
-
+    int count;
 
 
 private:
@@ -46,11 +46,12 @@ private:
 
     // Different tasks
     TestTask *testtask;
+    TaskWallFollowing *taskwallfollowing;
 
     // Timer for a short pause between the different tasks
     QTimer controlTimer;
 
-    int count;
+
     bool running;
 
     void commandCenterControl();
@@ -94,8 +95,8 @@ signals:
     void startTestTask();
     void stopTestTask();
 
-    void startTestTask2();
-    void stopTestTask2();
+    void startTaskWallFollowing();
+    void stopTaskWallFollowing();
 
 
 };

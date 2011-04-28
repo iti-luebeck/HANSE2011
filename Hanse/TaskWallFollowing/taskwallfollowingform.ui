@@ -2,8 +2,8 @@
  <author/>
  <comment/>
  <exportmacro/>
- <class>TestTask2Form</class>
- <widget class="QWidget" name="TestTask2Form">
+ <class>TaskWallFollowingForm</class>
+ <widget class="QWidget" name="TaskWallFollowingForm">
   <property name="geometry">
    <rect>
     <x>0</x>

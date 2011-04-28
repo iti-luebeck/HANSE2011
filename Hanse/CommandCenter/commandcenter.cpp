@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *twf)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
@@ -19,6 +19,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->pressure = pressure;
     this->sim = sim;
     this->testtask = tt;
+    this->taskwallfollowing = twf;
 
 
     timer.moveToThread(this);
@@ -36,12 +37,18 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));
     connect(handControl, SIGNAL(startHandControl()), this, SLOT(startHandControl()));
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
+    connect(this,SIGNAL(stopAllTasks()),testtask,SLOT(emergencyStop()));
 
-
+    // Tasks specific signals
     connect(testtask, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     connect(this,SIGNAL(startTestTask()),testtask,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTestTask()),testtask,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),testtask,SLOT(emergencyStop()));
+
+
+    connect(taskwallfollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
+    connect(this,SIGNAL(startTaskWallFollowing()),taskwallfollowing,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskWallFollowing()),taskwallfollowing,SLOT(stop()));
+
 
     setDefaultValue("targetDepth",0.30);
     setDefaultValue("forwardSpeed",0.3);
@@ -142,6 +149,11 @@ void CommandCenter::commandCenterControl(){
 
         if(temp == "TestTask"){
             emit startTestTask();
+            emit newList("");
+            emit currentTask(temp);
+            lTask = temp;
+        } else if(temp == "TaskWallFollowing"){
+            emit startTaskWallFollowing();
             emit newList("");
             emit currentTask(temp);
             lTask = temp;

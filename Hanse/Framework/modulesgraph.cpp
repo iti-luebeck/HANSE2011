@@ -25,6 +25,7 @@
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 #include <CommandCenter/commandcenter.h>
 #include <TestTask/testtask.h>
+#include <TaskWallFollowing/taskwallfollowing.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -35,7 +36,7 @@ void ModulesGraph::build()
 {
     logger->info("Loading all Modules...");
 
-//    logger->debug("Starting Simulation");
+    //    logger->debug("Starting Simulation");
     Module_Simulation* sim = new Module_Simulation("simulation");
     this->modules.append(sim);
 
@@ -67,11 +68,11 @@ void ModulesGraph::build()
     Module_ThrusterControlLoop* controlLoop = new Module_ThrusterControlLoop("controlLoop",pressure, thrusterLeft, thrusterRight, thrusterDown,thrusterDownF);
     this->modules.append(controlLoop);
 
-//    Module_ADC* adc0 = new Module_ADC("adc0",uid);
-//    this->modules.append(adc0);
+    //    Module_ADC* adc0 = new Module_ADC("adc0",uid);
+    //    this->modules.append(adc0);
 
-//    Module_ADC* adc1 = new Module_ADC("adc1",uid);
-//    this->modules.append(adc1);
+    //    Module_ADC* adc1 = new Module_ADC("adc1",uid);
+    //    this->modules.append(adc1);
 
     logger->debug("Creating Module_ScanningSonar");
     Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar",controlLoop,sim);
@@ -102,9 +103,9 @@ void ModulesGraph::build()
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams,sim);
     this->modules.append(behavPipe);
 
-//    logger->debug("Creating Behaviour_GoalFollowing");
-//    Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
-//    this->modules.append(behavGoal);
+    //    logger->debug("Creating Behaviour_GoalFollowing");
+    //    Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
+    //    this->modules.append(behavGoal);
 
     logger->debug("Creating Behaviour_BallFollowing");
     Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, compass);
@@ -118,16 +119,20 @@ void ModulesGraph::build()
     Behaviour_WallFollowing* behavWall = new Behaviour_WallFollowing("wall",controlLoop, echo, sim);
     this->modules.append(behavWall);
 
-//    logger->debug("Creating Behaviour_CompassFollowing");
-//    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
-//    this->modules.append(behavComp);
+    //    logger->debug("Creating Behaviour_CompassFollowing");
+    //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
+    //    this->modules.append(behavComp);
 
     logger->debug("Creating TestTask");
     TestTask *testtask = new TestTask("testtask", behavWall, sim);
     //this->modules.append(testtask);
 
+    logger->debug("Creating TaskWallFollowing");
+    TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskwallfollowing", behavWall, sim);
+    //this->modules.append(testtask);
+
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask);
+    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, taskwallfollowing);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
@@ -139,25 +144,29 @@ void ModulesGraph::build()
     logger->info("Loading all Modules... Done");
 
     /* connect every modul to healtCheckTimer */
-//    connect(&healthTimer,SIGNAL(timeout()),controlLoop,SLOT(doHealthCheck()));
+    //    connect(&healthTimer,SIGNAL(timeout()),controlLoop,SLOT(doHealthCheck()));
     foreach (RobotModule* b, modules)
     {
         connect(&healthTimer,SIGNAL(timeout()),b,SLOT(doHealthCheck()));
-//        RobotBehaviour* c = dynamic_cast<RobotBehaviour*>(b);
-//        if (!c || (c->getId() == "meta"))
-//        {
-            logger->debug("Starting Thread for "+b->getId());
-            b->start();
-//        }
+        //        RobotBehaviour* c = dynamic_cast<RobotBehaviour*>(b);
+        //        if (!c || (c->getId() == "meta"))
+        //        {
+        logger->debug("Starting Thread for "+b->getId());
+        b->start();
+        //        }
     }
     healthTimer.setInterval(1000);
-//    QTimer::singleShot(0,&healthTimer,SLOT(start()));
+    //    QTimer::singleShot(0,&healthTimer,SLOT(start()));
     healthTimer.start(1000);
 
     // Few manual connects/starts for the Commandcenter-Tasks which have no GUI
     connect(&healthTimer,SIGNAL(timeout()),testtask,SLOT(doHealthCheck()));
     logger->debug("Starting Thread for "+testtask->getId());
     testtask->start();
+
+    connect(&healthTimer,SIGNAL(timeout()),taskwallfollowing,SLOT(doHealthCheck()));
+    logger->debug("Starting Thread for "+taskwallfollowing->getId());
+    taskwallfollowing->start();
 }
 
 QList<RobotModule*> ModulesGraph::getModules()
