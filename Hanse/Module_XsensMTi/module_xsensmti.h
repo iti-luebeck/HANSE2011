@@ -32,6 +32,7 @@ private:
 public slots:
     void reset();
     void terminate();
+    void setEnabled(bool value);
 
 signals:
     void healthStatusChanged(HealthStatus data);

@@ -38,6 +38,18 @@ void Module_XsensMTi::terminate()
     RobotModule::terminate();
 }
 
+void Module_XsensMTi::setEnabled(bool value)
+{
+    RobotModule::setEnabled(value);
+
+    if (!value) {
+        if (mti != NULL) {
+            delete(mti);
+            mti = NULL;
+        }
+    }
+}
+
 void Module_XsensMTi::reset()
 {
     RobotModule::reset();
@@ -121,12 +133,14 @@ void Module_XsensMTi::refreshData()
     }
     else {
 #ifdef ENABLE_XSENS
-        addData("yaw", Angles::pi2deg(mti->yaw()));
-        addData("pitch", Angles::pi2deg(mti->pitch()));
-        addData("roll", Angles::pi2deg(mti->roll()));
+        if (mti != NULL) {
+            addData("yaw", Angles::pi2deg(mti->yaw()));
+            addData("pitch", Angles::pi2deg(mti->pitch()));
+            addData("roll", Angles::pi2deg(mti->roll()));
 
-        if (getHealthStatus().isHealthOk()) {
-            emit dataChanged(this);
+            if (getHealthStatus().isHealthOk()) {
+                emit dataChanged(this);
+            }
         }
 #endif
     }
@@ -152,11 +166,13 @@ float Module_XsensMTi::getHeadingIncrement() {
         increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
     } else {
 #ifdef ENABLE_XSENS
-        addData("yaw", Angles::pi2deg(mti->yaw()));
-        addData("pitch", Angles::pi2deg(mti->pitch()));
-        addData("roll", Angles::pi2deg(mti->roll()));
+        if (mti != NULL) {
+            addData("yaw", Angles::pi2deg(mti->yaw()));
+            addData("pitch", Angles::pi2deg(mti->pitch()));
+            addData("roll", Angles::pi2deg(mti->roll()));
 
-        increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
+            increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
+        }
 #endif
     }
 
