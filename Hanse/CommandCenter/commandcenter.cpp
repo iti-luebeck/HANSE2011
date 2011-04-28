@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TestTask2 *tt2)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
@@ -19,7 +19,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->pressure = pressure;
     this->sim = sim;
     this->testtask = tt;
-    this->testtask2 = tt2;
+
 
     timer.moveToThread(this);
 
@@ -42,14 +42,6 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(startTestTask()),testtask,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTestTask()),testtask,SLOT(stop()));
     connect(this,SIGNAL(stopAllTasks()),testtask,SLOT(emergencyStop()));
-
-
-    connect(testtask2, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTestTask2()),testtask2,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTestTask2()),testtask2,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),testtask2,SLOT(emergencyStop()));
-
-
 
     setDefaultValue("targetDepth",0.30);
     setDefaultValue("forwardSpeed",0.3);
@@ -150,11 +142,6 @@ void CommandCenter::commandCenterControl(){
 
         if(temp == "TestTask"){
             emit startTestTask();
-            emit newList("");
-            emit currentTask(temp);
-            lTask = temp;
-        } else if(temp == "TestTask2") {
-            emit startTestTask2();
             emit newList("");
             emit currentTask(temp);
             lTask = temp;

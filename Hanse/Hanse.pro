@@ -78,9 +78,7 @@ HEADERS += Module_UID/module_uid.h \
     Module_SLTraining/ui_sltrainingui.h \
     Module_SLTraining/sonardatasourcefilereader.h \
     TestTask/testtaskform.h \
-    TestTask/testtask.h \
-    TestTask2/testtask2form.h \
-    TestTask2/testtask2.h
+    TestTask/testtask.h
 SOURCES += Module_UID/module_uid.cpp \
     Module_UID/form_uid.cpp \
     Module_ScanningSonar/sonardatasourcefile.cpp \
@@ -131,9 +129,7 @@ SOURCES += Module_UID/module_uid.cpp \
     Module_SLTraining/SVMClassifier.cpp \
     Module_SLTraining/sonardatasourcefilereader.cpp \
     TestTask/testtaskform.cpp \
-    TestTask/testtask.cpp \
-    TestTask2/testtask2form.cpp \
-    TestTask2/testtask2.cpp
+    TestTask/testtask.cpp
 FORMS +=     Module_UID/form_uid.ui \
     Module_Thruster/thruster_form.ui \
     Module_ThrusterControlLoop/tcl_form.ui \

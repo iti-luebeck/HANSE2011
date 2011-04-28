@@ -5,7 +5,7 @@
 #include <QtCore>
 #include <Framework/eventthread.h>
 #include <TestTask/testtask.h>
-#include <TestTask2/testtask2.h>
+
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -20,7 +20,7 @@ class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TestTask2 *tt2);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -46,7 +46,6 @@ private:
 
     // Different tasks
     TestTask *testtask;
-    TestTask2 *testtask2;
 
     // Timer for a short pause between the different tasks
     QTimer controlTimer;

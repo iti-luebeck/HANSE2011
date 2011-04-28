@@ -25,7 +25,6 @@
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 #include <CommandCenter/commandcenter.h>
 #include <TestTask/testtask.h>
-#include <TestTask2/testtask2.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -127,13 +126,8 @@ void ModulesGraph::build()
     TestTask *testtask = new TestTask("testtask", behavWall, sim);
     //this->modules.append(testtask);
 
-    logger->debug("Creating TestTask2");
-    TestTask2 *testtask2 = new TestTask2("testtask2", behavWall, sim, controlLoop);
-    //this->modules.append(testtask2);
-
-
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, testtask2);
+    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules

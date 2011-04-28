@@ -32,7 +32,6 @@ void TestTask::init(){
 
 
 void TestTask::startBehaviour(){
-    qDebug("Set Settings");
     this->wall->setSettingsValue("forwardSpeed",0.5);
     this->wall->setSettingsValue("angularSpeed",0.3);
     this->wall->setSettingsValue("desiredDistance",1.5);
