@@ -37,28 +37,29 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));
     connect(handControl, SIGNAL(startHandControl()), this, SLOT(startHandControl()));
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
-    connect(this,SIGNAL(stopAllTasks()),testtask,SLOT(emergencyStop()));
+    connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
 
     // Tasks specific signals
     connect(testtask, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     connect(this,SIGNAL(startTestTask()),testtask,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTestTask()),testtask,SLOT(stop()));
+    connect(this,SIGNAL(stopAllTasks()),testtask,SLOT(emergencyStop()));
 
 
     connect(taskwallfollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     connect(this,SIGNAL(startTaskWallFollowing()),taskwallfollowing,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskWallFollowing()),taskwallfollowing,SLOT(stop()));
+    connect(this,SIGNAL(stopAllTasks()),taskwallfollowing,SLOT(emergencyStop()));
 
 
     setDefaultValue("targetDepth",0.30);
-    setDefaultValue("forwardSpeed",0.3);
     setDefaultValue("subEx", false);
     setDefaultValue("waitTime",5000);
 
     count = 1;
+    countTaskWall = 0;
 
     controlTimer.moveToThread(this);
-    connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
 }
 
 
@@ -74,13 +75,7 @@ void CommandCenter::startCommandCenter(){
     RobotModule::reset();
     running = true;
     this->setEnabled(true);
-    //qDebug("CommandCenter started");
     logger->info("CommandCenter started");
-
-    //    qDebug("Scheduled tasks:");
-    //    for(int i = schedule.length()-1; i>=0; i--){
-    //        qDebug()<<schedule.at(i);
-    //    }
 
     if(this->getSettingsValue("subEx").toBool() == true){
         // qDebug("Submerged execution!");
@@ -117,27 +112,6 @@ void CommandCenter::stopCommandCenter(){
     }
 }
 
-void CommandCenter::terminate(){
-    RobotModule::terminate();
-    this->stopAllTasks();
-    this->stopCommandCenter();
-}
-
-void CommandCenter::reset(){
-    RobotModule::reset();
-    // There is nothing to reset...
-}
-
-QList<RobotModule*> CommandCenter::getDependencies(){
-    QList<RobotModule*> ret;
-    ret.append(sim);
-    return ret;
-}
-
-QWidget* CommandCenter::createView(QWidget *parent){
-    return new CommandCenterForm(this, parent);
-}
-
 void CommandCenter::commandCenterControl(){
     if(!schedule.isEmpty() & this->isEnabled()){
         qDebug("Commandcenter control; Next scheduled task:");
@@ -148,17 +122,27 @@ void CommandCenter::commandCenterControl(){
         addData("Task Nr", count);
         addData("Task Name", temp);
         emit dataChanged(this);
-
         if(temp == "TestTask"){
             emit startTestTask();
             emit newList("");
             emit currentTask(temp);
             lTask = temp;
         } else if(temp == "TaskWallFollowing"){
+            // Sets specific settings for each drive
+            if(countTaskWall==0){
+                // No setting change, use GUI input
+            } else if(countTaskWall==1){
+                changeWallTaskSettings(0.5, 0.3, 1.0, 0.1, 10000);
+            } else if (countTaskWall==2){
+                changeWallTaskSettings(0.5, 0.3, 1.5, 0.2, 30000);
+            } else {
+                changeWallTaskSettings(0.5, 0.3, 1.5, 0.1, 15000);
+            }
             emit startTaskWallFollowing();
             emit newList("");
             emit currentTask(temp);
             lTask = temp;
+            countTaskWall = countTaskWall+1;
         } else {
             qDebug("Task not found, skip task!");
             emit newError("Task not found, skip task!");
@@ -169,9 +153,19 @@ void CommandCenter::commandCenterControl(){
     } else {
         qDebug("Schedule error, no existing tasks!");
         emit newError("No existing task");
+        cStop();
     }
 
 
+}
+
+void CommandCenter::changeWallTaskSettings(float fwS, float agS, float desD, float crW, int taskD){
+    qDebug("Change taskwallfollowing settings!");
+    this->taskwallfollowing->setSettingsValue("forwardSpeed", fwS);
+    this->taskwallfollowing->setSettingsValue("angularSpeed", agS);
+    this->taskwallfollowing->setSettingsValue("desiredDistance", desD);
+    this->taskwallfollowing->setSettingsValue("corridorWidth", crW);
+    this->taskwallfollowing->setSettingsValue("taskDuration", taskD);
 }
 
 void CommandCenter::finishedControl(RobotBehaviour *, bool success){
@@ -195,7 +189,6 @@ void CommandCenter::doNextTask(){
     commandCenterControl();
 }
 
-
 void CommandCenter::timeout(){
     // Timeout, stop everything
     qDebug("Commandcenter timeout!");
@@ -211,4 +204,26 @@ void CommandCenter::submergedExecute(){
     addData("Sub.exec.depth", this->getSettingsValue("targetDepth").toFloat());
     emit dataChanged(this);
     emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+}
+
+
+void CommandCenter::terminate(){
+    RobotModule::terminate();
+    this->stopAllTasks();
+    this->stopCommandCenter();
+}
+
+void CommandCenter::reset(){
+    RobotModule::reset();
+    // There is nothing to reset...
+}
+
+QList<RobotModule*> CommandCenter::getDependencies(){
+    QList<RobotModule*> ret;
+    ret.append(sim);
+    return ret;
+}
+
+QWidget* CommandCenter::createView(QWidget *parent){
+    return new CommandCenterForm(this, parent);
 }

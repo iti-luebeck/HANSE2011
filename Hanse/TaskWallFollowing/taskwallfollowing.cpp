@@ -40,9 +40,7 @@ void TaskWallFollowing::init(){
 
 void TaskWallFollowing::startBehaviour(){
     // Get new settings
-    emit getUiSettings();
     setWallSettings();
-
 
     this->reset();
     logger->info("TestTastk started" );
@@ -51,7 +49,7 @@ void TaskWallFollowing::startBehaviour(){
     setEnabled(true);
     emit started(this);
     running = true;
-    addData("taskDuration", this->wall->getSettingsValue("taskDuration"));
+    addData("taskDuration", this->getSettingsValue("taskDuration"));
     addData("desiredDistance", this->wall->getSettingsValue("desiredDistance"));
     addData("forwardSpeed", this->wall->getSettingsValue("forwardSpeed"));
     addData("angularSpeed", this->wall->getSettingsValue("angularSpeed"));

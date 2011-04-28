@@ -222,14 +222,14 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>560</x>
       <y>230</y>
-      <width>181</width>
-      <height>21</height>
+      <width>211</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Unfinished/aborted tasks:</string>
+     <string>Unsuccessfully/aborted tasks:</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="subBox">

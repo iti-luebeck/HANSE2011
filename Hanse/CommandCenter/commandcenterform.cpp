@@ -71,6 +71,7 @@ void CommandCenterForm::on_startButton_clicked(){
     // Commandcenter start
     if(!com->isEnabled()){
         com->count=1;
+        com->countTaskWall = 0;
         ui->finishedList->clear();
         ui->abortedList->clear();
         if(!this->com->schedule.isEmpty()){

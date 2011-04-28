@@ -30,6 +30,7 @@ public:
     QList<QString> schedule;
     QString lTask;
     int count;
+    int countTaskWall;
 
 
 private:
@@ -44,18 +45,17 @@ private:
 
     EventThread updateThread;
 
-    // Different tasks
-    TestTask *testtask;
-    TaskWallFollowing *taskwallfollowing;
-
-    // Timer for a short pause between the different tasks
     QTimer controlTimer;
-
 
     bool running;
 
     void commandCenterControl();
     void submergedExecute();
+
+    // Different tasks and specific methods
+    TestTask *testtask;
+    TaskWallFollowing *taskwallfollowing;
+    void changeWallTaskSettings(float fwS, float agS, float desD, float crW, int taskD);
 
 public slots:
     void startCommandCenter();
