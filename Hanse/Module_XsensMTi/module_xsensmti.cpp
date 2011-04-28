@@ -134,9 +134,9 @@ void Module_XsensMTi::refreshData()
     else {
 #ifdef ENABLE_XSENS
         if (mti != NULL) {
-            addData("yaw", Angles::pi2deg(mti->yaw()));
-            addData("pitch", Angles::pi2deg(mti->pitch()));
-            addData("roll", Angles::pi2deg(mti->roll()));
+            addData("yaw", Angles::deg2deg(mti->yaw()));
+            addData("pitch", Angles::deg2deg(mti->pitch()));
+            addData("roll", Angles::deg2deg(mti->roll()));
 
             if (getHealthStatus().isHealthOk()) {
                 emit dataChanged(this);
