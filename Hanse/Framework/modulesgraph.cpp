@@ -128,8 +128,8 @@ void ModulesGraph::build()
     //this->modules.append(testtask);
 
     logger->debug("Creating TaskWallFollowing");
-    TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskwallfollowing", behavWall, sim);
-    //this->modules.append(testtask);
+    TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWallFo", behavWall, sim);
+    this->modules.append(taskwallfollowing);
 
     logger->debug("Creating CommandCenter");
     CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, taskwallfollowing);
@@ -164,9 +164,6 @@ void ModulesGraph::build()
     logger->debug("Starting Thread for "+testtask->getId());
     testtask->start();
 
-    connect(&healthTimer,SIGNAL(timeout()),taskwallfollowing,SLOT(doHealthCheck()));
-    logger->debug("Starting Thread for "+taskwallfollowing->getId());
-    taskwallfollowing->start();
 }
 
 QList<RobotModule*> ModulesGraph::getModules()

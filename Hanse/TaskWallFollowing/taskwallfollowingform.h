@@ -27,16 +27,14 @@ protected:
 private:
     Ui::TaskWallFollowingForm *ui;
 
-        Log4Qt::Logger *logger;
-        TaskWallFollowing* taskwallfollowing;
+    Log4Qt::Logger *logger;
+    TaskWallFollowing* taskwallfollowing;
 
 signals:
 
 public slots:
+    void on_applyButton_clicked();
 
-private slots:
-        void on_startButton_clicked();
-        void on_stopButton_clicked();
 };
 
 #endif // TASKWALLFOLLOWINGFORM_H

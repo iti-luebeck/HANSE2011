@@ -33,13 +33,15 @@ private:
 
     bool running;
     void terminate();
-    void countdown();
+    void setWallSettings();
 
 signals:
     void timerStart( int msec );
     void timerStop();
     void dataError();
     void end();
+
+    void getUiSettings();
 
 public slots:
     void startBehaviour();

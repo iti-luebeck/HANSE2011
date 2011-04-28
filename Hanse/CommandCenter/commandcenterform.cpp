@@ -69,18 +69,22 @@ void CommandCenterForm::on_clearButton_clicked(){
 
 void CommandCenterForm::on_startButton_clicked(){
     // Commandcenter start
-    com->count=1;
-    ui->finishedList->clear();
-    ui->abortedList->clear();
-    if(!this->com->schedule.isEmpty()){
-        qDebug("Commandcenter start");
-        // Set a few important values
-        com->setSettingsValue("targetDepth", ui->depthInput->text());
-        com->setSettingsValue("subEx", ui->subBox->isChecked());
-        com->setSettingsValue("waitTime", ui->waitInput->text());
-        emit startCommandCenter();
+    if(!com->isEnabled()){
+        com->count=1;
+        ui->finishedList->clear();
+        ui->abortedList->clear();
+        if(!this->com->schedule.isEmpty()){
+            qDebug("Commandcenter start");
+            // Set a few important values
+            com->setSettingsValue("targetDepth", ui->depthInput->text());
+            com->setSettingsValue("subEx", ui->subBox->isChecked());
+            com->setSettingsValue("waitTime", ui->waitInput->text());
+            emit startCommandCenter();
+        } else {
+            ui->errorOutput->setText("No existing schedule!");
+        }
     } else {
-        ui->errorOutput->setText("No existing schedule!");
+        ui->errorOutput->setText("Please stop the commandcenter first, schedule new tasks and start again!");
     }
 }
 

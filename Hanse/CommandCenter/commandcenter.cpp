@@ -91,6 +91,8 @@ void CommandCenter::startCommandCenter(){
         addData("Submerged",false);
         emit dataChanged(this);
     }
+    addData("Waittime", this->getSettingsValue("waitTime"));
+    emit dataChanged(this);
     commandCenterControl();
 }
 

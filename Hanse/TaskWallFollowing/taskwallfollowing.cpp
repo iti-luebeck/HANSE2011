@@ -11,10 +11,17 @@ TaskWallFollowing::TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Mod
     this->sim = sim;
     this->wall = w;
     this->wall->setEnabled(false);
-    this->wall->updateFromSettings();
 
     setEnabled(false);
     running = false;
+
+    // Default settings
+    this->setDefaultValue("forwardSpeed",0.5);
+    this->setDefaultValue("angularSpeed",0.3);
+    this->setDefaultValue("desiredDistance",1.5);
+    this->setDefaultValue("corridorWidth",0.2);
+
+    this->setDefaultValue("taskDuration",30000);
 
     testTimer.setSingleShot(true);
     testTimer.moveToThread(this);
@@ -32,16 +39,10 @@ void TaskWallFollowing::init(){
 
 
 void TaskWallFollowing::startBehaviour(){
-    this->wall->setSettingsValue("forwardSpeed",0.5);
-    this->wall->setSettingsValue("angularSpeed",0.3);
-    this->wall->setSettingsValue("desiredDistance",1.5);
-    this->wall->setSettingsValue("corridorWidth",0.2);
-    this->wall->updateFromSettings();
-    addData("forwardSpeed", this->wall->getSettingsValue("forwardSpeed"));
-    addData("angularSpeed", this->wall->getSettingsValue("angularSpeed"));
-    addData("desiredDistance", this->wall->getSettingsValue("desiredDistance"));
-    addData("corridorWidth", this->wall->getSettingsValue("corridorWidth"));
-    emit dataChanged(this);
+    // Get new settings
+    emit getUiSettings();
+    setWallSettings();
+
 
     this->reset();
     logger->info("TestTastk started" );
@@ -50,15 +51,25 @@ void TaskWallFollowing::startBehaviour(){
     setEnabled(true);
     emit started(this);
     running = true;
-    //this->wall->setEnabled(true);
+    addData("taskDuration", this->wall->getSettingsValue("taskDuration"));
+    addData("desiredDistance", this->wall->getSettingsValue("desiredDistance"));
+    addData("forwardSpeed", this->wall->getSettingsValue("forwardSpeed"));
+    addData("angularSpeed", this->wall->getSettingsValue("angularSpeed"));
+    addData("corridorWidth", this->wall->getSettingsValue("corridorWidth"));
+    emit dataChanged(this);
     this->wall->echo->setEnabled(true);
     this->wall->startBehaviour();
-    countdown();
+    testTimer.singleShot(this->getSettingsValue("taskDuration").toInt(),this, SLOT(stop()));
 }
 
+void TaskWallFollowing::setWallSettings(){
+    this->wall->setSettingsValue("desiredDistance", this->getSettingsValue("desiredDistance"));
+    this->wall->setSettingsValue("forwardSpeed", this->getSettingsValue("forwardSpeed"));
+    this->wall->setSettingsValue("angularSpeed", this->getSettingsValue("angularSpeed"));
+    this->wall->setSettingsValue("corridorWidth", this->getSettingsValue("corridorWidth"));
+}
 
-void TaskWallFollowing::stop()
-{
+void TaskWallFollowing::stop(){
     running = false;
     logger->info( "testTask stopped" );
 
@@ -88,15 +99,6 @@ void TaskWallFollowing::emergencyStop()
     }
 }
 
-
-void TaskWallFollowing::countdown()
-{
-    // 1 min = 60000 msec
-    int msec = 30000;
-    testTimer.singleShot(msec,this, SLOT(stop()));
-    addData("Tasktime msec", msec);
-    emit dataChanged(this);
-}
 
 void TaskWallFollowing::terminate()
 {
