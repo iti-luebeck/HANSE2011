@@ -474,6 +474,32 @@ void SonarEchoFilter::sendImage()
     posArray.clear();
     QList<SonarEchoData> wallFeatures;
 
+    // Try to find the ground echo.
+    float maxValue = 0;
+    float groundIdx = 0;
+    for (int i = 0; i < 25; i++) {
+        float mean = 0;
+        for (int j = 0; j < candidates.size(); j++) {
+            QList<float> data = candidates[j].getGradient();
+            mean += (float)data[i];
+        }
+        mean /= candidates.size();
+        if (maxValue < mean) {
+            maxValue = mean;
+            groundIdx = i;
+        }
+    }
+
+    if (maxValue > 0.001*lastMaxValue) {
+        // Filter those wall candidates that might be ground.
+        for (int j = 0; j < candidates.size(); j++) {
+            int wc = candidates[j].getWallCandidate();
+            if (qAbs(wc - groundIdx) <= 5) {
+                candidates[j].setWallCandidate(-1);
+            }
+        }
+    }
+
     // Set heading increments for correction of the sonar values. We do this
     // from back to front to obtain a correction relative to the most recent
     // sonar reading.
