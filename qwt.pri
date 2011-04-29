@@ -5,5 +5,5 @@ win32 {
     LIBS += -lqwtd5
 }
 
-# debian/ubuntu: aptitude install libcv-dev libcvaux-dev libhighgui-dev libswscale-dev
+# debian/ubuntu: aptitude install libqwt5-qt4-dev
 unix:LIBS += -lqwt-qt4

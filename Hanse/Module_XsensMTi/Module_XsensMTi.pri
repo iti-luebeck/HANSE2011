@@ -1,4 +1,5 @@
 
+# debian/ubuntu: apt-get install libboost-thread-dev
 unix:LIBS += -lboost_thread
 unix:DEFINES += ENABLE_XSENS
 
