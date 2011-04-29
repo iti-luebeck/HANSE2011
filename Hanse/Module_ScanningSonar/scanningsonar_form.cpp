@@ -20,13 +20,13 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar,QWidget *parent
     scanLine = scene.addLine(0,0,0,50, QPen(QColor("red")));
     scanLine->setZValue(20);
 
-    scene.addLine(-50,0,50,0,QPen(QColor("white")))->setZValue(10);
-    scene.addLine(0,-50,0,50,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-50,-50,100,100,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-40,-40,80,80,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-30,-30,60,60,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-20,-20,40,40,QPen(QColor("white")))->setZValue(10);
-    scene.addEllipse(-10,-10,20,20,QPen(QColor("white")))->setZValue(10);
+    scene.addLine(-50,0,50,0,QPen(QColor("red")))->setZValue(10);
+    scene.addLine(0,-50,0,50,QPen(QColor("red")))->setZValue(10);
+    scene.addEllipse(-50,-50,100,100,QPen(QColor("red")))->setZValue(10);
+    scene.addEllipse(-40,-40,80,80,QPen(QColor("red")))->setZValue(10);
+    scene.addEllipse(-30,-30,60,60,QPen(QColor("red")))->setZValue(10);
+    scene.addEllipse(-20,-20,40,40,QPen(QColor("red")))->setZValue(10);
+    scene.addEllipse(-10,-10,20,20,QPen(QColor("red")))->setZValue(10);
 
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), this, SLOT(updateSonarView(SonarReturnData)));
 
@@ -111,7 +111,7 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
         QLinearGradient g(QPointF(0, 0), endPoint2);
         for (int i = 0; i < n; i++) {
             char b = data.getEchoData()[i];
-            g.setColorAt(1.0*i/n,QColor(0,2*b,0));
+            g.setColorAt(1.0*i/n,QColor(2*b,2*b,2*b));
         }
         it->setBrush(QBrush(g));
 
