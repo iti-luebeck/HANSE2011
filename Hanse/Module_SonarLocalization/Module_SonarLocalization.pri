@@ -9,7 +9,6 @@ SOURCES += Module_SonarLocalization/module_sonarlocalization.cpp \
     Module_SonarLocalization/form_sonarlocalization.cpp \
     Module_SonarLocalization/sonarechofilter.cpp \
     Module_SonarLocalization/sonarparticlefilter.cpp \
-    Module_SonarLocalization/sonarechodata.cpp \
     Module_SonarLocalization/sonarechodata.cpp
 
 FORMS += Module_SonarLocalization/form_sonarlocalization.ui
