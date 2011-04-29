@@ -18,7 +18,8 @@ HEADERS += Framework/healthstatus.h \
     Framework/modulehealthview.h \
     Framework/qclosabledockwidget.h \
     Framework/eventthread.h \
-    Framework/Angles.h
+    Framework/Angles.h \
+    Framework/SoToSleep.h
 
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \

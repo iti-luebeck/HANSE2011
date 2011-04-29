@@ -5,7 +5,8 @@ RobotModule::RobotModule(QString newId)
     : settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
       dataLockerMutex(QMutex::Recursive),
       id(newId),
-      healthCheckTimer(this)
+      healthCheckTimer(this),
+      initialized(false)
 {
     moveToThread(this);
     setDefaultValue("enabled", true);
@@ -25,6 +26,9 @@ RobotModule::RobotModule(QString newId)
 void RobotModule::run()
 {
     this->init();
+    dataLockerMutex.lock();
+    this->initialized = true;
+    dataLockerMutex.unlock();
     this->exec();
     this->terminate();
 }
@@ -47,6 +51,12 @@ void RobotModule::setEnabled(bool value)
 bool RobotModule::isEnabled()
 {
     return getSettingsValue("enabled").toBool();
+}
+
+bool RobotModule::isInitialized()
+{
+    QMutexLocker l(&dataLockerMutex);
+    return this->initialized;
 }
 
 QString RobotModule::getTabName()

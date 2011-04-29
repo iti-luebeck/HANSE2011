@@ -26,6 +26,7 @@
 #include <CommandCenter/commandcenter.h>
 #include <TestTask/testtask.h>
 #include <TaskWallFollowing/taskwallfollowing.h>
+#include "SoToSleep.h"
 
 ModulesGraph::ModulesGraph()
 {
@@ -153,6 +154,9 @@ void ModulesGraph::build()
         //        {
         logger->debug("Starting Thread for "+b->getId());
         b->start();
+        while(!b->isInitialized())
+            sotoSleep::msleep(100);
+
         //        }
     }
     healthTimer.setInterval(1000);

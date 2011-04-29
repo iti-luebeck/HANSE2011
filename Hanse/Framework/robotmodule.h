@@ -60,6 +60,11 @@ public:
     bool isEnabled();
 
     /**
+      * Return true if the module has been initialized
+      */
+    bool isInitialized();
+
+    /**
       * A copy of the settings of this module using dataLockerMutex (thread safe)
       */
 //    QSettings& getSettings();
@@ -253,6 +258,11 @@ private:
     QMutex healthStatusMutex;
 
     DataRecorder *recorder;
+
+    /**
+      * indicated if the module returned from init(). Meaning it is initialized
+      */
+    bool initialized;
 
 };
 
