@@ -30,7 +30,6 @@ public:
     QList<QString> schedule;
     QString lTask;
     int count;
-    int countTaskWall;
 
 
 private:
@@ -97,6 +96,7 @@ signals:
 
     void startTaskWallFollowing();
     void stopTaskWallFollowing();
+    void setTaskWallFollowing(int taskNr);
 
 
 };

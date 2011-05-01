@@ -50,14 +50,14 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(startTaskWallFollowing()),taskwallfollowing,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskWallFollowing()),taskwallfollowing,SLOT(stop()));
     connect(this,SIGNAL(stopAllTasks()),taskwallfollowing,SLOT(emergencyStop()));
+    connect(this,SIGNAL(setTaskWallFollowing(int)),taskwallfollowing,SLOT(setRunData(int)));
 
 
     setDefaultValue("targetDepth",0.30);
     setDefaultValue("subEx", false);
-    setDefaultValue("waitTime",5000);
+    setDefaultValue("waitTime",2000);
 
     count = 1;
-    countTaskWall = 0;
 
     controlTimer.moveToThread(this);
 }
@@ -127,22 +127,24 @@ void CommandCenter::commandCenterControl(){
             emit newList("");
             emit currentTask(temp);
             lTask = temp;
-        } else if(temp == "TaskWallFollowing"){
-            // Sets specific settings for each drive
-            if(countTaskWall==0){
-                // No setting change, use GUI input
-            } else if(countTaskWall==1){
-                changeWallTaskSettings(0.5, 0.3, 1.0, 0.1, 10000);
-            } else if (countTaskWall==2){
-                changeWallTaskSettings(0.5, 0.3, 1.5, 0.2, 30000);
-            } else {
-                changeWallTaskSettings(0.5, 0.3, 1.5, 0.1, 15000);
-            }
+        } else if(temp == "TaskWallFollowing1"){
+            emit setTaskWallFollowing(1);
             emit startTaskWallFollowing();
             emit newList("");
             emit currentTask(temp);
             lTask = temp;
-            countTaskWall = countTaskWall+1;
+        } else if(temp == "TaskWallFollowing2"){
+            emit setTaskWallFollowing(2);
+            emit startTaskWallFollowing();
+            emit newList("");
+            emit currentTask(temp);
+            lTask = temp;
+        } else if(temp == "TaskWallFollowing3"){
+            emit setTaskWallFollowing(3);
+            emit startTaskWallFollowing();
+            emit newList("");
+            emit currentTask(temp);
+            lTask = temp;
         } else {
             qDebug("Task not found, skip task!");
             emit newError("Task not found, skip task!");
@@ -157,15 +159,6 @@ void CommandCenter::commandCenterControl(){
     }
 
 
-}
-
-void CommandCenter::changeWallTaskSettings(float fwS, float agS, float desD, float crW, int taskD){
-    qDebug("Change taskwallfollowing settings!");
-    this->taskwallfollowing->setSettingsValue("forwardSpeed", fwS);
-    this->taskwallfollowing->setSettingsValue("angularSpeed", agS);
-    this->taskwallfollowing->setSettingsValue("desiredDistance", desD);
-    this->taskwallfollowing->setSettingsValue("corridorWidth", crW);
-    this->taskwallfollowing->setSettingsValue("taskDuration", taskD);
 }
 
 void CommandCenter::finishedControl(RobotBehaviour *, bool success){

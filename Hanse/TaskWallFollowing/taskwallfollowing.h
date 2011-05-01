@@ -33,7 +33,6 @@ private:
 
     bool running;
     void terminate();
-    void setWallSettings();
 
 signals:
     void timerStart( int msec );
@@ -47,6 +46,8 @@ public slots:
     void startBehaviour();
     void stop();
     void emergencyStop();
+    void setRunData(int);
+
 };
 
 #endif // TASKWALLFOLLOWING_H
