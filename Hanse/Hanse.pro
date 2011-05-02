@@ -65,11 +65,16 @@ include(TestTask/TestTask.pri)
 
 HEADERS += \
     TaskThrusterControl/taskthrustercontrolform.h \
-    TaskThrusterControl/taskthrustercontrol.h
+    TaskThrusterControl/taskthrustercontrol.h \
+    TaskPipeFollowing/taskpipefollowingform.h \
+    TaskPipeFollowing/taskpipefollowing.h
 
 SOURCES += \
     TaskThrusterControl/taskthrustercontrolform.cpp \
-    TaskThrusterControl/taskthrustercontrol.cpp
+    TaskThrusterControl/taskthrustercontrol.cpp \
+    TaskPipeFollowing/taskpipefollowingform.cpp \
+    TaskPipeFollowing/taskpipefollowing.cpp
 
 FORMS += \
-    TaskThrusterControl/taskthrustercontrolform.ui
+    TaskThrusterControl/taskthrustercontrolform.ui \
+    TaskPipeFollowing/taskpipefollowingform.ui

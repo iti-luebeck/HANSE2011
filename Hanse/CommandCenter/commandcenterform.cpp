@@ -33,6 +33,11 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     this->scheduledTasks.append("TaskWallFollowing1");
     this->scheduledTasks.append("TaskWallFollowing2");
     this->scheduledTasks.append("TaskWallFollowing3");
+
+    this->scheduledTasks.append("TaskPipeFollowing1");
+    this->scheduledTasks.append("TaskPipeFollowing2");
+    this->scheduledTasks.append("TaskPipeFollowing3");
+
     this->scheduledTasks.append("TaskThrusterControl1");
     this->scheduledTasks.append("TaskThrusterControl2");
     this->scheduledTasks.append("TaskThrusterControl3");

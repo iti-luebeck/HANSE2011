@@ -133,12 +133,17 @@ void ModulesGraph::build()
     TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWallFo", behavWall, sim);
     this->modules.append(taskwallfollowing);
 
+    logger->debug("Creating TaskPipeFollowing");
+    TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipeFo", behavPipe, sim);
+    this->modules.append(taskpipefollowing);
+
+
     logger->debug("Creating TaskThrusterControl");
     TaskThrusterControl *taskthrustercontrol = new TaskThrusterControl("taskThrustCo", controlLoop, sim);
     this->modules.append(taskthrustercontrol);
 
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, taskwallfollowing, taskthrustercontrol);
+    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, taskwallfollowing, taskthrustercontrol, taskpipefollowing);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules

@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *twf, TaskThrusterControl *ttc)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *twf, TaskThrusterControl *ttc, TaskPipeFollowing *tpf)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
@@ -21,6 +21,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->testtask = tt;
     this->taskwallfollowing = twf;
     this->taskthrustercontrol = ttc;
+    this->taskpipefollowing = tpf;
 
 
     timer.moveToThread(this);
@@ -68,8 +69,14 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(setDescriptionSignal()),taskthrustercontrol,SLOT(setDescriptionSlot()));
 
 
-    // ...
-
+    // Taskpipefollowing
+    connect(taskpipefollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
+    connect(this,SIGNAL(startTaskPipeFollowing()),taskpipefollowing,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskPipeFollowing()),taskpipefollowing,SLOT(stop()));
+    connect(this,SIGNAL(stopAllTasks()),taskpipefollowing,SLOT(emergencyStop()));
+    connect(this,SIGNAL(setTaskPipeFollowing(int)),taskpipefollowing,SLOT(setRunData(int)));
+    connect(taskpipefollowing, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
+    connect(this,SIGNAL(setDescriptionSignal()),taskpipefollowing,SLOT(setDescriptionSlot()));
 
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
@@ -211,6 +218,24 @@ void CommandCenter::commandCenterControl(){
         } else if(tempAkt == "TaskThrusterControl6"){
             emit setTaskThrusterControl(6);
             emit startTaskThrusterControl();
+            emit newList("");
+            emit currentTask(tempAkt);
+            lTask = tempAkt;  
+        } else if(tempAkt == "TaskPipeFollowing1"){
+            emit setTaskPipeFollowing(1);
+            emit startTaskPipeFollowing();
+            emit newList("");
+            emit currentTask(tempAkt);
+            lTask = tempAkt;
+        } else if(tempAkt == "TaskPipeFollowing2"){
+            emit setTaskPipeFollowing(2);
+            emit startTaskPipeFollowing();
+            emit newList("");
+            emit currentTask(tempAkt);
+            lTask = tempAkt;
+        } else if(tempAkt == "TaskPipeFollowing3"){
+            emit setTaskPipeFollowing(3);
+            emit startTaskPipeFollowing();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
