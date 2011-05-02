@@ -27,6 +27,7 @@
 #include <TestTask/testtask.h>
 #include <TaskWallFollowing/taskwallfollowing.h>
 #include "SoToSleep.h"
+#include <TaskThrusterControl/taskthrustercontrol.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -132,8 +133,12 @@ void ModulesGraph::build()
     TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWallFo", behavWall, sim);
     this->modules.append(taskwallfollowing);
 
+    logger->debug("Creating TaskThrusterControl");
+    TaskThrusterControl *taskthrustercontrol = new TaskThrusterControl("taskThrustCo", controlLoop, sim);
+    this->modules.append(taskthrustercontrol);
+
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, taskwallfollowing);
+    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, taskwallfollowing, taskthrustercontrol);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules

@@ -11,6 +11,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     // Very important connections with commandcenter
     connect(this,SIGNAL(startCommandCenter()),com,SLOT(startCommandCenter()));
     connect(this,SIGNAL(stopCommandCenter()),com,SLOT(stopCommandCenter()));
+    connect(this,SIGNAL(setDescription()),com,SLOT(setDescriptionSlot()));
 
     // GUI-updating slots
     connect(com,SIGNAL(currentTask(QString)),this,SLOT(updateTask(QString)));
@@ -18,10 +19,33 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     connect(com,SIGNAL(newList(QString)),this,SLOT(updateLists(QString)));
     connect(com,SIGNAL(newAborted(QString)),this,SLOT(updateAborted(QString)));
 
+    connect(com,SIGNAL(newMessage(QString)),this,SLOT(updateMessage(QString)));
+
+    connect(com,SIGNAL(newSchDesSignal(QString,QString)),this,SLOT(refreshScheduleList(QString, QString)));
+
 
     ui->setupUi(this);
     ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
+
+
+    this->scheduledTasks.append("TestTask");
+    this->scheduledTasks.append("TaskWallFollowing1");
+    this->scheduledTasks.append("TaskWallFollowing2");
+    this->scheduledTasks.append("TaskWallFollowing3");
+    this->scheduledTasks.append("TaskThrusterControl1");
+    this->scheduledTasks.append("TaskThrusterControl2");
+    this->scheduledTasks.append("TaskThrusterControl3");
+    this->scheduledTasks.append("TaskThrusterControl4");
+    this->scheduledTasks.append("TaskThrusterControl5");
+    this->scheduledTasks.append("TaskThrusterControl6");
+
+//    ui->scheduleInput->clear();
+//    for(int i = 0; i < this->scheduledTasks.length(); i++){
+//        ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
+//    }
+
+    emit setDescription();
 }
 
 CommandCenterForm::~CommandCenterForm()
@@ -47,6 +71,7 @@ void CommandCenterForm::on_addButton_clicked(){
     ui->scheduleList->insertPlainText(ui->scheduleInput->currentText()+"\n");
     this->com->schedule.prepend(ui->scheduleInput->currentText());
     //qDebug()<<ui->scheduleInput->currentText();
+    ui->errorOutput->setText("Added one task");
 }
 
 void CommandCenterForm::on_revertButton_clicked(){
@@ -58,6 +83,7 @@ void CommandCenterForm::on_revertButton_clicked(){
     for(int i = this->com->schedule.length()-1; i>=0; i--){
         ui->scheduleList->insertPlainText(this->com->schedule.at(i)+"\n");
     }
+    ui->errorOutput->setText("Reverted last add");
 }
 
 void CommandCenterForm::on_clearButton_clicked(){
@@ -111,6 +137,11 @@ void CommandCenterForm::updateError(QString s){
     ui->activeOutput->clear();
 }
 
+void CommandCenterForm::updateMessage(QString s){
+    // Update GUI with current message
+    ui->errorOutput->setText(s);
+}
+
 void CommandCenterForm::updateLists(QString s){
     // Update GUI with current scheduled tasks and finished tasks
     ui->scheduleList->clear();
@@ -129,4 +160,31 @@ void CommandCenterForm::updateAborted(QString s){
         ui->scheduleList->insertPlainText(this->com->schedule.at(i)+"\n");
     }
     ui->abortedList->insertPlainText(s+"\n");
+}
+
+void CommandCenterForm::refreshScheduleList(QString scheduleName, QString newD){
+    QString temp1 = "";
+    QString temp2 = "";
+    for(int i= 0; i<scheduledTasks.length(); i++){
+        temp1 = scheduledTasks.at(i);
+        for(int j = 0; j < temp1.length(); j++){
+            if(((temp1[j] == QChar(':'))==false) && ((temp1[j] == QChar(' '))==false) ){
+                temp2 = temp2 + temp1.at(j);
+            } else {
+                break;
+            }
+        }
+        if(temp2 == scheduleName){
+            temp2 = temp2 + ": "+newD;
+            scheduledTasks.replace(i, temp2);
+            break;
+        } else {
+            temp2 = "";
+        }
+    }
+
+    ui->scheduleInput->clear();
+    for(int i = 0; i < this->scheduledTasks.length(); i++){
+        ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
+    }
 }

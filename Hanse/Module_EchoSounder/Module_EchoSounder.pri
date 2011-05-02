@@ -23,3 +23,5 @@ Module_EchoSounder/echoswitchcommand.cpp
 
 FORMS += Module_EchoSounder/echosounderform.ui
 
+OTHER_FILES += \
+    Module_EchoSounder/echolog_abstand1.5_tiefe0.0_korridor0.1_und_0.2.852

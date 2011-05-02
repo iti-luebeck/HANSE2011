@@ -20,7 +20,8 @@ public:
     CommandCenterForm(CommandCenter *command, QWidget *parent = 0);
     ~CommandCenterForm();
 
-    //QList<QString> schedule;
+    QList<QString> scheduledTasks;
+    QList<QString> scheduledTasksDescription;
 
 protected:
     void changeEvent(QEvent *e);
@@ -33,6 +34,7 @@ private:
 signals:
     void startCommandCenter();
     void stopCommandCenter();
+    void setDescription();
 
 public slots:
 
@@ -47,6 +49,8 @@ private slots:
     void updateError(QString s);
     void updateLists(QString s);
     void updateAborted(QString s);
+    void updateMessage(QString s);
+    void refreshScheduleList(QString scheduleName, QString newD);
 };
 
 #endif // COMMANDCENTERFORM_H

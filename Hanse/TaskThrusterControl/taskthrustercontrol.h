@@ -1,17 +1,18 @@
-#ifndef TASKWALLFOLLOWING_H
-#define TASKWALLFOLLOWING_H
+#ifndef TASKTHRUSTERCONTROL_H
+#define TASKTHRUSTERCONTROL_H
 
 #include <Framework/robotbehaviour.h>
 #include <Framework/eventthread.h>
-#include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
+#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
+
 
 class Module_Simulation;
 
-class TaskWallFollowing : public RobotBehaviour
+class TaskThrusterControl : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Module_Simulation *sim);
+    TaskThrusterControl(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim);
 
     QWidget* createView(QWidget *parent);
 
@@ -27,7 +28,7 @@ public:
 
 private:
     void init();
-    Behaviour_WallFollowing *wall;
+    Module_ThrusterControlLoop *thrustercontrolloop;
     Module_Simulation *sim;
     EventThread updateThread;
 
@@ -41,6 +42,11 @@ signals:
     void end();
 
     void getUiSettings();
+    void newMessage(QString s);
+
+    void forwardSpeed(float fwSpeed);
+    void angularSpeed(float anSpeed);
+    void setDepth(float depth);
 
     void newSchDesSignal(QString taskName, QString newD);
     void setDescriptionSignal();
@@ -56,4 +62,4 @@ public slots:
 
 };
 
-#endif // TASKWALLFOLLOWING_H
+#endif // TASKTHRUSTERCONTROL_H

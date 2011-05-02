@@ -31,6 +31,7 @@ private:
     TaskWallFollowing* taskwallfollowing;
 
 signals:
+    void newSchDesSignal(QString taskName, QString newD);
 
 public slots:
     void on_applyButton_clicked();

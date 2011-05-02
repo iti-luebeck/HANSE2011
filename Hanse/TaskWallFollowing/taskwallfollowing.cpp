@@ -21,18 +21,21 @@ TaskWallFollowing::TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Mod
     this->setDefaultValue("desiredDistance1",1.5);
     this->setDefaultValue("corridorWidth1",0.2);
     this->setDefaultValue("taskDuration1",30000);
+    this->setDefaultValue("description1", "task 1");
 
-    this->setDefaultValue("forwardSpeed2",0.5);
-    this->setDefaultValue("angularSpeed2",0.3);
-    this->setDefaultValue("desiredDistance2",1.5);
+    this->setDefaultValue("forwardSpeed2",0.4);
+    this->setDefaultValue("angularSpeed2",0.1);
+    this->setDefaultValue("desiredDistance2",2.0);
     this->setDefaultValue("corridorWidth2",0.2);
     this->setDefaultValue("taskDuration2",20000);
+    this->setDefaultValue("description2", "task 2");
 
-    this->setDefaultValue("forwardSpeed3",0.5);
-    this->setDefaultValue("angularSpeed3",0.3);
-    this->setDefaultValue("desiredDistance3",1.5);
-    this->setDefaultValue("corridorWidth3",0.2);
+    this->setDefaultValue("forwardSpeed3",0.2);
+    this->setDefaultValue("angularSpeed3",0.1);
+    this->setDefaultValue("desiredDistance3",1.0);
+    this->setDefaultValue("corridorWidth3",0.0);
     this->setDefaultValue("taskDuration3",10000);
+    this->setDefaultValue("description3", "task 3");
 
     testTimer.setSingleShot(true);
     testTimer.moveToThread(this);
@@ -141,3 +144,10 @@ QList<RobotModule*> TaskWallFollowing::getDependencies()
 }
 
 
+void TaskWallFollowing::newSchDesSlot(QString taskName,  QString newD){
+    emit newSchDesSignal(taskName, newD);
+}
+
+void TaskWallFollowing::setDescriptionSlot(){
+    emit setDescriptionSignal();
+}

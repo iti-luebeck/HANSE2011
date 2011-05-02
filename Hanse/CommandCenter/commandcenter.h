@@ -6,6 +6,7 @@
 #include <Framework/eventthread.h>
 #include <TestTask/testtask.h>
 #include <TaskWallFollowing/taskwallfollowing.h>
+#include <TaskThrusterControl/taskthrustercontrol.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -20,7 +21,7 @@ class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *tw);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *tw, TaskThrusterControl *ttc);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -54,7 +55,7 @@ private:
     // Different tasks and specific methods
     TestTask *testtask;
     TaskWallFollowing *taskwallfollowing;
-    void changeWallTaskSettings(float fwS, float agS, float desD, float crW, int taskD);
+    TaskThrusterControl *taskthrustercontrol;
 
 public slots:
     void startCommandCenter();
@@ -66,8 +67,14 @@ public slots:
     void finishedControl(RobotBehaviour*, bool success);
     void timeout();
 
+    void setNewMessage(QString s);
+    void newSchDesSlot(QString scheduleName, QString newD);
+
+    void setDescriptionSlot();
+
 private slots:
     void doNextTask();
+
 
 signals:
     void setDepth(float depth);
@@ -79,6 +86,8 @@ signals:
     void currentTask(QString s);
     void newError(QString s);
     void newAborted(QString s);
+    void newMessage(QString s);
+
 
 
     void stopAllTasks();
@@ -97,6 +106,12 @@ signals:
     void startTaskWallFollowing();
     void stopTaskWallFollowing();
     void setTaskWallFollowing(int taskNr);
+
+    void startTaskThrusterControl();
+    void stopTaskThrusterControl();
+    void setTaskThrusterControl(int taskNr);
+    void newSchDesSignal(QString scheduleName, QString newD);
+    void setDescriptionSignal();
 
 
 };

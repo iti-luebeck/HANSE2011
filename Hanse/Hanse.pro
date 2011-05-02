@@ -62,3 +62,14 @@ include(Behaviour_WallFollowing/Behaviour_WallFollowing.pri)
 # tasks
 include(TaskWallFollowing/TaskWallFollowing.pri)
 include(TestTask/TestTask.pri)
+
+HEADERS += \
+    TaskThrusterControl/taskthrustercontrolform.h \
+    TaskThrusterControl/taskthrustercontrol.h
+
+SOURCES += \
+    TaskThrusterControl/taskthrustercontrolform.cpp \
+    TaskThrusterControl/taskthrustercontrol.cpp
+
+FORMS += \
+    TaskThrusterControl/taskthrustercontrolform.ui
