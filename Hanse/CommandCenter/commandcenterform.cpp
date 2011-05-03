@@ -125,6 +125,14 @@ void CommandCenterForm::on_stopButton_clicked(){
     ui->scheduleList->clear();
     emit stopCommandCenter();
     ui->activeOutput->clear();
+
+    QString temp = "";
+
+    for(int i = 0; i< this->com->schedule.length(); i++){
+          temp = this->com->schedule.at(i);
+          ui->abortedList->insertPlainText(temp+"\n");
+    }
+
     ui->errorOutput->setText("Commandcenter stopped!");
 
 }

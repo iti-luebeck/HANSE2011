@@ -54,7 +54,7 @@ void TaskWallFollowing::init(){
 
 void TaskWallFollowing::startBehaviour(){
     this->reset();
-    logger->info("TestTastk started" );
+    logger->info("Taskwallfollowing started" );
     running = true;
     setHealthToOk();
     setEnabled(true);

@@ -19,7 +19,7 @@
      <x>20</x>
      <y>20</y>
      <width>371</width>
-     <height>441</height>
+     <height>491</height>
     </rect>
    </property>
    <property name="title">
@@ -458,7 +458,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>410</y>
+      <y>460</y>
       <width>151</width>
       <height>17</height>
      </rect>
@@ -471,18 +471,44 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>410</y>
+      <y>460</y>
       <width>113</width>
       <height>27</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>410</y>
+      <width>71</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Enable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="frameColorCB1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>430</y>
+      <width>98</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Color</string>
     </property>
    </widget>
   </widget>
   <widget class="QPushButton" name="applyButton">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>490</y>
+     <x>10</x>
+     <y>530</y>
      <width>1151</width>
      <height>23</height>
     </rect>
@@ -497,7 +523,7 @@
      <x>410</x>
      <y>20</y>
      <width>361</width>
-     <height>451</height>
+     <height>501</height>
     </rect>
    </property>
    <property name="title">
@@ -935,8 +961,8 @@
    <widget class="QLineEdit" name="durationInput2">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>410</y>
+      <x>160</x>
+      <y>460</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -945,14 +971,40 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>410</y>
+      <x>0</x>
+      <y>460</y>
       <width>151</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
      <string>Task duration (msec):</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>410</y>
+      <width>71</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Enable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="frameColorCB2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>430</y>
+      <width>98</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Color</string>
     </property>
    </widget>
   </widget>
@@ -962,7 +1014,7 @@
      <x>810</x>
      <y>20</y>
      <width>371</width>
-     <height>451</height>
+     <height>511</height>
     </rect>
    </property>
    <property name="title">
@@ -1400,8 +1452,8 @@
    <widget class="QLineEdit" name="durationInput3">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>410</y>
+      <x>160</x>
+      <y>460</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -1410,14 +1462,40 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>410</y>
+      <x>0</x>
+      <y>460</y>
       <width>151</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
      <string>Task duration (msec):</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>410</y>
+      <width>71</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Enable</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="frameColorCB3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>430</y>
+      <width>98</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Color</string>
     </property>
    </widget>
   </widget>
