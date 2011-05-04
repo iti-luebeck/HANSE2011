@@ -62,19 +62,6 @@ include(Behaviour_WallFollowing/Behaviour_WallFollowing.pri)
 # tasks
 include(TaskWallFollowing/TaskWallFollowing.pri)
 include(TestTask/TestTask.pri)
+include(TaskThrusterControl/TaskThrusterControl.pri)
+include(TaskPipeFollowing/TaskPipeFollowing.pri)
 
-HEADERS += \
-    TaskThrusterControl/taskthrustercontrolform.h \
-    TaskThrusterControl/taskthrustercontrol.h \
-    TaskPipeFollowing/taskpipefollowingform.h \
-    TaskPipeFollowing/taskpipefollowing.h
-
-SOURCES += \
-    TaskThrusterControl/taskthrustercontrolform.cpp \
-    TaskThrusterControl/taskthrustercontrol.cpp \
-    TaskPipeFollowing/taskpipefollowingform.cpp \
-    TaskPipeFollowing/taskpipefollowing.cpp
-
-FORMS += \
-    TaskThrusterControl/taskthrustercontrolform.ui \
-    TaskPipeFollowing/taskpipefollowingform.ui
