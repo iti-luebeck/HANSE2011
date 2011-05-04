@@ -125,6 +125,7 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     taskpipefollowing->setSettingsValue("camHeight1",ui->camHeightLineEdit1->text().toInt());
     taskpipefollowing->setSettingsValue("camWidth1",ui->camWidthLineEdit1->text().toInt());
     taskpipefollowing->setSettingsValue("badFrames1",ui->badFramesLineEdit1->text().toInt());
+
     taskpipefollowing->setSettingsValue("frameOutput1",ui->frameColorCB1->isChecked());
 
     if(ui->hRadioButton1->isChecked())
@@ -166,6 +167,7 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     taskpipefollowing->setSettingsValue("camHeight2",ui->camHeightLineEdit2->text().toInt());
     taskpipefollowing->setSettingsValue("camWidth2",ui->camWidthLineEdit2->text().toInt());
     taskpipefollowing->setSettingsValue("badFrames2",ui->badFramesLineEdit2->text().toInt());
+
     taskpipefollowing->setSettingsValue("frameOutput2",ui->frameColorCB2->isChecked());
 
     if(ui->hRadioButton2->isChecked())
@@ -207,6 +209,7 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     taskpipefollowing->setSettingsValue("camHeight3",ui->camHeightLineEdit3->text().toInt());
     taskpipefollowing->setSettingsValue("camWidth3",ui->camWidthLineEdit3->text().toInt());
     taskpipefollowing->setSettingsValue("badFrames3",ui->badFramesLineEdit3->text().toInt());
+
     taskpipefollowing->setSettingsValue("frameOutput3",ui->frameColorCB3->isChecked());
 
     if(ui->hRadioButton3->isChecked())

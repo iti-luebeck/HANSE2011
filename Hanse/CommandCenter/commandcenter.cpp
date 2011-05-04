@@ -167,73 +167,73 @@ void CommandCenter::commandCenterControl(){
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskWallFollowing1"){
+        } else if(tempAkt == "Wall1"){
             emit setTaskWallFollowing(1);
             emit startTaskWallFollowing();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskWallFollowing2"){
+        } else if(tempAkt == "Wall2"){
             emit setTaskWallFollowing(2);
             emit startTaskWallFollowing();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskWallFollowing3"){
+        } else if(tempAkt == "Wall3"){
             emit setTaskWallFollowing(3);
             emit startTaskWallFollowing();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskThrusterControl1"){
+        } else if(tempAkt == "Thruster1"){
             emit setTaskThrusterControl(1);
             emit startTaskThrusterControl();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskThrusterControl2"){
+        } else if(tempAkt == "Thruster2"){
             emit setTaskThrusterControl(2);
             emit startTaskThrusterControl();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskThrusterControl3"){
+        } else if(tempAkt == "Thruster3"){
             emit setTaskThrusterControl(3);
             emit startTaskThrusterControl();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskThrusterControl4"){
+        } else if(tempAkt == "Thruster4"){
             emit setTaskThrusterControl(4);
             emit startTaskThrusterControl();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskThrusterControl5"){
+        } else if(tempAkt == "Thruster5"){
             emit setTaskThrusterControl(5);
             emit startTaskThrusterControl();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskThrusterControl6"){
+        } else if(tempAkt == "Thruster6"){
             emit setTaskThrusterControl(6);
             emit startTaskThrusterControl();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;  
-        } else if(tempAkt == "TaskPipeFollowing1"){
+        } else if(tempAkt == "Pipe1"){
             emit setTaskPipeFollowing(1);
             emit startTaskPipeFollowing();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskPipeFollowing2"){
+        } else if(tempAkt == "Pipe2"){
             emit setTaskPipeFollowing(2);
             emit startTaskPipeFollowing();
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
-        } else if(tempAkt == "TaskPipeFollowing3"){
+        } else if(tempAkt == "Pipe3"){
             emit setTaskPipeFollowing(3);
             emit startTaskPipeFollowing();
             emit newList("");

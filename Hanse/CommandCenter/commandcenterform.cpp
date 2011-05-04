@@ -30,20 +30,20 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
 
 
     this->scheduledTasks.append("TestTask");
-    this->scheduledTasks.append("TaskWallFollowing1");
-    this->scheduledTasks.append("TaskWallFollowing2");
-    this->scheduledTasks.append("TaskWallFollowing3");
+    this->scheduledTasks.append("Wall1");
+    this->scheduledTasks.append("Wall2");
+    this->scheduledTasks.append("Wall3");
 
-    this->scheduledTasks.append("TaskPipeFollowing1");
-    this->scheduledTasks.append("TaskPipeFollowing2");
-    this->scheduledTasks.append("TaskPipeFollowing3");
+    this->scheduledTasks.append("Pipe1");
+    this->scheduledTasks.append("Pipe2");
+    this->scheduledTasks.append("Pipe3");
 
-    this->scheduledTasks.append("TaskThrusterControl1");
-    this->scheduledTasks.append("TaskThrusterControl2");
-    this->scheduledTasks.append("TaskThrusterControl3");
-    this->scheduledTasks.append("TaskThrusterControl4");
-    this->scheduledTasks.append("TaskThrusterControl5");
-    this->scheduledTasks.append("TaskThrusterControl6");
+    this->scheduledTasks.append("Thruster1");
+    this->scheduledTasks.append("Thruster2");
+    this->scheduledTasks.append("Thruster3");
+    this->scheduledTasks.append("Thruster4");
+    this->scheduledTasks.append("Thruster5");
+    this->scheduledTasks.append("Thruster6");
 
 //    ui->scheduleInput->clear();
 //    for(int i = 0; i < this->scheduledTasks.length(); i++){
