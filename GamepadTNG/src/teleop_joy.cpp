@@ -91,6 +91,7 @@ void TeleopHanse::timerCallback(const ros::TimerEvent &e)
     pub_cmd_vel.publish(vel);
 
     client.sendMessage(value_linear, value_angular, value_depth, emergency_stop, enable_handcontrol);
+//    client.sendMessage(0, 100, 200, emergency_stop, enable_handcontrol);
 
     if (emergency_stop)
         ROS_INFO("Pressing emergency_stop button");
@@ -110,10 +111,7 @@ void TeleopHanse::joyCallback(const joy::Joy::ConstPtr& joy)
     else
         value_linear = config.scale_linear * joy->axes[config.axis_linear];
 
-    if (fabs(joy->axes[config.axis_depth]) < config.joy_gate)
-        value_depth = 0;
-    else
-        value_depth = config.scale_depth * joy->axes[config.axis_depth];
+    value_depth = config.scale_depth * (joy->axes[config.axis_depth]+1);
 
     emergency_stop = joy->buttons[config.button_emegency_stop];
     enable_handcontrol = joy->buttons[config.button_hand_control];

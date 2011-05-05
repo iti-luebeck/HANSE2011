@@ -7,6 +7,7 @@ Client::Client()
 {
     tcpSocket = new QTcpSocket(this);
     dataStream = new QDataStream(tcpSocket);
+    dataStream->setVersion(QDataStream::Qt_4_6);
     connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
 }
 
