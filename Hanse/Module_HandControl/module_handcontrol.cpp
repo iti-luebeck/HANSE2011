@@ -162,19 +162,10 @@ void Module_HandControl::sendNewControls()
 
         emit setAngularSpeed(angularSpeed/divLR);
         emit setForwardSpeed(forwardSpeed/divFw);
-//        controlLoop->setAngularSpeed(angularSpeed/divLR);
-//        controlLoop->setForwardSpeed(forwardSpeed/divFw);
-//        float currentSollTiefe = controlLoop->getDepth();
-//        float dVal = speedUpDown/divUD;
-        float dVal = 0.0;
-        if(speedUpDown > 0)
-            dVal = divUD;
-        else if(speedUpDown < 0)
-            dVal = -divUD;
-//        controlLoop->setDepth(currentSollTief8e + dVal);
-        float depth = dVal + controlLoop->getDepth();
-        logger->debug("emit signal to tcl containing depth: "+QString::number(depth));
-        emit setDepth(depth);
+        if(speedUpDown < 0)
+            divUD = 0;
+        logger->debug("emit signal to tcl containing depth: "+QString::number(divUD));
+        emit setDepth(divUD);
     }
     
     dataLockerMutex.unlock();

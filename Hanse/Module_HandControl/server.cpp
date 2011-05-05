@@ -6,6 +6,7 @@
 
 Server::Server() {
     stream = NULL;
+    tcpSocket = NULL;
     tcpServer = NULL;
 }
 
@@ -13,6 +14,7 @@ void Server::open()
 {
     qDebug() << "server THREAD ID";
     qDebug() << QThread::currentThreadId();
+
     if(tcpServer == NULL)
     {
         tcpServer = new QTcpServer(this);
@@ -27,15 +29,20 @@ void Server::open()
 
 void Server::openSocket() {
     std::cout << "openSocket()" << std::endl;
-    tcpSocket = tcpServer->nextPendingConnection();
 
     // we allow only one connection at a time
-    if (stream) {
+    if (tcpSocket) {
         tcpSocket->close();
-        return;
+        tcpSocket=NULL;
     }
+    tcpSocket = tcpServer->nextPendingConnection();
 
+    if (stream) {
+        delete stream;
+        stream = NULL;
+    }
     stream = new QDataStream(tcpSocket);
+    stream->setVersion(QDataStream::Qt_4_6);
 
     connect(tcpSocket, SIGNAL(disconnected()), tcpSocket, SLOT(deleteLater()));
     connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
@@ -47,7 +54,7 @@ void Server::receiveMessage() {
 
     signed short forwardSpeed, angularSpeed, upDownSpeed;
     bool emergencyButton, stHandControl;
-    while(tcpSocket->bytesAvailable())
+    while(tcpSocket && tcpSocket->bytesAvailable())
         *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton >> stHandControl;
 
     if (stHandControl)
@@ -65,8 +72,10 @@ void Server::close() {
     qDebug() << QThread::currentThreadId();
 
     QMutexLocker l(&modulMutex);
-    if(tcpServer != NULL)
+    if(tcpServer) {
         tcpServer->close();
+        tcpServer =  NULL;
+    }
 }
 
 bool Server::isConnected()
@@ -76,8 +85,13 @@ bool Server::isConnected()
 
 void Server::clientDisconnected()
 {
-    tcpSocket->close();
-    delete stream;
-    stream = NULL;
+    if (tcpSocket) {
+        tcpSocket->close();
+        tcpSocket = NULL;
+    }
+    if (stream) {
+        delete stream;
+        stream = NULL;
+    }
     emit statusChanged();
 }
