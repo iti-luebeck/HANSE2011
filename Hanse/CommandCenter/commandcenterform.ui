@@ -34,31 +34,6 @@
       <height>21</height>
      </rect>
     </property>
-    <item>
-     <property name="text">
-      <string>TestTask</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>TaskThrusterControl1</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>TaskWallFollowing1</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>TaskWallFollowing2</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>TaskWallFollowing3</string>
-     </property>
-    </item>
    </widget>
    <widget class="QPushButton" name="addButton">
     <property name="geometry">

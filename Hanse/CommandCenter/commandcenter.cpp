@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *twf, TaskThrusterControl *ttc, TaskPipeFollowing *tpf)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *twf, TaskThrusterControl *ttc, TaskPipeFollowing *tpf, TaskTurn *tt)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
@@ -18,10 +18,10 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->handControl = handControl;
     this->pressure = pressure;
     this->sim = sim;
-    this->testtask = tt;
     this->taskwallfollowing = twf;
     this->taskthrustercontrol = ttc;
     this->taskpipefollowing = tpf;
+    this->taskturn = tt;
 
 
     timer.moveToThread(this);
@@ -44,10 +44,6 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
 
 
     // Tasks specific signals
-    connect(testtask, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTestTask()),testtask,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTestTask()),testtask,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),testtask,SLOT(emergencyStop()));
 
     // Taskwallfollowing
     connect(taskwallfollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
@@ -162,12 +158,7 @@ void CommandCenter::commandCenterControl(){
         addData("Task Nr", count);
         addData("Task Name", tempAkt);
         emit dataChanged(this);
-        if(tempAkt == "TestTask"){
-            emit startTestTask();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
-        } else if(tempAkt == "Wall1"){
+        if(tempAkt == "Wall1"){
             emit setTaskWallFollowing(1);
             emit startTaskWallFollowing();
             emit newList("");

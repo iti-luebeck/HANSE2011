@@ -6,7 +6,7 @@
 TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Module_Simulation *sim)
     : RobotBehaviour(id)
 {
-    qDebug()<<"testtask thread id";
+    qDebug()<<"taskpipefollowing thread id";
     qDebug()<< QThread::currentThreadId();
     this->sim = sim;
     this->pipe = w;
@@ -83,7 +83,7 @@ bool TaskPipeFollowing::isActive(){
 
 
 void TaskPipeFollowing::init(){
-    logger->debug("testtask init");
+    logger->debug("taskthrustercontrol init");
 }
 
 
@@ -206,7 +206,7 @@ QWidget* TaskPipeFollowing::createView(QWidget *parent)
 QList<RobotModule*> TaskPipeFollowing::getDependencies()
 {
     QList<RobotModule*> ret;
-    //ret.append(tcl);
+    ret.append(pipe);
     ret.append(sim);
     return ret;
 }

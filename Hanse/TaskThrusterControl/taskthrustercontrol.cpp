@@ -6,7 +6,7 @@
 TaskThrusterControl::TaskThrusterControl(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim)
     : RobotBehaviour(id)
 {
-    qDebug()<<"testtask thread id";
+    qDebug()<<"taskthrustercontrol thread id";
     qDebug()<< QThread::currentThreadId();
     this->sim = sim;
     this->thrustercontrolloop = tcl;
@@ -88,7 +88,7 @@ bool TaskThrusterControl::isActive(){
 
 
 void TaskThrusterControl::init(){
-    logger->debug("testtask init");
+    logger->debug("taskthrustercontrol init");
 }
 
 
@@ -245,7 +245,7 @@ QWidget* TaskThrusterControl::createView(QWidget *parent)
 QList<RobotModule*> TaskThrusterControl::getDependencies()
 {
     QList<RobotModule*> ret;
-    //ret.append(tcl);
+    ret.append(thrustercontrolloop);
     ret.append(sim);
     return ret;
 }

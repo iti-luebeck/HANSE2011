@@ -4,10 +4,10 @@
 #include <Framework/robotmodule.h>
 #include <QtCore>
 #include <Framework/eventthread.h>
-#include <TestTask/testtask.h>
 #include <TaskWallFollowing/taskwallfollowing.h>
 #include <TaskThrusterControl/taskthrustercontrol.h>
 #include <TaskPipeFollowing/taskpipefollowing.h>
+#include <TaskTurn/taskturn.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -22,7 +22,7 @@ class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TestTask *tt, TaskWallFollowing *tw, TaskThrusterControl *ttc, TaskPipeFollowing *tp);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *tw, TaskThrusterControl *ttc, TaskPipeFollowing *tp, TaskTurn *tt);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -53,10 +53,10 @@ private:
     void commandCenterControl();
     void submergedExecute();
 
-    TestTask *testtask;
     TaskWallFollowing *taskwallfollowing;
     TaskThrusterControl *taskthrustercontrol;
     TaskPipeFollowing *taskpipefollowing;
+    TaskTurn *taskturn;
 
 public slots:
     void startCommandCenter();
@@ -103,9 +103,6 @@ signals:
     // Start and stop signals for every tasks
     void newSchDesSignal(QString scheduleName, QString newD);
     void setDescriptionSignal();
-
-    void startTestTask();
-    void stopTestTask();
 
     void startTaskWallFollowing();
     void stopTaskWallFollowing();

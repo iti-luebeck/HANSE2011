@@ -6,7 +6,7 @@
 TaskWallFollowing::TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Module_Simulation *sim)
     : RobotBehaviour(id)
 {
-    qDebug()<<"testtask thread id";
+    qDebug()<<"testwallfollowing thread id";
     qDebug()<< QThread::currentThreadId();
     this->sim = sim;
     this->wall = w;
@@ -47,7 +47,7 @@ bool TaskWallFollowing::isActive(){
 
 
 void TaskWallFollowing::init(){
-    logger->debug("testtask init");
+    logger->debug("testwallfollowing init");
 }
 
 
@@ -138,7 +138,7 @@ QWidget* TaskWallFollowing::createView(QWidget *parent)
 QList<RobotModule*> TaskWallFollowing::getDependencies()
 {
     QList<RobotModule*> ret;
-    //ret.append(tcl);
+    ret.append(wall);
     ret.append(sim);
     return ret;
 }

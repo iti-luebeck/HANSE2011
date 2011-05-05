@@ -61,7 +61,6 @@ include(Behaviour_WallFollowing/Behaviour_WallFollowing.pri)
 
 # tasks
 include(TaskWallFollowing/TaskWallFollowing.pri)
-include(TestTask/TestTask.pri)
 include(TaskThrusterControl/TaskThrusterControl.pri)
 include(TaskPipeFollowing/TaskPipeFollowing.pri)
-
+include(TaskTurn/TaskTurn.pri)

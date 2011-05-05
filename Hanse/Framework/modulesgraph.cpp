@@ -24,10 +24,11 @@
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 #include <CommandCenter/commandcenter.h>
-#include <TestTask/testtask.h>
 #include <TaskWallFollowing/taskwallfollowing.h>
 #include "SoToSleep.h"
 #include <TaskThrusterControl/taskthrustercontrol.h>
+#include <TaskTurn/taskturn.h>
+#include <TaskPipeFollowing/taskpipefollowing.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -125,25 +126,24 @@ void ModulesGraph::build()
     //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
     //    this->modules.append(behavComp);
 
-    logger->debug("Creating TestTask");
-    TestTask *testtask = new TestTask("testtask", behavWall, sim);
-    //this->modules.append(testtask);
-
-    logger->debug("Creating TaskWallFollowing");
-    TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWallFo", behavWall, sim);
-    this->modules.append(taskwallfollowing);
-
     logger->debug("Creating TaskPipeFollowing");
-    TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipeFo", behavPipe, sim);
+    TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipe", behavPipe, sim);
     this->modules.append(taskpipefollowing);
 
-
     logger->debug("Creating TaskThrusterControl");
-    TaskThrusterControl *taskthrustercontrol = new TaskThrusterControl("taskThrustCo", controlLoop, sim);
+    TaskThrusterControl *taskthrustercontrol = new TaskThrusterControl("taskThruster", controlLoop, sim);
     this->modules.append(taskthrustercontrol);
 
+    logger->debug("Creating TaskTurn");
+    TaskTurn *taskturn = new TaskTurn("taskTurn", controlLoop, pressure, compass, xsens, sim);
+    this->modules.append(taskturn);
+
+    logger->debug("Creating TaskWallFollowing");
+    TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWall", behavWall, sim);
+    this->modules.append(taskwallfollowing);
+
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comCent", controlLoop, handControl, pressure, sim, testtask, taskwallfollowing, taskthrustercontrol, taskpipefollowing);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, taskwallfollowing, taskthrustercontrol, taskpipefollowing, taskturn);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
@@ -172,12 +172,6 @@ void ModulesGraph::build()
     healthTimer.setInterval(1000);
     //    QTimer::singleShot(0,&healthTimer,SLOT(start()));
     healthTimer.start(1000);
-
-    // Few manual connects/starts for the Commandcenter-Tasks which have no GUI
-    connect(&healthTimer,SIGNAL(timeout()),testtask,SLOT(doHealthCheck()));
-    logger->debug("Starting Thread for "+testtask->getId());
-    testtask->start();
-
 }
 
 QList<RobotModule*> ModulesGraph::getModules()
