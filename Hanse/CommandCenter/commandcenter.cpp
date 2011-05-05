@@ -323,5 +323,6 @@ void CommandCenter::newSchDesSlot(QString scheduleName, QString newSD){
 }
 
 void CommandCenter::setDescriptionSlot(){
+    qDebug("CC setDescriptionSignal");
     emit setDescriptionSignal();
 }

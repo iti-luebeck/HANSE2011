@@ -217,5 +217,6 @@ void TaskPipeFollowing::newSchDesSlot(QString taskName,  QString newD){
 }
 
 void TaskPipeFollowing::setDescriptionSlot(){
+    qDebug("Pipe setDesSignal");
     emit setDescriptionSignal();
 }

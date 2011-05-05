@@ -9,7 +9,7 @@ TaskPipeFollowingForm::TaskPipeFollowingForm(TaskPipeFollowing *tpf, QWidget *pa
     this->taskpipefollowing = tpf;
 
     connect(taskpipefollowing,SIGNAL(getUiSettings()),this,SLOT(on_applyButton_clicked()));
-    connect(taskpipefollowing,SIGNAL(setDescriptionSignal()),this,SLOT(on_applyButton_clicked()));
+    connect(taskpipefollowing,SIGNAL(setDescriptionSignal()),this,SLOT(returnDescription()));
     connect(this,SIGNAL(newSchDesSignal(QString, QString)),taskpipefollowing,SLOT(newSchDesSlot(QString, QString)));
 
     // Show settings from taskpipefollowing
@@ -111,6 +111,7 @@ void TaskPipeFollowingForm::changeEvent(QEvent *e)
 
 void TaskPipeFollowingForm::on_applyButton_clicked(){
     // Update taskpipefollowing settings
+    qDebug("Pipe onapplybutton");
 
     taskpipefollowing->setSettingsValue("threshold1",ui->thresholdLineEdit1->text().toInt());
     taskpipefollowing->setSettingsValue("timer1",ui->timer_LineEdit1->text().toInt());
@@ -236,4 +237,8 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     this->taskpipefollowing->setSettingsValue("taskDuration3", this->ui->durationInput3->text());
     this->taskpipefollowing->setSettingsValue("description3", this->ui->descriptionInput3->text());
     emit newSchDesSignal("TaskPipeFollowing3", this->ui->descriptionInput3->text());
+}
+
+void TaskPipeFollowingForm::returnDescription(){
+    qDebug("retunrdes");
 }

@@ -44,11 +44,10 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     this->scheduledTasks.append("Thruster5");
     this->scheduledTasks.append("Thruster6");
 
-//    ui->scheduleInput->clear();
-//    for(int i = 0; i < this->scheduledTasks.length(); i++){
-//        ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
-//    }
-
+    ui->scheduleInput->clear();
+    for(int i = 0; i < this->scheduledTasks.length(); i++){
+        ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
+    }
     emit setDescription();
 }
 
