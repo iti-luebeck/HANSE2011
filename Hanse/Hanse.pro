@@ -19,7 +19,8 @@ MOC_DIR = tmp/moc
 OBJECTS_DIR = tmp/obj
 
 # so they show up the the project tree, for convenience
-OTHER_FILES += bin/log4qt.properties bin/ITI/Hanse.ini
+OTHER_FILES += bin/log4qt.properties bin/ITI/Hanse.ini \
+    TaskHandControl/TaskHandControl.pri
 
 # external libraries
 include(../log4qt/log4qt.pri)
@@ -64,3 +65,4 @@ include(TaskWallFollowing/TaskWallFollowing.pri)
 include(TaskThrusterControl/TaskThrusterControl.pri)
 include(TaskPipeFollowing/TaskPipeFollowing.pri)
 include(TaskTurn/TaskTurn.pri)
+include(TaskHandControl/TaskHandControl.pri)

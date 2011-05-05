@@ -29,6 +29,7 @@
 #include <TaskThrusterControl/taskthrustercontrol.h>
 #include <TaskTurn/taskturn.h>
 #include <TaskPipeFollowing/taskpipefollowing.h>
+#include <TaskHandControl/taskhandcontrol.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -142,8 +143,12 @@ void ModulesGraph::build()
     TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWall", behavWall, sim);
     this->modules.append(taskwallfollowing);
 
+    logger->debug("Creating TaskHandControl");
+    TaskHandControl *taskhandcontrol = new TaskHandControl("taskHand", controlLoop, sim, handControl);
+    this->modules.append(taskhandcontrol);
+
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, taskwallfollowing, taskthrustercontrol, taskpipefollowing, taskturn);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, taskwallfollowing, taskthrustercontrol, taskpipefollowing, taskturn, taskhandcontrol);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules

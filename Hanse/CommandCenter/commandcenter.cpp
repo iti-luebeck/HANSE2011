@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *twf, TaskThrusterControl *ttc, TaskPipeFollowing *tpf, TaskTurn *tt)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *twf, TaskThrusterControl *ttc, TaskPipeFollowing *tpf, TaskTurn *tt, TaskHandControl *thc)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
@@ -22,6 +22,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->taskthrustercontrol = ttc;
     this->taskpipefollowing = tpf;
     this->taskturn = tt;
+    this->taskhandcontrol = thc;
 
 
     timer.moveToThread(this);
@@ -29,14 +30,16 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     setEnabled(false);
     running = false;
 
-
+    if(!this->handControl->isEnabled()){
+        this->handControl->setEnabled(true);
+    }
 
     // Command center specific signals
     connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
-    connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStop()));
+    connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStopCommandCenter()));
     connect(handControl, SIGNAL(startHandControl()), this, SLOT(startHandControl()));
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
     connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
@@ -44,8 +47,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
 
 
     // Tasks specific signals
-
-    // Taskwallfollowing
+    // TaskWallFollowing
     connect(taskwallfollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     connect(this,SIGNAL(startTaskWallFollowing()),taskwallfollowing,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskWallFollowing()),taskwallfollowing,SLOT(stop()));
@@ -65,7 +67,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(setDescriptionSignal()),taskthrustercontrol,SLOT(setDescriptionSlot()));
 
 
-    // Taskpipefollowing
+    // TaskPipeFollowing
     connect(taskpipefollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     connect(this,SIGNAL(startTaskPipeFollowing()),taskpipefollowing,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskPipeFollowing()),taskpipefollowing,SLOT(stop()));
@@ -83,6 +85,15 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(setTaskTurn(int)),taskturn,SLOT(setRunData(int)));
     connect(taskturn, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
     connect(this,SIGNAL(setDescriptionSignal()),taskturn,SLOT(setDescriptionSlot()));
+
+    // TaskHandConrol
+    connect(taskhandcontrol, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
+    connect(this,SIGNAL(startTaskHandControl()),taskhandcontrol,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskHandControl()),taskhandcontrol,SLOT(stop()));
+    //connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
+    connect(taskhandcontrol,SIGNAL(handControlFinished()),this,SLOT(handControlFinished()));
+
+
 
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
@@ -144,6 +155,7 @@ void CommandCenter::stopCommandCenter(){
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
 
+    this->setEnabled(false);
     if (sim->isEnabled())
     {
 
@@ -168,7 +180,12 @@ void CommandCenter::commandCenterControl(){
         addData("Task Nr", count);
         addData("Task Name", tempAkt);
         emit dataChanged(this);
-        if(tempAkt == "Wall1"){
+        if(tempAkt == "HandControl"){
+            emit startTaskHandControl();
+            emit newList("");
+            emit currentTask(tempAkt);
+            lTask = tempAkt;
+        } else if(tempAkt == "Wall1"){
             emit setTaskWallFollowing(1);
             emit startTaskWallFollowing();
             emit newList("");
@@ -307,6 +324,7 @@ void CommandCenter::doNextTask(){
     commandCenterControl();
 }
 
+// Not used....
 void CommandCenter::timeout(){
     // Timeout, stop everything
     qDebug("Commandcenter timeout!");
@@ -362,4 +380,42 @@ void CommandCenter::newSchDesSlot(QString scheduleName, QString newSD){
 
 void CommandCenter::setDescriptionSlot(){
     emit setDescriptionSignal();
+}
+
+void CommandCenter::emergencyStopCommandCenter(){
+    controlTimer.stop();
+    logger ->info("Emergency stop, stop and deactivate all task - handcontrol active");
+    this->stopAllTasks();
+    //schedule.clear();
+    emit stopAllTasks();
+    emit resetTCL();
+
+    emit startTaskHandControl();
+    emit newList("");
+    emit currentTask("HandControl");
+    lTask = "HandControl";
+
+    emit setDepth(0.0);
+    emit setForwardSpeed(0.0);
+    emit setAngularSpeed(0.0);
+}
+
+
+void CommandCenter::handControlFinished(){
+    emit setAngularSpeed(0.0);
+    emit setForwardSpeed(0.0);
+    if(this->getSettingsValue("subEx").toBool() == true){
+        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+    } else {
+        emit setDepth(0.0);
+    }
+
+        qDebug("Handcontrol has finished successfully");
+        emit newList(lTask);
+
+    if(this->isEnabled()){
+        // Stop thruster, then make next task...
+        controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+    }
+
 }

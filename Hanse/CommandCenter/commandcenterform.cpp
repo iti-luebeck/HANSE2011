@@ -47,6 +47,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     this->scheduledTasks.append("Thruster4");
     this->scheduledTasks.append("Thruster5");
     this->scheduledTasks.append("Thruster6");
+    this->scheduledTasks.append("HandControl");
 
 
     ui->scheduleInput->clear();

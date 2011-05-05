@@ -8,6 +8,7 @@
 #include <TaskThrusterControl/taskthrustercontrol.h>
 #include <TaskPipeFollowing/taskpipefollowing.h>
 #include <TaskTurn/taskturn.h>
+#include <TaskHandControl/taskhandcontrol.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -22,7 +23,7 @@ class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *tw, TaskThrusterControl *ttc, TaskPipeFollowing *tp, TaskTurn *tt);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *tw, TaskThrusterControl *ttc, TaskPipeFollowing *tp, TaskTurn *tt, TaskHandControl *thc);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -57,10 +58,13 @@ private:
     TaskThrusterControl *taskthrustercontrol;
     TaskPipeFollowing *taskpipefollowing;
     TaskTurn *taskturn;
+    TaskHandControl *taskhandcontrol;
 
 public slots:
     void startCommandCenter();
     void stopCommandCenter();
+
+    void emergencyStopCommandCenter();
 
     void reset();
     void terminate();
@@ -72,6 +76,8 @@ public slots:
     void newSchDesSlot(QString scheduleName, QString newD);
 
     void setDescriptionSlot();
+
+    void handControlFinished();
 
 private slots:
     void doNextTask();
@@ -120,6 +126,10 @@ signals:
     void startTaskTurn();
     void stopTaskTurn();
     void setTaskTurn(int taskNr);
+
+    void startTaskHandControl();
+    void stopTaskHandControl();
+
 };
 
 #endif // COMMANDCENTER_H
