@@ -828,3 +828,7 @@ void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
     }
     dataLockerMutex.unlock();
 }
+
+void Behaviour_PipeFollowing::setUpdatePixmapSlot(bool bol){
+    emit setUpdatePixmapSignal(bol);
+}

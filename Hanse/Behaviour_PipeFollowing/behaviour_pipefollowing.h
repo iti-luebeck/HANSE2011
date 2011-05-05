@@ -150,6 +150,7 @@ public slots:
     void reset();
     void terminate();
     void simFrame(cv::Mat simFrame);
+    void setUpdatePixmapSlot(bool bol);
 
 signals:
 //    void printFrameOnUi(cv::Mat &frame);
@@ -159,6 +160,7 @@ signals:
     void forwardSpeed(float fwSpeed);
     void angularSpeed(float anSpeed);
     void requestBottomFrame();
+    void setUpdatePixmapSignal(bool bol);
 
 };
 

@@ -9,7 +9,7 @@ TaskThrusterControlForm::TaskThrusterControlForm(TaskThrusterControl *ttc, QWidg
     this->taskthrustercontrol = ttc;
 
     connect(taskthrustercontrol,SIGNAL(getUiSettings()),this,SLOT(on_applyButton_clicked()));
-    connect(taskthrustercontrol,SIGNAL(setDescriptionSignal()),this,SLOT(on_applyButton_clicked()));
+    connect(taskthrustercontrol,SIGNAL(setDescriptionSignal()),this,SLOT(returnDescription()));
     connect(this,SIGNAL(newSchDesSignal(QString, QString)),taskthrustercontrol,SLOT(newSchDesSlot(QString, QString)));
 
     // Show settings from taskthrustercontrol
@@ -74,41 +74,49 @@ void TaskThrusterControlForm::on_applyButton_clicked(){
     this->taskthrustercontrol->setSettingsValue("desiredDepth1" ,this->ui->desiredDepthInput1->text());
     this->taskthrustercontrol->setSettingsValue("taskDuration1", this->ui->durationInput1->text());
     this->taskthrustercontrol->setSettingsValue("description1", this->ui->descriptionInput1->text());
-    emit newSchDesSignal("TaskThrusterControl1", this->ui->descriptionInput1->text());
+    emit newSchDesSignal("Thruster1", this->ui->descriptionInput1->text());
 
     this->taskthrustercontrol->setSettingsValue("forwardSpeed2" ,this->ui->forwardInput2->text());
     this->taskthrustercontrol->setSettingsValue("angularSpeed2" ,this->ui->angularInput2->text());
     this->taskthrustercontrol->setSettingsValue("desiredDepth2" ,this->ui->desiredDepthInput2->text());
     this->taskthrustercontrol->setSettingsValue("taskDuration2", this->ui->durationInput2->text());
     this->taskthrustercontrol->setSettingsValue("description2", this->ui->descriptionInput2->text());
-    emit newSchDesSignal("TaskThrusterControl2", this->ui->descriptionInput2->text());
+    emit newSchDesSignal("Thruster2", this->ui->descriptionInput2->text());
 
     this->taskthrustercontrol->setSettingsValue("forwardSpeed3" ,this->ui->forwardInput3->text());
     this->taskthrustercontrol->setSettingsValue("angularSpeed3" ,this->ui->angularInput3->text());
     this->taskthrustercontrol->setSettingsValue("desiredDepth3" ,this->ui->desiredDepthInput3->text());
     this->taskthrustercontrol->setSettingsValue("taskDuration3", this->ui->durationInput3->text());
     this->taskthrustercontrol->setSettingsValue("description3", this->ui->descriptionInput3->text());
-    emit newSchDesSignal("TaskThrusterControl3", this->ui->descriptionInput3->text());
+    emit newSchDesSignal("Thruster3", this->ui->descriptionInput3->text());
 
     this->taskthrustercontrol->setSettingsValue("forwardSpeed4" ,this->ui->forwardInput4->text());
     this->taskthrustercontrol->setSettingsValue("angularSpeed4" ,this->ui->angularInput4->text());
     this->taskthrustercontrol->setSettingsValue("desiredDepth4" ,this->ui->desiredDepthInput4->text());
     this->taskthrustercontrol->setSettingsValue("taskDuration4", this->ui->durationInput4->text());
     this->taskthrustercontrol->setSettingsValue("description4", this->ui->descriptionInput4->text());
-    emit newSchDesSignal("TaskThrusterControl4", this->ui->descriptionInput4->text());
+    emit newSchDesSignal("Thruster4", this->ui->descriptionInput4->text());
 
     this->taskthrustercontrol->setSettingsValue("forwardSpeed5" ,this->ui->forwardInput5->text());
     this->taskthrustercontrol->setSettingsValue("angularSpeed5" ,this->ui->angularInput5->text());
     this->taskthrustercontrol->setSettingsValue("desiredDepth5" ,this->ui->desiredDepthInput5->text());
     this->taskthrustercontrol->setSettingsValue("taskDuration5", this->ui->durationInput5->text());
     this->taskthrustercontrol->setSettingsValue("description5", this->ui->descriptionInput5->text());
-    emit newSchDesSignal("TaskThrusterControl5", this->ui->descriptionInput5->text());
+    emit newSchDesSignal("Thruster5", this->ui->descriptionInput5->text());
 
     this->taskthrustercontrol->setSettingsValue("forwardSpeed6" ,this->ui->forwardInput6->text());
     this->taskthrustercontrol->setSettingsValue("angularSpeed6" ,this->ui->angularInput6->text());
     this->taskthrustercontrol->setSettingsValue("desiredDepth6" ,this->ui->desiredDepthInput6->text());
     this->taskthrustercontrol->setSettingsValue("taskDuration6", this->ui->durationInput6->text());
     this->taskthrustercontrol->setSettingsValue("description6", this->ui->descriptionInput6->text());
-    emit newSchDesSignal("TaskThrusterControl6", this->ui->descriptionInput6->text());
+    emit newSchDesSignal("Thruster6", this->ui->descriptionInput6->text());
 }
 
+void TaskThrusterControlForm::returnDescription(){
+    emit newSchDesSignal("Thruster1", this->ui->descriptionInput1->text());
+    emit newSchDesSignal("Thruster2", this->ui->descriptionInput2->text());
+    emit newSchDesSignal("Thruster3", this->ui->descriptionInput3->text());
+    emit newSchDesSignal("Thruster4", this->ui->descriptionInput4->text());
+    emit newSchDesSignal("Thruster5", this->ui->descriptionInput5->text());
+    emit newSchDesSignal("Thruster6", this->ui->descriptionInput6->text());
+}

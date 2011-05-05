@@ -50,6 +50,8 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
     ui->frameColorCB->setChecked(pipefollow->getSettingsValue("frameOutput").toBool());
     QObject::connect(this, SIGNAL(startPipeFollow()),pipefollow , SLOT(startBehaviour()));
     QObject::connect(this, SIGNAL(stopPipeFollow()), pipefollow , SLOT(stop()));
+
+    connect(pipefollow, SIGNAL(setUpdatePixmapSignal(bool)), this , SLOT(setUpdatePixmap(bool)));
  }
 
 PipeFollowingForm::~PipeFollowingForm()
@@ -172,4 +174,13 @@ void PipeFollowingForm::on_checkBox_clicked()
 void PipeFollowingForm::on_frameColorCB_clicked()
 {
     pipefollow->setSettingsValue("frameOutput",ui->frameColorCB->isChecked());
+}
+
+void PipeFollowingForm::setUpdatePixmap(bool setBool){
+    if(setBool)
+    {
+        QTimer::singleShot(0,&updateUI,SLOT(start()));
+    }
+    else if(!setBool)
+        QTimer::singleShot(0,&updateUI,SLOT(stop()));
 }

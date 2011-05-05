@@ -37,6 +37,10 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     this->scheduledTasks.append("Pipe2");
     this->scheduledTasks.append("Pipe3");
 
+    this->scheduledTasks.append("Turn1");
+    this->scheduledTasks.append("Turn2");
+    this->scheduledTasks.append("Turn3");
+
     this->scheduledTasks.append("Thruster1");
     this->scheduledTasks.append("Thruster2");
     this->scheduledTasks.append("Thruster3");
@@ -44,10 +48,12 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     this->scheduledTasks.append("Thruster5");
     this->scheduledTasks.append("Thruster6");
 
+
     ui->scheduleInput->clear();
     for(int i = 0; i < this->scheduledTasks.length(); i++){
         ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
     }
+
     emit setDescription();
 }
 

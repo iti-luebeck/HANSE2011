@@ -116,6 +116,10 @@ signals:
     void startTaskPipeFollowing();
     void stopTaskPipeFollowing();
     void setTaskPipeFollowing(int taskNr);
+
+    void startTaskTurn();
+    void stopTaskTurn();
+    void setTaskTurn(int taskNr);
 };
 
 #endif // COMMANDCENTER_H

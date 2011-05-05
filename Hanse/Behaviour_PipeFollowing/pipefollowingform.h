@@ -36,6 +36,7 @@ private slots:
 
 public slots:
     void updatePixmap();
+    void setUpdatePixmap(bool b);
 
 signals:
    void startPipeFollow();

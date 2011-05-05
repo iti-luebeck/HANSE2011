@@ -44,6 +44,7 @@ signals:
 
     void newSchDesSignal(QString taskName, QString newD);
     void setDescriptionSignal();
+    void setUpdatePixmapSignal(bool b);
 
 public slots:
     void startBehaviour();

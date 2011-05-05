@@ -11,6 +11,7 @@ TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Mod
     this->sim = sim;
     this->pipe = w;
     this->pipe->setEnabled(false);
+    connect(this,SIGNAL(setUpdatePixmapSignal(bool)),pipe,SLOT(setUpdatePixmapSlot(bool)));
 
     setEnabled(false);
     running = false;
@@ -110,7 +111,11 @@ void TaskPipeFollowing::startBehaviour(){
 }
 
 void TaskPipeFollowing::setRunData(int taskNr){
+
+    qDebug("muhasdhashdashdhsdhasd");
+    qDebug()<<this->getSettingsValue("checkBox").toBool();
     if(taskNr == 3){
+        emit setUpdatePixmapSignal(this->getSettingsValue("enableUIOutput1").toBool());
         this->pipe->setSettingsValue("timer",this->getSettingsValue("timer3"));
         this->pipe->setSettingsValue("threshold",this->getSettingsValue("threshold3"));
         this->pipe->setSettingsValue("debug",this->getSettingsValue("debug3"));
@@ -127,6 +132,7 @@ void TaskPipeFollowing::setRunData(int taskNr){
         // this->pipe->setSettingsValue("camHeight",this->getSettingsValue("camHeight3"));
          this->setSettingsValue("taskDuration", this->getSettingsValue("taskDuration3"));
     } else if (taskNr == 2){
+        emit setUpdatePixmapSignal(this->getSettingsValue("enableUIOutput2").toBool());
         this->pipe->setSettingsValue("timer",this->getSettingsValue("timer2"));
         this->pipe->setSettingsValue("threshold",this->getSettingsValue("threshold2"));
         this->pipe->setSettingsValue("debug",this->getSettingsValue("debug2"));
@@ -143,6 +149,7 @@ void TaskPipeFollowing::setRunData(int taskNr){
         // this->pipe->setSettingsValue("camHeight",this->getSettingsValue("camHeight2"));
          this->setSettingsValue("taskDuration", this->getSettingsValue("taskDuration2"));
     } else {
+        emit setUpdatePixmapSignal(this->getSettingsValue("enableUIOutput3").toBool());
         this->pipe->setSettingsValue("timer",this->getSettingsValue("timer1"));
         this->pipe->setSettingsValue("threshold",this->getSettingsValue("threshold1"));
         this->pipe->setSettingsValue("debug",this->getSettingsValue("debug1"));
@@ -217,6 +224,5 @@ void TaskPipeFollowing::newSchDesSlot(QString taskName,  QString newD){
 }
 
 void TaskPipeFollowing::setDescriptionSlot(){
-    qDebug("Pipe setDesSignal");
     emit setDescriptionSignal();
 }

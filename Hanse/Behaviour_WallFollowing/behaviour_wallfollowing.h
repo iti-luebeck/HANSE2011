@@ -25,7 +25,7 @@ public:
 
     bool echoTest;
 
-    QTimer *echoControllTimer;
+    QTimer *echoControlTimer;
      Module_EchoSounder *echo;
 
 private:

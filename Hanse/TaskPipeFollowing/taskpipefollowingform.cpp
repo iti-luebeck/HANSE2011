@@ -152,7 +152,7 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
 
     this->taskpipefollowing->setSettingsValue("taskDuration1", this->ui->durationInput1->text());
     this->taskpipefollowing->setSettingsValue("description1", this->ui->descriptionInput1->text());
-    emit newSchDesSignal("TaskPipeFollowing1", this->ui->descriptionInput1->text());
+    emit newSchDesSignal("Pipe1", this->ui->descriptionInput1->text());
 
     // ...
     taskpipefollowing->setSettingsValue("threshold2",ui->thresholdLineEdit2->text().toInt());
@@ -194,7 +194,7 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
 
     this->taskpipefollowing->setSettingsValue("taskDuration2", this->ui->durationInput2->text());
     this->taskpipefollowing->setSettingsValue("description2", this->ui->descriptionInput2->text());
-    emit newSchDesSignal("TaskPipeFollowing2", this->ui->descriptionInput2->text());
+    emit newSchDesSignal("Pipe2", this->ui->descriptionInput2->text());
 
     // ...
     taskpipefollowing->setSettingsValue("threshold3",ui->thresholdLineEdit3->text().toInt());
@@ -236,9 +236,11 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
 
     this->taskpipefollowing->setSettingsValue("taskDuration3", this->ui->durationInput3->text());
     this->taskpipefollowing->setSettingsValue("description3", this->ui->descriptionInput3->text());
-    emit newSchDesSignal("TaskPipeFollowing3", this->ui->descriptionInput3->text());
+    emit newSchDesSignal("Pipe3", this->ui->descriptionInput3->text());
 }
 
 void TaskPipeFollowingForm::returnDescription(){
-    qDebug("retunrdes");
+    emit newSchDesSignal("Pipe1", this->ui->descriptionInput1->text());
+    emit newSchDesSignal("Pipe2", this->ui->descriptionInput2->text());
+    emit newSchDesSignal("Pipe3", this->ui->descriptionInput3->text());
 }

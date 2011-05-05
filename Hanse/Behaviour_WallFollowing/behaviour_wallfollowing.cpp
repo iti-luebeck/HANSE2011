@@ -45,8 +45,8 @@ void Behaviour_WallFollowing::init()
     avgDistance = 1.0;
     distanceInput = this->getSettingsValue("desiredDistance").toFloat();
 
-    echoControllTimer = new QTimer(this);
-    connect(echoControllTimer, SIGNAL(timeout()), this, SLOT(testEchoModule()));
+    echoControlTimer = new QTimer(this);
+    connect(echoControlTimer, SIGNAL(timeout()), this, SLOT(testEchoModule()));
 
 }
 
@@ -59,7 +59,7 @@ void Behaviour_WallFollowing::startBehaviour()
     this->setEnabled(true);
     emit started(this);
     running = true;
-    echoControllTimer->start(wallTime);
+    echoControlTimer->start(wallTime);
 
     //qDebug() << "wall thread id";
     //qDebug() << QThread::currentThreadId();
@@ -84,7 +84,7 @@ void Behaviour_WallFollowing::stop()
         this->setEnabled(false);
         emit finished(this,false);
 
-        echoControllTimer->stop();
+        echoControlTimer->stop();
     }
 }
 

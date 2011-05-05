@@ -74,6 +74,16 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(taskpipefollowing, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
     connect(this,SIGNAL(setDescriptionSignal()),taskpipefollowing,SLOT(setDescriptionSlot()));
 
+
+    // TaskTurn
+    connect(taskturn, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
+    connect(this,SIGNAL(startTaskTurn()),taskturn,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskTurn()),taskturn,SLOT(stop()));
+    connect(this,SIGNAL(stopAllTasks()),taskturn,SLOT(emergencyStop()));
+    connect(this,SIGNAL(setTaskTurn(int)),taskturn,SLOT(setRunData(int)));
+    connect(taskturn, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
+    connect(this,SIGNAL(setDescriptionSignal()),taskturn,SLOT(setDescriptionSlot()));
+
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
     setDefaultValue("waitTime",2000);
@@ -230,6 +240,24 @@ void CommandCenter::commandCenterControl(){
             emit newList("");
             emit currentTask(tempAkt);
             lTask = tempAkt;
+        }else if(tempAkt == "Turn1"){
+            emit setTaskTurn(1);
+            emit startTaskTurn();
+            emit newList("");
+            emit currentTask(tempAkt);
+            lTask = tempAkt;
+        }else if(tempAkt == "Turn2"){
+            emit setTaskTurn(2);
+            emit startTaskTurn();
+            emit newList("");
+            emit currentTask(tempAkt);
+            lTask = tempAkt;
+        }else if(tempAkt == "Turn3"){
+            emit setTaskTurn(3);
+            emit startTaskTurn();
+            emit newList("");
+            emit currentTask(tempAkt);
+            lTask = tempAkt;
         } else  {
             qDebug("Task not found, skip task!");
             emit newError("Task not found, skip task!");
@@ -250,6 +278,15 @@ void CommandCenter::commandCenterControl(){
 
 void CommandCenter::finishedControl(RobotBehaviour *, bool success){
     // Evaluate task success
+
+    emit setAngularSpeed(0.0);
+    emit setForwardSpeed(0.0);
+    if(this->getSettingsValue("subEx").toBool() == true){
+        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+    } else {
+        emit setDepth(0.0);
+    }
+
     if(success==true){
         qDebug("One task has finished successfully");
         emit newList(lTask);
@@ -259,6 +296,7 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
         emit newList("");
     }
     if(this->isEnabled()){
+        // Stop thruster, then make next task...
         controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
     }
 }
@@ -323,6 +361,5 @@ void CommandCenter::newSchDesSlot(QString scheduleName, QString newSD){
 }
 
 void CommandCenter::setDescriptionSlot(){
-    qDebug("CC setDescriptionSignal");
     emit setDescriptionSignal();
 }
