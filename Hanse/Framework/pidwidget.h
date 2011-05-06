@@ -32,6 +32,9 @@ private:
 
 public slots:
     void newPIDData(double setpoint, double actual, double u);
+
+signals:
+    void setValues(double Kp, double Ti, double Td, double offset, double min, double max, double minHysteresis, double maxHysteresis, double minUpdateTime);
 };
 
 #endif // PIDWIDGET_H

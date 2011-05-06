@@ -15,7 +15,7 @@ PIDWidget::PIDWidget(PIDController *pid, QWidget *parent) :
     QLayout* l = new QBoxLayout(QBoxLayout::LeftToRight);
     plot = new QwtPlot(this);
     l->addWidget(plot);
-    this->setLayout(l);
+    ui->plotWidget->setLayout(l);
 
     plot->setAxisScale(QwtPlot::yLeft,-1,6);
     plot->setAxisScale(QwtPlot::xBottom,0,300);

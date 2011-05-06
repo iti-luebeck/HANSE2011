@@ -10,11 +10,12 @@ class PIDController : public QObject
 
 public:
     PIDController();
-    double nextControlValue(double setpoint, double actual);
+    double nextControlValue(double setpoint, double actual, bool &ok);
     void reset();
 
+public slots:
     void setValues(double Kp, double Ti = 0, double Td = 0, double offset = 0, double min = std::numeric_limits<double>::min(),
-                   double max = std::numeric_limits<double>::max(), double minHysteresis = 0, double maxHysteresis = 0);
+                   double max = std::numeric_limits<double>::max(), double minHysteresis = 0, double maxHysteresis = 0, double minUpdateTime = 0.5);
 
 private:
     double ticks;
@@ -29,6 +30,8 @@ private:
 
     double minHysteresis;
     double maxHysteresis;
+
+    double minUpdateTime;
 
     double lastTime;
     double lastu;

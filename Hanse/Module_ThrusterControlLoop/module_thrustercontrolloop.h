@@ -147,6 +147,8 @@ signals:
     void setRightThruster(float speed);
     void setUpDownThrusterBack(float speed);
     void setUpDownThrusterFront(float speed);
+
+    void healthStatusChanged(RobotModule *module);
 };
 
 #endif // MODULE_THRUSTERCONTROLLOOP_H

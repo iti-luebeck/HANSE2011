@@ -109,7 +109,14 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
     if (control_loop_enabled) {
         // Speed of the UpDownThruster:
         // TODO: PRESUMPTION: speed>0.0 means UP
-        float speed = pidController->nextControlValue(setvalueDepth, depth);
+        bool ok = true;
+        float speed = pidController->nextControlValue(setvalueDepth, depth, ok);
+        if (ok) {
+            setHealthToOk();
+        } else {
+            setHealthToSick("zu lange kein neuer Wert");
+        }
+        emit healthStatusChanged(this);
 
         //// Health-Check ////
         // Can we believe the pressure sensor?

@@ -9,7 +9,7 @@ PIDController::PIDController()
 //    stest = 1.5;
 }
 
-void PIDController::setValues(double Kp, double Ti, double Td, double offset, double min, double max, double minHysteresis, double maxHysteresis)
+void PIDController::setValues(double Kp, double Ti, double Td, double offset, double min, double max, double minHysteresis, double maxHysteresis, double minUpdateTime)
 {
     this->Kp = Kp;
     this->Ti = Ti;
@@ -21,11 +21,21 @@ void PIDController::setValues(double Kp, double Ti, double Td, double offset, do
 
     this->minHysteresis = minHysteresis;
     this->maxHysteresis = maxHysteresis;
+
+    this->minUpdateTime = minUpdateTime;
 }
 
-double PIDController::nextControlValue(double setpoint, double actual)
+double PIDController::nextControlValue(double setpoint, double actual, bool &ok)
 {
     double time = ((double)QDateTime::currentMSecsSinceEpoch()) / 1000;
+
+    if (time > minUpdateTime) {
+        time = minUpdateTime;
+        ok = false;
+    } else {
+        ok = true;
+    }
+
     double e = setpoint - actual;
     double u = 0;
 
@@ -72,7 +82,8 @@ void PIDController::test()
     double deltaT = time - lastTime;
     double T = 0.5;
 
-    double u = nextControlValue(stest, y);
+    bool ok;
+    double u = nextControlValue(stest, y, ok);
     if (ticks > 1) {
         // Simulation mit PT1-Strecke.
 //        y = (1 / (T/deltaT + 1)) * (u + (T/deltaT)*y); // PT1
