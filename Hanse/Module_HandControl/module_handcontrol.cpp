@@ -163,9 +163,9 @@ void Module_HandControl::sendNewControls()
         emit setAngularSpeed(angularSpeed/divLR);
         emit setForwardSpeed(forwardSpeed/divFw);
         if(speedUpDown < 0)
-            divUD = 0;
-        logger->debug("emit signal to tcl containing depth: "+QString::number(divUD));
-        emit setDepth(divUD);
+            speedUpDown = 0;
+        logger->debug("emit signal to tcl containing depth: "+QString::number(speedUpDown));
+        emit setDepth(speedUpDown/divUD);
     }
     
     dataLockerMutex.unlock();

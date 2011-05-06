@@ -2,11 +2,16 @@
 
 PIDController::PIDController()
 {
-    setValues(0.0);
+    setValues(-1.0, 0.1, 0.0, 0.0, -1.0, 1.0, 0.0, 0.2, 0.5);
 
     y = 0;
 //    QTimer::singleShot(100, this, SLOT(test()));
-//    stest = 1.5;
+    stest = 1.5;
+    ticks = 0;
+    lastu = 0;
+    laste = 0;
+    lastlaste = 0;
+    lastTime = ((double)QDateTime::currentMSecsSinceEpoch()) / 1000;
 }
 
 void PIDController::setValues(double Kp, double Ti, double Td, double offset, double min, double max, double minHysteresis, double maxHysteresis, double minUpdateTime)
@@ -29,20 +34,26 @@ double PIDController::nextControlValue(double setpoint, double actual, bool &ok)
 {
     double time = ((double)QDateTime::currentMSecsSinceEpoch()) / 1000;
 
-    if (time > minUpdateTime) {
-        time = minUpdateTime;
+    double e = setpoint - actual;
+    double u = 0;
+
+    double deltaT = 0.01;
+    if (ticks > 1) {
+        deltaT = time - lastTime;
+    }
+
+    if (deltaT > minUpdateTime) {
+        deltaT = minUpdateTime;
         ok = false;
     } else {
         ok = true;
     }
-
-    double e = setpoint - actual;
-    double u = 0;
-
-    if (ticks > 1) {
-        double deltaT = time - lastTime;
-        u = lastu + Kp * ((1 + deltaT*Ti + Td/deltaT)*e - (1 + 2*Td/deltaT)*laste + (Td/deltaT)*lastlaste);
+    if (deltaT <= 0.001){
+        deltaT = 0.001;
     }
+
+    double deltaU = Kp * ((1 + deltaT*Ti + Td/deltaT)*e - (1 + 2*Td/deltaT)*laste + (Td/deltaT)*lastlaste);
+    u = lastu + deltaU;
 
     if (setpoint >= minHysteresis && setpoint <= maxHysteresis &&
         actual >= minHysteresis && actual <= maxHysteresis) {
@@ -55,6 +66,9 @@ double PIDController::nextControlValue(double setpoint, double actual, bool &ok)
     } else if (u > max) {
         u = max;
     }
+
+    qDebug(" 1 deltaT: %f, laste: %f, e: %f, lastu: %f", deltaT, laste, e, lastu);
+    qDebug(" 2 deltaU: %f, u: %f", deltaU, u);
 
     lastTime = time;
     lastu = u;
@@ -78,9 +92,10 @@ void PIDController::reset()
 
 void PIDController::test()
 {
+//    setValues(-1.0, 0.0, 0.0, 0.0, -10.0, 10.0, 0.0, 0.2, 0.5);
     double time = ((double)QDateTime::currentMSecsSinceEpoch()) / 1000;
     double deltaT = time - lastTime;
-    double T = 0.5;
+    double T = 0.2;
 
     bool ok;
     double u = nextControlValue(stest, y, ok);
@@ -89,7 +104,7 @@ void PIDController::test()
 //        y = (1 / (T/deltaT + 1)) * (u + (T/deltaT)*y); // PT1
 
         // Simulation mit reiner I-Strecke, Auftrieb -> 0.1
-        y = y + (deltaT / T) * (u - 0.1);
+        y = y + (deltaT / T) * (-u - 0.1);
         if (y < 0) y = 0;
     }
     if (ticks == 200) stest = 0.5;

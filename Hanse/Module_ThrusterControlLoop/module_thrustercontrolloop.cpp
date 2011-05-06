@@ -32,6 +32,7 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     setDefaultValue("ignoreHealth", false);
 
     pidController = new PIDController();
+    pidController->setValues(Kp, Ti, Td, neutralSpeed, minSpeed, maxSpeed);
 }
 
 void Module_ThrusterControlLoop::terminate()

@@ -22,7 +22,7 @@ OBJECTS_DIR = tmp/obj
 OTHER_FILES += bin/log4qt.properties bin/ITI/Hanse.ini \
     TaskHandControl/TaskHandControl.pri
 
-QMAKE_CXXFLAGS += -O2 -funroll-loops -msse2 -mfpmath=sse
+# QMAKE_CXXFLAGS += -O2 -funroll-loops -msse2 -mfpmath=sse
 
 # external libraries
 include(../log4qt/log4qt.pri)
