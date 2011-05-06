@@ -30,9 +30,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     setEnabled(false);
     running = false;
 
-    if(!this->handControl->isEnabled()){
-        this->handControl->setEnabled(true);
-    }
+
 
     // Command center specific signals
     connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
@@ -90,7 +88,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(taskhandcontrol, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     connect(this,SIGNAL(startTaskHandControl()),taskhandcontrol,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskHandControl()),taskhandcontrol,SLOT(stop()));
-    //connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
+    connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
     connect(taskhandcontrol,SIGNAL(handControlFinished()),this,SLOT(handControlFinished()));
 
 
@@ -118,8 +116,18 @@ void CommandCenter::startCommandCenter(){
     running = true;
     this->setEnabled(true);
 
+
+
+
+    // No Handcontrol, it is commandcenter time!
+    if(this->handControl->isEnabled()){
+        this->handControl->setEnabled(false);
+    }
+
     // Every task needs thruster
-    this->tcl->setEnabled(true);
+    if(!this->tcl->isEnabled()){
+        this->tcl->setEnabled(true);
+    }
 
     logger->info("CommandCenter started");
 
@@ -155,14 +163,24 @@ void CommandCenter::stopCommandCenter(){
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
 
-    this->setEnabled(false);
+
     if (sim->isEnabled())
     {
 
     }
+
+    if(!this->handControl->isEnabled()){
+        this->handControl->setEnabled(true);
+        this->tcl->setEnabled(true);
+    }
 }
 
 void CommandCenter::commandCenterControl(){
+
+    if(!this->tcl->isEnabled()){
+        this->tcl->setEnabled(true);
+    }
+
     if(!schedule.isEmpty() & this->isEnabled()){
         qDebug("Commandcenter control; Next scheduled task:");
         QString temp=schedule.last();
@@ -238,7 +256,7 @@ void CommandCenter::commandCenterControl(){
             emit startTaskThrusterControl();
             emit newList("");
             emit currentTask(tempAkt);
-            lTask = tempAkt;  
+            lTask = tempAkt;
         } else if(tempAkt == "Pipe1"){
             emit setTaskPipeFollowing(1);
             emit startTaskPipeFollowing();
@@ -296,14 +314,22 @@ void CommandCenter::commandCenterControl(){
 void CommandCenter::finishedControl(RobotBehaviour *, bool success){
     // Evaluate task success
 
-    emit setAngularSpeed(0.0);
-    emit setForwardSpeed(0.0);
-    if(this->getSettingsValue("subEx").toBool() == true){
-        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
-    } else {
-        emit setDepth(0.0);
+
+    if(!this->isEnabled() && !this->handControl->isEnabled()){
+        this->handControl->setEnabled(true);
+        this->tcl->setEnabled(true);
+        qDebug("WUUUUUUUHUUU");
     }
 
+    emit setAngularSpeed(0.0);
+    emit setForwardSpeed(0.0);
+    if(this->isEnabled()){
+        if(this->getSettingsValue("subEx").toBool() == true){
+            emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+        } else {
+            emit setDepth(0.0);
+        }
+    }
     if(success==true){
         qDebug("One task has finished successfully");
         emit newList(lTask);
@@ -410,8 +436,8 @@ void CommandCenter::handControlFinished(){
         emit setDepth(0.0);
     }
 
-        qDebug("Handcontrol has finished successfully");
-        emit newList(lTask);
+    qDebug("Handcontrol has finished successfully");
+    emit newList(lTask);
 
     if(this->isEnabled()){
         // Stop thruster, then make next task...

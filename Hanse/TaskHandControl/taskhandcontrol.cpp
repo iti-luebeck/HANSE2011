@@ -53,12 +53,13 @@ void TaskHandControl::startBehaviour(){
     setEnabled(true);
     emit started(this);
     running = true;
-    if(!this->thrustercontrolloop->isEnabled()){
-        this->thrustercontrolloop->setEnabled(true);
-    }
 
     if(!this->handcontrol->isEnabled()){
         this->handcontrol->setEnabled(true);
+    }
+
+    if(!this->thrustercontrolloop->isEnabled()){
+        this->thrustercontrolloop->setEnabled(true);
     }
 }
 
@@ -69,11 +70,11 @@ void TaskHandControl::stop(){
     if (this->isActive())
     {
 
+
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);
 
         this->setEnabled(false);
-
 
         emit finished(this,true);
     }
@@ -87,6 +88,7 @@ void TaskHandControl::emergencyStop()
 
     if (this->isActive())
     {
+        this->handcontrol->setEnabled(false);
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);
         emit setDepth(0.0);
