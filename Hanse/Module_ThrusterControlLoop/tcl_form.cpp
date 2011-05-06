@@ -19,6 +19,8 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
     ui->maxEdit->setText(module->getSettingsValue("maxSpeed").toString());
     ui->forceUnpauseError->setText(module->getSettingsValue("forceUnpauseError").toString());
 
+    ui->pidCheckBox->setChecked(module->getSettingsValue("use pid").toBool());
+
     ui->horizSpM_exp->setChecked( module->getSettingsValue("horizSpM_exp").toBool() );
 
     connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
@@ -55,6 +57,8 @@ void TCL_Form::on_save_clicked()
     module->setSettingsValue("minSpeed", ui->minEdit->text().toFloat());
     module->setSettingsValue("maxSpeed", ui->maxEdit->text().toFloat());
     module->setSettingsValue("forceUnpauseError", ui->forceUnpauseError->text());
+
+    module->setSettingsValue("use pid", ui->pidCheckBox->isChecked());
 
     module->setSettingsValue("horizSpM_exp", ui->horizSpM_exp->isChecked() );
     module->setSettingsValue("ignoreHealth", ui->ignoreHealth->isChecked() );

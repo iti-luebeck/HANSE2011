@@ -24,15 +24,15 @@
        <string>Config</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
           <string>Kp</string>
          </property>
         </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="kpEdit"/>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_2">
@@ -84,6 +84,16 @@
        <item row="5" column="1">
         <widget class="QLineEdit" name="maxEdit"/>
        </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Force unpause max error:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="forceUnpauseError"/>
+       </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
@@ -102,6 +112,13 @@
         </widget>
        </item>
        <item row="9" column="1">
+        <widget class="QCheckBox" name="ignoreHealth">
+         <property name="text">
+          <string>ignore health of pressure sensor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
         <widget class="QPushButton" name="save">
          <property name="text">
           <string>Apply &amp;&amp; Save</string>
@@ -111,22 +128,15 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="kpEdit"/>
+       </item>
        <item row="8" column="1">
-        <widget class="QCheckBox" name="ignoreHealth">
+        <widget class="QCheckBox" name="pidCheckBox">
          <property name="text">
-          <string>ignore health of pressure sensor</string>
+          <string>use PID</string>
          </property>
         </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Force unpause max error:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLineEdit" name="forceUnpauseError"/>
        </item>
       </layout>
      </widget>

@@ -27,6 +27,7 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     setDefaultValue("neutralSpeed", 0.0);
     setDefaultValue("minHysteresis", 0.0);
     setDefaultValue("maxHysteresis", 0.2);
+    setDefaultValue("use pid", true);
 
     setDefaultValue("horizSpM_exp", false);
     setDefaultValue("ignoreHealth", false);
@@ -110,14 +111,22 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
     if (control_loop_enabled) {
         // Speed of the UpDownThruster:
         // TODO: PRESUMPTION: speed>0.0 means UP
-        bool ok = true;
-        float speed = pidController->nextControlValue(setvalueDepth, depth, ok);
-        if (ok) {
-            setHealthToOk();
+
+        float speed = 0;
+        if (getSettingsValue("use pid").toBool()) {
+            bool ok = true;
+            speed = pidController->nextControlValue(setvalueDepth, depth, ok);
+            if (ok) {
+                setHealthToOk();
+            } else {
+                setHealthToSick("zu lange kein neuer Wert");
+            }
+            emit healthStatusChanged(this);
         } else {
-            setHealthToSick("zu lange kein neuer Wert");
+            speed = Kp * (setvalueDepth - depth);
+            if (speed < minSpeed) speed = minSpeed;
+            if (speed > maxSpeed) speed = maxSpeed;
         }
-        emit healthStatusChanged(this);
 
         //// Health-Check ////
         // Can we believe the pressure sensor?
