@@ -113,6 +113,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
         // TODO: PRESUMPTION: speed>0.0 means UP
 
         float speed = 0;
+
         if (getSettingsValue("use pid").toBool()) {
             bool ok = true;
             speed = pidController->nextControlValue(setvalueDepth, depth, ok);
