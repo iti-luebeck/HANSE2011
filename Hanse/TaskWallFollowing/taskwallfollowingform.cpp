@@ -11,7 +11,7 @@ TaskWallFollowingForm::TaskWallFollowingForm(TaskWallFollowing *tw, QWidget *par
     connect(taskwallfollowing,SIGNAL(getUiSettings()),this,SLOT(on_applyButton_clicked()));
     connect(taskwallfollowing,SIGNAL(setDescriptionSignal()),this,SLOT(returnDescription()));
     connect(this,SIGNAL(newSchDesSignal(QString, QString)),taskwallfollowing,SLOT(newSchDesSlot(QString, QString)));
-
+    connect(this, SIGNAL(updateTaskSettingsSignal()), taskwallfollowing, SLOT(updateTaskSettingsSlot()));
 
     // Show settings from taskwallfollowing
     this->ui->forwardInput1->setText(this->taskwallfollowing->getSettingsValue("forwardSpeed1").toString());

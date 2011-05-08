@@ -28,7 +28,8 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
 
-    this->scheduledTasks.clear();
+        qDebug("Blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+   // this->scheduledTasks.clear();
     this->scheduledTasks.append("Wall1");
     this->scheduledTasks.append("Wall2");
     this->scheduledTasks.append("Wall3");

@@ -38,7 +38,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStopCommandCenter()));
-    connect(handControl, SIGNAL(startHandControl()), this, SLOT(startHandControl()));
+    connect(handControl, SIGNAL(startHandControl()), this, SLOT(startTaskHandControlCC()));
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
     connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
 
@@ -374,7 +374,7 @@ void CommandCenter::submergedExecute(){
 
 void CommandCenter::terminate(){
     RobotModule::terminate();
-    this->stopAllTasks();
+    emit stopAllTasks();
     this->stopCommandCenter();
 }
 
@@ -411,7 +411,6 @@ void CommandCenter::setDescriptionSlot(){
 void CommandCenter::emergencyStopCommandCenter(){
     controlTimer.stop();
     logger ->info("Emergency stop, stop and deactivate all task - handcontrol active");
-    this->stopAllTasks();
     //schedule.clear();
     emit stopAllTasks();
     emit resetTCL();
@@ -444,4 +443,21 @@ void CommandCenter::handControlFinished(){
         controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
     }
 
+}
+
+void CommandCenter::startTaskHandControlCC(){
+    controlTimer.stop();
+    logger ->info("Stop and deactivate all task - handcontrol active");
+    //schedule.clear();
+    emit stopAllTasks();
+    emit resetTCL();
+
+    emit startTaskHandControl();
+    emit newList("");
+    emit currentTask("HandControl");
+    lTask = "HandControl";
+
+    emit setDepth(0.0);
+    emit setForwardSpeed(0.0);
+    emit setAngularSpeed(0.0);
 }

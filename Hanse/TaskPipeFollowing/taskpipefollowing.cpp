@@ -12,6 +12,7 @@ TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Mod
     this->pipe = w;
     this->pipe->setEnabled(false);
     connect(this,SIGNAL(setUpdatePixmapSignal(bool)),pipe,SLOT(setUpdatePixmapSlot(bool)));
+    connect(this, SIGNAL(setRunDataSignal(int)), this, SLOT(setRunData(int)));
 
     setEnabled(false);
     running = false;
@@ -111,9 +112,7 @@ void TaskPipeFollowing::startBehaviour(){
 }
 
 void TaskPipeFollowing::setRunData(int taskNr){
-
-    qDebug("muhasdhashdashdhsdhasd");
-    qDebug()<<this->getSettingsValue("checkBox").toBool();
+    tempTask = taskNr;
     if(taskNr == 3){
         emit setUpdatePixmapSignal(this->getSettingsValue("enableUIOutput1").toBool());
         this->pipe->setSettingsValue("timer",this->getSettingsValue("timer3"));
@@ -225,4 +224,9 @@ void TaskPipeFollowing::newSchDesSlot(QString taskName,  QString newD){
 
 void TaskPipeFollowing::setDescriptionSlot(){
     emit setDescriptionSignal();
+}
+
+void TaskPipeFollowing::updateTaskSettingsSlot(){
+    emit setRunDataSignal(tempTask);
+    this->pipe->updateFromSettings();
 }

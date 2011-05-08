@@ -23,7 +23,7 @@ public:
 
     QTimer testTimer;
 
-
+    int tempTask;
 
 private:
     void init();
@@ -46,6 +46,9 @@ signals:
     void setDescriptionSignal();
     void setUpdatePixmapSignal(bool b);
 
+    void setRunDataSignal(int);
+
+
 public slots:
     void startBehaviour();
     void stop();
@@ -54,6 +57,7 @@ public slots:
 
     void newSchDesSlot(QString taskName, QString newD);
     void setDescriptionSlot();
+    void updateTaskSettingsSlot();
 
 };
 

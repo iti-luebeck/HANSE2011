@@ -23,7 +23,7 @@ public:
 
     QTimer testTimer;
 
-
+    int tempTask;
 
 private:
     void init();
@@ -44,6 +44,7 @@ signals:
 
     void newSchDesSignal(QString taskName, QString newD);
     void setDescriptionSignal();
+    void setRunDataSignal(int);
 
 public slots:
     void startBehaviour();
@@ -53,6 +54,8 @@ public slots:
 
     void newSchDesSlot(QString taskName, QString newD);
     void setDescriptionSlot();
+
+    void updateTaskSettingsSlot();
 
 };
 

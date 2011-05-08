@@ -12,6 +12,8 @@ TaskPipeFollowingForm::TaskPipeFollowingForm(TaskPipeFollowing *tpf, QWidget *pa
     connect(taskpipefollowing,SIGNAL(setDescriptionSignal()),this,SLOT(returnDescription()));
     connect(this,SIGNAL(newSchDesSignal(QString, QString)),taskpipefollowing,SLOT(newSchDesSlot(QString, QString)));
 
+    connect(this, SIGNAL(updateTaskSettingsSignal()), taskpipefollowing, SLOT(updateTaskSettingsSlot()));
+
     // Show settings from taskpipefollowing
     this->ui->badFramesLineEdit1->setText(taskpipefollowing->getSettingsValue("badFrames1").toString());
     this->ui->camHeightLineEdit1->setText(taskpipefollowing->getSettingsValue("camHeight1").toString());
@@ -237,6 +239,8 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     this->taskpipefollowing->setSettingsValue("taskDuration3", this->ui->durationInput3->text());
     this->taskpipefollowing->setSettingsValue("description3", this->ui->descriptionInput3->text());
     emit newSchDesSignal("Pipe3", this->ui->descriptionInput3->text());
+
+    emit updateTaskSettingsSignal();
 }
 
 void TaskPipeFollowingForm::returnDescription(){

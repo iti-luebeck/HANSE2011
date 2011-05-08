@@ -32,6 +32,7 @@ private:
 
 signals:
     void newSchDesSignal(QString taskName, QString newD);
+    void updateTaskSettingsSignal();
 
 public slots:
     void on_applyButton_clicked();

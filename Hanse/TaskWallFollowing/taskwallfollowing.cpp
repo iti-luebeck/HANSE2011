@@ -39,6 +39,8 @@ TaskWallFollowing::TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Mod
 
     testTimer.setSingleShot(true);
     testTimer.moveToThread(this);
+
+    connect(this, SIGNAL(setRunDataSignal(int)), this, SLOT(setRunData(int)));
 }
 
 bool TaskWallFollowing::isActive(){
@@ -72,6 +74,7 @@ void TaskWallFollowing::startBehaviour(){
 }
 
 void TaskWallFollowing::setRunData(int taskNr){
+    tempTask = taskNr;
     if(taskNr == 3){
         this->setSettingsValue("taskDuration", this->getSettingsValue("taskDuration3"));
         this->wall->setSettingsValue("desiredDistance", this->getSettingsValue("desiredDistance3"));
@@ -150,4 +153,9 @@ void TaskWallFollowing::newSchDesSlot(QString taskName,  QString newD){
 
 void TaskWallFollowing::setDescriptionSlot(){
     emit setDescriptionSignal();
+}
+
+void TaskWallFollowing::updateTaskSettingsSlot(){
+    emit setRunDataSignal(tempTask);
+    this->wall->updateFromSettings();
 }

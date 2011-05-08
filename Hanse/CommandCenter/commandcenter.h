@@ -65,6 +65,7 @@ public slots:
     void stopCommandCenter();
 
     void emergencyStopCommandCenter();
+    void startTaskHandControlCC();
 
     void reset();
     void terminate();

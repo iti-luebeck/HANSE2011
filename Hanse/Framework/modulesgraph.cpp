@@ -15,7 +15,7 @@
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 #include <Module_Webcams/module_webcams.h>
-#include <MetaBehaviour/metabehaviour.h>
+//#include <MetaBehaviour/metabehaviour.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 #include <Module_ADC/module_adc.h>
@@ -152,9 +152,9 @@ void ModulesGraph::build()
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
-    logger->debug("Creating MetaBehaviour");
-    MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn, behavWall, commCent);
-    this->modules.append(metaBehaviour);
+    //logger->debug("Creating MetaBehaviour");
+    //MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn, behavWall, commCent);
+    //this->modules.append(metaBehaviour);
 
 
     logger->info("Loading all Modules... Done");
