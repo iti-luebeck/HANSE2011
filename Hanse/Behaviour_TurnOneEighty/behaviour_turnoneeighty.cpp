@@ -2,12 +2,14 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_Compass/module_compass.h>
 #include <Behaviour_TurnOneEighty/form_turnoneeighty.h>
+#include <Module_XsensMTi/module_xsensmti.h>
 
-Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass ) :
+Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass, Module_XsensMTi *x) :
         RobotBehaviour( id )
 {
     this->tcl = tcl;
     this->compass = compass;
+    this->xsens = x;
 
 }
 
@@ -49,15 +51,15 @@ void Behaviour_TurnOneEighty::stop()
     {
         logger->debug( "Behaviour stopped" );
         emit setAngularSpeed(0.0);
-//       tcl->setAngularSpeed(0.0);
-       setEnabled( false );
-       emit finished( this, true );
-   }
+        //       tcl->setAngularSpeed(0.0);
+        setEnabled( false );
+        emit finished( this, true );
+    }
 }
 
 void Behaviour_TurnOneEighty::terminate()
 {
-//    QTimer::singleShot(0,this,SLOT(stop()));
+    //    QTimer::singleShot(0,this,SLOT(stop()));
     this->stop();
     RobotModule::terminate();
 }
@@ -69,12 +71,20 @@ bool Behaviour_TurnOneEighty::isActive()
 
 void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
 {
-//    qDebug() << "turn compass thread id";
-//    qDebug() << QThread::currentThreadId();
+    //    qDebug() << "turn compass thread id";
+    //    qDebug() << QThread::currentThreadId();
     if ( isActive() )
     {
         this->dataLockerMutex.lock();
-        double currentHeading = compass->getHeading();
+        double currentHeading = 0.0;
+        if(this->xsens->isEnabled()){
+            qDebug("get xsens heading");
+            currentHeading = this->xsens->getHeading();
+        } else {
+            qDebug("get compass heading");
+            currentHeading = compass->getHeading();
+        }
+
         double targetHeading = initialHeading + 180;
         if ( targetHeading > 360 )
         {
@@ -105,7 +115,7 @@ void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
             diffHeading /= 180;
             double angularSpeed = getSettingsValue( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
             emit setAngularSpeed(angularSpeed);
-//            tcl->setAngularSpeed( angularSpeed );
+            //            tcl->setAngularSpeed( angularSpeed );
         }
 
         dataChanged( this );
@@ -115,8 +125,8 @@ void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
 
 void Behaviour_TurnOneEighty::initialHeadingUpdate()
 {
-//    qDebug() << "turn thread id";
-//    qDebug() << QThread::currentThreadId();
+    //    qDebug() << "turn thread id";
+    //    qDebug() << QThread::currentThreadId();
     this->dataLockerMutex.lock();
     initialHeading = compass->getHeading();
     logger->debug( "initial heading set to %f°", initialHeading );

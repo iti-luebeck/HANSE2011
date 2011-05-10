@@ -113,7 +113,7 @@ void ModulesGraph::build()
     this->modules.append(behavBall);
 
     logger->debug("Creating Behaviour_TurnOneEighty");
-    Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass);
+    Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass, xsens);
     this->modules.append(behavTurn);
 
     logger->debug("Creating Behaviour_WallFollowing");

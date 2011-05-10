@@ -8,12 +8,13 @@
 
 class Module_ThrusterControlLoop;
 class Module_Compass;
+class Module_XsensMTi;
 
 class Behaviour_TurnOneEighty : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass );
+    Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass, Module_XsensMTi *x);
     QList<RobotModule*> getDependencies();
     QWidget* createView(QWidget *parent);
 
@@ -31,6 +32,7 @@ private:
     Module_Compass *compass;
     double initialHeading;
     void init();
+    Module_XsensMTi *xsens;
 
 signals:
     void setAngularSpeed(float angularSpeed);
