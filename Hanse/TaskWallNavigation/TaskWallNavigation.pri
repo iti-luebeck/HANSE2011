@@ -6,3 +6,4 @@ SOURCES += TaskWallNavigation/taskwallnavigationform.cpp \
     TaskWallNavigation/taskwallnavigation.cpp
 
 FORMS += TaskWallNavigation/taskwallnavigationform.ui
+

@@ -24,12 +24,9 @@
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 #include <CommandCenter/commandcenter.h>
-#include <TaskWallFollowing/taskwallfollowing.h>
 #include "SoToSleep.h"
-#include <TaskThrusterControl/taskthrustercontrol.h>
-#include <TaskTurn/taskturn.h>
-#include <TaskPipeFollowing/taskpipefollowing.h>
 #include <TaskHandControl/taskhandcontrol.h>
+#include <TaskWallNavigation/taskwallnavigation.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -127,28 +124,16 @@ void ModulesGraph::build()
     //    Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
     //    this->modules.append(behavComp);
 
-    logger->debug("Creating TaskPipeFollowing");
-    TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipe", behavPipe, sim);
-    this->modules.append(taskpipefollowing);
-
-    logger->debug("Creating TaskThrusterControl");
-    TaskThrusterControl *taskthrustercontrol = new TaskThrusterControl("taskThruster", controlLoop, sim);
-    this->modules.append(taskthrustercontrol);
-
-    logger->debug("Creating TaskTurn");
-    TaskTurn *taskturn = new TaskTurn("taskTurn", controlLoop, pressure, compass, xsens, sim);
-    this->modules.append(taskturn);
-
-    logger->debug("Creating TaskWallFollowing");
-    TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWall", behavWall, sim);
-    this->modules.append(taskwallfollowing);
+    logger->debug("Creating TaskWallNavigation");
+    TaskWallNavigation *taskwallnavigation = new TaskWallNavigation("taskWallNavi",sim, behavWall, navi);
+    this->modules.append(taskwallnavigation);
 
     logger->debug("Creating TaskHandControl");
     TaskHandControl *taskhandcontrol = new TaskHandControl("taskHand", controlLoop, sim, handControl);
     this->modules.append(taskhandcontrol);
 
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, taskwallfollowing, taskthrustercontrol, taskpipefollowing, taskturn, taskhandcontrol);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, taskhandcontrol, taskwallnavigation);
     this->modules.append(commCent);
 
     // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules

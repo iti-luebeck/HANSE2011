@@ -36,8 +36,6 @@ signals:
 
 public slots:
     void on_applyButton_clicked();
-    void returnDescription();
-
 };
 
 #endif // TASKWALLNAVIGATIONFORM_H

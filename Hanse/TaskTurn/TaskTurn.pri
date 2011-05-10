@@ -1,8 +1,6 @@
-HEADERS += TaskTurn/taskturnform.h \
-    TaskTurn/taskturn.h
+HEADERS +=
 
 
-SOURCES += TaskTurn/taskturnform.cpp \
-    TaskTurn/taskturn.cpp
+SOURCES +=
 
 FORMS += TaskTurn/taskturnform.ui

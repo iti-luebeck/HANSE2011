@@ -6,3 +6,4 @@ SOURCES += TaskHandControl/taskhandcontrolform.cpp \
     TaskHandControl/taskhandcontrol.cpp
 
 FORMS += TaskHandControl/taskhandcontrolform.ui
+

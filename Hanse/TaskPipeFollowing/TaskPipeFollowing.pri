@@ -1,8 +1,6 @@
-HEADERS += TaskPipeFollowing/taskpipefollowingform.h \
-    TaskPipeFollowing/taskpipefollowing.h
+HEADERS +=
 
 
-SOURCES += TaskPipeFollowing/taskpipefollowingform.cpp \
-    TaskPipeFollowing/taskpipefollowing.cpp
+SOURCES +=
 
-FORMS += TaskPipeFollowing/taskpipefollowingform.ui
+FORMS +=

@@ -8,10 +8,7 @@ TaskWallNavigationForm::TaskWallNavigationForm(TaskWallNavigation *twn, QWidget 
     ui->setupUi(this);
     this->taskwallnavigation = twn;
 
-    connect(taskwallnavigation,SIGNAL(getUiSettings()),this,SLOT(on_applyButton_clicked()));
-    connect(taskwallnavigation,SIGNAL(setDescriptionSignal()),this,SLOT(returnDescription()));
-    connect(this,SIGNAL(newSchDesSignal(QString, QString)),taskwallnavigation,SLOT(newSchDesSlot(QString, QString)));
-    connect(this, SIGNAL(updateTaskSettingsSignal()), taskwallnavigation, SLOT(updateTaskSettingsSlot()));
+    connect(taskwallnavigation,SIGNAL(updateSettings()),this,SLOT(on_applyButton_clicked()));
 
     // Show settings from taskwallfollowing
     this->ui->forwardInput->setText(this->taskwallnavigation->getSettingsValue("forwardSpeed").toString());
@@ -19,11 +16,18 @@ TaskWallNavigationForm::TaskWallNavigationForm(TaskWallNavigation *twn, QWidget 
     this->ui->desiredDistanceInput->setText(this->taskwallnavigation->getSettingsValue("desiredDistance").toString());
     this->ui->corridorInput->setText(this->taskwallnavigation->getSettingsValue("corridorWidth").toString());
     this->ui->durationInput->setText(this->taskwallnavigation->getSettingsValue("taskDuration").toString());
-    this->ui->descriptionInput->setText(this->taskwallnavigation->getSettingsValue("description").toString());
 
+
+    this->ui->startInput->setText(this->taskwallnavigation->getSettingsValue("startNavigation").toString());
+    this->ui->startToleranceInput->setText(this->taskwallnavigation->getSettingsValue("startTolerance").toString());
+
+    this->ui->targetInput->setText(this->taskwallnavigation->getSettingsValue("targetNavigation").toString());
+    this->ui->targetToleranceInput->setText(this->taskwallnavigation->getSettingsValue("targetTolerance").toString());
+    this->ui->enableTimerBox->setChecked(this->taskwallnavigation->getSettingsValue("timerActivated").toBool());
+    this->ui->enableLoopBox->setChecked(this->taskwallnavigation->getSettingsValue("loopActivated").toBool());
 }
 
-TaskWallNavigationForm::~TaskWallFollowingForm()
+TaskWallNavigationForm::~TaskWallNavigationForm()
 {
     delete ui;
 }
@@ -47,12 +51,21 @@ void TaskWallNavigationForm::on_applyButton_clicked(){
     this->taskwallnavigation->setSettingsValue("desiredDistance" ,this->ui->desiredDistanceInput->text());
     this->taskwallnavigation->setSettingsValue("corridorWidth" ,this->ui->corridorInput->text());
     this->taskwallnavigation->setSettingsValue("taskDuration", this->ui->durationInput->text());
-    this->taskwallnavigation->setSettingsValue("description", this->ui->descriptionInput->text());
-    this->taskwallnavigation->setSettingsValue("navigationTarget", this->ui->startInput->text());
-    this->taskwallnavigation->setSettingsValue("navigationStart", this->ui->targetInput->text());
-    emit newSchDesSignal("Wall1", this->ui->descriptionInput1->text());
 
+    this->taskwallnavigation->setSettingsValue("startNavigation", this->ui->targetInput->text());
+    this->taskwallnavigation->setSettingsValue("startTolerance", this->ui->startToleranceInput->text());
 
+    this->taskwallnavigation->setSettingsValue("targetNavigation", this->ui->startInput->text());
+    this->taskwallnavigation->setSettingsValue("targetTolerance", this->ui->targetToleranceInput->text());
+
+    this->taskwallnavigation->setSettingsValue("timerActivated", this->ui->enableTimerBox->isChecked());
+    this->taskwallnavigation->setSettingsValue("loopActivated", this->ui->enableLoopBox->isChecked());
+
+    qDebug("Timer?");
+    qDebug()<<this->ui->enableTimerBox->isChecked();
+
+    qDebug("Loop?");
+    qDebug()<<this->ui->enableLoopBox->isChecked();
 }
 
 

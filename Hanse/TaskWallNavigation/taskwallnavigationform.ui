@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>480</height>
+    <height>644</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <rect>
      <x>20</x>
      <y>30</y>
-     <width>291</width>
+     <width>601</width>
      <height>371</height>
     </rect>
    </property>
@@ -29,7 +29,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>210</y>
+      <y>180</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -39,7 +39,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>250</y>
+      <y>220</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -49,7 +49,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>170</y>
+      <y>140</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -59,7 +59,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>130</y>
+      <y>100</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -69,7 +69,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>90</y>
+      <y>60</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -79,7 +79,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>60</y>
       <width>151</width>
       <height>17</height>
      </rect>
@@ -92,7 +92,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>130</y>
+      <y>100</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -105,7 +105,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>170</y>
+      <y>140</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -118,7 +118,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>210</y>
+      <y>180</y>
       <width>111</width>
       <height>17</height>
      </rect>
@@ -131,7 +131,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>250</y>
+      <y>220</y>
       <width>101</width>
       <height>17</height>
      </rect>
@@ -140,35 +140,12 @@
      <string>Angular speed:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_15">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Description:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="descriptionInput">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>271</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>290</y>
-      <width>101</width>
+      <x>310</x>
+      <y>130</y>
+      <width>121</width>
       <height>17</height>
      </rect>
     </property>
@@ -179,8 +156,8 @@
    <widget class="QLineEdit" name="startInput">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>290</y>
+      <x>450</x>
+      <y>130</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -189,9 +166,9 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>330</y>
-      <width>101</width>
+      <x>300</x>
+      <y>200</y>
+      <width>141</width>
       <height>17</height>
      </rect>
     </property>
@@ -202,26 +179,98 @@
    <widget class="QLineEdit" name="targetInput">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>330</y>
+      <x>450</x>
+      <y>200</y>
       <width>113</width>
       <height>27</height>
      </rect>
     </property>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="applyButton">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>410</y>
-     <width>291</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>APPLY SETTINGS</string>
-   </property>
+   <widget class="QPushButton" name="applyButton">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>320</y>
+      <width>591</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>APPLY SETTINGS</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>160</y>
+      <width>121</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start tolerance:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="startToleranceInput">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>160</y>
+      <width>113</width>
+      <height>27</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="targetToleranceInput">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>230</y>
+      <width>113</width>
+      <height>27</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>230</y>
+      <width>141</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Target tolerance:</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="enableTimerBox">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>60</y>
+      <width>161</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Enable timer</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="enableLoopBox">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>90</y>
+      <width>141</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Enable task loop</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

@@ -1,9 +1,6 @@
-HEADERS += TaskThrusterControl/taskthrustercontrolform.h \
-    TaskThrusterControl/taskthrustercontrol.h
+HEADERS +=
 
 
-SOURCES += TaskThrusterControl/taskthrustercontrolform.cpp \
-    TaskThrusterControl/taskthrustercontrol.cpp
+SOURCES +=
 
-FORMS += TaskThrusterControl/taskthrustercontrolform.ui
-
+FORMS +=

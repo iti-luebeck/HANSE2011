@@ -4,11 +4,8 @@
 #include <Framework/robotmodule.h>
 #include <QtCore>
 #include <Framework/eventthread.h>
-#include <TaskWallFollowing/taskwallfollowing.h>
-#include <TaskThrusterControl/taskthrustercontrol.h>
-#include <TaskPipeFollowing/taskpipefollowing.h>
-#include <TaskTurn/taskturn.h>
 #include <TaskHandControl/taskhandcontrol.h>
+#include <TaskWallNavigation/taskwallnavigation.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -23,7 +20,7 @@ class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *tw, TaskThrusterControl *ttc, TaskPipeFollowing *tp, TaskTurn *tt, TaskHandControl *thc);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskHandControl *thc, TaskWallNavigation *twn);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -56,11 +53,8 @@ private:
     void commandCenterControl();
     void submergedExecute();
 
-    TaskWallFollowing *taskwallfollowing;
-    TaskThrusterControl *taskthrustercontrol;
-    TaskPipeFollowing *taskpipefollowing;
-    TaskTurn *taskturn;
     TaskHandControl *taskhandcontrol;
+    TaskWallNavigation *taskwallnavigation;
 
 public slots:
     void startCommandCenter();
@@ -76,9 +70,6 @@ public slots:
     void timeout();
 
     void setNewMessage(QString s);
-    void newSchDesSlot(QString scheduleName, QString newD);
-
-    void setDescriptionSlot();
 
     void handControlFinishedCC();
 
@@ -91,9 +82,6 @@ signals:
     void setForwardSpeed(float forwardSpeed);
     void setAngularSpeed(float angularSpeed);
 
-
-
-
     void newError(QString s);
     void newMessage(QString s);
 
@@ -102,35 +90,17 @@ signals:
 
     void taskTimeout();
 
-
-
     void cStop();
 
-    // Start and stop signals for every tasks
-    void newSchDesSignal(QString scheduleName, QString newD);
-    void setDescriptionSignal();
+    void updateGUI();
 
-    void startTaskWallFollowing();
-    void stopTaskWallFollowing();
-    void setTaskWallFollowing(int taskNr);
-
-    void startTaskThrusterControl();
-    void stopTaskThrusterControl();
-    void setTaskThrusterControl(int taskNr);
-
-
-    void startTaskPipeFollowing();
-    void stopTaskPipeFollowing();
-    void setTaskPipeFollowing(int taskNr);
-
-    void startTaskTurn();
-    void stopTaskTurn();
-    void setTaskTurn(int taskNr);
-
+    // Start and stop signal for every tasks
     void startTaskHandControl();
     void stopTaskHandControl();
 
-    void updateGUI();
+    void startTaskWallNavigation();
+    void stopTaskWallNavigation();
+
 
 };
 

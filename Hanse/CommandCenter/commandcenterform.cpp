@@ -8,20 +8,12 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
 
     this->com = commandcenter;
 
-    // Very important connections with commandcenter
     connect(this,SIGNAL(startCommandCenter()),com,SLOT(startCommandCenter()));
     connect(this,SIGNAL(stopCommandCenter()),com,SLOT(stopCommandCenter()));
-    connect(this,SIGNAL(setDescription()),com,SLOT(setDescriptionSlot()));
 
     // GUI-updating slots
-
-
-    //connect(com,SIGNAL(newList(QString)),this,SLOT(updateLists(QString)));
-    //connect(com,SIGNAL(newAborted(QString)),this,SLOT(updateAborted(QString)));
-    //connect(com,SIGNAL(currentTask(QString)),this,SLOT(updateTask(QString)));
     connect(com,SIGNAL(newMessage(QString)),this,SLOT(updateMessage(QString)));
     connect(com,SIGNAL(newError(QString)),this,SLOT(updateError(QString)));
-    connect(com,SIGNAL(newSchDesSignal(QString,QString)),this,SLOT(refreshScheduleInput(QString, QString)));
 
     connect(com, SIGNAL(updateGUI()), this, SLOT(updateGUI()));
     connect(this, SIGNAL(updateGUISignal()), this, SLOT(updateGUI()));
@@ -32,24 +24,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
 
     // this->scheduledTasks.clear();
-    this->scheduledTasks.append("Wall1");
-    this->scheduledTasks.append("Wall2");
-    this->scheduledTasks.append("Wall3");
-
-    this->scheduledTasks.append("Pipe1");
-    this->scheduledTasks.append("Pipe2");
-    this->scheduledTasks.append("Pipe3");
-
-    this->scheduledTasks.append("Turn1");
-    this->scheduledTasks.append("Turn2");
-    this->scheduledTasks.append("Turn3");
-
-    this->scheduledTasks.append("Thruster1");
-    this->scheduledTasks.append("Thruster2");
-    this->scheduledTasks.append("Thruster3");
-    this->scheduledTasks.append("Thruster4");
-    this->scheduledTasks.append("Thruster5");
-    this->scheduledTasks.append("Thruster6");
+    this->scheduledTasks.append("TaskWallNavigation");
     this->scheduledTasks.append("HandControl");
 
 
@@ -57,8 +32,6 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     for(int i = 0; i < this->scheduledTasks.length(); i++){
         ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
     }
-
-    emit setDescription();
 }
 
 CommandCenterForm::~CommandCenterForm()
@@ -146,13 +119,6 @@ void CommandCenterForm::on_stopButton_clicked(){
     emit updateGUISignal();
 }
 
-
-//void CommandCenterForm::updateTask(QString s){
-//    // Update GUI with current working task
-//    ui->activeOutput->setText(s);
-//    ui->errorOutput->clear();
-//}
-
 void CommandCenterForm::updateError(QString s){
     // Update GUI with current error or message
     ui->errorOutput->setText(s);
@@ -163,55 +129,6 @@ void CommandCenterForm::updateMessage(QString s){
     // Update GUI with current message
     ui->errorOutput->setText(s);
 }
-
-//void CommandCenterForm::updateLists(QString s){
-//    // Update GUI with current scheduled tasks and finished tasks
-//    ui->scheduleList->clear();
-//    for(int i = this->com->scheduleList.length()-1; i>=0; i--){
-//        ui->scheduleList->insertPlainText(this->com->scheduleList.at(i)+"\n");
-//    }
-//    if(s!=""){
-//        ui->finishedList->insertPlainText(s+"\n");
-//    }
-//}
-
-//void CommandCenterForm::updateAborted(QString s){
-//    // Update GUI with current aborted tasks and delete the aborted task from scheduled list
-//    ui->scheduleList->clear();
-//    for(int i = this->com->scheduleList.length()-1; i>=0; i--){
-//        ui->scheduleList->insertPlainText(this->com->scheduleList.at(i)+"\n");
-//    }
-//    ui->abortedList->insertPlainText(s+"\n");
-//}
-
-void CommandCenterForm::refreshScheduleInput(QString scheduleName, QString newD){
-    QString temp1 = "";
-    QString temp2 = "";
-    for(int i= 0; i<scheduledTasks.length(); i++){
-        temp1 = scheduledTasks.at(i);
-        for(int j = 0; j < temp1.length(); j++){
-            if(((temp1[j] == QChar(':'))==false) && ((temp1[j] == QChar(' '))==false) ){
-                temp2 = temp2 + temp1.at(j);
-            } else {
-                break;
-            }
-        }
-        if(temp2 == scheduleName){
-            temp2 = temp2 + ": "+newD;
-            scheduledTasks.replace(i, temp2);
-            break;
-        } else {
-            temp2 = "";
-        }
-    }
-
-    ui->scheduleInput->clear();
-    for(int i = 0; i < this->scheduledTasks.length(); i++){
-        ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
-    }
-}
-
-
 
 void CommandCenterForm::updateGUI(){
     ui->scheduleList->clear();

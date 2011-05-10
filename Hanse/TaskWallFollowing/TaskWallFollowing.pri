@@ -1,9 +1,6 @@
-HEADERS += TaskWallFollowing/taskwallfollowingform.h \
-    TaskWallFollowing/taskwallfollowing.h
+HEADERS +=
 
 
-SOURCES += TaskWallFollowing/taskwallfollowingform.cpp \
-    TaskWallFollowing/taskwallfollowing.cpp
+SOURCES +=
 
-FORMS += TaskWallFollowing/taskwallfollowingform.ui
-
+FORMS +=

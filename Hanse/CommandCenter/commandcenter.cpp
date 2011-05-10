@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskWallFollowing *twf, TaskThrusterControl *ttc, TaskPipeFollowing *tpf, TaskTurn *tt, TaskHandControl *thc)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskHandControl *thc, TaskWallNavigation *twn)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
@@ -18,11 +18,8 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->handControl = handControl;
     this->pressure = pressure;
     this->sim = sim;
-    this->taskwallfollowing = twf;
-    this->taskthrustercontrol = ttc;
-    this->taskpipefollowing = tpf;
-    this->taskturn = tt;
     this->taskhandcontrol = thc;
+    this->taskwallnavigation = twn;
 
 
     timer.moveToThread(this);
@@ -45,45 +42,6 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
 
 
     // Tasks specific signals
-    // TaskWallFollowing
-    connect(taskwallfollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTaskWallFollowing()),taskwallfollowing,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskWallFollowing()),taskwallfollowing,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),taskwallfollowing,SLOT(emergencyStop()));
-    connect(this,SIGNAL(setTaskWallFollowing(int)),taskwallfollowing,SLOT(setRunData(int)));
-    connect(taskwallfollowing, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
-    connect(this,SIGNAL(setDescriptionSignal()),taskwallfollowing,SLOT(setDescriptionSlot()));
-
-    // Taskthrustercontrol
-    connect(taskthrustercontrol, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTaskThrusterControl()),taskthrustercontrol,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskThrusterControl()),taskthrustercontrol,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),taskthrustercontrol,SLOT(emergencyStop()));
-    connect(this,SIGNAL(setTaskThrusterControl(int)),taskthrustercontrol,SLOT(setRunData(int)));
-    connect(taskthrustercontrol, SIGNAL(newMessage(QString)), this, SLOT(setNewMessage(QString)));
-    connect(taskthrustercontrol, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
-    connect(this,SIGNAL(setDescriptionSignal()),taskthrustercontrol,SLOT(setDescriptionSlot()));
-
-
-    // TaskPipeFollowing
-    connect(taskpipefollowing, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTaskPipeFollowing()),taskpipefollowing,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskPipeFollowing()),taskpipefollowing,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),taskpipefollowing,SLOT(emergencyStop()));
-    connect(this,SIGNAL(setTaskPipeFollowing(int)),taskpipefollowing,SLOT(setRunData(int)));
-    connect(taskpipefollowing, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
-    connect(this,SIGNAL(setDescriptionSignal()),taskpipefollowing,SLOT(setDescriptionSlot()));
-
-
-    // TaskTurn
-    connect(taskturn, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTaskTurn()),taskturn,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskTurn()),taskturn,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),taskturn,SLOT(emergencyStop()));
-    connect(this,SIGNAL(setTaskTurn(int)),taskturn,SLOT(setRunData(int)));
-    connect(taskturn, SIGNAL(newSchDesSignal(QString, QString)), this, SLOT(newSchDesSlot(QString, QString)));
-    connect(this,SIGNAL(setDescriptionSignal()),taskturn,SLOT(setDescriptionSlot()));
-
     // TaskHandConrol
     connect(taskhandcontrol, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
     connect(this,SIGNAL(startTaskHandControl()),taskhandcontrol,SLOT(startBehaviour()));
@@ -91,6 +49,12 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
     connect(taskhandcontrol,SIGNAL(handControlFinished()),this,SLOT(handControlFinishedCC()));
 
+
+    // TaskWallNavigation
+    connect(taskwallnavigation, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
+    connect(this,SIGNAL(startTaskWallNavigation()),taskwallnavigation,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskWallNavigation()),taskwallnavigation,SLOT(stop()));
+    connect(this,SIGNAL(stopAllTasks()),taskwallnavigation,SLOT(emergencyStop()));
 
 
     setDefaultValue("targetDepth",0.42);
@@ -142,9 +106,6 @@ void CommandCenter::startCommandCenter(){
     } else {
         addData("Submerged",false);
         emit dataChanged(this);
-        this->taskthrustercontrol->setSettingsValue("commandCenterSubExecuteDepth", 0.0);
-        qDebug("Set taskthrustercontrol finishing depth");
-        qDebug()<<this->taskthrustercontrol->getSettingsValue("commandCenterSubExecuteDepth").toString();
     }
     addData("Waittime", this->getSettingsValue("waitTime"));
     emit dataChanged(this);
@@ -212,65 +173,8 @@ void CommandCenter::commandCenterControl(){
         if(tempAkt == "HandControl"){
             emit startTaskHandControl();
             activeTask = tempAkt;
-        } else if(tempAkt == "Wall1"){
-            emit setTaskWallFollowing(1);
-            emit startTaskWallFollowing();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Wall2"){
-            emit setTaskWallFollowing(2);
-            emit startTaskWallFollowing();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Wall3"){
-            emit setTaskWallFollowing(3);
-            emit startTaskWallFollowing();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Thruster1"){
-            emit setTaskThrusterControl(1);
-            emit startTaskThrusterControl();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Thruster2"){
-            emit setTaskThrusterControl(2);
-            emit startTaskThrusterControl();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Thruster3"){
-            emit setTaskThrusterControl(3);
-            emit startTaskThrusterControl();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Thruster4"){
-            emit setTaskThrusterControl(4);
-            emit startTaskThrusterControl();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Thruster5"){
-            emit setTaskThrusterControl(5);
-            emit startTaskThrusterControl();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Thruster6"){
-            emit setTaskThrusterControl(6);
-            emit startTaskThrusterControl();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Pipe1"){
-            emit setTaskPipeFollowing(1);
-            emit startTaskPipeFollowing();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Pipe2"){
-            emit setTaskPipeFollowing(2);
-            emit startTaskPipeFollowing();
-            activeTask = tempAkt;
-        } else if(tempAkt == "Pipe3"){
-            emit setTaskPipeFollowing(3);
-            emit startTaskPipeFollowing();
-            activeTask = tempAkt;
-        }else if(tempAkt == "Turn1"){
-            emit setTaskTurn(1);
-            emit startTaskTurn();
-            activeTask = tempAkt;
-        }else if(tempAkt == "Turn2"){
-            emit setTaskTurn(2);
-            emit startTaskTurn();
-            activeTask = tempAkt;
-        }else if(tempAkt == "Turn3"){
-            emit setTaskTurn(3);
-            emit startTaskTurn();
+        } else if(tempAkt == "TaskWallNavigation"){
+            emit startTaskWallNavigation();
             activeTask = tempAkt;
         } else  {
             qDebug("Task not found, skip task!");
@@ -350,9 +254,6 @@ void CommandCenter::submergedExecute(){
     addData("Sub.exec.depth", this->getSettingsValue("targetDepth").toFloat());
     emit dataChanged(this);
     emit setDepth(this->getSettingsValue("targetDepth").toFloat());
-    this->taskthrustercontrol->setSettingsValue("commandCenterSubExecuteDepth", this->getSettingsValue("targetDepth"));
-    qDebug("Set taskthrustercontrol finishing depth");
-    qDebug()<<this->taskthrustercontrol->getSettingsValue("commandCenterSubExecuteDepth").toString();
 }
 
 
@@ -381,15 +282,6 @@ QList<RobotModule*> CommandCenter::getDependencies(){
 
 QWidget* CommandCenter::createView(QWidget *parent){
     return new CommandCenterForm(this, parent);
-}
-
-
-void CommandCenter::newSchDesSlot(QString scheduleName, QString newSD){
-    emit newSchDesSignal(scheduleName, newSD);
-}
-
-void CommandCenter::setDescriptionSlot(){
-    emit setDescriptionSignal();
 }
 
 void CommandCenter::emergencyStopCommandCenter(){
