@@ -94,6 +94,12 @@ public:
       */
     const QMap<QDateTime, QString> getWayPointHistory();
 
+    /**
+      * Returns the euclidian distance from current position to (goal)position of the name
+      *
+      */
+    double getDistance(QString name);
+
 private:
     void saveWaypoints( QTextStream &ts );
     void loadWaypoints( QTextStream &ts );

@@ -354,3 +354,12 @@ void Module_Navigation::loadWaypoints( QTextStream &ts )
 
     updatedWaypoints( waypoints );
 }
+
+double Module_Navigation::getDistance(QString name){
+    Position currentPosition = sonarLoc->getLocalization();
+    currentGoalPosition = waypoints[name];
+    double dx = currentGoalPosition.getX() - currentPosition.getX();
+    double dy = currentGoalPosition.getY() - currentPosition.getY();
+    double currentDistanceToGoal = sqrt( dx*dx + dy*dy );
+    return currentDistanceToGoal;
+}
