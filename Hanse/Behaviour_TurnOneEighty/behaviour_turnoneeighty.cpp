@@ -17,6 +17,8 @@ void Behaviour_TurnOneEighty::init()
 {
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( compassUpdate(RobotModule*) ) );
+    QObject::connect( xsens, SIGNAL( dataChanged(RobotModule*) ),
+                      this, SLOT( compassUpdate(RobotModule*) ) );
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 }
 
@@ -128,7 +130,14 @@ void Behaviour_TurnOneEighty::initialHeadingUpdate()
     //    qDebug() << "turn thread id";
     //    qDebug() << QThread::currentThreadId();
     this->dataLockerMutex.lock();
-    initialHeading = compass->getHeading();
+
+    if(this->xsens->isEnabled()){
+        qDebug("get xsens initialheading");
+        initialHeading = this->xsens->getHeading();
+    } else {
+        qDebug("get compass initialheading");
+        initialHeading = compass->getHeading();
+    }
     logger->debug( "initial heading set to %f°", initialHeading );
     addData("initial_heading", initialHeading);
     dataChanged( this );
