@@ -35,8 +35,10 @@ signals:
     void startCommandCenter();
     void stopCommandCenter();
     void setDescription();
+    void updateGUISignal();
 
 public slots:
+    void updateGUI();
 
 private slots:
     void on_addButton_clicked();
@@ -45,12 +47,13 @@ private slots:
     void on_startButton_clicked();
     void on_stopButton_clicked();
 
-    void updateTask(QString s);
     void updateError(QString s);
-    void updateLists(QString s);
-    void updateAborted(QString s);
     void updateMessage(QString s);
-    void refreshScheduleList(QString scheduleName, QString newD);
+    void refreshScheduleInput(QString scheduleName, QString newD);
+    //    void updateTask(QString s);
+    //    void updateLists(QString s);
+    //    void updateAborted(QString s);
+
 };
 
 #endif // COMMANDCENTERFORM_H

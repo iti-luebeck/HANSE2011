@@ -30,8 +30,10 @@ public:
 
     bool isActive();
 
-    QList<QString> schedule;
-    QString lTask;
+    QList<QString> scheduleList;
+    QList<QString> finishedList;
+    QList<QString> abortedList;
+    QString activeTask;
     int count;
 
 
@@ -78,7 +80,7 @@ public slots:
 
     void setDescriptionSlot();
 
-    void handControlFinished();
+    void handControlFinishedCC();
 
 private slots:
     void doNextTask();
@@ -91,19 +93,16 @@ signals:
 
 
 
-    void currentTask(QString s);
+
     void newError(QString s);
-    void newAborted(QString s);
     void newMessage(QString s);
-
-
 
     void stopAllTasks();
     void resetTCL();
 
     void taskTimeout();
 
-    void newList(QString s);
+
 
     void cStop();
 
@@ -130,6 +129,8 @@ signals:
 
     void startTaskHandControl();
     void stopTaskHandControl();
+
+    void updateGUI();
 
 };
 

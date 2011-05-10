@@ -75,7 +75,7 @@ void TaskHandControl::stop(){
         emit angularSpeed(0.0);
 
         this->setEnabled(false);
-
+        this->handcontrol->setEnabled(false);
         emit finished(this,true);
     }
 }

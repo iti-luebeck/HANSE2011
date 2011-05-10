@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1229</width>
-    <height>660</height>
+    <height>496</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,10 +16,10 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>20</y>
+     <x>10</x>
+     <y>0</y>
      <width>371</width>
-     <height>491</height>
+     <height>451</height>
     </rect>
    </property>
    <property name="title">
@@ -434,8 +434,8 @@
    <widget class="QLabel" name="label_15">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>40</y>
+      <x>10</x>
+      <y>20</y>
       <width>81</width>
       <height>17</height>
      </rect>
@@ -447,8 +447,8 @@
    <widget class="QLineEdit" name="descriptionInput1">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>60</y>
+      <x>10</x>
+      <y>40</y>
       <width>271</width>
       <height>27</height>
      </rect>
@@ -458,7 +458,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>460</y>
+      <y>70</y>
       <width>151</width>
       <height>17</height>
      </rect>
@@ -471,7 +471,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>460</y>
+      <y>70</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -508,7 +508,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>530</y>
+     <y>460</y>
      <width>1151</width>
      <height>23</height>
     </rect>
@@ -520,10 +520,10 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>20</y>
+     <x>420</x>
+     <y>0</y>
      <width>361</width>
-     <height>501</height>
+     <height>451</height>
     </rect>
    </property>
    <property name="title">
@@ -938,8 +938,8 @@
    <widget class="QLabel" name="label_16">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>40</y>
+      <x>10</x>
+      <y>20</y>
       <width>81</width>
       <height>17</height>
      </rect>
@@ -951,8 +951,8 @@
    <widget class="QLineEdit" name="descriptionInput2">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>60</y>
+      <x>10</x>
+      <y>40</y>
       <width>271</width>
       <height>27</height>
      </rect>
@@ -961,8 +961,8 @@
    <widget class="QLineEdit" name="durationInput2">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>460</y>
+      <x>170</x>
+      <y>70</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -971,8 +971,8 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>460</y>
+      <x>10</x>
+      <y>70</y>
       <width>151</width>
       <height>17</height>
      </rect>
@@ -1011,10 +1011,10 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>810</x>
-     <y>20</y>
+     <x>800</x>
+     <y>0</y>
      <width>371</width>
-     <height>511</height>
+     <height>451</height>
     </rect>
    </property>
    <property name="title">
@@ -1429,10 +1429,10 @@
    <widget class="QLabel" name="label_17">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>40</y>
+      <x>10</x>
+      <y>20</y>
       <width>81</width>
-      <height>17</height>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
@@ -1442,8 +1442,8 @@
    <widget class="QLineEdit" name="descriptionInput3">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>60</y>
+      <x>10</x>
+      <y>40</y>
       <width>271</width>
       <height>27</height>
      </rect>
@@ -1452,8 +1452,8 @@
    <widget class="QLineEdit" name="durationInput3">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>460</y>
+      <x>170</x>
+      <y>70</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -1462,8 +1462,8 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>460</y>
+      <x>10</x>
+      <y>70</y>
       <width>151</width>
       <height>17</height>
      </rect>

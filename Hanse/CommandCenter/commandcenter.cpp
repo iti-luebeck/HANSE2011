@@ -89,7 +89,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(startTaskHandControl()),taskhandcontrol,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskHandControl()),taskhandcontrol,SLOT(stop()));
     connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
-    connect(taskhandcontrol,SIGNAL(handControlFinished()),this,SLOT(handControlFinished()));
+    connect(taskhandcontrol,SIGNAL(handControlFinished()),this,SLOT(handControlFinishedCC()));
 
 
 
@@ -115,8 +115,11 @@ void CommandCenter::startCommandCenter(){
     RobotModule::reset();
     running = true;
     this->setEnabled(true);
+    emit newMessage("CommandCenter started!");
 
-
+    this->abortedList.clear();
+    this->finishedList.clear();
+    emit updateGUI();
 
 
     // No Handcontrol, it is commandcenter time!
@@ -155,7 +158,10 @@ void CommandCenter::stopCommandCenter(){
     this->setHealthToSick("Commandcenter stoped");
     this->setEnabled(false);
 
-    schedule.clear();
+
+
+
+    scheduleList.clear();
     emit stopAllTasks();
     emit resetTCL();
 
@@ -163,6 +169,8 @@ void CommandCenter::stopCommandCenter(){
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
 
+
+    emit updateGUI();
 
     if (sim->isEnabled())
     {
@@ -181,9 +189,12 @@ void CommandCenter::commandCenterControl(){
         this->tcl->setEnabled(true);
     }
 
-    if(!schedule.isEmpty() & this->isEnabled()){
+    if(this->handControl->isEnabled()){
+        this->handControl->setEnabled(false);
+    }
+    if(!scheduleList.isEmpty() & this->isEnabled()){
         qDebug("Commandcenter control; Next scheduled task:");
-        QString temp=schedule.last();
+        QString temp=scheduleList.last();
         QString tempAkt = "";
         //qDebug()<<temp;
         for(int j = 0; j < temp.length(); j++){
@@ -194,109 +205,78 @@ void CommandCenter::commandCenterControl(){
             }
         }
         qDebug()<<tempAkt;
-        schedule.removeLast();
+        scheduleList.removeLast();
         addData("Task Nr", count);
         addData("Task Name", tempAkt);
         emit dataChanged(this);
         if(tempAkt == "HandControl"){
             emit startTaskHandControl();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Wall1"){
             emit setTaskWallFollowing(1);
             emit startTaskWallFollowing();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Wall2"){
             emit setTaskWallFollowing(2);
             emit startTaskWallFollowing();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Wall3"){
             emit setTaskWallFollowing(3);
             emit startTaskWallFollowing();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Thruster1"){
             emit setTaskThrusterControl(1);
             emit startTaskThrusterControl();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Thruster2"){
             emit setTaskThrusterControl(2);
             emit startTaskThrusterControl();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Thruster3"){
             emit setTaskThrusterControl(3);
             emit startTaskThrusterControl();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Thruster4"){
             emit setTaskThrusterControl(4);
             emit startTaskThrusterControl();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Thruster5"){
             emit setTaskThrusterControl(5);
             emit startTaskThrusterControl();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Thruster6"){
             emit setTaskThrusterControl(6);
             emit startTaskThrusterControl();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Pipe1"){
             emit setTaskPipeFollowing(1);
             emit startTaskPipeFollowing();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Pipe2"){
             emit setTaskPipeFollowing(2);
             emit startTaskPipeFollowing();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else if(tempAkt == "Pipe3"){
             emit setTaskPipeFollowing(3);
             emit startTaskPipeFollowing();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         }else if(tempAkt == "Turn1"){
             emit setTaskTurn(1);
             emit startTaskTurn();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         }else if(tempAkt == "Turn2"){
             emit setTaskTurn(2);
             emit startTaskTurn();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         }else if(tempAkt == "Turn3"){
             emit setTaskTurn(3);
             emit startTaskTurn();
-            emit newList("");
-            emit currentTask(tempAkt);
-            lTask = tempAkt;
+            activeTask = tempAkt;
         } else  {
             qDebug("Task not found, skip task!");
             emit newError("Task not found, skip task!");
-            emit newAborted(temp);
+            this->abortedList.append(temp);
+            activeTask = "";
             commandCenterControl();
         }
         count++;
@@ -309,6 +289,7 @@ void CommandCenter::commandCenterControl(){
         }
         cStop();
     }
+    emit updateGUI();
 }
 
 void CommandCenter::finishedControl(RobotBehaviour *, bool success){
@@ -318,7 +299,6 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
     if(!this->isEnabled() && !this->handControl->isEnabled()){
         this->handControl->setEnabled(true);
         this->tcl->setEnabled(true);
-        qDebug("WUUUUUUUHUUU");
     }
 
     emit setAngularSpeed(0.0);
@@ -332,16 +312,20 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
     }
     if(success==true){
         qDebug("One task has finished successfully");
-        emit newList(lTask);
+        this->finishedList.append(activeTask);
+        activeTask = "";
     } else {
         qDebug("One task has finished unsuccessfully");
-        emit newAborted(lTask);
-        emit newList("");
+        this->abortedList.append(activeTask);
+        activeTask = "";
     }
     if(this->isEnabled()){
         // Stop thruster, then make next task...
         controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
     }
+
+    // Update finished/aborted list
+    emit updateGUI();
 }
 
 
@@ -416,17 +400,16 @@ void CommandCenter::emergencyStopCommandCenter(){
     emit resetTCL();
 
     emit startTaskHandControl();
-    emit newList("");
-    emit currentTask("HandControl");
-    lTask = "HandControl";
+    activeTask = "HandControl";
 
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
+    emit updateGUI();
 }
 
 
-void CommandCenter::handControlFinished(){
+void CommandCenter::handControlFinishedCC(){
     emit setAngularSpeed(0.0);
     emit setForwardSpeed(0.0);
     if(this->getSettingsValue("subEx").toBool() == true){
@@ -436,12 +419,12 @@ void CommandCenter::handControlFinished(){
     }
 
     qDebug("Handcontrol has finished successfully");
-    emit newList(lTask);
-
+    this->finishedList.append("HandControl");
     if(this->isEnabled()){
         // Stop thruster, then make next task...
         controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
     }
+    emit updateGUI();
 
 }
 
@@ -453,11 +436,10 @@ void CommandCenter::startTaskHandControlCC(){
     emit resetTCL();
 
     emit startTaskHandControl();
-    emit newList("");
-    emit currentTask("HandControl");
-    lTask = "HandControl";
+    activeTask = "HandControl";
 
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
+    emit updateGUI();
 }

@@ -324,7 +324,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Errors/Messages:</string>
+     <string>Last Error/Message:</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="errorOutput">
