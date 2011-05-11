@@ -24,6 +24,11 @@ public slots:
     void terminate();
     void stop();
 
+protected slots:
+
+    virtual void doHealthCheck();
+    void gotEnabled(bool value);
+
     /**
       * Set speed on thruster. Value ranges between -1 and 1.
       *
@@ -35,10 +40,6 @@ public slots:
       */
     void setSpeed(float speed);
 
-protected slots:
-
-    virtual void doHealthCheck();
-    void gotEnabled(bool value);
 
 signals:
     void healthStatusChanged(HealthStatus data);

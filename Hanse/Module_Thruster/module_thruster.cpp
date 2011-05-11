@@ -83,14 +83,12 @@ void Module_Thruster::setSpeed(float speed)
 
     if (!getSettingsValue("enabled").toBool())
         return;
-    this->dataLockerMutex.lock();
 
     if (speed > 1)
         speed = 1;
 
     if (speed < -1)
         speed = -1;
-
 
     int speedRaw = (int)(speed * getSettingsValue("multiplicator").toInt());
     addData("speed", speedRaw);
@@ -101,7 +99,6 @@ void Module_Thruster::setSpeed(float speed)
         emit requestThrusterSpeed(this->getId(),speedRaw);
         setHealthToOk();
         emit dataChanged(this);
-        this->dataLockerMutex.unlock();
 //        logger->debug("Speed an Sim "+QString::number(speedRaw));
 //        addData("speedSim",speedRaw);
         return;
@@ -117,7 +114,6 @@ void Module_Thruster::setSpeed(float speed)
     }
 
     bool ret = uid->I2C_WriteRegister(address,channel,sendValue,0x01);
-    this->dataLockerMutex.unlock();
     if (!ret)
         setHealthToSick(uid->getLastError());
     else {
