@@ -25,7 +25,7 @@ Module_ThrusterControlLoop::Module_ThrusterControlLoop(QString id, Module_Pressu
     setDefaultValue("minSpeed", -0.3);
     setDefaultValue("maxSpeed", 0.3);
     setDefaultValue("neutralSpeed", 0.0);
-    setDefaultValue("minHysteresis", 0.0);
+    setDefaultValue("minHysteresis", -1.0);
     setDefaultValue("maxHysteresis", 0.2);
     setDefaultValue("use pid", true);
 
@@ -279,24 +279,6 @@ float Module_ThrusterControlLoop::getForwardSpeed()
 float Module_ThrusterControlLoop::getAngularSpeed()
 {
     return getDataValue("actualAngularSpeed").toFloat();
-}
-
-void Module_ThrusterControlLoop::pauseModule()
-{
-    logger->debug("pausing tcl");
-    this->paused = true;
-    thrusterLeft->setSpeed( 0 );
-    thrusterRight->setSpeed(0 );
-    thrusterDown->setSpeed( 0 );
-    thrusterDownFront->setSpeed( 0 );
-}
-
-void Module_ThrusterControlLoop::unpauseModule()
-{
-    logger->debug("unpausing tcl");
-    this->paused = false;
-    //updateHorizontalThrustersNow();
-    //updown thrusters should restart as soon as a new pressure
 }
 
 float Module_ThrusterControlLoop::getDepthError()

@@ -203,6 +203,7 @@ void Module_Navigation::sonarPositionUpdate()
                     if (val < -maxAngSpeed) val = -maxAngSpeed;
                     if (val > 0 && val < minAngSpeed) val = minAngSpeed;
                     if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
+                    addData("set speed", val);
                     emit newFFSpeed(.0);
                     emit newANGSpeed(val);
                 } else {

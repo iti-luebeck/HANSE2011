@@ -2,7 +2,7 @@
 
 PIDController::PIDController()
 {
-    setValues(-1.0, 0.1, 0.0, 0.0, -1.0, 1.0, 0.0, 0.2, 0.5);
+    setValues(-1.0, 0.1, 0.0, 0.0, -1.0, 1.0, -1.0, 0.2, 0.5);
 
     y = 0;
 //    QTimer::singleShot(100, this, SLOT(test()));

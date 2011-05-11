@@ -15,7 +15,7 @@ public:
 
 public slots:
     void setValues(double Kp, double Ti = 0, double Td = 0, double offset = 0, double min = std::numeric_limits<double>::min(),
-                   double max = std::numeric_limits<double>::max(), double minHysteresis = 0, double maxHysteresis = 0.2, double minUpdateTime = 1.0);
+                   double max = std::numeric_limits<double>::max(), double minHysteresis = -1.0, double maxHysteresis = 0.2, double minUpdateTime = 1.0);
 
 private:
     double ticks;

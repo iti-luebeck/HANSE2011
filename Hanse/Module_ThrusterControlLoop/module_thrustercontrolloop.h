@@ -140,8 +140,8 @@ private slots:
 
 public slots:
 
-    void pauseModule();
-    void unpauseModule();
+//    void pauseModule();
+//    void unpauseModule();
 signals:
     void setLeftThruster(float speed);
     void setRightThruster(float speed);
