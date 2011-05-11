@@ -291,8 +291,8 @@ void CommandCenter::emergencyStopCommandCenter(){
     emit stopAllTasks();
     emit resetTCL();
 
-    emit startTaskHandControl();
-    activeTask = "HandControl";
+    //emit startTaskHandControl();
+    //activeTask = "HandControl";
 
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
