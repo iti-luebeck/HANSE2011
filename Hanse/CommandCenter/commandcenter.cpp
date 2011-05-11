@@ -293,7 +293,7 @@ void CommandCenter::emergencyStopCommandCenter(){
 
     //emit startTaskHandControl();
     //activeTask = "HandControl";
-
+    this->handControl->setEnabled(false);
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
