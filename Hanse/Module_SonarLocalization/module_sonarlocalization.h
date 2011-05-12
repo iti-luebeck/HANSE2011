@@ -61,6 +61,8 @@ public slots:
     void retrieveSonarPlotData(QList<SonarEchoData> data);
     void setLocalization(QVector2D position);
 
+    virtual void doHealthCheck();
+
 signals:
     void healthStatusChanged(HealthStatus data);
 

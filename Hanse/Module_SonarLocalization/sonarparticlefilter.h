@@ -36,6 +36,8 @@ public:
 
     void setLocalization(QVector2D position);
 
+    bool hasMap();
+
 signals:
     void newPosition(QVector3D position);
     void working(bool);

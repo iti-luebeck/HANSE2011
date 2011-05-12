@@ -117,3 +117,9 @@ void Module_SonarLocalization::retrieveSonarPlotData(QList<SonarEchoData> data)
 {
     emit newSonarPlotData(data);
 }
+
+void Module_SonarLocalization::doHealthCheck() {
+    if (!pf.hasMap()) {
+        setHealthToSick("No map loaded!");
+    }
+}

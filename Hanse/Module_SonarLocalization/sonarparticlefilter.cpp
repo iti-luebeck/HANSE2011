@@ -74,6 +74,8 @@ void SonarParticleFilter::reset()
 
 void SonarParticleFilter::loadMap()
 {
+    mapPointsMat = NULL;
+
     if (!QFile(sonar.getSettingsValue("mapFile").toString()).exists()) {
         logger->error("No localization map found!");
         return;
@@ -130,6 +132,10 @@ void SonarParticleFilter::loadMap()
     //this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::LinearIndexParams());
     this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::AutotunedIndexParams());
 
+}
+
+bool SonarParticleFilter::hasMap() {
+    return mapPointsMat != NULL;
 }
 
 void SonarParticleFilter::addToList(QVector<QVector2D>& list, const QVector2D p)
@@ -200,6 +206,10 @@ double SonarParticleFilter::sampleUni(double min, double max)
 
 double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations)
 {
+    if (!hasMap()) {
+        return 0;
+    }
+
     int N = observations.size();
 
     float sigma2 = sonar.getSettingsValue("observationVariance").toFloat();
@@ -230,6 +240,10 @@ double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observ
 
 bool SonarParticleFilter::isPositionForbidden(const QVector2D& pos)
 {
+    if (!hasMap()) {
+        return false;
+    }
+
     QPoint imgPos = map2img(pos).toPoint();
 
     if (imgPos.x()<0 || imgPos.y()<0 || imgPos.x()>=forbiddenArea.cols || imgPos.y()>=forbiddenArea.rows )
