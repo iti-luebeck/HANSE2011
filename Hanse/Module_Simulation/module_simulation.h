@@ -20,8 +20,6 @@ class Module_Simulation : public RobotModule {
 
 public:
     Module_Simulation(QString id);
-    ~Module_Simulation();
-
     QWidget* createView(QWidget* parent);
 
     QList<RobotModule*> getDependencies();

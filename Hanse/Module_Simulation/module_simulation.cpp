@@ -6,7 +6,6 @@ Module_Simulation::Module_Simulation(QString id)
     : RobotModule(id)
 {
     client_running = false;
-//    thread.start();
 
     setDefaultValue("server_ip_adress", "localhost");
     setDefaultValue("server_port", 80);
@@ -17,27 +16,23 @@ Module_Simulation::Module_Simulation(QString id)
     timer.moveToThread(this);
 }
 
-Module_Simulation::~Module_Simulation()
-{
-}
-
 void Module_Simulation::init()
 {
     reset();
-//    timer.moveToThread(this);
 }
 
 void Module_Simulation::terminate()
 {
-
-    QTimer::singleShot(0, &timer, SLOT(stop()));
+    timer.stop();
     RobotModule::terminate();
 }
 
 void Module_Simulation::reset()
 {
-    this->start();
     RobotModule::reset();
+
+    if (isEnabled())
+        this->start();
 }
 
 QList<RobotModule*> Module_Simulation::getDependencies()
