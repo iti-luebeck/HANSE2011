@@ -31,6 +31,7 @@ void RobotModule::run()
     dataLockerMutex.unlock();
     this->exec();
     this->terminate();
+
 }
 
 
@@ -46,6 +47,13 @@ void RobotModule::setEnabled(bool value)
         reset();
 
     emit enabled(getSettingsValue("enabled").toBool());
+
+}
+
+QSettings& RobotModule::createSettings() {
+    QSettings s(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse");
+    s.beginGroup(id);
+    return s;
 }
 
 bool RobotModule::isEnabled()
