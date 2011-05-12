@@ -34,7 +34,6 @@ include(../qextserialport/qextserialport.pri)
 # core stuff
 include(Framework/Framework.pri)
 include(CommandCenter/CommandCenter.pri)
-# include(MetaBehaviour/MetaBehaviour.pri)
 
 # all modules
 include(Module_Simulation/Module_Simulation.pri)

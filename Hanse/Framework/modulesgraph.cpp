@@ -9,13 +9,11 @@
 #include <Module_IMU/module_imu.h>
 #include <Module_Compass/module_compass.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
-//#include <Module_VisualSLAM/module_visualslam.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 #include <Module_Webcams/module_webcams.h>
-//#include <MetaBehaviour/metabehaviour.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 #include <Module_ADC/module_adc.h>
@@ -142,31 +140,19 @@ void ModulesGraph::build()
     CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation);
     this->modules.append(commCent);
 
-    // IMPORTANT: must be the last module to be loaded, otherwise it won't have access to all the other modules
-    //logger->debug("Creating MetaBehaviour");
-    //MetaBehaviour* metaBehaviour = new MetaBehaviour("meta",this, controlLoop, handControl, pressure, behavPipe, behavBall, behavTurn, behavWall, commCent);
-    //this->modules.append(metaBehaviour);
-
-
     logger->info("Loading all Modules... Done");
 
     /* connect every modul to healtCheckTimer */
-    //    connect(&healthTimer,SIGNAL(timeout()),controlLoop,SLOT(doHealthCheck()));
     foreach (RobotModule* b, modules)
     {
         connect(&healthTimer,SIGNAL(timeout()),b,SLOT(doHealthCheck()));
-        //        RobotBehaviour* c = dynamic_cast<RobotBehaviour*>(b);
-        //        if (!c || (c->getId() == "meta"))
-        //        {
         logger->debug("Starting Thread for "+b->getId());
         b->start();
         while(!b->isInitialized())
-            sotoSleep::msleep(100);
+            sotoSleep::msleep(10);
 
-        //        }
     }
     healthTimer.setInterval(1000);
-    //    QTimer::singleShot(0,&healthTimer,SLOT(start()));
     healthTimer.start(1000);
 }
 
