@@ -10,5 +10,4 @@ win32 {
 }
 
 # debian/ubuntu (10.10 oder neuer): aptitude install libcv-dev libcvaux-dev libhighgui-dev
-unix:LIBS += -lcv -lcxcore -lcvaux
-# unix:LIBS += -lopencv_core -lopencv_flann
+unix:LIBS += -lcv -lcxcore -lcvaux -lcxcore -lml
