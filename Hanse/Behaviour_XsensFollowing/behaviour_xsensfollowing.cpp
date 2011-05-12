@@ -81,6 +81,9 @@ void Behaviour_XsensFollowing::reset()
 
 void Behaviour_XsensFollowing::controlLoop()
 {
+    if (!isActive())
+        return;
+
     logger->info("control xsens");
     float ctrAngle = getDataValue("ctrHeading").toFloat();
     if(!xsens->getHealthStatus().isHealthOk())
@@ -107,6 +110,9 @@ void Behaviour_XsensFollowing::controlLoop()
 
 void Behaviour_XsensFollowing::turnNinety()
 {
+    if (!isActive())
+        return;
+
     float ctrAngle = getDataValue("ctrHeading").toFloat();
     float newHeading = ctrAngle;
     if(getSettingsValue("turnClockwise").toBool())
@@ -126,6 +132,9 @@ void Behaviour_XsensFollowing::turnNinety()
 
 void Behaviour_XsensFollowing::refreshHeading()
 {
+    if (!isActive())
+        return;
+
     if(xsens->getHealthStatus().isHealthOk())
         addData("ctrHeading",xsens->getHeading());
     else
