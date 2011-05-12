@@ -79,12 +79,17 @@ void SonarParticleFilter::loadMap()
         return;
     }
     logger->debug("Loading sonar map");
-    Mat combinedMap = Mat(cvLoadImage(sonar.getSettingsValue("mapFile").toString().toStdString().c_str(), 1));
-    if (combinedMap.data == NULL) {
-        logger->error("Could not read map!");
+    IplImage* img = cvLoadImage(sonar.getSettingsValue("mapFile").toString().toStdString().c_str(), 1);
+    if (!img) {
+        logger->error("Could not read map file!");
         return;
     }
 
+    Mat combinedMap = Mat(img);
+    if (!combinedMap.data) {
+        logger->error("Could not read map!");
+        return;
+    }
 
     if (combinedMap.type() != CV_8UC3) {
         logger->debug("imread returned matrix with type "+QString::number(combinedMap.type()));
