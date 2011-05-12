@@ -67,7 +67,6 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(stopTaskWallNavigation()),taskwallnavigation,SLOT(stop()));
     connect(this,SIGNAL(stopAllTasks()),taskwallnavigation,SLOT(emergencyStop()));
 
-
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
     setDefaultValue("waitTime",2000);
@@ -128,8 +127,9 @@ void CommandCenter::stopCommandCenter(){
     RobotModule::reset();
 
     logger->info("CommandCenter stoped");
-    this->setHealthToSick("Commandcenter stoped, everything stop/disable");
+    //this->setHealthToSick("Commandcenter stoped, everything stop/disable");
     //this->setEnabled(false);
+    controlTimer.stop();
 
     scheduleList.clear();
     emit stopAllTasks();
@@ -147,10 +147,10 @@ void CommandCenter::stopCommandCenter(){
 
     }
 
-    if(!this->handControl->isEnabled()){
-        this->handControl->setEnabled(true);
-        this->tcl->setEnabled(true);
-    }
+//    if(!this->handControl->isEnabled()){
+//        this->handControl->setEnabled(true);
+//        this->tcl->setEnabled(true);
+//    }
 }
 
 void CommandCenter::commandCenterControl(){
@@ -162,7 +162,7 @@ void CommandCenter::commandCenterControl(){
     if(this->handControl->isEnabled()){
         this->handControl->setEnabled(false);
     }
-    if(!scheduleList.isEmpty() & this->isEnabled()){
+    if(!scheduleList.isEmpty() && this->isEnabled()){
         qDebug("Commandcenter control; Next scheduled task:");
         QString temp=scheduleList.last();
         QString tempAkt = "";
@@ -202,9 +202,11 @@ void CommandCenter::commandCenterControl(){
                 emit newError("No existing task");
             } else {
                 emit newError("No existing task, surface");
+                emit setDepth(0.0);
+                emit setForwardSpeed(0.0);
+                emit setAngularSpeed(0.0);
             }
         }
-        cStop();
     }
     emit updateGUI();
 }
@@ -313,26 +315,6 @@ void CommandCenter::emergencyStopCommandCenter(){
     emit updateGUI();
 }
 
-
-void CommandCenter::handControlFinishedCC(){
-    emit setAngularSpeed(0.0);
-    emit setForwardSpeed(0.0);
-    if(this->getSettingsValue("subEx").toBool() == true){
-        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
-    } else {
-        emit setDepth(0.0);
-    }
-
-    qDebug("Handcontrol has finished successfully");
-    this->finishedList.append("HandControl");
-    if(this->isEnabled()){
-        // Stop thruster, then make next task...
-        controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
-    }
-    emit updateGUI();
-
-}
-
 void CommandCenter::startTaskHandControlCC(){
     controlTimer.stop();
     logger ->info("Stop and deactivate all task - handcontrol active");
@@ -347,4 +329,24 @@ void CommandCenter::startTaskHandControlCC(){
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
     emit updateGUI();
+}
+
+void CommandCenter::handControlFinishedCC(){
+    emit setAngularSpeed(0.0);
+    emit setForwardSpeed(0.0);
+    if(this->getSettingsValue("subEx").toBool() == true){
+        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+    } else {
+        emit setDepth(0.0);
+    }
+
+    qDebug("Handcontrol has finished successfully");
+    this->finishedList.append("HandControl");
+
+        // Stop thruster, then make next task...
+    controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+
+    activeTask = "";
+    emit updateGUI();
+
 }

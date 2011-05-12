@@ -25,62 +25,64 @@ public:
 
     bool echoTest;
 
+    int badDataCount;
+
     QTimer *echoControlTimer;
-     Module_EchoSounder *echo;
+    Module_EchoSounder *echo;
 
 private:
-     //QTimer timer;
-     void init();
-     QString wallCase;
+    //QTimer timer;
+    void init();
+    QString wallCase;
     QString tempAs;
-     void controlWallFollow();
+    void controlWallFollow();
 
 
-     // void timerSlotExecute();
+    // void timerSlotExecute();
 
-     Module_ThrusterControlLoop * tcl;
+    Module_ThrusterControlLoop * tcl;
 
-     Module_Simulation *sim;
-     EventThread updateThread;
+    Module_Simulation *sim;
+    EventThread updateThread;
 
     // int timerTime;
-     bool running;
+    bool running;
 
-     float avgDistance;
-     float distanceInput;
-     float angSpeed;
-     float fwdSpeed;
-     float corridorWidth;
-     void timerSlotExecute();
-     int wallTime;
+    float avgDistance;
+    float distanceInput;
+    float angSpeed;
+    float fwdSpeed;
+    float corridorWidth;
+    void timerSlotExecute();
+    int wallTime;
 
 public slots:
-     void updateFromSettings();
-     void startBehaviour();
-     void stop();
-     void reset();
-     void terminate();
-     void stopOnEchoError();
+    void updateFromSettings();
+    void startBehaviour();
+    void stop();
+    void reset();
+    void terminate();
+    void stopOnEchoError();
 
-     // Module_EchoSounder -> Behaviour_WallFollowing
-     void newWallBehaviourData(const EchoReturnData data, float avgDistance);
+    // Module_EchoSounder -> Behaviour_WallFollowing
+    void newWallBehaviourData(const EchoReturnData data, float avgDistance);
 
-     void testEchoModule();
+    void testEchoModule();
 
 signals:
-     void timerStart( int msec );
-     void timerStop();
-     void dataError();
+    void timerStart( int msec );
+    void timerStop();
+    void dataError();
 
-     void forwardSpeed(float fwSpeed);
-     void angularSpeed(float anSpeed);
+    void forwardSpeed(float fwSpeed);
+    void angularSpeed(float anSpeed);
 
-     void startControlTimer();
+    void startControlTimer();
 
-     // Behaviour_WallFollowing -> WallFollowingForm
-     void newWallUiData(const EchoReturnData data, float avgDistance);
-     void updateWallCase(QString caseW);
-     void updateUi();
+    // Behaviour_WallFollowing -> WallFollowingForm
+    void newWallUiData(const EchoReturnData data, float avgDistance);
+    void updateWallCase(QString caseW);
+    void updateUi();
 };
 
 

@@ -224,6 +224,7 @@ void Behaviour_WallFollowing::updateFromSettings()
 }
 
 void Behaviour_WallFollowing::stopOnEchoError(){
+    badDataCount = badDataCount+1;
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
     wallCase = "No echosignal, stop thruster!";

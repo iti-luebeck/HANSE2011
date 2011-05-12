@@ -15,7 +15,7 @@ TaskWallNavigationForm::TaskWallNavigationForm(TaskWallNavigation *twn, QWidget 
     this->ui->angularInput->setText(this->taskwallnavigation->getSettingsValue("angularSpeed").toString());
     this->ui->desiredDistanceInput->setText(this->taskwallnavigation->getSettingsValue("desiredDistance").toString());
     this->ui->corridorInput->setText(this->taskwallnavigation->getSettingsValue("corridorWidth").toString());
-    this->ui->durationInput->setText(this->taskwallnavigation->getSettingsValue("taskDuration").toString());
+
 
 
     this->ui->startInput->setText(this->taskwallnavigation->getSettingsValue("startNavigation").toString());
@@ -25,6 +25,9 @@ TaskWallNavigationForm::TaskWallNavigationForm(TaskWallNavigation *twn, QWidget 
     this->ui->targetToleranceInput->setText(this->taskwallnavigation->getSettingsValue("targetTolerance").toString());
     this->ui->enableTimerBox->setChecked(this->taskwallnavigation->getSettingsValue("timerActivated").toBool());
     this->ui->enableLoopBox->setChecked(this->taskwallnavigation->getSettingsValue("loopActivated").toBool());
+
+    this->ui->taskStopInput->setText(this->taskwallnavigation->getSettingsValue("taskStopTime").toString());
+    this->ui->signalInput->setText(this->taskwallnavigation->getSettingsValue("signalTimer").toString());
 }
 
 TaskWallNavigationForm::~TaskWallNavigationForm()
@@ -50,7 +53,6 @@ void TaskWallNavigationForm::on_applyButton_clicked(){
     this->taskwallnavigation->setSettingsValue("angularSpeed" ,this->ui->angularInput->text());
     this->taskwallnavigation->setSettingsValue("desiredDistance" ,this->ui->desiredDistanceInput->text());
     this->taskwallnavigation->setSettingsValue("corridorWidth" ,this->ui->corridorInput->text());
-    this->taskwallnavigation->setSettingsValue("taskDuration", this->ui->durationInput->text());
 
     this->taskwallnavigation->setSettingsValue("startNavigation", this->ui->targetInput->text());
     this->taskwallnavigation->setSettingsValue("startTolerance", this->ui->startToleranceInput->text());
@@ -60,6 +62,10 @@ void TaskWallNavigationForm::on_applyButton_clicked(){
 
     this->taskwallnavigation->setSettingsValue("timerActivated", this->ui->enableTimerBox->isChecked());
     this->taskwallnavigation->setSettingsValue("loopActivated", this->ui->enableLoopBox->isChecked());
+
+    this->taskwallnavigation->setSettingsValue("taskStopTime", this->ui->taskStopInput->text());
+    this->taskwallnavigation->setSettingsValue("signalTimer", this->ui->signalInput->text());
+
 
     qDebug("Timer?");
     qDebug()<<this->ui->enableTimerBox->isChecked();

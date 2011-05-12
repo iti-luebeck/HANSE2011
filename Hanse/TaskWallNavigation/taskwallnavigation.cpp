@@ -16,16 +16,15 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     setEnabled(false);
     running = false;
 
-
-    connect(this, SIGNAL(end()), this, SLOT(stop()));
-
     // Default settings
     this->setDefaultValue("forwardSpeed",0.5);
     this->setDefaultValue("angularSpeed",0.3);
     this->setDefaultValue("desiredDistance",1.5);
     this->setDefaultValue("corridorWidth",0.2);
-    this->setDefaultValue("taskDuration",20000);
     this->setDefaultValue("description", "");
+    this->setDefaultValue("taskStopTime",120000);
+    this->setDefaultValue("signalTimer",20000);
+
 
     this->setDefaultValue("startNavigation", "startN");
     this->setDefaultValue("startTolerance", 10);
@@ -41,6 +40,19 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     distanceToStart = 0;
     distanceToTarget = 0;
 
+
+    connect(this, SIGNAL(stopSignal()), this, SLOT(stop()));
+
+    connect(this, SIGNAL(moveToStartSignal()), this, SLOT(moveToStartSlot()));
+    connect(this, SIGNAL(moveToEndSignal()), this, SLOT(moveToEndSlot()));
+    connect(this, SIGNAL(doWallFollowSignal()), this, SLOT(doWallFollowSlot()));
+    connect(this, SIGNAL(controlNextStateSignal()), this, SLOT(controlNextStateSlot()));
+
+    taskTimer.moveToThread(this);
+    moveToStartTimer.moveToThread(this);
+    moveToEndTimer.moveToThread(this);
+    doWallFollowTimer.moveToThread(this);
+    controlNextStateTimer.moveToThread(this);
 }
 
 bool TaskWallNavigation::isActive(){
@@ -97,16 +109,6 @@ void TaskWallNavigation::startBehaviour(){
         this->navi->setEnabled(true);
     }
 
-
-
-
-
-    if(!this->navi->isEnabled()){
-        this->navi->setEnabled(true);
-    }
-
-
-
     //    addData("taskDuration", this->getSettingsValue("taskDuration"));
     //    addData("desiredDistance", this->wall->getSettingsValue("desiredDistance"));
     //    addData("forwardSpeed", this->wall->getSettingsValue("forwardSpeed"));
@@ -125,86 +127,138 @@ void TaskWallNavigation::startBehaviour(){
 
     if(this->getSettingsValue("timerActivated").toBool()){
         qDebug("Taskwallnavigation with timer stop");
-        taskTimer.singleShot(this->getSettingsValue("taskDuration").toInt(),this, SLOT(stop()));
-        qDebug()<<this->getSettingsValue("taskDuration").toInt();
+        taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
+        taskTimer.start();
+        qDebug()<<this->getSettingsValue("taskStopTime").toInt();
     }
 
-    controlTask();
+    emit moveToStartSignal();
 
 }
 
-void TaskWallNavigation::controlTask(){
-    distanceToStart = this->navi->getDistance(this->getSettingsValue("startNavigation").toString());
+void TaskWallNavigation::moveToStartSlot(){
+    if(this->isEnabled()){ qDebug("move to start");
+        addData("state", "Move to start");
+        emit dataChanged(this);
 
-    addData("state", "move to start");
-    emit dataChanged(this);
-    // First navigate to start position
-    while(distanceToStart > this->getSettingsValue("startTolerance").toDouble()){
-        this->navi->gotoWayPoint(this->getSettingsValue("startNavigation").toString(), this->getSettingsValue("startTolerance").toDouble());
-        qDebug("distance to start");
-        qDebug()<<distanceToStart;
-        msleep(500);
+        // First navigate to start position
+        distanceToStart = this->navi->getDistance(this->getSettingsValue("startNavigation").toString());
+        if(distanceToStart > this->getSettingsValue("startTolerance").toDouble()){
+            qDebug("distance to start");
+            qDebug()<<distanceToStart;
+            moveToStartTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToStartSlot()));
+        } else {
+            addData("state", "Startposition reached");
+            emit dataChanged(this);
+            emit doWallFollowSignal();
+        }
     }
+}
+void TaskWallNavigation::doWallFollowSlot(){
+    if(this->isEnabled()){qDebug("Do wallfollowing");
+        addData("state", "Do wallfollowing");
+        emit dataChanged(this);
 
-    // Now do wallfollowing until target position is reached
-    addData("state", "do WallFollowing");
-    emit dataChanged(this);
-    if(!this->wall->isEnabled()){
-        qDebug("enable wallfollow and echo");
-        this->wall->echo->setEnabled(true);
-        this->wall->startBehaviour();
+        if(!this->wall->isEnabled()){
+            qDebug("enable wallfollow and echo");
+            this->wall->echo->setEnabled(true);
+            this->wall->startBehaviour();
+        }
+
+        // Now do wallfollowing until target position is reached
+        distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
+        if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
+            qDebug("distance to target");
+            qDebug()<<distanceToTarget;
+
+            // Too many errors, abort wallfollowing and move to endposition
+            if(this->wall->badDataCount > 100){
+                emit moveToEndSignal();
+            } else {
+                doWallFollowTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(doWallFollowSlot()));
+            }
+        } else {
+            addData("state", "Wallfollowing finished");
+            emit dataChanged(this);
+
+            // Target position reached, stop wallfollow
+            if(this->wall->isEnabled()){
+                qDebug("Disable wallfollow and echo");
+                this->wall->stop();
+                this->wall->echo->setEnabled(false);
+            }
+
+            emit controlNextStateSignal();
+        }
     }
-
-    distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
-    while(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
-        msleep(500);
-        qDebug("distance to target");
-        qDebug()<<distanceToTarget;
-    }
-
-    addData("state", "WallFollowing finished");
-    emit dataChanged(this);
-    msleep(2500);
-
-    if(this->wall->isEnabled()){
-        qDebug("disable wallfollow and echo");
-        this->wall->stop();
-        this->wall->echo->setEnabled(false);
-    }
-
-    addData("state", " idle");
-    emit dataChanged(this);
-    msleep(2000);
-
-
-    if(this->getSettingsValue("loopActivated").toBool()){
-        controlTask();
-    } else {
-        msleep(10000);
-        emit end();
-    }
-
 }
 
+void TaskWallNavigation::moveToEndSlot(){
+    if(this->isEnabled()){
+        qDebug("Move to end");
+        addData("state", "Move to end");
+        emit dataChanged(this);
+
+        distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
+        if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
+            qDebug("distance to target");
+            qDebug()<<distanceToTarget;
+            moveToEndTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToEndSlot()));
+        } else {
+            emit controlNextStateSignal();
+        }
+    }
+}
+
+void TaskWallNavigation::controlNextStateSlot(){
+    if(this->isEnabled()){
+        qDebug("idle, controlNextState");
+        addData("state", "Idle, control next state");
+        emit dataChanged(this);
+
+        if(this->getSettingsValue("loopActivated").toBool()){
+            qDebug("start again");
+            emit moveToStartSignal();
+        } else {
+            // Task finished, stop
+            emit stopSignal();
+        }
+    }
+}
 
 
 void TaskWallNavigation::stop(){
-    running = false;
-    logger->info("Taskwallnavigation stopped");
+    if(this->isEnabled()){
+        running = false;
+        logger->info("Taskwallnavigation stopped");
 
-    if (this->isActive())
-    {
-        this->taskTimer.stop();
-        //        this->wall->stop();
-        //        this->wall->echo->setEnabled(false);
-        this->setEnabled(false);
-        emit finished(this,true);
+        if (this->isActive())
+        {
+            this->taskTimer.stop();
+            //        this->wall->stop();
+            //        this->wall->echo->setEnabled(false);
+            this->setEnabled(false);
+            emit finished(this,true);
+        }
     }
 }
 
+void TaskWallNavigation::timeoutStop(){
+    if(this->isEnabled()){running = false;
+        logger->info("Taskwallnavigation timeout stopped");
 
-void TaskWallNavigation::emergencyStop()
-{
+        if (this->isActive())
+        {
+            this->taskTimer.stop();
+            //        this->wall->stop();
+            //        this->wall->echo->setEnabled(false);
+            this->setEnabled(false);
+            emit finished(this,false);
+        }
+    }
+}
+
+void TaskWallNavigation::emergencyStop(){
     running = false;
     logger->info( "Taskwallnavigation emergency stopped" );
 
@@ -213,6 +267,7 @@ void TaskWallNavigation::emergencyStop()
         this->taskTimer.stop();
         this->wall->stop();
         this->wall->echo->setEnabled(false);
+        this->navi->setEnabled(false);
         this->setEnabled(false);
         emit finished(this,false);
     }

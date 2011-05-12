@@ -19,7 +19,7 @@
      <x>20</x>
      <y>30</y>
      <width>601</width>
-     <height>371</height>
+     <height>481</height>
     </rect>
    </property>
    <property name="title">
@@ -29,7 +29,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>180</y>
+      <y>220</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -39,7 +39,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>220</y>
+      <y>260</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -49,7 +49,7 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>140</y>
+      <y>180</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -59,40 +59,17 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>100</y>
+      <y>140</y>
       <width>113</width>
       <height>27</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="durationInput">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>60</y>
-      <width>113</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>151</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Task duration (msec):</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>100</y>
+      <y>140</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -105,7 +82,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>140</y>
+      <y>180</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -118,7 +95,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>180</y>
+      <y>220</y>
       <width>111</width>
       <height>17</height>
      </rect>
@@ -131,7 +108,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>220</y>
+      <y>260</y>
       <width>101</width>
       <height>17</height>
      </rect>
@@ -144,7 +121,7 @@
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>130</y>
+      <y>170</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -157,7 +134,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>130</y>
+      <y>170</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -167,7 +144,7 @@
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>200</y>
+      <y>240</y>
       <width>141</width>
       <height>17</height>
      </rect>
@@ -180,7 +157,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>200</y>
+      <y>240</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -190,7 +167,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>320</y>
+      <y>440</y>
       <width>591</width>
       <height>27</height>
      </rect>
@@ -203,7 +180,7 @@
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>160</y>
+      <y>200</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -216,7 +193,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>160</y>
+      <y>200</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -226,7 +203,7 @@
     <property name="geometry">
      <rect>
       <x>450</x>
-      <y>230</y>
+      <y>270</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -236,7 +213,7 @@
     <property name="geometry">
      <rect>
       <x>300</x>
-      <y>230</y>
+      <y>270</y>
       <width>141</width>
       <height>17</height>
      </rect>
@@ -248,27 +225,73 @@
    <widget class="QCheckBox" name="enableTimerBox">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>60</y>
-      <width>161</width>
+      <x>360</x>
+      <y>90</y>
+      <width>201</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>Enable timer</string>
+     <string>Enable task stop timer</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="enableLoopBox">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>90</y>
+      <x>360</x>
+      <y>120</y>
       <width>141</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
      <string>Enable task loop</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="signalInput">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>60</y>
+      <width>113</width>
+      <height>27</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>60</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Signal timer (msec):</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="taskStopInput">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>90</y>
+      <width>113</width>
+      <height>27</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>90</y>
+      <width>161</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Task stop timer (msec):</string>
     </property>
    </widget>
   </widget>

@@ -43,7 +43,6 @@ public:
     QString activeTask;
     int count;
 
-
 private:
     void init();
     QTimer timer;
@@ -95,7 +94,6 @@ public slots:
 
 private slots:
     void doNextTask();
-
 
 signals:
     void setDepth(float depth);

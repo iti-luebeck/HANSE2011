@@ -120,6 +120,7 @@ QList<RobotModule*> TaskHandControl::getDependencies()
 void TaskHandControl::handControlFinishedSlot(){
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
+    this->handcontrol->setEnabled(false);
     this->setEnabled(false);
     emit handControlFinished();
 }

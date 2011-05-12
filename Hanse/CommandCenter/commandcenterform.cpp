@@ -105,7 +105,7 @@ void CommandCenterForm::on_stopButton_clicked(){
     qDebug("Commandcenter stop");
     // Clear the GUI and set aborted task
     ui->scheduleList->clear();
-    emit stopCommandCenter();
+
     ui->activeOutput->clear();
 
     QString temp = "";
@@ -116,7 +116,7 @@ void CommandCenterForm::on_stopButton_clicked(){
     }
 
     ui->errorOutput->setText("Commandcenter stopped!");
-
+    emit stopCommandCenter();
     emit updateGUISignal();
 }
 
