@@ -49,6 +49,7 @@ signals:
     void forwardSpeed(float fwSpeed);
     void angularSpeed(float anSpeed);
     void setDepth(float depth);
+    void handControlFinished();
 
 public slots:
     void startBehaviour();

@@ -128,11 +128,8 @@ void CommandCenter::stopCommandCenter(){
     RobotModule::reset();
 
     logger->info("CommandCenter stoped");
-    this->setHealthToSick("Commandcenter stoped");
+    this->setHealthToSick("Commandcenter stoped, everything stop/disable");
     //this->setEnabled(false);
-
-
-
 
     scheduleList.clear();
     emit stopAllTasks();
@@ -169,7 +166,7 @@ void CommandCenter::commandCenterControl(){
         qDebug("Commandcenter control; Next scheduled task:");
         QString temp=scheduleList.last();
         QString tempAkt = "";
-        //qDebug()<<temp;
+        qDebug()<<temp;
         for(int j = 0; j < temp.length(); j++){
             if(((temp[j] == QChar(':'))==false) && ((temp[j] == QChar(' '))==false) ){
                 tempAkt = tempAkt + temp.at(j);
@@ -197,11 +194,15 @@ void CommandCenter::commandCenterControl(){
         }
         count++;
     } else {
-        qDebug("Schedule error, no existing tasks!");
-        if(!this->getSettingsValue("subEx").toBool()){
-            emit newError("No existing task");
+        if(!this->isEnabled()){
+            emit newError("Commandcenter not enabled!");
         } else {
-            emit newError("No existing task, surface");
+            qDebug("Schedule error, no existing tasks!");
+            if(!this->getSettingsValue("subEx").toBool()){
+                emit newError("No existing task");
+            } else {
+                emit newError("No existing task, surface");
+            }
         }
         cStop();
     }
@@ -212,7 +213,7 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
     // Evaluate task success
 
 
-    if(!this->isEnabled() && !this->handControl->isEnabled()){
+    if(!this->tcl->isEnabled() && !this->handControl->isEnabled()){
         this->handControl->setEnabled(true);
         this->tcl->setEnabled(true);
     }
@@ -338,10 +339,10 @@ void CommandCenter::startTaskHandControlCC(){
     //schedule.clear();
     emit stopAllTasks();
     emit resetTCL();
-
-    emit startTaskHandControl();
-    activeTask = "HandControl";
-
+    if(this->activeTask != "HandControl"){
+        emit startTaskHandControl();
+        activeTask = "HandControl";
+    }
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);

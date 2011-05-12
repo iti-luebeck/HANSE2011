@@ -56,7 +56,7 @@ void CommandCenterForm::on_addButton_clicked(){
     // Add new task
     ui->scheduleList->insertPlainText(ui->scheduleInput->currentText()+"\n");
     this->com->scheduleList.prepend(ui->scheduleInput->currentText());
-    //qDebug()<<ui->scheduleInput->currentText();
+    qDebug()<<ui->scheduleInput->currentText();
     ui->errorOutput->setText("Added one task");
 }
 
@@ -81,18 +81,19 @@ void CommandCenterForm::on_clearButton_clicked(){
 
 void CommandCenterForm::on_startButton_clicked(){
     // Commandcenter start
-    if(!com->isEnabled()){
+    if(com->activeTask == ""){
         com->count=1;
         ui->finishedList->clear();
         ui->abortedList->clear();
+        qDebug("Commandcenter start");
         if(!this->com->scheduleList.isEmpty()){
-            qDebug("Commandcenter start");
             // Set a few important values
             com->setSettingsValue("targetDepth", ui->depthInput->text());
             com->setSettingsValue("subEx", ui->subBox->isChecked());
             com->setSettingsValue("waitTime", ui->waitInput->text());
             emit startCommandCenter();
         } else {
+            qDebug("No task...");
             ui->errorOutput->setText("No existing schedule!");
         }
     } else {

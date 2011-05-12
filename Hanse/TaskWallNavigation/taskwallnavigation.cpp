@@ -63,19 +63,63 @@ void TaskWallNavigation::startBehaviour(){
     emit started(this);
     running = true;
 
-//    addData("taskDuration", this->getSettingsValue("taskDuration"));
-//    addData("desiredDistance", this->wall->getSettingsValue("desiredDistance"));
-//    addData("forwardSpeed", this->wall->getSettingsValue("forwardSpeed"));
-//    addData("angularSpeed", this->wall->getSettingsValue("angularSpeed"));
-//    addData("corridorWidth", this->wall->getSettingsValue("corridorWidth"));
-//    emit dataChanged(this);
+
+    // Enable all components
+    //    if(!this->wall->echo->isEnabled()){
+    //        this->wall->echo->setEnabled(true);
+    //    }
+
+    //    if(!this->wall->isEnabled()){
+    //        this->wall->setEnabled(true);
+    //    }
+
+    //    if(!this->navi->tcl->isEnabled()){
+    //        this->navi->tcl->setEnabled(true);
+    //    }
+
+    //    if(!this->navi->sonarLoc->isEnabled()){
+    //        this->navi->sonarLoc->setEnabled(true);
+    //    }
+
+    //    if(!this->navi->pressure->isEnabled()){
+    //        this->navi->pressure->setEnabled(true);
+    //    }
+
+    //    if(!this->navi->mti->isEnabled()){
+    //        this->navi->mti->setEnabled(true);
+    //    }
+
+    //    if(!this->navi->compass->isEnabled()){
+    //        this->navi->compass->setEnabled(true);
+    //    }
+
+    if(!this->navi->isEnabled()){
+        this->navi->setEnabled(true);
+    }
+
+
+
+
+
+    if(!this->navi->isEnabled()){
+        this->navi->setEnabled(true);
+    }
+
+
+
+    //    addData("taskDuration", this->getSettingsValue("taskDuration"));
+    //    addData("desiredDistance", this->wall->getSettingsValue("desiredDistance"));
+    //    addData("forwardSpeed", this->wall->getSettingsValue("forwardSpeed"));
+    //    addData("angularSpeed", this->wall->getSettingsValue("angularSpeed"));
+    //    addData("corridorWidth", this->wall->getSettingsValue("corridorWidth"));
+    //    emit dataChanged(this);
     addData("loop", this->getSettingsValue("loopActivated").toBool());
     addData("timer", this->getSettingsValue("timerActivated").toBool());
     addData("state", "start TaskWallNavigation");
     emit dataChanged(this);
 
-//    this->wall->echo->setEnabled(true);
-//    this->wall->startBehaviour();
+    //    this->wall->echo->setEnabled(true);
+    //    this->wall->startBehaviour();
 
     emit updateSettings();
 
@@ -120,7 +164,7 @@ void TaskWallNavigation::controlTask(){
 
     addData("state", "WallFollowing finished");
     emit dataChanged(this);
-    //msleep(2500);
+    msleep(2500);
 
     if(this->wall->isEnabled()){
         qDebug("disable wallfollow and echo");
@@ -151,8 +195,8 @@ void TaskWallNavigation::stop(){
     if (this->isActive())
     {
         this->taskTimer.stop();
-//        this->wall->stop();
-//        this->wall->echo->setEnabled(false);
+        //        this->wall->stop();
+        //        this->wall->echo->setEnabled(false);
         this->setEnabled(false);
         emit finished(this,true);
     }

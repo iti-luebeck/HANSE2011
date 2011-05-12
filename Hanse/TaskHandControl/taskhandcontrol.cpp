@@ -121,5 +121,5 @@ void TaskHandControl::handControlFinishedSlot(){
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
     this->setEnabled(false);
-    emit finished(this,true);
+    emit handControlFinished();
 }
