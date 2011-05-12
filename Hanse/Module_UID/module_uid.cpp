@@ -22,6 +22,7 @@ Module_UID::Module_UID(QString moduleId)
 #endif
 
     setDefaultValue("uidId", "UIDC0001");
+    setDefaultValue("timeout", 10);
 
     lastError = 0;
 
@@ -188,17 +189,14 @@ bool Module_UID::SendCommand(const char* sequence, unsigned char length) {
 
 bool Module_UID::SendCheckCommand(const QByteArray &send, char* recv, int recv_length)
 {
-    QTime blub;
-    blub.restart();
-    QMutexLocker l(&this->dataLockerMutex);
-    this->dataLockerMutex.lock();
-    if(mutexWaitTime.size() > 9)
-        mutexWaitTime.pop_front();
-    mutexWaitTime.append(blub.elapsed());
-    this->dataLockerMutex.unlock();
-
-//    logger->debug("UID WAIT "+QString::number(blub.elapsed()));
-    return SendCommand2(send,recv, recv_length) && CheckErrorcode();
+    if (this->dataLockerMutex.tryLock(getSettingsValue("timeout").toInt())) {
+        bool ret = SendCommand2(send,recv, recv_length) && CheckErrorcode();
+        dataLockerMutex.unlock();
+        return ret;
+    } else {
+        setHealthToSick("Could not aquire UID lock due to timeout.");
+        return false;
+    }
 }
 
 bool Module_UID::CheckErrorcode()
@@ -310,7 +308,6 @@ bool Module_UID::UID_Available()
 
 void Module_UID::doHealthCheck()
 {
-//    QMutexLocker l(&this->moduleMutex);
     logger->trace("doHealthCheck");
     if (!getSettingsValue("enabled").toBool())
         return;
@@ -318,7 +315,7 @@ void Module_UID::doHealthCheck()
     QString Id = getSettingsValue("uidId").toString();
 
     if ( uid == NULL ) {
-        setHealthToSick("No uid open.");
+        setHealthToSick("UID not open.");
         return;
     }
 
@@ -328,19 +325,6 @@ void Module_UID::doHealthCheck()
     }
     if ( received.length()>0 && received != Id) {
         setHealthToSick("Wrong Id, received: " + received);
-        return;
-    }
-
-    this->dataLockerMutex.lock();
-    int sum = 0;
-    int size = mutexWaitTime.size();
-    for(int i = 0; i < size; i++)
-        sum = sum + mutexWaitTime.at(i);
-    this->dataLockerMutex.unlock();
-    sum = sum / size;
-    if(sum > 50)
-    {
-        setHealthToSick("High Usage of about "+QString::number(sum));
         return;
     }
 
