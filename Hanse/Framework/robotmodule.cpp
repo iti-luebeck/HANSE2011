@@ -2,8 +2,8 @@
 #include "datarecorder.h"
 
 RobotModule::RobotModule(QString newId)
-    : settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
-      dataLockerMutex(QMutex::Recursive),
+    : dataLockerMutex(QMutex::Recursive),
+      settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
       id(newId),
       healthCheckTimer(this),
       initialized(false)
@@ -199,6 +199,7 @@ bool RobotModule::shutdown()
 {
     this->exit(0);
     this->wait();
+    return true;
 }
 
 void RobotModule::reset()

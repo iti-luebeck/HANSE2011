@@ -283,6 +283,7 @@ cv::Mat SLTrainingUI::cvtList2Mat()
 //    }
 
 //    return m; //m.t();
+    return Mat();
 }
 
 void SLTrainingUI::on_testSVM_clicked()

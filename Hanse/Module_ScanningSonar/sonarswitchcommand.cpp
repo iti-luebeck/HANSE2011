@@ -15,7 +15,7 @@ SonarSwitchCommand::SonarSwitchCommand(QByteArray fileData)
     extractHeader(fileData);
 }
 
-SonarSwitchCommand::SonarSwitchCommand(const SonarSwitchCommand& other)
+SonarSwitchCommand::SonarSwitchCommand(const SonarSwitchCommand& other) : QObject()
 {
     logger = Log4Qt::Logger::logger("SonarSwitchCommand");
     clone(other);

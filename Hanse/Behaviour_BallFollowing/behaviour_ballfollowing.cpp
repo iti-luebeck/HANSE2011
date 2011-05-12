@@ -17,7 +17,7 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     this->compass = compass;
 
     setEnabled(false);
-    state = STATE_IDLE;
+    state = BALL_STATE_IDLE;
     updateTimer.moveToThread(this);
     timerNoBall.moveToThread(this);
 
@@ -49,7 +49,7 @@ void Behaviour_BallFollowing::startBehaviour()
 {
     logger->debug( "Behaviour started" );
     this->setEnabled( true );
-    state = STATE_TURN_45;
+    state = BALL_STATE_TURN_45;
     targetHeading = compass->getHeading() - 45;
     if ( targetHeading < 0 )
     {
@@ -70,7 +70,7 @@ void Behaviour_BallFollowing::terminate()
 
 void Behaviour_BallFollowing::newData()
 {
-    if( this->isEnabled() && state == STATE_TRACK_BALL )
+    if( this->isEnabled() && state == BALL_STATE_TRACK_BALL )
     {
         Behaviour_BallFollowing::ctrBallFollowing();
     }
@@ -78,13 +78,13 @@ void Behaviour_BallFollowing::newData()
 
 void Behaviour_BallFollowing::compassUpdate( RobotModule * )
 {
-    if ( isEnabled() && state == STATE_TURN_45 )
+    if ( isEnabled() && state == BALL_STATE_TURN_45 )
     {
         double currentHeading = compass->getHeading();
         double diffHeading = fabs( targetHeading - currentHeading );
         if ( diffHeading < 5 )
         {
-            state = STATE_TRACK_BALL;
+            state = BALL_STATE_TRACK_BALL;
             emit setAngularSpeed(0.0);
             emit setForwardSpeed(0.0);
         }
@@ -95,7 +95,7 @@ void Behaviour_BallFollowing::stop()
 {
     logger->debug( "Behaviour stopped" );
     if (isEnabled()) {
-        state = STATE_IDLE;
+        state = BALL_STATE_IDLE;
         updateTimer.stop();
         emit setForwardSpeed(0.0);
         emit setAngularSpeed(0.0);

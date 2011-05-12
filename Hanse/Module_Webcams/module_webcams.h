@@ -36,11 +36,11 @@ private:
 
 public slots:
 
-    void statusChange( bool value );
+//    void statusChange( bool value );
     void settingsChanged();
     void reset();
     void terminate();
-    void showSettings( int camNr );
+//    void showSettings( int camNr );
 
 private:
 //    videoInput VI;

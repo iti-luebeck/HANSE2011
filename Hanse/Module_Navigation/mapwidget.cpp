@@ -86,73 +86,73 @@ void MapWidget::graphicsMouseReleased( QPointF point )
         stopSonarLocalization(point);
 }
 
-void MapWidget::updateVisualSLAM()
-{
-    if ( visualSLAMItem != NULL )
-    {
-        delete( visualSLAMItem );
-        visualSLAMItem = NULL;
-    }
+//void MapWidget::updateVisualSLAM()
+//{
+//    if ( visualSLAMItem != NULL )
+//    {
+//        delete( visualSLAMItem );
+//        visualSLAMItem = NULL;
+//    }
 
-    if ( ui->showVisSLAM->isChecked() )
-    {
-        QBrush brush( Qt::blue );
-        QPen pen( Qt::blue );
+//    if ( ui->showVisSLAM->isChecked() )
+//    {
+//        QBrush brush( Qt::blue );
+//        QPen pen( Qt::blue );
 
-        QGraphicsScene *scene = ui->graphicsView->scene();
-        visualSLAMItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
-        visualSLAMItem->setZValue( 1000 );
+//        QGraphicsScene *scene = ui->graphicsView->scene();
+//        visualSLAMItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
+//        visualSLAMItem->setZValue( 1000 );
 
-        QList<Position> landmarks;
-        QList<Position> particles;
-        int bestParticle;
+//        QList<Position> landmarks;
+//        QList<Position> particles;
+//        int bestParticle;
 
-        double width = 0.1;
-        for ( int i = 0; i < landmarks.size(); i++ )
-        {
-            QGraphicsItem *item =
-                    scene->addEllipse( landmarks[i].getX() - width/2,
-                                       landmarks[i].getY() - width/2,
-                                       width, width, pen, brush );
-            item->setParentItem( visualSLAMItem );
-            item->setZValue( 1000 );
-        }
+//        double width = 0.1;
+//        for ( int i = 0; i < landmarks.size(); i++ )
+//        {
+//            QGraphicsItem *item =
+//                    scene->addEllipse( landmarks[i].getX() - width/2,
+//                                       landmarks[i].getY() - width/2,
+//                                       width, width, pen, brush );
+//            item->setParentItem( visualSLAMItem );
+//            item->setZValue( 1000 );
+//        }
 
-        width = 0.1;
-        brush = QBrush( Qt::lightGray );
-        pen = QPen( Qt::lightGray );
-        for ( int i = 0; i < particles.size(); i++ )
-        {
-            QGraphicsItem *item =
-                    scene->addEllipse( particles[i].getX() - width/2,
-                                       particles[i].getY() - width/2,
-                                       width, width, pen, brush );
-            item->setParentItem( visualSLAMItem );
-            item->setZValue( 1000 );
-        }
+//        width = 0.1;
+//        brush = QBrush( Qt::lightGray );
+//        pen = QPen( Qt::lightGray );
+//        for ( int i = 0; i < particles.size(); i++ )
+//        {
+//            QGraphicsItem *item =
+//                    scene->addEllipse( particles[i].getX() - width/2,
+//                                       particles[i].getY() - width/2,
+//                                       width, width, pen, brush );
+//            item->setParentItem( visualSLAMItem );
+//            item->setZValue( 1000 );
+//        }
 
-        width = 0.3;
-        brush = QBrush( Qt::red );
-        pen = QPen( Qt::white );
-        QGraphicsItem *item =
-                scene->addEllipse( particles[bestParticle].getX() - width/2,
-                                   particles[bestParticle].getY() - width/2,
-                                   width, width, pen, brush );
-        item->setParentItem( visualSLAMItem );
-        item->setZValue( 1100 );
+//        width = 0.3;
+//        brush = QBrush( Qt::red );
+//        pen = QPen( Qt::white );
+//        QGraphicsItem *item =
+//                scene->addEllipse( particles[bestParticle].getX() - width/2,
+//                                   particles[bestParticle].getY() - width/2,
+//                                   width, width, pen, brush );
+//        item->setParentItem( visualSLAMItem );
+//        item->setZValue( 1100 );
 
-        pen = QPen( Qt::red );
-        pen.setWidthF( 0.2 );
-        item = scene->addLine( particles[bestParticle].getX(), particles[bestParticle].getY(),
-                               particles[bestParticle].getX() - sin( particles[bestParticle].getYaw() * CV_PI / 180 ),
-                               particles[bestParticle].getY() + cos( particles[bestParticle].getYaw() * CV_PI / 180 ),
-                               pen );
-        item->setParentItem( visualSLAMItem );
-        item->setZValue( 1100 );
+//        pen = QPen( Qt::red );
+//        pen.setWidthF( 0.2 );
+//        item = scene->addLine( particles[bestParticle].getX(), particles[bestParticle].getY(),
+//                               particles[bestParticle].getX() - sin( particles[bestParticle].getYaw() * CV_PI / 180 ),
+//                               particles[bestParticle].getY() + cos( particles[bestParticle].getYaw() * CV_PI / 180 ),
+//                               pen );
+//        item->setParentItem( visualSLAMItem );
+//        item->setZValue( 1100 );
 
-        ui->graphicsView->show();
-    }
-}
+//        ui->graphicsView->show();
+//    }
+//}
 
 void MapWidget::updateWaypoints( QMap<QString, Position> waypoints )
 {

@@ -354,7 +354,6 @@ void SonarEchoFilter::applyHeuristic()
             bool next = (candidates[i+1].getWallCandidate() > 1);//candidates[i+1].hasWallCandidate();
             prev = (candidates[i-1].getClassLabel() == 1);
             next = (candidates[i+1].getClassLabel() == 1);
-            int cl = candidates[i].getClassLabel();
 
             if(!prev && !next)
             {
@@ -623,14 +622,14 @@ void SonarEchoFilter::reset()
     prevWallCandidate = 0.0;
     candidates.clear();
 
-    QString path = this->sloc->getSettingsValue("Path2SVM").toString();
-    if(path.length() > 0)
-    {
-        QByteArray ba = path.toLatin1();
-          const char *c_str2 = ba.data();
+//    QString path = this->sloc->getSettingsValue("Path2SVM").toString();
+//    if(path.length() > 0)
+//    {
+//        QByteArray ba = path.toLatin1();
+//          const char *c_str2 = ba.data();
 //          svm->loadClassifier(c_str2);
 
-    }
+//    }
 }
 
 QByteArray SonarEchoFilter::mat2byteArray(cv::Mat &mat)

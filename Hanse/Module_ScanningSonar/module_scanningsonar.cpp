@@ -9,7 +9,7 @@
 #include "sonardata852recorder.h"
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_Simulation/module_simulation.h>
-Module_ScanningSonar::Module_ScanningSonar(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim)
+Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim)
     : RobotModule(id)
 {
     this->sim = sim;

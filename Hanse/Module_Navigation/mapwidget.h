@@ -49,7 +49,7 @@ public slots:
     void graphicsMouseDoubleClicked( QPointF point );
     void graphicsMouseReleased( QPointF point );
 
-    void updateVisualSLAM();
+//    void updateVisualSLAM();
     void updateWaypoints( QMap<QString, Position> waypoints );
     void updateGoal( Position goal );
     void clearGoal();

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>560</width>
+    <width>979</width>
     <height>400</height>
    </rect>
   </property>
@@ -68,7 +68,7 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>580</x>
       <y>10</y>
       <width>320</width>
       <height>240</height>
@@ -98,9 +98,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>290</y>
-      <width>120</width>
-      <height>80</height>
+      <y>280</y>
+      <width>121</width>
+      <height>101</height>
      </rect>
     </property>
     <property name="title">
@@ -111,7 +111,7 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>82</width>
+       <width>101</width>
        <height>17</height>
       </rect>
      </property>
@@ -148,13 +148,26 @@
       <string>HSV</string>
      </property>
     </widget>
+    <widget class="QRadioButton" name="bluyelRadiButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>117</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>BluYel</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="channelBox">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>290</y>
-      <width>120</width>
+      <x>140</x>
+      <y>280</y>
+      <width>81</width>
       <height>80</height>
      </rect>
     </property>
@@ -233,10 +246,10 @@
    <widget class="QLabel" name="rotationLabel">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>300</y>
-      <width>46</width>
-      <height>13</height>
+      <x>420</x>
+      <y>280</y>
+      <width>91</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
@@ -246,9 +259,9 @@
    <widget class="QCheckBox" name="invertCheckBox">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>340</y>
-      <width>70</width>
+      <x>420</x>
+      <y>300</y>
+      <width>91</width>
       <height>17</height>
      </rect>
     </property>
@@ -267,6 +280,74 @@
     </property>
     <property name="text">
      <string>Play</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>280</y>
+      <width>120</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Threshold Type</string>
+    </property>
+    <widget class="QRadioButton" name="normalRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>117</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Normal</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="otsuRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>117</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>OTSU</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="kmeansRadioButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>117</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>K-Means</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="channelLabel">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>20</y>
+      <width>320</width>
+      <height>240</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>

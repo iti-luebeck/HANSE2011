@@ -261,7 +261,7 @@ void Module_Webcams::reset()
             else
             {
                 logger->debug("...fail");
-                delete bottomCap;
+//                cvReleaseCapture(&bottomCap);
                 bottomCap = NULL;
             }
 //            bottomCam = cvCaptureFromCAM(bottomID);
@@ -274,9 +274,8 @@ void Module_Webcams::reset()
         {
             logger->debug("Trying to Connect left Cam with ID "+QString::number(leftID));
             leftCap = cvCaptureFromCAM(leftID);
-            if(leftCap)
+            if (leftCap)
             {
-                double value = 100;
                 logger->debug("...ok");
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_WIDTH,640);
                 cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_HEIGHT,480);
@@ -292,7 +291,7 @@ void Module_Webcams::reset()
             else
             {
                 logger->debug("...fail");
-                delete leftCap;
+//                cvReleaseCapture(&leftCap);
                 leftCap = NULL;
             }
 
@@ -315,7 +314,7 @@ void Module_Webcams::reset()
             else
             {
                 logger->debug("...fail");
-                delete rightCap;
+//                cvReleaseCapture(&rightCap);
                 rightCap = NULL;
             }
 //            VI.setIdealFramerate( rightID, rightFramerate );
@@ -330,9 +329,9 @@ void Module_Webcams::reset()
 
 int Module_Webcams::numOfCams()
 { 
-    cv::VideoCapture cap;
-    int finished = 0;
-    int cams = 0;
+//    cv::VideoCapture cap;
+//    int finished = 0;
+//    int cams = 0;
     return 3;
 //    while (!finished)
 //    {
@@ -359,15 +358,15 @@ void Module_Webcams::terminate()
 
 
 
-void Module_Webcams::statusChange( bool value )
-{
+//void Module_Webcams::statusChange( bool value )
+//{
 
-}
+//}
 
-void Module_Webcams::showSettings( int camNr )
-{
+//void Module_Webcams::showSettings( int camNr )
+//{
 //    VI.showSettingsWindow( camNr );
-}
+//}
 
 void Module_Webcams::settingsChanged()
 {

@@ -146,9 +146,10 @@ void ScanningSonarForm::on_save_clicked()
 
 
     // the scan resolution may have changed, clear the graphics scene
-    foreach(QGraphicsItem* g, queue) {
-        delete queue.takeFirst();
-    }
+    scene.clear();
+//    foreach(QGraphicsItem* g, queue) {
+//        delete queue.takeFirst();
+//    }
 }
 
 void ScanningSonarForm::on_fileCfgApply_clicked()

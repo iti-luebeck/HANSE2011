@@ -7,9 +7,9 @@
 #include <Module_Webcams/module_webcams.h>
 #include <Framework/robotmodule.h>
 
-#define STATE_TURN_45       100
-#define STATE_TRACK_BALL    101
-#define STATE_IDLE          102
+#define BALL_STATE_TURN_45       100
+#define BALL_STATE_TRACK_BALL    101
+#define BALL_STATE_IDLE          102
 
 class Module_ThrusterControlLoop;
 class GoalFollowingForm;

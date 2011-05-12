@@ -1,6 +1,6 @@
 #include "position.h"
 
-Position::Position( const Position &pos )
+Position::Position( const Position &pos ) : QObject()
 {
     setX( pos.x );
     setY( pos.y );

@@ -395,12 +395,8 @@ void Form_SonarLocalization::updateSonarViewUnfiltered()
         QLinearGradient gi(0,0,0,n);
         QList<float> data = sonarEchoDataList[j].getGradient();
         for (int i = 0; i < n; i++) {
-            unsigned char b = (unsigned char) (255 - 255 * data[i] / maxVal);
-
-            if(b < 0)
-                gi.setColorAt(1.0*i/n,QColor(-b,-b,-b));
-            else
-                gi.setColorAt(1.0*i/n,QColor(b,b,b));
+            unsigned char b = (unsigned char) (255 - 255 * data[i] / maxVal);            
+            gi.setColorAt(1.0*i/n,QColor(b,b,b));
         }
 
         sceneUnfiltered.addRect(j*stepWidth, 1, stepWidth, height, Qt::NoPen, QBrush(gi));

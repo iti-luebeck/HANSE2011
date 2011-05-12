@@ -19,7 +19,7 @@ class Module_ScanningSonar : public RobotModule {
     friend class SonarDataSourceSerial;
 
 public:
-    Module_ScanningSonar(QString id,Module_ThrusterControlLoop *tcl,Module_Simulation *sim);
+    Module_ScanningSonar(QString id, Module_Simulation *sim);
     ~Module_ScanningSonar();
 
     QWidget* createView(QWidget* parent);

@@ -19,6 +19,7 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
+    void loadImage(QString fileName);
     void refreshThreshold();
     void moments( IplImage *image, double &m10, double &m01, double &mu11, double &mu02, double &mu20 );
 
@@ -27,6 +28,7 @@ private:
 
     int colorspace;
     int channel;
+    int method;
     bool inverted;
 
     int lowThreshold;
@@ -41,6 +43,7 @@ private:
     IplImage *H;
     IplImage *S;
     IplImage *V;
+    IplImage *YB;
     IplImage *binary;
 
     bool playing;
@@ -48,6 +51,11 @@ private:
     QStringList files;
 
 private slots:
+    void on_bluyelRadiButton_toggled(bool checked);
+    void on_kmeansRadioButton_toggled(bool checked);
+    void on_otsuRadioButton_toggled(bool checked);
+    void on_normalRadioButton_toggled(bool checked);
+    void on_bluyelRadiButton_clicked();
     void on_playButton_clicked();
     void on_invertCheckBox_toggled(bool checked);
     void on_loadButton_clicked();
