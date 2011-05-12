@@ -11,7 +11,12 @@ class DataRecorder;
 /**
   * Abstract super class of every robot module.
   *
+  * Each robot module may add additional methods.
+  *
   * This class is meant to be subclassed.
+  *
+  * IMPORTANT: This class and all of its methods must be thread-safe!
+  *            Authors of subclasses must take care of this as well!
   */
 class RobotModule : public QThread
 {
@@ -25,19 +30,13 @@ public:
     RobotModule(QString id);
 
     /**
-      * Overwrite run
-      *
-      */
-    void run();
-
-    /**
       * id of the instance. is unique under all instances of all loaded modules
-      * must not contain any slashes or backslashes
+      * must not contain any slashes or backslashes (thread safe)
       */
     QString getId();
 
     /**
-      * this string will be seen on the tab representing this module
+      * this string will be seen on the tab representing this module (thread safe)
       *
       * the default implementation just uses the Id
       */
@@ -45,22 +44,27 @@ public:
 
     /**
       * Create the widget for viewing and configuring stuff
+      *
       * (the exact details are up  to the module programmer)
+      *
+      * must be thread-safe as this will be called from the UI thread!
       */
     virtual QWidget* createView(QWidget* parent) = 0;
 
     /**
       * Return all modules this module depends on.
+      *
+      * although not currently used anywhere, it must be implemented thread-safe,
       */
     virtual QList<RobotModule*> getDependencies() = 0;
 
     /**
-      * Returns true if this module is currently enabled
+      * Returns true if this module is currently enabled (thread safe)
       */
     bool isEnabled();
 
     /**
-      * Return true if the module has been initialized
+      * Return true if the module has been initialized (thread safe)
       */
     bool isInitialized();
 
@@ -103,14 +107,13 @@ public:
      */
     void addData(QString key, const QVariant value);
 
-
     /**
-      * Returns the current health status of this module
+      * Returns the current health status of this module (thread safe)
       */
     HealthStatus getHealthStatus();
 
     /**
-      * stops the module from the outside.
+      * stops the module from the outside. (thread safe)
       *
       * waits until the module-thread is shutdown
       */
@@ -142,18 +145,18 @@ signals:
 public slots:
 
     /**
-      * Resets the runtime, non-persistent state of the module back to
-      * its initial state.
-      * (e.g. "stop thrusters", "reset state machine back to starting point")
-      */
-    virtual void reset();
-
-    /**
-      * Enable/disable this module
+      * Enable/disable this module. (thread safe)
       */
     void setEnabled(bool value);
 
 protected:
+
+
+    /**
+      * Overwrite run
+      *
+      */
+    void run();
 
     /**
       * mutex to lock access to data or settings map. this is the main mutex of the module.
@@ -196,7 +199,7 @@ protected:
       * all initialisation should be performed in this method.
       * This method is called from the module's own thread.
       */
-    virtual void init();
+    virtual void init() = 0;
 
     /**
       * This method is called when the module is destroyed (in other words:
@@ -225,6 +228,15 @@ protected slots:
       * The default implementation will do no checks.
       */
     virtual void doHealthCheck();
+
+    /**
+      * Resets the runtime, non-persistent state of the module back to
+      * its initial state.
+      * (e.g. "stop thrusters", "reset state machine back to starting point")
+      *
+      * This method is not thread safe and can therefor only be called as a SLOT
+      */
+    virtual void reset();
 
 private:
 
