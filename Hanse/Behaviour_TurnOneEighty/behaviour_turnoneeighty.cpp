@@ -27,6 +27,7 @@ QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()
     QList<RobotModule*> ret;
     ret.append( tcl );
     ret.append( compass );
+    ret.append( xsens );
     return ret;
 }
 

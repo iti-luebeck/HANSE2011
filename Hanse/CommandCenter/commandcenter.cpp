@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskHandControl *thc, TaskWallNavigation *twn)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn)
     : RobotModule(id)
 {
     qDebug()<<"commandcenter thread id";
@@ -20,7 +20,12 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->sim = sim;
     this->taskhandcontrol = thc;
     this->taskwallnavigation = twn;
-
+    this->pipe = pipe;
+    this->ball = ball;
+    this->o80 = o80;
+    this->wall = wall;
+    this->xsens = xsens;
+    //this->goal = goal;
 
     timer.moveToThread(this);
 
@@ -39,7 +44,13 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
     connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
 
-
+    // Stop all behaviours
+    connect(handControl, SIGNAL(emergencyStop()), pipe, SLOT(stop()));
+    //connect(handControl, SIGNAL(emergencyStop()), goal, SLOT(stop()));
+    connect(handControl, SIGNAL(emergencyStop()), o80, SLOT(stop()));
+    connect(handControl, SIGNAL(emergencyStop()), ball, SLOT(stop()));
+    connect(handControl, SIGNAL(emergencyStop()), wall, SLOT(stop()));
+    connect(handControl, SIGNAL(emergencyStop()), xsens, SLOT(stop()));
 
     // Tasks specific signals
     // TaskHandConrol
@@ -73,12 +84,13 @@ bool CommandCenter::isActive(){
 
 void CommandCenter::init(){
     logger->debug("Command center init");
+    this->setEnabled(true);
 }
 
 void CommandCenter::startCommandCenter(){
     RobotModule::reset();
     running = true;
-    this->setEnabled(true);
+
     emit newMessage("CommandCenter started!");
 
     this->abortedList.clear();
@@ -117,7 +129,7 @@ void CommandCenter::stopCommandCenter(){
 
     logger->info("CommandCenter stoped");
     this->setHealthToSick("Commandcenter stoped");
-    this->setEnabled(false);
+    //this->setEnabled(false);
 
 
 

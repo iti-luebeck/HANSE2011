@@ -6,6 +6,14 @@
 #include <Framework/eventthread.h>
 #include <TaskHandControl/taskhandcontrol.h>
 #include <TaskWallNavigation/taskwallnavigation.h>
+#include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
+#include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
+#include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
+#include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
+#include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
+#include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
+//#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
+#include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -15,12 +23,14 @@ class Behaviour_PipeFollowing;
 class Behaviour_BallFollowing;
 class Behaviour_TurnOneEighty;
 class Behaviour_WallFollowing;
+class Behaviour_XsensFollowing;
+//class Behaviour_GoalFollowing;
 
 class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, TaskHandControl *thc, TaskWallNavigation *twn);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -43,6 +53,17 @@ private:
     Module_ThrusterControlLoop* tcl;
     Module_HandControl* handControl;
     Module_PressureSensor* pressure;
+    Behaviour_PipeFollowing* pipe;
+    Behaviour_TurnOneEighty* o80;
+    Behaviour_WallFollowing* wall;
+    Behaviour_BallFollowing* ball;
+    Behaviour_XsensFollowing* xsens;
+
+
+    // Behaviour_WallFollowing* goal;
+
+    TaskHandControl *taskhandcontrol;
+    TaskWallNavigation *taskwallnavigation;
 
     EventThread updateThread;
 
@@ -53,8 +74,7 @@ private:
     void commandCenterControl();
     void submergedExecute();
 
-    TaskHandControl *taskhandcontrol;
-    TaskWallNavigation *taskwallnavigation;
+
 
 public slots:
     void startCommandCenter();

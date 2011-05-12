@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>XsensFollowingForm</class>
+ <widget class="QWidget" name="XsensFollowingForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QPushButton" name="apply">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>50</y>
+     <width>91</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Apply</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="delta">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>140</y>
+     <width>113</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>0.3</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="deltaLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>140</y>
+     <width>121</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>delta</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="turnClockwise">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>200</y>
+     <width>91</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>turn clockwise</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="ffSpeed">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>100</y>
+     <width>113</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>0.3</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="setHeading">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>20</y>
+     <width>91</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>setHeading</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="stopButton">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>STOP</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="kpLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>120</y>
+     <width>121</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>kp</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="kp">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>120</y>
+     <width>113</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>0.3</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="startButton">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>START</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="driveTime">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>80</y>
+     <width>113</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>30</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="driveTimeLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>80</y>
+     <width>141</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Drive Time:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="ffSpeedLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>100</y>
+     <width>141</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>const ForwardSpeed</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

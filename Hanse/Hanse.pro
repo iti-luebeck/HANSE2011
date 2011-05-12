@@ -20,7 +20,8 @@ OBJECTS_DIR = tmp/obj
 
 # so they show up the the project tree, for convenience
 OTHER_FILES += bin/log4qt.properties bin/ITI/Hanse.ini \
-    TaskHandControl/TaskHandControl.pri
+    TaskHandControl/TaskHandControl.pri \
+    Behaviour_XsensFollowing/Behaviour_CompassFollowing.pri
 
 # QMAKE_CXXFLAGS += -O2 -funroll-loops -msse2 -mfpmath=sse
 
@@ -61,6 +62,7 @@ include(Behaviour_PipeFollowing/Behaviour_PipeFollowing.pri)
 include(Behaviour_TestMT/Behaviour_TestMT.pri)
 include(Behaviour_TurnOneEighty/Behaviour_TurnOneEighty.pri)
 include(Behaviour_WallFollowing/Behaviour_WallFollowing.pri)
+include(Behaviour_XsensFollowing/Behaviour_XsensFollowing.pri)
 
 # tasks
 include(TaskHandControl/TaskHandControl.pri)
