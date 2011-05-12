@@ -65,16 +65,8 @@ public:
     bool isInitialized();
 
     /**
-      * Create a new Instance of QSetting for this module. This settings object
-      * is not thread safe, thus must not be shared. The user may simply throw it
-      * away after use.
-      */
-    QSettings& createSettings();
-
-    /**
       * A copy of the settings of this module using dataLockerMutex (thread safe)
       */
-//    QSettings& getSettings();
     const QMap<QString,QVariant> getSettingsCopy();
 
     /**
@@ -235,11 +227,6 @@ protected slots:
     virtual void doHealthCheck();
 
 private:
-
-    /**
-      * All persistent configuration of the module is stored in here
-      */
-    QSettings settings;
 
     /**
       * Central data store for this module. Everything stored in this Map is

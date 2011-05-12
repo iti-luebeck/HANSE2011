@@ -3,7 +3,6 @@
 
 RobotModule::RobotModule(QString newId)
     : dataLockerMutex(QMutex::Recursive),
-      settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse"),
       id(newId),
       healthCheckTimer(this),
       initialized(false)
@@ -11,7 +10,6 @@ RobotModule::RobotModule(QString newId)
     moveToThread(this);
     setDefaultValue("enabled", true);
 
-    settings.beginGroup(id);
     logger = Log4Qt::Logger::logger(id);
     recorder = new DataRecorder(*this);
 
@@ -50,12 +48,6 @@ void RobotModule::setEnabled(bool value)
 
 }
 
-QSettings& RobotModule::createSettings() {
-    QSettings s(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse");
-    s.beginGroup(id);
-    return s;
-}
-
 bool RobotModule::isEnabled()
 {
     return getSettingsValue("enabled").toBool();
@@ -77,59 +69,60 @@ QString RobotModule::getId()
     return id;
 }
 
-//QSettings& RobotModule::getSettings()
-//{
-//    return settings;
-//}
-
 const  QMap<QString,QVariant> RobotModule::getSettingsCopy()
 {
-    QMutexLocker l(&dataLockerMutex);
+    QSettings s;
+    s.beginGroup(id);
+
     QMap<QString,QVariant> map;
 
-    QStringList keys = settings.allKeys();
+    QStringList keys = s.allKeys();
 
     foreach (QString key, keys) {
-       map.insert(key,settings.value(key));
+       map.insert(key,s.value(key));
     }
     return map;
-//    return settings;
 }
 
 QStringList RobotModule::getSettingKeys()
 {
-    QMutexLocker l(&dataLockerMutex);
-    QStringList list = settings.allKeys();
+    QSettings s;
+    s.beginGroup(id);
+    QStringList list = s.allKeys();
     return list;
 }
 
 
 const QVariant RobotModule::getSettingsValue(const QString key, const QVariant defValue)
 {
-    QMutexLocker l(&dataLockerMutex);
-    QVariant qv = settings.value(key,defValue);
+    QSettings s;
+    s.beginGroup(id);
+    QVariant qv = s.value(key,defValue);
     return qv;
 }
 
 const QVariant RobotModule::getSettingsValue(const QString key)
 {
-    QMutexLocker l(&dataLockerMutex);
-    QVariant qv = settings.value(key);
+    QSettings s;
+    s.beginGroup(id);
+    QVariant qv = s.value(key);
     return qv;
 }
 
 void RobotModule::setSettingsValue(QString key, QVariant value)
 {
-    QMutexLocker l(&dataLockerMutex);
-    settings.setValue(key,value);
+    QSettings s;
+    s.beginGroup(id);
+    s.setValue(key,value);
 }
 
 
 void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
 {
-    QMutexLocker l(&dataLockerMutex);
-    if (!settings.contains(key))
-        settings.setValue(key, value);
+    QSettings s;
+    s.beginGroup(id);
+    if (!s.contains(key))
+        s.setValue(key, value);
 }
 
 void RobotModule::setHealthToOk()
