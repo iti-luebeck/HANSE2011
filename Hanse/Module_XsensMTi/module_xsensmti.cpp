@@ -171,18 +171,18 @@ float Module_XsensMTi::getHeadingIncrement() {
         increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
     } else {
 #ifdef ENABLE_XSENS
-        if (mti != NULL) {
-            if (getSettingsValue("upsidedown").toBool()) {
-                addData("yaw", Angles::deg2deg(-mti->yaw()));
-            } else {
-                addData("yaw", Angles::deg2deg(mti->yaw()));
-            }
-            addData("pitch", Angles::deg2deg(mti->pitch()));
-            addData("roll", Angles::deg2deg(mti->roll()));
+//        if (mti != NULL) {
+//            if (getSettingsValue("upsidedown").toBool()) {
+//                addData("yaw", Angles::deg2deg(-mti->yaw()));
+//            } else {
+//                addData("yaw", Angles::deg2deg(mti->yaw()));
+//            }
+//            addData("pitch", Angles::deg2deg(mti->pitch()));
+//            addData("roll", Angles::deg2deg(mti->roll()));
 
             // Xsens ist verkehrt rum eingebaut!!!
             increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
-        }
+//        }
 #endif
     }
 
