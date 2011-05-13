@@ -10,8 +10,8 @@ class DataRecorder : public QObject
 Q_OBJECT
 public:
     DataRecorder(RobotModule& module);
+    ~DataRecorder();
 
-    void close();
 
 signals:
 
@@ -29,6 +29,7 @@ private:
     int fileCount;
 
     void open();
+    void close();
     bool isChanged(QStringList a, QStringList b);
 };
 

@@ -9,9 +9,14 @@ DataRecorder::DataRecorder(RobotModule& module)
     connect(&module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(newDataReceived(RobotModule*)));
     connect(&module, SIGNAL(healthStatusChanged(RobotModule*)), this, SLOT(newDataReceived(RobotModule*)));
 
+    stream = NULL;
     file = new QFile(DataLogHelper::getLogDir()+module.getId()+".csv");
 
     fileCount = 0;
+}
+
+DataRecorder::~DataRecorder() {
+    this->close();
 }
 
 bool DataRecorder::isChanged(QStringList a, QStringList b)
@@ -37,10 +42,11 @@ void DataRecorder::open()
     bool listsChanged = isChanged(dataKeys, dataKeysNew) || isChanged(settingsKeys, settingsKeysNew);
 
     if (file->isOpen() && listsChanged) {
-        file->close();
+        this->close();
+
         fileCount++;
         file = new QFile(DataLogHelper::getLogDir()+module.getId()+"_"+QString::number(fileCount)+".csv");
-        stream = NULL;
+
     }
 
     if (!file->isOpen()) {
@@ -91,28 +97,21 @@ void DataRecorder::newDataReceived(RobotModule *module)
     *stream << module->getHealthStatus().isHealthOk();
 
     // TODO: write health status to different logfile
-//    *stream << "\"" << module->getHealthStatus().getLastError() << "\"";
     QMap<QString,QVariant> settingsMap;
     settingsMap = module->getSettingsCopy();
 
     foreach (QString key, settingsKeys) {
 
         QVariant value =settingsMap.value(key);
-//        QVariant value = module->getSettingsValue(key);
         if (value.convert(QVariant::Double)) {
             *stream << "," << value.toDouble();
             continue;
         }
         value = settingsMap.value(key);
-//        value = module->getSettingsValue(key);
         if (value.convert(QVariant::Bool)) {
             *stream << "," << value.toBool();
             continue;
         }
-//        value = module->getSettings().value(key);
-//        if (value.convert(QVariant::String)) {
-//            *stream << ",\"" << value.toString() << "\"";
-//        }
     }
 
     foreach (QString key, dataKeys) {
@@ -142,5 +141,13 @@ void DataRecorder::newDataReceived(RobotModule *module)
 void DataRecorder::close()
 {
     logger->debug("Closing data log file for "+module.getId());
-    file->close();
+
+    if (stream != NULL) {
+        delete stream;
+        stream = NULL;
+    }
+    if (file != NULL) {
+        delete file;
+        file = NULL;
+    }
 }

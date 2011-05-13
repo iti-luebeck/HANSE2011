@@ -192,7 +192,9 @@ void RobotModule::addData(QString key, QVariant value)
 
 void RobotModule::terminate()
 {
-    recorder->close();
+    // delete recorder to make sure that all it won't log any longer
+    delete recorder;
+    recorder = NULL;
 }
 
 bool RobotModule::shutdown()
