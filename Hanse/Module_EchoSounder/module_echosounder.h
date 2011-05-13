@@ -17,22 +17,8 @@ class Module_EchoSounder : public RobotModule{
     friend class EchoDataSourceFile;
     friend class EchoDataSourceSerial;
 
-    class ThreadedReader : public QThread{
-    public:
-        ThreadedReader(Module_EchoSounder* m);
-
-        void pleaseStop();
-        void run(void);
-
-    private:
-        Module_EchoSounder* m;
-        Module_Simulation* sim;
-        QTextStream* fileStream;
-        bool running;
-    };
 public:
     Module_EchoSounder(QString id, Module_Simulation *sim);
-    ~Module_EchoSounder();
 
     const EchoReturnData d;
 
@@ -86,7 +72,6 @@ signals:
 
 private:
     Module_Simulation *sim;
-    ThreadedReader reader;
     QTimer timer;
     EchoDataSource* source;
     EchoDataRecorder* recorder;

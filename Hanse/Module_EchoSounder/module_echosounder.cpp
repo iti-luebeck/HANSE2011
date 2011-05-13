@@ -11,7 +11,7 @@
 #include <Module_Simulation/module_simulation.h>
 
 Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
-    : RobotModule(id), reader(this)
+    : RobotModule(id)
 {
     setDefaultValue("serialPort", "COM9");
     setDefaultValue("range", 5);
@@ -51,8 +51,6 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
 
     //reset();
 }
-Module_EchoSounder::~Module_EchoSounder(){
-}
 
 void Module_EchoSounder::init()
 {
@@ -62,26 +60,13 @@ void Module_EchoSounder::init()
     connect(sim,SIGNAL(newSonarSideData(EchoReturnData)), this, SLOT(refreshSimData(EchoReturnData)));
     connect(this,SIGNAL(requestSonarSideSignal()),sim,SLOT(requestSonarSideSlot()));
 
+    connect(&timer,SIGNAL(timeout()), this, SLOT(doNextScan()));
+
     reset();
-}
-
-Module_EchoSounder::ThreadedReader::ThreadedReader(Module_EchoSounder *m)
-{
-    this->m = m;
-    running = true;
-}
-
-void Module_EchoSounder::ThreadedReader::pleaseStop()
-{
-    running = false;
 }
 
 void Module_EchoSounder::terminate(){
 
-    logger->debug("Asking Echo Reading Thread to stop.");
-    reader.pleaseStop();
-    logger->debug("Waiting for Echo Reading Thread to terminate.");
-    reader.wait();
     logger->debug("Destroying echo data source and recorder.");
     if (this->source != NULL) {
         delete this->source;
@@ -94,17 +79,6 @@ void Module_EchoSounder::terminate(){
         recorder = NULL;
     }
     RobotModule::terminate();
-}
-
-void Module_EchoSounder::ThreadedReader::run(void){
-    running = true;
-    while(running)
-    {
-        if (m->getSettingsValue("enabled").toBool()){// || !m->doNextScan()){
-            m->doNextScan();
-            msleep(m->getSettingsValue("scanTimer").toInt());
-        }
-    }
 }
 
 void Module_EchoSounder::refreshSimData(EchoReturnData dat){
@@ -122,6 +96,7 @@ bool Module_EchoSounder::doNextScan(){
 
         if(!source || !source->isOpen()){
             logger->error("Nein das source ist kaputt");
+            msleep(100);
             emit dataError();
             return false;
         }
@@ -294,10 +269,6 @@ float Module_EchoSounder::getAvgCm(){
 void Module_EchoSounder::reset(){
     RobotModule::reset();
 
-    logger->debug("Stopping reader.");
-    reader.pleaseStop();
-    reader.wait();
-
     logger->debug("Destroying and echo data source.");
     if (this->source != NULL) {
         this->source->stop();
@@ -329,21 +300,24 @@ void Module_EchoSounder::reset(){
     {
         timer.setInterval(500);
         timer.start();
-        reader.start();
-        return;
-    }
 
-    logger->debug("open source");
-    if (getSettingsValue("readFromFile").toBool())
-    {
-        logger->debug("starting source");
-        source = new EchoDataSourceFile(*this, getSettingsValue("filename").toString());
-    }
-    else
-        source = new EchoDataSourceSerial(*this);
+    } else {
 
-    logger->debug("Restarting reader.");
-    reader.start();
+        // read as fast as possible from the echo sounder
+        timer.setInterval(0);
+        timer.start();
+
+        logger->debug("open source");
+        if (getSettingsValue("readFromFile").toBool())
+        {
+            logger->debug("starting source");
+            source = new EchoDataSourceFile(*this, getSettingsValue("filename").toString());
+        }
+        else
+            source = new EchoDataSourceSerial(*this);
+
+        logger->debug("Restarting reader.");
+    }
 }
 
 
