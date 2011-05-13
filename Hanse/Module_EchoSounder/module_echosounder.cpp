@@ -95,7 +95,7 @@ bool Module_EchoSounder::doNextScan(){
     }else{
 
         if(!source || !source->isOpen()){
-            logger->error("Nein das source ist kaputt");
+            setHealthToSick("source not open.");
             msleep(100);
             emit dataError();
             return false;

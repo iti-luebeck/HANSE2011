@@ -87,6 +87,7 @@ bool Module_ScanningSonar::doNextScan()
     {
 
         if (!source || !source->isOpen()) {
+            setHealthToSick("source not open.");
             msleep(100);
             return false;
         }
@@ -164,7 +165,6 @@ void Module_ScanningSonar::reset()
         {
            timer.setInterval(0); // timerSlot will block
            timer.start();
-           setHealthToOk();
        }
         else
         {
