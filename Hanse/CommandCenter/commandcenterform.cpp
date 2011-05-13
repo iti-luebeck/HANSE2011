@@ -19,11 +19,14 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     connect(this, SIGNAL(updateGUISignal()), this, SLOT(updateGUI()));
 
 
+    connect(this, SIGNAL(addTask(QString,QString)), com, SLOT(addTask(QString,QString)));
+    connect(this, SIGNAL(clearList(QString)), com, SLOT(clearList(QString)));
+    connect(this, SIGNAL(removeTask()), com, SLOT(removeTask()));
+
     ui->setupUi(this);
     ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
 
-    // this->scheduledTasks.clear();
     this->scheduledTasks.append("TaskWallNavigation");
     this->scheduledTasks.append("HandControl");
 
@@ -51,19 +54,17 @@ void CommandCenterForm::changeEvent(QEvent *e)
     }
 }
 
-
 void CommandCenterForm::on_addButton_clicked(){
     // Add new task
     ui->scheduleList->insertPlainText(ui->scheduleInput->currentText()+"\n");
-    this->com->scheduleList.prepend(ui->scheduleInput->currentText());
-    qDebug()<<ui->scheduleInput->currentText();
+    emit addTask("scheduleList",ui->scheduleInput->currentText());
     ui->errorOutput->setText("Added one task");
 }
 
 void CommandCenterForm::on_revertButton_clicked(){
     // Delete last scheduled task
     if(!this->com->scheduleList.isEmpty()){
-        this->com->scheduleList.removeFirst();
+        emit removeTask();
     }
     ui->scheduleList->clear();
     for(int i = this->com->scheduleList.length()-1; i>=0; i--){
@@ -75,14 +76,13 @@ void CommandCenterForm::on_revertButton_clicked(){
 void CommandCenterForm::on_clearButton_clicked(){
     // Clear all scheduled tasks, but finish current working task
     ui->scheduleList->clear();
-    this->com->scheduleList.clear();
+    emit clearList("scheduleList");
     ui->errorOutput->setText("Schedule list cleared");
 }
 
 void CommandCenterForm::on_startButton_clicked(){
     // Commandcenter start
     if(com->activeTask == ""){
-        com->count=1;
         ui->finishedList->clear();
         ui->abortedList->clear();
         qDebug("Commandcenter start");
@@ -110,11 +110,12 @@ void CommandCenterForm::on_stopButton_clicked(){
 
     QString temp = "";
 
-    for(int i = 0; i< this->com->scheduleList.length(); i++){
-        temp = this->com->scheduleList.at(i);
-        this->com->abortedList.append(temp);
+    if(!this->com->scheduleList.isEmpty()){
+        for(int i = 0; i< this->com->scheduleList.length(); i++){
+            temp = this->com->scheduleList.at(i);
+            emit addTask("abortedList", temp);
+        }
     }
-
     ui->errorOutput->setText("Commandcenter stopped!");
     emit stopCommandCenter();
     emit updateGUISignal();
@@ -136,7 +137,6 @@ void CommandCenterForm::updateGUI(){
     for(int i = this->com->scheduleList.length()-1; i>=0; i--){
         ui->scheduleList->insertPlainText(this->com->scheduleList.at(i)+"\n");
     }
-
 
     ui->abortedList->clear();
     for(int i = this->com->abortedList.length()-1; i>=0; i--){

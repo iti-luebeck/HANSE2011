@@ -232,8 +232,6 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
 
 void Module_ThrusterControlLoop::setDepth(float depth)
 {
-    qDebug("New set depth");
-    qDebug()<<depth;
     QMutexLocker l(&dataLockerMutex);
     if (!getSettingsValue("enabled").toBool() || paused)
         return;

@@ -52,6 +52,7 @@ void Behaviour_WallFollowing::init()
 
 void Behaviour_WallFollowing::startBehaviour()
 {
+    this->echo->setEnabled(true);
     this->reset();
     logger->info("Behaviour started" );
     Behaviour_WallFollowing::updateFromSettings();
@@ -60,9 +61,6 @@ void Behaviour_WallFollowing::startBehaviour()
     emit started(this);
     running = true;
     echoControlTimer->start(wallTime);
-
-    //qDebug() << "wall thread id";
-    //qDebug() << QThread::currentThreadId();
 }
 
 
@@ -83,7 +81,6 @@ void Behaviour_WallFollowing::stop()
         emit angularSpeed(0.0);
         this->setEnabled(false);
         emit finished(this,false);
-
         echoControlTimer->stop();
     }
 }
@@ -144,7 +141,6 @@ void Behaviour_WallFollowing::controlWallFollow()
                 wallCase ="Case 1: No turn - only forward";
                 emit forwardSpeed(fwdSpeed);
                 emit angularSpeed(0.0);
-                //qDebug("Case1");
             }
         } else if(avgDistance > distanceInput ){
             if(wallCase!="Case 3: Turn left"){
@@ -152,14 +148,12 @@ void Behaviour_WallFollowing::controlWallFollow()
                 temp =angSpeed*(-1.0);
                 emit forwardSpeed(fwdSpeed);
                 emit angularSpeed(temp);
-                //qDebug("Case3");
             }
         } else if(avgDistance < distanceInput){   
             if(wallCase!="Case 2: Turn right"){
                 wallCase = "Case 2: Turn right";
                 emit forwardSpeed(fwdSpeed);
                 emit angularSpeed(angSpeed);
-                //qDebug("Case2");
             }
         }
     }
@@ -214,7 +208,6 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
 
 void Behaviour_WallFollowing::updateFromSettings()
 {
-    //qDebug("Wall: Update Settings");
     this->distanceInput = this->getSettingsValue("desiredDistance").toFloat();
     this->fwdSpeed = this->getSettingsValue("forwardSpeed").toFloat();
     this->angSpeed = this->getSettingsValue("angularSpeed").toFloat();
@@ -234,14 +227,10 @@ void Behaviour_WallFollowing::stopOnEchoError(){
 }
 
 void Behaviour_WallFollowing::testEchoModule(){
-    //qDebug("Test");
     if(this->isEnabled()){
         if(!echo->isEnabled()){
             emit dataError();
         }
     }
     wallCase = "";
-
-
-
 }

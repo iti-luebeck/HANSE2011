@@ -9,8 +9,6 @@ Behaviour_XsensFollowing::Behaviour_XsensFollowing(QString id, Module_ThrusterCo
     this->tcl = tcl;
     turnTimer.moveToThread(this);
     timer.moveToThread(this);
-    //    connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
-    //    connect(&turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
 
     this->setDefaultValue("timer",100);
     this->setDefaultValue("driveTime",30);
@@ -26,7 +24,6 @@ bool Behaviour_XsensFollowing::isActive()
 
 void Behaviour_XsensFollowing::init()
 {
-    //qDebug("Xsens follow init");
     logger->info("Xsens Following init");
     setEnabled(false);
     turning = false;
@@ -38,8 +35,6 @@ void Behaviour_XsensFollowing::init()
 
 void Behaviour_XsensFollowing::startBehaviour()
 {
-    //    qDebug("Xsens follow start");
-    //    qDebug()<<getSettingsValue("timer").toInt();
     logger->info("Starting Xsens Following");
     this->setEnabled(true);
     addData("ctrHeading",xsens->getHeading());
@@ -52,7 +47,7 @@ void Behaviour_XsensFollowing::startBehaviour()
 
 void Behaviour_XsensFollowing::stop()
 {
-    //qDebug("Xsens follow stop");
+    logger->info("Xsens follow stop");
     this->setEnabled(false);
     timer.stop();
     turnTimer.stop();
@@ -65,7 +60,7 @@ void Behaviour_XsensFollowing::stop()
 
 void Behaviour_XsensFollowing::reset()
 {
-    //qDebug("Xsens follow reset");
+    logger->info("Xsens follow reset");
     timer.stop();
     turnTimer.stop();
     emit newAngularSpeed(0.0);
@@ -79,9 +74,6 @@ void Behaviour_XsensFollowing::reset()
         this->setHealthToOk();
         timer.start(getSettingsValue("timer").toInt());
         turnTimer.start(getSettingsValue("driveTime").toInt());
-        //        qDebug()<<getSettingsValue("driveTime").toInt();
-        //        qDebug()<<getSettingsValue("timer").toInt();
-
     }
     else
     {
@@ -91,11 +83,10 @@ void Behaviour_XsensFollowing::reset()
 
 void Behaviour_XsensFollowing::controlLoop()
 {
-    //qDebug("Xsens follow controlloop");
+    logger->debug("Xsens follow controlloop");
     if (!isActive())
         return;
 
-    logger->info("control xsens");
     float ctrAngle = getDataValue("ctrHeading").toFloat();
     if(!xsens->getHealthStatus().isHealthOk())
     {
@@ -121,7 +112,7 @@ void Behaviour_XsensFollowing::controlLoop()
 
 void Behaviour_XsensFollowing::turnNinety()
 {
-    qDebug("Xsens follow turnninety");
+    logger->debug("Xsens follow turnninety");
     if (!isActive())
         return;
 
@@ -144,7 +135,7 @@ void Behaviour_XsensFollowing::turnNinety()
 
 void Behaviour_XsensFollowing::refreshHeading()
 {
-    qDebug("Xsens follow refresh heading");
+    logger->debug("Xsens follow refresh heading");
     if (!isActive())
         return;
 
@@ -156,7 +147,7 @@ void Behaviour_XsensFollowing::refreshHeading()
 
 void Behaviour_XsensFollowing::stopOnXsensError()
 {
-    qDebug("Xsens follow stop error");
+    logger->info("Xsens follow stop error");
     this->setEnabled(false);
     timer.stop();
     turnTimer.stop();

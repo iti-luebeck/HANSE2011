@@ -32,8 +32,6 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     setEnabled(false);
     running = false;
 
-
-
     // Command center specific signals
     connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
@@ -110,7 +108,7 @@ void CommandCenter::startCommandCenter(){
     logger->info("CommandCenter started");
 
     if(this->getSettingsValue("subEx").toBool() == true){
-        // qDebug("Submerged execution!");
+        logger->debug("Submerged execution!");
         addData("Submerged",true);
         emit dataChanged(this);
         submergedExecute();
@@ -146,11 +144,6 @@ void CommandCenter::stopCommandCenter(){
     {
 
     }
-
-//    if(!this->handControl->isEnabled()){
-//        this->handControl->setEnabled(true);
-//        this->tcl->setEnabled(true);
-//    }
 }
 
 void CommandCenter::commandCenterControl(){
@@ -163,10 +156,10 @@ void CommandCenter::commandCenterControl(){
         this->handControl->setEnabled(false);
     }
     if(!scheduleList.isEmpty() && this->isEnabled()){
-        qDebug("Commandcenter control; Next scheduled task:");
+        logger->debug("Commandcenter control; Next scheduled task:");
         QString temp=scheduleList.last();
         QString tempAkt = "";
-        qDebug()<<temp;
+        logger->debug(temp);
         for(int j = 0; j < temp.length(); j++){
             if(((temp[j] == QChar(':'))==false) && ((temp[j] == QChar(' '))==false) ){
                 tempAkt = tempAkt + temp.at(j);
@@ -174,11 +167,9 @@ void CommandCenter::commandCenterControl(){
                 break;
             }
         }
-        qDebug()<<tempAkt;
+        logger->debug(tempAkt);
         scheduleList.removeLast();
-        addData("Task Nr", count);
-        addData("Task Name", tempAkt);
-        emit dataChanged(this);
+
         if(tempAkt == "HandControl"){
             emit startTaskHandControl();
             activeTask = tempAkt;
@@ -186,7 +177,7 @@ void CommandCenter::commandCenterControl(){
             emit startTaskWallNavigation();
             activeTask = tempAkt;
         } else  {
-            qDebug("Task not found, skip task!");
+            logger->info("Task not found, skip task!");
             emit newError("Task not found, skip task!");
             this->abortedList.append(temp);
             activeTask = "";
@@ -197,7 +188,7 @@ void CommandCenter::commandCenterControl(){
         if(!this->isEnabled()){
             emit newError("Commandcenter not enabled!");
         } else {
-            qDebug("Schedule error, no existing tasks!");
+            logger->info("Schedule error, no existing tasks!");
             if(!this->getSettingsValue("subEx").toBool()){
                 emit newError("No existing task");
             } else {
@@ -230,11 +221,11 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
         }
     }
     if(success==true){
-        qDebug("One task has finished successfully");
+        logger->info("One task has finished successfully");
         this->finishedList.append(activeTask);
         activeTask = "";
     } else {
-        qDebug("One task has finished unsuccessfully");
+        logger->info("One task has finished unsuccessfully");
         this->abortedList.append(activeTask);
         activeTask = "";
     }
@@ -256,7 +247,7 @@ void CommandCenter::doNextTask(){
 // Not used....
 void CommandCenter::timeout(){
     // Timeout, stop everything
-    qDebug("Commandcenter timeout!");
+    logger->info("Commandcenter timeout!");
     emit setDepth(0);
     emit setForwardSpeed(0);
     emit setAngularSpeed(0);
@@ -265,7 +256,7 @@ void CommandCenter::timeout(){
 
 void CommandCenter::submergedExecute(){
     // Set submerged depth
-    qDebug("Commandcenter submerged execute!");
+    logger->debug("Commandcenter submerged execute!");
     addData("Sub.exec.depth", this->getSettingsValue("targetDepth").toFloat());
     emit dataChanged(this);
     emit setDepth(this->getSettingsValue("targetDepth").toFloat());
@@ -280,12 +271,19 @@ void CommandCenter::terminate(){
 
 void CommandCenter::reset(){
     RobotModule::reset();
-    // There is nothing to reset...
+    emit newError("Reset");
+
+    emit stopAllTasks();
+
+    this->scheduleList.clear();
+    this->finishedList.clear();
+    this->abortedList.clear();
+
+    emit updateGUI();
 }
 
 void CommandCenter::setNewMessage(QString s){
     emit newMessage(s);
-    qDebug()<<s;
 }
 
 
@@ -302,12 +300,9 @@ QWidget* CommandCenter::createView(QWidget *parent){
 void CommandCenter::emergencyStopCommandCenter(){
     controlTimer.stop();
     logger ->info("Emergency stop, stop and deactivate all task - handcontrol active");
-    //schedule.clear();
     emit stopAllTasks();
     emit resetTCL();
 
-    //emit startTaskHandControl();
-    //activeTask = "HandControl";
     this->handControl->setEnabled(false);
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
@@ -318,7 +313,6 @@ void CommandCenter::emergencyStopCommandCenter(){
 void CommandCenter::startTaskHandControlCC(){
     controlTimer.stop();
     logger ->info("Stop and deactivate all task - handcontrol active");
-    //schedule.clear();
     emit stopAllTasks();
     emit resetTCL();
     if(this->activeTask != "HandControl"){
@@ -340,13 +334,40 @@ void CommandCenter::handControlFinishedCC(){
         emit setDepth(0.0);
     }
 
-    qDebug("Handcontrol has finished successfully");
+    logger->info("Handcontrol has finished successfully");
     this->finishedList.append("HandControl");
 
-        // Stop thruster, then make next task...
+    // Stop thruster, then make next task...
     controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
 
     activeTask = "";
     emit updateGUI();
+}
 
+void CommandCenter::addTask(QString listName, QString taskName){
+    if(listName == "scheduleList"){
+        this->scheduleList.append(taskName);
+    } else if(listName == "abortedList"){
+        this->abortedList.append(taskName);
+    } else if(listName == "finishedList"){
+        this->finishedList.append(taskName);
+    } else {
+        logger->info("List not found!");
+    }
+}
+
+void CommandCenter::clearList(QString listName){
+    if(listName == "scheduleList"){
+        this->scheduleList.clear();
+    } else if(listName == "abortedList"){
+        this->abortedList.clear();
+    } else if(listName == "finishedList"){
+        this->finishedList.clear();
+    } else {
+        logger->info("List not found!");
+    }
+}
+
+void CommandCenter::removeTask(){
+    this->scheduleList.removeFirst();
 }

@@ -4,7 +4,7 @@
 #include <CommandCenter/commandcenter.h>
 
 #include <QWidget>
-#include <log4qt/logger.h>
+//#include <log4qt/logger.h>
 
 class CommandCenter;
 
@@ -26,7 +26,7 @@ protected:
     void changeEvent(QEvent *e);
 
 private:
-    Log4Qt::Logger *logger;
+    //Log4Qt::Logger *logger;
     Ui::CommandCenterForm *ui;
     CommandCenter* com;
 
@@ -34,6 +34,9 @@ signals:
     void startCommandCenter();
     void stopCommandCenter();
     void updateGUISignal();
+    void addTask(QString listName, QString taskName);
+    void removeTask();
+    void clearList(QString listName);
 
 public slots:
     void updateGUI();

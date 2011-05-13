@@ -139,9 +139,6 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     float aktMax = 0.0;
     char c;
 
-    //calcFactor = getSettingsValue("calcFactor").toDouble();
-    //qDebug()<<calcFactor;
-
     // 5 Datenarrays werden für die Distanzberechnung gefüllt
     if(count%5==4){
         for (int i = 0; i < dataLength; i++) {
@@ -214,7 +211,6 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
         }
 
         for (int r = 0; r < 252; r++){
-            //qDebug()<<aktMax;
 
             if(aktMax < avgSig[r]){
                 aktMax = avgSig[r];
@@ -231,16 +227,8 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
             calcFactor = getSettingsValue("calcFactor").toFloat();
 
             float a = ((calcFactor)*(float)averageWindow * aktMax);
-//            qDebug("Neue Daten:");
-//            qDebug()<<a;
-//            qDebug()<<avgFilter;
-//            qDebug()<<calcFactor;
-//            qDebug()<<(float)averageWindow;
-//            qDebug()<<aktMax;
 
             if(avgFilter>a){
-                //qDebug("avgDistance neu");
-
                 avgDistance = (x+3)/einheit;
                 // Berechnung abgeschlossen, also raus hier!
                 break;

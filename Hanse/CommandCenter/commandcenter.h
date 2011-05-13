@@ -91,6 +91,9 @@ public slots:
 
 private slots:
     void doNextTask();
+    void addTask(QString listName, QString taskName);
+    void removeTask();
+    void clearList(QString listName);
 
 signals:
     void setDepth(float depth);
