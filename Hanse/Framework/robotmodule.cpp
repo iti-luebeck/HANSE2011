@@ -1,6 +1,10 @@
 #include "robotmodule.h"
 #include "datarecorder.h"
 
+#ifdef OS_UNIX
+#include <sys/prctl.h>
+#endif
+
 RobotModule::RobotModule(QString newId)
     : dataLockerMutex(QMutex::Recursive),
       id(newId),
@@ -16,6 +20,11 @@ RobotModule::RobotModule(QString newId)
 
 void RobotModule::run()
 {
+#ifdef OS_UNIX
+    prctl(PR_SET_NAME,("H: "+id).toStdString().c_str(),0,0,0);
+    logger->info("Thread id of module "+id+": "+QString::number(QThread::currentThreadId()));
+#endif
+
     this->init();
     dataLockerMutex.lock();
     this->initialized = true;
