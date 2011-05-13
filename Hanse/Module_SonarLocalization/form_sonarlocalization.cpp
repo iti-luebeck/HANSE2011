@@ -105,36 +105,36 @@ void Form_SonarLocalization::setFields()
     ui->config_satImage->setText(m->getSettingsValue("satImgFile").toString());
     ui->scaleMap->setText(m->getSettingsValue("scaleMap").toString());
 
-    ui->debug->setChecked((m->getSettingsValue("debug").toBool()));
+    ui->debug->setChecked((m->getSettingsValue("debug", false).toBool()));
 
-    ui->medianFilterCB->setChecked(m->getSettingsValue("medianFilter",true).toBool());
-    ui->darknessCnt->setText((m->getSettingsValue("darknessCnt").toString()));
+    ui->medianFilterCB->setChecked(m->getSettingsValue("medianFilter", true).toBool());
+    ui->darknessCnt->setText((m->getSettingsValue("darknessCnt", 20).toString()));
     ui->singlePointCB->setChecked(m->getSettingsValue("singlePoint",true).toBool());
     ui->deltaKHCB->setChecked(m->getSettingsValue("deltaKH",true).toBool());
 
-    ui->wallWindowSize->setText((m->getSettingsValue("wallWindowSize").toString()));
-    ui->varTH->setText((m->getSettingsValue("varTH").toString()));
-    ui->largePeakTH->setText((m->getSettingsValue("largePeakTH").toString()));
-    ui->meanBehindTH->setText((m->getSettingsValue("meanBehindTH").toString()));
+    ui->wallWindowSize->setText((m->getSettingsValue("wallWindowSize", 3).toString()));
+    ui->varTH->setText((m->getSettingsValue("varTH", 0.04).toString()));
+    ui->largePeakTH->setText((m->getSettingsValue("largePeakTH", 0.5).toString()));
+    ui->meanBehindTH->setText((m->getSettingsValue("meanBehindTH", 1.0).toString()));
 
-    ui->imgMinPixels->setText((m->getSettingsValue("imgMinPixels").toString()));
-    ui->controlVariance->setText((m->getSettingsValue("controlVariance").toString()));
-    ui->initVariance->setText((m->getSettingsValue("initVariance").toString()));
-    ui->distanceCutoff->setText((m->getSettingsValue("distanceCutoff").toString()));
-    ui->particleCount->setText((m->getSettingsValue("particleCount").toString()));
-    ui->boltzmann->setText((m->getSettingsValue("observationVariance").toString()));
+    ui->imgMinPixels->setText((m->getSettingsValue("imgMinPixels", 10).toString()));
+    ui->controlVariance->setText((m->getSettingsValue("controlVariance", "2;2;1").toString()));
+    ui->initVariance->setText((m->getSettingsValue("initVariance", "5;5;2").toString()));
+    ui->distanceCutoff->setText((m->getSettingsValue("distanceCutoff", 10000).toString()));
+    ui->particleCount->setText((m->getSettingsValue("particleCount", 1000).toString()));
+    ui->boltzmann->setText((m->getSettingsValue("observationVariance", 10).toString()));
 
     ui->configure_SVM->setText(m->getSettingsValue("Path2SVM").toString());
 
-    ui->groupingDarknessCnt->setText(m->getSettingsValue("groupingDarkness").toString());
-    ui->groupingMaxArea->setText(m->getSettingsValue("groupingMaxArea").toString());
+    ui->groupingDarknessCnt->setText(m->getSettingsValue("groupingDarkness", 10).toString());
+    ui->groupingMaxArea->setText(m->getSettingsValue("groupingMaxArea", 360).toString());
 
-    ui->enableSVM->setChecked(m->getSettingsValue("enableSVM").toBool());
-    ui->gradMaxVal->setText(m->getSettingsValue("gradientMaxVal").toString());
-    ui->gradMaxIdx->setText(m->getSettingsValue("gradientMaxIdx").toString());
-    ui->histMaxVal->setText(m->getSettingsValue("histMaxVal").toString());
+    ui->enableSVM->setChecked(m->getSettingsValue("enableSVM", false).toBool());
+    ui->gradMaxVal->setText(m->getSettingsValue("gradientMaxVal", 0.1).toString());
+    ui->gradMaxIdx->setText(m->getSettingsValue("gradientMaxIdx", 5).toString());
+    ui->histMaxVal->setText(m->getSettingsValue("histMaxVal", 1).toString());
 
-    ui->xsensBox->setChecked(m->getSettingsValue("use xsens").toBool());
+    ui->xsensBox->setChecked(m->getSettingsValue("use xsens", false).toBool());
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()

@@ -1,9 +1,16 @@
 #include "hanseapp.h"
 #include "mainwindow.h"
 #include <QSettings>
+#include <Module_Navigation/waypoint.h>
 
 int main(int argc, char *argv[])
 {
+    // Types must be registered BEFORE the settings are opened,
+    // otherwise custom types will be invalid.
+    qRegisterMetaType< QMap<QString,Waypoint> >("QMap<QString,Waypoint>");
+    qRegisterMetaType<Waypoint>("Waypoint");
+    qRegisterMetaTypeStreamOperators<Waypoint>("Waypoint");
+
     // Store config in current working directory and store
     // it as plain ini-files, not in this mysteeerious windows registry
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, ".");

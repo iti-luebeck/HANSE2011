@@ -2,8 +2,8 @@
 #include "ui_waypointdialog.h"
 #include <QMessageBox>
 
-WaypointDialog::WaypointDialog(QString name, double x, double y, double depth, double arrivalAngle,
-                               double exitAngle, QWidget *parent) :
+WaypointDialog::WaypointDialog(QString name, double x, double y, double depth, bool useStartAngle,
+                               double startAngle, bool useExitAngle, double exitAngle, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::WaypointDialog)
 {
@@ -12,8 +12,10 @@ WaypointDialog::WaypointDialog(QString name, double x, double y, double depth, d
     ui->xEdit->setText( QString( "%1" ).arg( x, 0, 'f', -1 ) );
     ui->yEdit->setText( QString( "%1" ).arg( y, 0, 'f', -1 ) );
     ui->depthEdit->setText( QString( "%1" ).arg( depth, 0, 'f', -1 ) );
-    ui->arrivalAngleEdit->setText( QString( "%1" ).arg( arrivalAngle, 0, 'f', -1 ) );
+    ui->arrivalAngleEdit->setText( QString( "%1" ).arg( startAngle, 0, 'f', -1 ) );
     ui->exitAngleEdit->setText( QString( "%1" ).arg( exitAngle, 0, 'f', -1 ) );
+    ui->useStartBox->setChecked(useStartAngle);
+    ui->useExitBox->setChecked(useExitAngle);
 }
 
 WaypointDialog::~WaypointDialog()
@@ -84,12 +86,10 @@ void WaypointDialog::on_buttonBox_accepted()
         return;
     }
 
-    Position waypointPosition;
-    waypointPosition.setX( x );
-    waypointPosition.setY( y );
-    waypointPosition.setDepth( depth );
-    waypointPosition.setArrivalAngle( arrivalAngle );
-    waypointPosition.setExitAngle( exitAngle );
+    bool useStartAngle = ui->useStartBox->isChecked();
+    bool useExitAngle = ui->useExitBox->isChecked();
 
-    emit createdWaypoint( name, waypointPosition );
+    Waypoint waypoint(name, x, y, depth, useStartAngle, arrivalAngle, useExitAngle, exitAngle);
+
+    emit createdWaypoint( name, waypoint );
 }

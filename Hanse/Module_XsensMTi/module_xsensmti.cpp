@@ -14,6 +14,7 @@ Module_XsensMTi::Module_XsensMTi(QString id, Module_Simulation *sim)
     setDefaultValue("updaterate", 10);
     setDefaultValue("port", "/dev/ttyUSB0");
     setDefaultValue("baudrate", 921600);
+    setDefaultValue("upsidedown", true);
 
     connected = false;
     mti = NULL;
@@ -134,7 +135,11 @@ void Module_XsensMTi::refreshData()
     else {
 #ifdef ENABLE_XSENS
         if (mti != NULL) {
-            addData("yaw", Angles::deg2deg(mti->yaw()));
+            if (getSettingsValue("upsidedown").toBool()) {
+                addData("yaw", Angles::deg2deg(-mti->yaw()));
+            } else {
+                addData("yaw", Angles::deg2deg(mti->yaw()));
+            }
             addData("pitch", Angles::deg2deg(mti->pitch()));
             addData("roll", Angles::deg2deg(mti->roll()));
 
@@ -167,12 +172,16 @@ float Module_XsensMTi::getHeadingIncrement() {
     } else {
 #ifdef ENABLE_XSENS
         if (mti != NULL) {
-            addData("yaw", Angles::deg2deg(mti->yaw()));
+            if (getSettingsValue("upsidedown").toBool()) {
+                addData("yaw", Angles::deg2deg(-mti->yaw()));
+            } else {
+                addData("yaw", Angles::deg2deg(mti->yaw()));
+            }
             addData("pitch", Angles::deg2deg(mti->pitch()));
             addData("roll", Angles::deg2deg(mti->roll()));
 
             // Xsens ist verkehrt rum eingebaut!!!
-            increment = -Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
+            increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
         }
 #endif
     }

@@ -50,8 +50,8 @@ public slots:
     void graphicsMouseReleased( QPointF point );
 
 //    void updateVisualSLAM();
-    void updateWaypoints( QMap<QString, Position> waypoints );
-    void updateGoal( Position goal );
+    void updateWaypoints( QMap<QString, Waypoint> waypoints );
+    void updateGoal( Waypoint goal );
     void clearGoal();
 
     void newSonarLocEstimate();

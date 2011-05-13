@@ -50,8 +50,8 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     ui->showVisSLAM->setChecked(nav->getSettingsValue("showVisSLAM").toBool());
 
     connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
-    connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Position>)), this, SLOT(updateWaypoints(QMap<QString,Position>)) );
-    connect( nav, SIGNAL(setNewGoal(Position)), this, SLOT(updateGoal(Position)) );
+    connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Waypoint>)), this, SLOT(updateWaypoints(QMap<QString,Waypoint>)) );
+    connect( nav, SIGNAL(setNewGoal(Waypoint)), this, SLOT(updateGoal(Waypoint)) );
     connect( nav, SIGNAL(clearedGoal()), this, SLOT(clearGoal()) );
 
     // save current pos twice a second
@@ -74,9 +74,9 @@ void MapWidget::changeEvent(QEvent *e)
 
 void MapWidget::graphicsMouseDoubleClicked( QPointF point )
 {
-    WaypointDialog wd( QString(), point.x(), point.y(), 2.5, 0.0, 0.0, this );
-    QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Position) ),
-                      nav, SLOT( addWaypoint(QString,Position) ) );
+    WaypointDialog wd( QString(), point.x(), point.y(), 0.0, false, 0.0, false, 0.0, this );
+    QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Waypoint) ),
+                      nav, SLOT( addWaypoint(QString,Waypoint) ) );
     wd.exec();
 }
 
@@ -154,7 +154,7 @@ void MapWidget::graphicsMouseReleased( QPointF point )
 //    }
 //}
 
-void MapWidget::updateWaypoints( QMap<QString, Position> waypoints )
+void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
 {
     if ( waypointsItem != NULL )
     {
@@ -172,10 +172,10 @@ void MapWidget::updateWaypoints( QMap<QString, Position> waypoints )
     double width = 0.5;
     for ( int i = 0; i < waypointNames.size(); i++ )
     {
-        Position pos = waypoints[waypointNames[i]];
+        Waypoint pos = waypoints[waypointNames[i]];
         QGraphicsItem *item =
-                scene->addRect( pos.getX() - width/2,
-                                pos.getY() - width/2,
+                scene->addRect( pos.posX - width/2,
+                                pos.posY - width/2,
                                 width, width, pen, brush );
         item->setParentItem( waypointsItem );
         item->setZValue( 1200 );
@@ -184,13 +184,13 @@ void MapWidget::updateWaypoints( QMap<QString, Position> waypoints )
         QGraphicsTextItem *textItem = scene->addText( waypointNames[i], f );
         textItem->setParentItem( waypointsItem );
         textItem->setZValue( 1210 );
-        textItem->setPos( pos.getX() + width / 1.5, pos.getY() - width/2 );
+        textItem->setPos( pos.posX + width / 1.5, pos.posY - width/2 );
         textItem->scale( 0.03, 0.03 );
         textItem->setDefaultTextColor( Qt::white );
     }
 }
 
-void MapWidget::updateGoal( Position goal )
+void MapWidget::updateGoal( Waypoint goal )
 {
     if ( goalItem != NULL )
     {
@@ -206,8 +206,8 @@ void MapWidget::updateGoal( Position goal )
     goalItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
     goalItem->setZValue( 1150 );
 
-    Position pos; // = nav->visSLAM->getLocalization();
-    QGraphicsItem *item = scene->addLine( goal.getX(), goal.getY(),
+    Position pos = nav->getCurrentPosition();
+    QGraphicsItem *item = scene->addLine( goal.posX, goal.posY,
                            pos.getX(), pos.getY(),
                            pen );
     item->setParentItem( goalItem );
@@ -237,27 +237,28 @@ void MapWidget::newSonarLocEstimate()
     }
 
     foreach (QVector4D p, particles) {
-        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), 1,1, masterParticle);
+        double width = 1.5;
+        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), width, width, masterParticle);
         qreal pint = 255 * (p.w() / maxWeight);
-//        qDebug() << "real " << pint;
         int weight = (int) pint;
 
-//        qDebug() << "gewicht " << weight;
-        if(weight < 0)
-        {
+        if (weight < 0) {
             weight = 0;
             qDebug() << "neg weight";
         }
-        if(weight > 255)
+        if (weight > 255) {
             weight = 255;
-        e->setPen(QPen(QColor(0,weight,0)));
+        }
+        e->setPen(Qt::NoPen);
+        e->setBrush(QBrush(QColor(weight, 255 - weight/2, 0)));
+        e->setZValue(weight + 5);
     }
 
     QVector4D particle = particles[0];
-    sonarPosition->setRect(particle.x()-0.5, particle.y()-0.5, 1,1);
+    sonarPosition->setRect(particle.x() - 1, particle.y() - 1, 2, 2);
     sonarPositionOrient->setLine(particle.x(), particle.y(),
-                                 particle.x() - 3*sin( particle.z() ),
-                                 particle.y() + 3*cos( particle.z() )
+                                 particle.x() - 8 * sin( particle.z() ),
+                                 particle.y() + 8 * cos( particle.z() )
                                  );
 
     delete masterObsPoint;
@@ -266,12 +267,13 @@ void MapWidget::newSonarLocEstimate()
     QList<QVector2D> zList = nav->sonarLoc->particleFilter().getLatestObservation();
 //    zList.append(QVector2D(1,1));
     foreach (QVector2D o, zList) {
-
+        double width = 1.5;
         QTransform rotM = QTransform().rotate(particle.z()/M_PI*180) * QTransform().translate(particle.x(), particle.y());
         QPointF q = rotM.map(o.toPointF());
 
-        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(q.x(), q.y(), 1,1, masterObsPoint);
-        e->setPen(QPen(QColor("blue")));
+        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(q.x(), q.y(), width, width, masterObsPoint);
+        e->setPen(Qt::NoPen);
+        e->setBrush(QBrush(QColor(0,210,255)));
     }
 
 }
@@ -294,26 +296,31 @@ void MapWidget::createMap()
     masterMapPoint = scene->addLine(0,0,0,0);
     QVector<QVector2D> mapPoints = nav->sonarLoc->particleFilter().getMapPoints();
     foreach (QVector2D p, mapPoints) {
-        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), 1,1, masterMapPoint);
-        e->setPen(QPen(QColor("yellow")));
+        double width = 1.5;
+        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), width, width, masterMapPoint);
+        e->setPen(Qt::NoPen);
+        e->setBrush(QBrush(Qt::yellow));
         e->setZValue(0);
     }
 
     masterParticle = scene->addLine(0,0,0,0);
     QVector<QVector4D> particles = nav->sonarLoc->particleFilter().getParticles();
     foreach (QVector4D p, particles) {
-        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), 1,1, masterParticle);
-        e->setPen(QPen(QColor("green")));
+        double width = 1;
+        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), width, width, masterParticle);
+        e->setPen(Qt::NoPen);
+        e->setBrush(QBrush(Qt::green));
         e->setZValue(2);
     }
 
-    sonarPosition = scene->addEllipse(particles[0].x(), particles[0].y(), 1,1, QPen(QColor("red")));
+    sonarPosition = scene->addEllipse(particles[0].x() - 1, particles[0].y() - 1, 2, 2, Qt::NoPen);
     sonarPositionOrient = scene->addLine( particles[0].x(), particles[0].y(),
-                           particles[0].x() - sin( particles[0].z() ),
-                           particles[0].y() + cos( particles[0].z() ),
-                           QPen(QColor("red")) );
-    sonarPosition->setZValue(3);
-    sonarPositionOrient->setZValue(3);
+                           particles[0].x() - 8 * sin( particles[0].z() ),
+                           particles[0].y() + 8 * cos( particles[0].z() ),
+                           QPen(QBrush(Qt::red), 1) );
+    sonarPosition->setZValue(300);
+    sonarPosition->setBrush(QBrush(Qt::red));
+    sonarPositionOrient->setZValue(300);
 
 }
 

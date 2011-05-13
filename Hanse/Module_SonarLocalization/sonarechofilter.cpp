@@ -45,15 +45,16 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     }
 
     this->filterEcho(currData);
-    if(this->sloc->getSettingsValue("medianFilter").toBool())
-    this->medianFilter(currData);
+    if (this->sloc->getSettingsValue("medianFilter").toBool()) {
+        this->medianFilter(currData);
+    }
 //    this->findWall(currData);
     this->gradientFilter(currData);
-    this->extractFeatures(currData);
-    CvMat feat = currData.getFeatures();
+//    this->extractFeatures(currData);
+//    CvMat feat = currData.getFeatures();
     int predClass = 1;
-    if(this->sloc->getSettingsValue("enableSVM").toBool())
-        predClass = svm->svmClassification(&feat);
+//    if(this->sloc->getSettingsValue("enableSVM").toBool())
+//        predClass = svm->svmClassification(&feat);
     currData.setClassLabel(predClass);
     candidates.append(currData);
     this->grouping();

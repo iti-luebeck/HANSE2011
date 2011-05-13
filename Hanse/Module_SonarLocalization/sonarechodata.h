@@ -26,7 +26,7 @@ public:
     float getGain();
     float getHeadingIncrement();
     QDateTime getTimeStamp();
-    cv::Mat getFeatures();
+//    cv::Mat getFeatures();
 
     void setClassLabel(int label);
     void setFiltered(QByteArray data);
@@ -53,7 +53,7 @@ private:
     float headPosition;
     float range;
     QDateTime timestamp;
-    cv::Mat features;
+//    cv::Mat features;
     float gain;
     int group;
     float headingIncrement;

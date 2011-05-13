@@ -87,13 +87,13 @@ void ModulesGraph::build()
     Module_HandControl* handControl = new Module_HandControl("handControl",controlLoop, thrusterLeft, thrusterRight, thrusterDown, thrusterDownF);
     this->modules.append(handControl);
 
-    logger->debug("Creating Module_SonarLocalization");
-    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, xsens, sim);
-    this->modules.append(sonarLoc);
-
     logger->debug("Creating Module_Webcams");
     Module_Webcams *cams = new Module_Webcams( "cams" );
     this->modules.append( cams );
+
+    logger->debug("Creating Module_SonarLocalization");
+    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, xsens, sim);
+    this->modules.append(sonarLoc);
 
     logger->debug("Creating Module_Navigation");
     Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, controlLoop, pressure, compass, xsens );

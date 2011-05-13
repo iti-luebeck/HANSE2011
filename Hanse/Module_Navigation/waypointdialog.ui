@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>241</width>
+    <width>351</width>
     <height>249</height>
    </rect>
   </property>
@@ -141,7 +141,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Arrival Angle:</string>
+    <string>Start Angle:</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="exitAngleEdit">
@@ -165,6 +165,32 @@
    </property>
    <property name="text">
     <string>Exit Angle:</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="useStartBox">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>140</y>
+     <width>98</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Use</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="useExitBox">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>170</y>
+     <width>98</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Use</string>
    </property>
   </widget>
  </widget>

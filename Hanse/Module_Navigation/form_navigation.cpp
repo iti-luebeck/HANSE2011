@@ -39,9 +39,9 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
 
     qRegisterMetaType<Position>("Position");
 
-    QObject::connect(this,SIGNAL(goToPosition(QString,Position)),nav,SLOT(gotoWayPoint(QString,Position)));
-    QObject::connect( nav, SIGNAL( updatedWaypoints(QMap<QString,Position>) ),
-                      this, SLOT( updateList(QMap<QString,Position>) ) );
+    QObject::connect(this,SIGNAL(goToPosition(QString)),nav,SLOT(gotoWayPoint(QString)));
+    QObject::connect( nav, SIGNAL( updatedWaypoints(QMap<QString,Waypoint>) ),
+                      this, SLOT( updateList(QMap<QString,Waypoint>) ) );
     QObject::connect( this, SIGNAL( removedWaypoint(QString) ),
                       nav, SLOT( removeWaypoint(QString) ) );
 }
@@ -66,25 +66,26 @@ void Form_Navigation::changeEvent(QEvent *e)
 void Form_Navigation::on_listWidget_itemDoubleClicked(QListWidgetItem* item)
 {
     QString name = item->text();
-    Position pos = waypoints[ name ];
-    WaypointDialog wd( name, pos.getX(), pos.getY(), pos.getDepth(), pos.getArrivalAngle(),
-                       pos.getExitAngle(), this );
-    QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Position) ),
-                      nav, SLOT( addWaypoint(QString,Position) ) );
+    if (waypoints.contains(name)) qDebug("contains name");
+    Waypoint pos = waypoints[name];
+    WaypointDialog wd( name, pos.posX, pos.posY, pos.depth, pos.useStartAngle,
+                       pos.startAngle, pos.useExitAngle, pos.exitAngle, this );
+    QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Waypoint) ),
+                      nav, SLOT( addWaypoint(QString,Waypoint) ) );
     wd.exec();
 }
 
 void Form_Navigation::on_addButton_clicked()
 {
-    WaypointDialog wd( QString(), 0.0, 0.0, 2.5, 0.0, 0.0, this );
+    WaypointDialog wd( QString(), 0.0, 0.0, 0.0, false, 0.0, false, 0.0, this );
 
-    QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Position) ),
-                      nav, SLOT( addWaypoint(QString,Position) ) );
+    QObject::connect( &wd, SIGNAL( createdWaypoint(QString,Waypoint) ),
+                      nav, SLOT( addWaypoint(QString,Waypoint) ) );
     wd.exec();
 }
 
 
-void Form_Navigation::updateList( QMap<QString, Position> waypoints )
+void Form_Navigation::updateList( QMap<QString, Waypoint> waypoints )
 {
     this->waypoints = waypoints;
     ui->listWidget->clear();
@@ -106,22 +107,24 @@ void Form_Navigation::on_removeButton_clicked()
 
 void Form_Navigation::on_pushButton_clicked()
 {
-    QString path = QFileDialog::getExistingDirectory( this, QString( "Choose map directory" ),
-                                                      QString( "maps" ) );
-    if ( !path.isEmpty() )
-    {
-        nav->save( path );
-    }
+//    QString path = QFileDialog::getExistingDirectory( this, QString( "Choose map directory" ),
+//                                                      QString( "maps" ) );
+//    if ( !path.isEmpty() )
+//    {
+//        nav->save( path );
+//    }
+    nav->saveToSettings();
 }
 
 void Form_Navigation::on_pushButton_2_clicked()
 {
-    QString path = QFileDialog::getExistingDirectory( this, QString( "Choose map directory" ),
-                                                      QString( "maps" ) );
-    if ( !path.isEmpty() )
-    {
-        nav->load( path );
-    }
+//    QString path = QFileDialog::getExistingDirectory( this, QString( "Choose map directory" ),
+//                                                      QString( "maps" ) );
+//    if ( !path.isEmpty() )
+//    {
+//        nav->load( path );
+//    }
+    nav->loadFromSettings();
 }
 
 void Form_Navigation::on_applyButton_clicked()
@@ -248,7 +251,7 @@ void Form_Navigation::on_gotoButton_clicked()
     if ( selectedItems.size() == 1 )
     {
         QString goal = selectedItems[0]->text();
-        emit goToPosition(goal, Position());
+        emit goToPosition(goal);
     }
 }
 

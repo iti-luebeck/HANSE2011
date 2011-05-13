@@ -288,40 +288,40 @@ cv::Mat SLTrainingUI::cvtList2Mat()
 
 void SLTrainingUI::on_testSVM_clicked()
 {
-    int cc[] = {0,0};
-    on_loadSonarFile_clicked();
-    classifiedData.clear();
-    for(int j=0;j<sam.size();j++)
-    {
-        if(sam[j].getWallCandidate() > 1)
-        {
-            SonarEchoData dat = sam[j];
-            filter->extractFeatures(dat);
-            sam.replace(j,dat);
+//    int cc[] = {0,0};
+//    on_loadSonarFile_clicked();
+//    classifiedData.clear();
+//    for(int j=0;j<sam.size();j++)
+//    {
+//        if(sam[j].getWallCandidate() > 1)
+//        {
+//            SonarEchoData dat = sam[j];
+//            filter->extractFeatures(dat);
+//            sam.replace(j,dat);
 
-            int predClass = 9;
-            cv::Mat feat = sam[j].getFeatures();
+//            int predClass = 9;
+//            cv::Mat feat = sam[j].getFeatures();
 
-            cv::Mat arr = dat.getFeatures();
-//            for(int i=0;i<feat.cols;i++)
-//            {
-//                qDebug() << "VA " << feat.at<float>(0,i);
-//               qDebug() << "VA2 " << arr.at<float>(0,i);
+//            cv::Mat arr = dat.getFeatures();
+////            for(int i=0;i<feat.cols;i++)
+////            {
+////                qDebug() << "VA " << feat.at<float>(0,i);
+////               qDebug() << "VA2 " << arr.at<float>(0,i);
+////        }
+
+////            cv::Mat test1 = filter->byteArray2Mat(feat);
+////            qDebug() << "rows " <<feat.rows << "cols " << feat.cols;
+//            CvMat test = feat;
+//            predClass = svm->svmClassification(&test);
+//            sam[j].setClassLabel(predClass);
+//            cc[predClass]++;
+////            qDebug() << j << " Class " << predClass;
 //        }
-
-//            cv::Mat test1 = filter->byteArray2Mat(feat);
-//            qDebug() << "rows " <<feat.rows << "cols " << feat.cols;
-            CvMat test = feat;
-            predClass = svm->svmClassification(&test);
-            sam[j].setClassLabel(predClass);
-            cc[predClass]++;
-//            qDebug() << j << " Class " << predClass;
-        }
-    }
-    qDebug() << "negativ " << cc[0] << " positiv " << cc[1];
-    this->applyHeuristic();
-    this->groupWallCandidates();
-   showClassified();
+//    }
+//    qDebug() << "negativ " << cc[0] << " positiv " << cc[1];
+//    this->applyHeuristic();
+//    this->groupWallCandidates();
+//   showClassified();
 }
 
 void SLTrainingUI::applyHeuristic()
@@ -494,13 +494,13 @@ void SLTrainingUI::on_trainSVM_clicked()
         if(sam[i].getClassLabel() != -1)
         {
             filter->extractFeatures(sam[i]);
-            features = sam[i].getFeatures();
+//            features = sam[i].getFeatures();
 
-            for(int j=0;j<sampls.cols;j++)
-            {
-                sampls.at<float>(cfs,j) = features.at<float>(0,j);
-                //            qDebug() << j << " add feature " << features.at<float>(0,j);
-            }
+//            for(int j=0;j<sampls.cols;j++)
+//            {
+//                sampls.at<float>(cfs,j) = features.at<float>(0,j);
+//                //            qDebug() << j << " add feature " << features.at<float>(0,j);
+//            }
 
             int u = (int)sam[i].getClassLabel();
             qDebug() << cfs << "<= " << pos+neg << " CL " << u;

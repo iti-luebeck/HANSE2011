@@ -26,8 +26,6 @@ Module_Navigation::Module_Navigation( QString id,
 
 void Module_Navigation::init()
 {
-    qRegisterMetaType< QMap<QString,Position> >("QMap<QString,Position>");
-
     // Connect to signals from the sensors.
     QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( compassUpdate(RobotModule*) ) );
@@ -78,20 +76,20 @@ void Module_Navigation::doHealthCheck()
 
 }
 
-void Module_Navigation::gotoWayPoint( QString name, Position delta )
+void Module_Navigation::gotoWayPoint( QString name )
 {
     currentGoalName = name;
-    currentGoalPosition = waypoints[name];
+    currentGoal = waypoints[name];
     state = NAV_STATE_GO_TO_GOAL;
     substate = NAV_SUBSTATE_ADJUST_HEADING;
 
     Position currentPosition = sonarLoc->getLocalization();
-    double dx = currentGoalPosition.getX() - currentPosition.getX();
-    double dy = currentGoalPosition.getY() - currentPosition.getY();
+    double dx = currentGoal.posX - currentPosition.getX();
+    double dy = currentGoal.posY - currentPosition.getY();
     headingToGoal = (atan2( -dx, dy ) * 180 / CV_PI);
     distanceToGoal = sqrt( dx*dx + dy*dy );
 
-    emit newDepth(currentGoalPosition.getZ());
+    emit newDepth(currentGoal.depth);
     emit newFFSpeed(.0);
     emit newANGSpeed(.0);
 
@@ -100,7 +98,7 @@ void Module_Navigation::gotoWayPoint( QString name, Position delta )
     addData("headingToGoal", headingToGoal);
     dataChanged( this );
 
-    emit setNewGoal( currentGoalPosition );
+    emit setNewGoal( currentGoal );
 }
 
 void Module_Navigation::clearGoal()
@@ -156,8 +154,23 @@ void Module_Navigation::xsensUpdate( RobotModule * )
                     emit newANGSpeed(.0);
                 }
             }
+
+            if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
+                double currentXsensHeading = mti->getHeading();
+                double diffXsens = Angles::deg2deg(currentXsensHeading - adjustHeadingInitialXsens);
+                addData("xsens heading to last localization", diffXsens);
+
+                if (fabs(diffXsens - diffHeading) < 10) {
+                    emit newANGSpeed(.0);
+                }
+            }
         }
     }
+}
+
+Position Module_Navigation::getCurrentPosition()
+{
+    return currentPosition;
 }
 
 void Module_Navigation::sonarPositionUpdate()
@@ -167,16 +180,16 @@ void Module_Navigation::sonarPositionUpdate()
 
     // Update all important values.
     float currentDepth = pressure->getDepth();
-    Position currentPosition = sonarLoc->getLocalization();
+    currentPosition = sonarLoc->getLocalization();
     double currentHeading = currentPosition.getYaw();
-    float diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
+    diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
 
-    addData("diffHeading", diffHeading);
+    addData("heading to goal", diffHeading);
 
     if (state == NAV_STATE_GO_TO_GOAL) {
         // Check if we are close enough to the goal.
-        if ( sqrt( ( currentPosition.getX() - currentGoalPosition.getX() ) * ( currentPosition.getX() - currentGoalPosition.getX() ) +
-                   ( currentPosition.getY() - currentGoalPosition.getY() ) * ( currentPosition.getY() - currentGoalPosition.getY() ) )
+        if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +
+                   ( currentPosition.getY() - currentGoal.posY ) * ( currentPosition.getY() - currentGoal.posY ) )
             < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
             state = NAV_STATE_REACHED_GOAL;
             substate = NAV_SUBSTATE_ADJUST_HEADING;
@@ -185,7 +198,7 @@ void Module_Navigation::sonarPositionUpdate()
         } else {
             // First adjust the depth.
             if (substate == NAV_SUBSTATE_ADJUST_DEPTH) {
-                if ( fabs( currentDepth - currentGoalPosition.getZ() ) <
+                if ( fabs( currentDepth - currentGoal.depth ) <
                      getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() ) {
                     substate = NAV_SUBSTATE_ADJUST_HEADING;
                 }
@@ -203,6 +216,7 @@ void Module_Navigation::sonarPositionUpdate()
                     if (val < -maxAngSpeed) val = -maxAngSpeed;
                     if (val > 0 && val < minAngSpeed) val = minAngSpeed;
                     if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
+                    adjustHeadingInitialXsens = mti->getHeading();
                     addData("set speed", val);
                     emit newFFSpeed(.0);
                     emit newANGSpeed(val);
@@ -231,10 +245,10 @@ void Module_Navigation::sonarPositionUpdate()
         }
     }
 
-    // If the goal was reached, the exit orientation must be adjusted.
+    // If the goal was reached, the exit orientation may need to be adjusted.
     if (state == NAV_STATE_REACHED_GOAL) {
-        float exitAngle = currentGoalPosition.getExitAngle();
-        if (exitAngle >= -180 && exitAngle <= 180) {
+        if (currentGoal.useExitAngle) {
+            float exitAngle = currentGoal.exitAngle;
             float diffHeadingExit = Angles::deg2deg(exitAngle - currentHeading);
             if (fabs(diffHeadingExit) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
                 // positive: rotate right (clockwise)
@@ -264,22 +278,22 @@ void Module_Navigation::sonarPositionUpdate()
 void Module_Navigation::forwardDone()
 {
     emit newFFSpeed(.0);
-    gotoWayPoint( currentGoalName, Position() );
+    gotoWayPoint(currentGoalName);
 }
 
-Position Module_Navigation::getWayPointPosition( QString name )
+Waypoint Module_Navigation::getWayPointPosition( QString name )
 {
     return waypoints[name];
 }
 
-QMap<QString, Position> Module_Navigation::getWaypoints()
+QMap<QString, Waypoint> Module_Navigation::getWaypoints()
 {
     return waypoints;
 }
 
-void Module_Navigation::addWaypoint( QString name, Position pos )
+void Module_Navigation::addWaypoint( QString name, Waypoint pos )
 {
-    waypoints[ name ] = pos;
+    waypoints[name] = pos;
     updatedWaypoints( waypoints );
 }
 
@@ -291,76 +305,117 @@ void Module_Navigation::removeWaypoint( QString name )
 
 void Module_Navigation::save( QString path )
 {
-    QString waypointPath = path;
-    waypointPath.append( "/waypoint.txt" );
+//    QString waypointPath = path;
+//    waypointPath.append( "/waypoint.txt" );
 
-    QFile waypointFile( waypointPath );
-    waypointFile.open( QIODevice::WriteOnly );
-    QTextStream waypointTS( &waypointFile );
-    this->saveWaypoints( waypointTS );
-    waypointFile.close();
+//    QFile waypointFile( waypointPath );
+//    waypointFile.open( QIODevice::WriteOnly );
+//    QTextStream waypointTS( &waypointFile );
+//    this->saveWaypoints( waypointTS );
+//    waypointFile.close();
 }
 
-void Module_Navigation::saveWaypoints( QTextStream &ts )
-{
-    // Number of waypoints.
-    ts << waypoints.size() << endl;
+//void Module_Navigation::saveWaypoints( QTextStream &ts )
+//{
+//    // Number of waypoints.
+//    ts << waypoints.size() << endl;
 
+//    QList<QString> names = waypoints.keys();
+//    for ( int i = 0; i < waypoints.size(); i++ )
+//    {
+//        QString name = names[i];
+//        Position pos = waypoints[name];
+//        ts << name << endl;
+//        ts << pos.getX() << " " << pos.getY() << " " << pos.getDepth() <<
+//                " " << pos.getArrivalAngle() << " " << pos.getExitAngle() << endl;
+//    }
+//}
+
+void Module_Navigation::saveToSettings()
+{
+    // Clear old waypoints.
+    QSettings newSettings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse");
+    newSettings.beginGroup(getId());
+    newSettings.beginGroup("waypoints");
+    newSettings.remove("");
+
+    // Add new waypoints.
     QList<QString> names = waypoints.keys();
-    for ( int i = 0; i < waypoints.size(); i++ )
-    {
+    for ( int i = 0; i < waypoints.size(); i++ ) {
         QString name = names[i];
-        Position pos = waypoints[name];
-        ts << name << endl;
-        ts << pos.getX() << " " << pos.getY() << " " << pos.getDepth() <<
-                " " << pos.getArrivalAngle() << " " << pos.getExitAngle() << endl;
+        Waypoint waypoint = waypoints[name];
+        QVariant waypointVariant;
+        waypointVariant.setValue<Waypoint>(waypoint);
+        newSettings.setValue(name, waypointVariant);
     }
+    newSettings.endGroup();
 }
 
 void Module_Navigation::load( QString path )
 {
-    QString waypointPath = path;
-    waypointPath.append( "/waypoint.txt" );
+//    QString waypointPath = path;
+//    waypointPath.append( "/waypoint.txt" );
 
-    QFile waypointFile( waypointPath );
-    waypointFile.open( QIODevice::ReadOnly );
-    QTextStream waypointTS( &waypointFile );
-    this->loadWaypoints( waypointTS );
-    waypointFile.close();
+//    QFile waypointFile( waypointPath );
+//    waypointFile.open( QIODevice::ReadOnly );
+//    QTextStream waypointTS( &waypointFile );
+//    this->loadWaypoints( waypointTS );
+//    waypointFile.close();
 }
 
-void Module_Navigation::loadWaypoints( QTextStream &ts )
+//void Module_Navigation::loadWaypoints( QTextStream &ts )
+//{
+//    int waypointCount = 0;
+//    ts >> waypointCount;
+
+//    waypoints.clear();
+//    for ( int i = 0; i < waypointCount; i++ ) {
+//        QString name;
+//        double x, y, depth, arrivalAngle, exitAngle;
+
+//        ts >> name;
+//        ts >> x >> y >> depth >> arrivalAngle >> exitAngle;
+
+//        Position pos;
+//        pos.setX( x );
+//        pos.setY( y );
+//        pos.setDepth( depth );
+//        pos.setArrivalAngle( arrivalAngle );
+//        pos.setExitAngle( exitAngle );
+
+//        waypoints[name] = pos;
+//    }
+
+//    updatedWaypoints( waypoints );
+//}
+
+void Module_Navigation::loadFromSettings()
 {
-    int waypointCount = 0;
-    ts >> waypointCount;
-
+    // Clear waypoint list.
     waypoints.clear();
-    for ( int i = 0; i < waypointCount; i++ )
-    {
-        QString name;
-        double x, y, depth, arrivalAngle, exitAngle;
 
-        ts >> name;
-        ts >> x >> y >> depth >> arrivalAngle >> exitAngle;
+    // Get all waypoints.
+    QSettings newSettings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse");
+    newSettings.beginGroup(getId());
+    newSettings.beginGroup("waypoints");
+    QStringList keys = newSettings.childKeys();
 
-        Position pos;
-        pos.setX( x );
-        pos.setY( y );
-        pos.setDepth( depth );
-        pos.setArrivalAngle( arrivalAngle );
-        pos.setExitAngle( exitAngle );
-
-        waypoints[name] = pos;
+    // Add waypoints.
+    for ( int i = 0; i < keys.size(); i++ ) {
+        QVariant waypointVariant = newSettings.value(keys[i]);
+        if (waypointVariant.canConvert<Waypoint>()) {
+            waypoints[keys[i]] = waypointVariant.value<Waypoint>();
+        }
     }
-
+    newSettings.endGroup();
     updatedWaypoints( waypoints );
 }
 
 double Module_Navigation::getDistance(QString name){
     Position currentPosition = sonarLoc->getLocalization();
-    currentGoalPosition = waypoints[name];
-    double dx = currentGoalPosition.getX() - currentPosition.getX();
-    double dy = currentGoalPosition.getY() - currentPosition.getY();
+    Waypoint goal = waypoints[name];
+    double dx = goal.posX - currentPosition.getX();
+    double dy = goal.posY - currentPosition.getY();
     double currentDistanceToGoal = sqrt( dx*dx + dy*dy );
     return currentDistanceToGoal;
 }

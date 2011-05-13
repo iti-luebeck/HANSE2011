@@ -24,11 +24,11 @@ protected:
 private:
     Ui::Form_Navigation *ui;
     Module_Navigation *nav;
-    QMap<QString, Position> waypoints;
+    QMap<QString, Waypoint> waypoints;
 
 signals:
     void removedWaypoint( QString name );
-    void goToPosition(QString name, Position pos);
+    void goToPosition(QString name);
 
 private slots:
     void on_clearGoalButton_clicked();
@@ -41,7 +41,7 @@ private slots:
     void on_listWidget_itemDoubleClicked(QListWidgetItem* item);
 
 public slots:
-    void updateList( QMap<QString, Position> waypoints );
+    void updateList( QMap<QString, Waypoint> waypoints );
 };
 
 #endif // FORM_NAVIGATION_H

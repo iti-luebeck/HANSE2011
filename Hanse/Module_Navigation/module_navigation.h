@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <Framework/robotmodule.h>
 #include <Framework/position.h>
+#include "waypoint.h"
 
 #define NAV_STATE_IDLE                  "idle"
 #define NAV_STATE_GO_TO_GOAL            "go to goal"
@@ -52,12 +53,12 @@ public:
     /**
       * get the list of all waypoints.
       */
-    QMap<QString, Position> getWaypoints();
+    QMap<QString, Waypoint> getWaypoints();
 
     /**
       * get the position of a waypoint
       */
-    Position getWayPointPosition(QString name);
+    Waypoint getWayPointPosition(QString name);
 
     /**
       * add a new waypoint
@@ -100,9 +101,9 @@ public:
       */
     double getDistance(QString name);
 
+    Position getCurrentPosition();
+
 private:
-    void saveWaypoints( QTextStream &ts );
-    void loadWaypoints( QTextStream &ts );
     void init();
 
 public slots:
@@ -112,17 +113,19 @@ public slots:
       *
       * if delta is ommited, a default range will be used.
       */
-    void gotoWayPoint(QString name, Position delta);
+    void gotoWayPoint(QString name);
 
     /**
       * Stops any currently active navigation; clears the history.
       */
     void reset();
     void terminate();
-    void addWaypoint( QString name, Position pos );
+    void addWaypoint( QString name, Waypoint waypoint );
     void removeWaypoint( QString name );
     void save( QString path );
+    void saveToSettings();
     void load( QString path );
+    void loadFromSettings();
 
     void compassUpdate(RobotModule *);
     void xsensUpdate(RobotModule *);
@@ -134,8 +137,8 @@ signals:
 
     void reachedWaypoint( QString waypoint );
     void failedToReachWayPoint( QString waypoint );
-    void updatedWaypoints( QMap<QString, Position> waypoints );
-    void setNewGoal( Position goal );
+    void updatedWaypoints( QMap<QString, Waypoint> waypoints );
+    void setNewGoal( Waypoint goal );
     void clearedGoal();
 
     void newDepth(float depth);
@@ -155,18 +158,26 @@ private:
     Module_XsensMTi *mti;
 
     QMap<QDateTime, QString> history;
-    QMap<QString, Position> waypoints;
+    QMap<QString, Waypoint> waypoints;
 
     QString currentGoalName;
-    Position currentGoalPosition;
+    Waypoint currentGoal;
 
     double headingToGoal;
     double distanceToGoal;
+
+    // For driving straight.
     float initialCompassHeading;
     float initialXsensHeading;
 
+    // For not turning too much.
+    double adjustHeadingInitialXsens;
+    float diffHeading;
+
     QString state;
     QString substate;
+
+    Position currentPosition;
 
 };
 #endif // MODULE_NAVIGATION_H

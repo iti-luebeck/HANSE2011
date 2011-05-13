@@ -25,7 +25,7 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->range = data.getRange();
     this->gain = data.switchCommand.startGain;
     this->group = -1;
-    this->features = cv::Mat(1,9,CV_32F);
+//    this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
     this->headingIncrement = 0;
 }
@@ -39,7 +39,7 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
     this->headPosition = dat.headPosition;
     this->range = dat.range;
     this->timestamp = dat.timestamp;
-    this->features = dat.features;
+//    this->features = dat.features;
     this->gain = dat.gain;
 
     this->gradient.clear();
@@ -50,12 +50,12 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
     this->headingIncrement = dat.headingIncrement;
 }
 
-cv::Mat SonarEchoData::getFeatures()
-{
+//cv::Mat SonarEchoData::getFeatures()
+//{
 //    for(int i=0; i<features.cols;i++)
 //        qDebug() << "FEAT " << features.at<float>(0,i);
-    return this->features;
-}
+//    return this->features;
+//}
 
 int SonarEchoData::getClassLabel()
 {
@@ -125,7 +125,7 @@ void SonarEchoData::setHeadingIncrement(float inc)
 void SonarEchoData::addFeature(int index, float value)
 {
 //    qDebug() << "feature added " << value;
-    features.at<float>(0,index) = value;
+//    features.at<float>(0,index) = value;
 }
 
 void SonarEchoData::setClassLabel(int label)

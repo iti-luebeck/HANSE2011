@@ -23,13 +23,13 @@ Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSo
 void Module_SonarLocalization::init()
 {
     logger->debug("INIT SONARLOC");
-
-    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), &filter, SLOT(newSonarData(SonarReturnData)));
     qRegisterMetaType< QList<QVector2D> >("QList<QVector2D>");
-    connect(&filter, SIGNAL(newImage(QList<QVector2D>)), &pf, SLOT(newImage(QList<QVector2D>)));
-    connect(&pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
     qRegisterMetaType< SonarEchoData > ("SonarEchoData");
     qRegisterMetaType< QList<SonarEchoData> > ("QList<SonarEchoData>");
+
+    connect(sonar, SIGNAL(newSonarData(SonarReturnData)), &filter, SLOT(newSonarData(SonarReturnData)));
+    connect(&filter, SIGNAL(newImage(QList<QVector2D>)), &pf, SLOT(newImage(QList<QVector2D>)));
+    connect(&pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
     connect(&filter,SIGNAL(newSonarEchoData(QList<SonarEchoData>)),this,SLOT(retrieveSonarEchoData(QList<SonarEchoData>)));
     connect(&filter,SIGNAL(newSonarPlotData(QList<SonarEchoData>)),this,SLOT(retrieveSonarPlotData(QList<SonarEchoData>)));
 }
