@@ -68,7 +68,7 @@ void DataRecorder::open()
         settingsKeys = module.getSettingKeys();
         settingsKeys.sort();
 
-        *stream << ";time,healthStatus,healthErrorMsg";
+        *stream << ";time,healthStatus";
         foreach (QString key, settingsKeys) {
             *stream << "," << key;
         }
