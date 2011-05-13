@@ -2,7 +2,6 @@
 #define TASKHANDCONTROL_H
 
 #include <Framework/robotbehaviour.h>
-#include <Framework/eventthread.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
