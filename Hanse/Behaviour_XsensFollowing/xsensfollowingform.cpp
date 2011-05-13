@@ -13,6 +13,7 @@ XsensFollowingForm::XsensFollowingForm(QWidget *parent, Behaviour_XsensFollowing
     this->ui->driveTime->setText(xsens->getSettingsValue("driveTime").toString());
     this->ui->kp->setText(xsens->getSettingsValue("kp").toString());
     this->ui->delta->setText(xsens->getSettingsValue("delta").toString());
+    this->ui->timerInput->setText(xsens->getSettingsValue("timer").toString());
 
     QObject::connect(this,SIGNAL(startBehaviour()),xsens,SLOT(startBehaviour()));
     QObject::connect(this,SIGNAL(stopBehaviour()),xsens,SLOT(stop()));
@@ -40,6 +41,12 @@ void XsensFollowingForm::changeEvent(QEvent *e)
 
 void XsensFollowingForm::on_startButton_clicked()
 {
+    xsens->setSettingsValue("driveTime",this->ui->driveTime->text().toInt());
+    xsens->setSettingsValue("ffSpeed",ui->ffSpeed->text().toFloat());
+    xsens->setSettingsValue("turnClockwise",this->ui->turnClockwise->isChecked());
+    xsens->setSettingsValue("kp",ui->kp->text().toFloat());
+    xsens->setSettingsValue("delta",ui->delta->text().toFloat());
+    xsens->setSettingsValue("timer", ui->timerInput->text().toFloat());
     emit startBehaviour();
 }
 
@@ -55,6 +62,7 @@ void XsensFollowingForm::on_apply_clicked()
     xsens->setSettingsValue("turnClockwise",this->ui->turnClockwise->isChecked());
     xsens->setSettingsValue("kp",ui->kp->text().toFloat());
     xsens->setSettingsValue("delta",ui->delta->text().toFloat());
+    xsens->setSettingsValue("timer", ui->timerInput->text().toFloat());
 
 }
 
