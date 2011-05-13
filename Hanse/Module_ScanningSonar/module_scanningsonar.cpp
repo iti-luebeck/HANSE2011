@@ -86,8 +86,10 @@ bool Module_ScanningSonar::doNextScan()
     else
     {
 
-        if (!source || !source->isOpen())
+        if (!source || !source->isOpen()) {
+            msleep(100);
             return false;
+        }
 
         const SonarReturnData d = source->getNextPacket();
 
