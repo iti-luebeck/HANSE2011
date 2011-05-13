@@ -8,6 +8,7 @@
 #include "waypoint.h"
 
 #define NAV_STATE_IDLE                  "idle"
+#define NAV_STATE_PAUSED                "paused"
 #define NAV_STATE_GO_TO_GOAL            "go to goal"
 #define NAV_STATE_FAILED_TO_GO_TO_GOAL  "go to goal failed"
 #define NAV_STATE_REACHED_GOAL          "reached goal"
@@ -61,70 +62,62 @@ public:
     Waypoint getWayPointPosition(QString name);
 
     /**
-      * add a new waypoint
-      *
-      * position: the position of the waypoint, in map coordinates
-      * name: the name of the waypoint. the name must be unique
-      *       and must not already been used.
-      *
-      * if you omit a specific name, a random one will be chosen.
-      * and returned.
-      */
-    QString addWayPoint(Position position,QString name="");
-
-
-    void clearGoal();
-
-    /**
-      * Returns the current destination or an empty String (""),
-      * when we are at rest.
-      */
-    QString currentDestination();
-
-    /**
-      * returns true if the robot is currently trying to reach a waypoint.
-      */
-    bool isCurrentlyMoving();
-
-    /**
-      * Returns the list of all successfully passed waypoints,
-      * sorted by time in ascending order.
-      *
-      * key: time, in seconds
-      * value: name of the waypoint
-      */
-    const QMap<QDateTime, QString> getWayPointHistory();
-
-    /**
       * Returns the euclidian distance from current position to (goal)position of the name
-      *
       */
     double getDistance(QString name);
 
     Position getCurrentPosition();
 
+    bool hasGoal();
+
+    Waypoint getCurrentGoal();
+
 private:
     void init();
+
+    /**
+      * Starts navigation state machine for the current waypoint.
+      */
+    void navigateToCurrentWaypoint();
+
+    /**
+      * Starts navigation for the next waypoint from the list of waypoints.
+      */
+    void navigateToNextWaypoint();
 
 public slots:
     /**
       * move the robot the given waypoint.
-      * stop if the robot is within "delta" range of the waypoint.
-      *
-      * if delta is ommited, a default range will be used.
       */
     void gotoWayPoint(QString name);
+
+    /**
+      * Moves the robot along a given path (i.e. list of waypoints).
+      */
+    void gotoPath(QList<QString> waypoints);
+
+    /**
+      * Cleares the current goal. Navigation will continue with the next waypoint.
+      */
+    void clearGoal();
+
+    /**
+      * Cleares the current goal and the remaining waypoints in the path.
+      */
+    void clearPath();
+
+    void pause();
+    void resume();
 
     /**
       * Stops any currently active navigation; clears the history.
       */
     void reset();
     void terminate();
+
     void addWaypoint( QString name, Waypoint waypoint );
     void removeWaypoint( QString name );
-    void save( QString path );
     void saveToSettings();
-    void load( QString path );
     void loadFromSettings();
 
     void compassUpdate(RobotModule *);
@@ -160,6 +153,8 @@ private:
     QMap<QDateTime, QString> history;
     QMap<QString, Waypoint> waypoints;
 
+    bool hasActiveGoal;
+    QList<QString> path;
     QString currentGoalName;
     Waypoint currentGoal;
 
@@ -176,6 +171,8 @@ private:
 
     QString state;
     QString substate;
+    QString pauseState;
+    QString pauseSubstate;
 
     Position currentPosition;
 

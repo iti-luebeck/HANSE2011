@@ -40,7 +40,7 @@ void Module_Navigation::init()
 
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
-
+    hasActiveGoal = false;
 }
 
 void Module_Navigation::reset()
@@ -76,18 +76,55 @@ void Module_Navigation::doHealthCheck()
 
 }
 
-void Module_Navigation::gotoWayPoint( QString name )
+void Module_Navigation::gotoWayPoint(QString name)
 {
-    currentGoalName = name;
-    currentGoal = waypoints[name];
+    path.clear();
+    path.push_back(name);
+    navigateToNextWaypoint();
+}
+
+void Module_Navigation::gotoPath(QList<QString> waypoints)
+{
+    path = waypoints;
+    navigateToNextWaypoint();
+}
+
+void Module_Navigation::navigateToNextWaypoint()
+{
+    if (path.isEmpty()) {
+        hasActiveGoal = false;
+        state = NAV_STATE_IDLE;
+        substate = NAV_SUBSTATE_DONE;
+
+        addData("state", state);
+        addData("substate", substate);
+        addData("headingToGoal", .0);
+        addData("current goal", "");
+        emit dataChanged(this);
+    } else {
+        hasActiveGoal = true;
+
+        currentGoalName = path.front();
+        path.pop_front();
+        addData("current goal", currentGoalName);
+
+        currentGoal = waypoints[currentGoalName];
+        emit setNewGoal(currentGoal);
+
+        navigateToCurrentWaypoint();
+    }
+}
+
+void Module_Navigation::navigateToCurrentWaypoint()
+{
     state = NAV_STATE_GO_TO_GOAL;
     substate = NAV_SUBSTATE_ADJUST_HEADING;
 
     Position currentPosition = sonarLoc->getLocalization();
     double dx = currentGoal.posX - currentPosition.getX();
     double dy = currentGoal.posY - currentPosition.getY();
-    headingToGoal = (atan2( -dx, dy ) * 180 / CV_PI);
-    distanceToGoal = sqrt( dx*dx + dy*dy );
+    headingToGoal = atan2(-dx, dy) * 180 / CV_PI;
+    distanceToGoal = sqrt(dx*dx + dy*dy);
 
     emit newDepth(currentGoal.depth);
     emit newFFSpeed(.0);
@@ -96,24 +133,54 @@ void Module_Navigation::gotoWayPoint( QString name )
     addData("state", state);
     addData("substate", substate);
     addData("headingToGoal", headingToGoal);
-    dataChanged( this );
+    dataChanged(this);
+}
 
-    emit setNewGoal( currentGoal );
+void Module_Navigation::pause()
+{
+    pauseState = state;
+    pauseSubstate = substate;
+    state = NAV_STATE_PAUSED;
+    addData("state", state);
+    dataChanged(this);
+}
+
+void Module_Navigation::resume()
+{
+    state = pauseState;
+    substate = pauseSubstate;
+
+    if (hasActiveGoal) {
+        navigateToCurrentWaypoint();
+    }
+    addData("state", state);
+    addData("substate", substate);
+    dataChanged(this);
 }
 
 void Module_Navigation::clearGoal()
 {
+    navigateToNextWaypoint();
+    emit clearedGoal();
+}
+
+void Module_Navigation::clearPath()
+{
     state = NAV_STATE_IDLE;
-    substate = NAV_SUBSTATE_ADJUST_DEPTH;
+    substate = NAV_SUBSTATE_DONE;
+    path.clear();
 
     emit newFFSpeed(.0);
     emit newANGSpeed(.0);
 
+    hasActiveGoal = false;
+
     addData("state", state);
     addData("substate", substate);
     addData("headingToGoal", .0);
+    addData("current goal", "");
     dataChanged( this );
-    clearedGoal();
+    emit clearedGoal();
 }
 
 void Module_Navigation::compassUpdate( RobotModule * )
@@ -142,9 +209,29 @@ void Module_Navigation::xsensUpdate( RobotModule * )
     if (!getSettingsValue("enabled").toBool())
         return;
 
+    //--------------------------------------------------------------------
+    //  XSENS IN NAVIGATION
+    //
+    // We use the xsens sensor for navigation in two ways
+    //  1. when adjusting the heading towards the goal, we stop if the
+    //     xsens indicates that we have turned enough
+    //  2. when driving forward, we use the xsens to move as straight as
+    //     possible
+    //--------------------------------------------------------------------
     if (getSettingsValue("use xsens", true).toBool()) {
         float xsensHeading = mti->getHeading();
         if (state == NAV_STATE_GO_TO_GOAL) {
+
+            if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
+                double currentXsensHeading = mti->getHeading();
+                double diffXsens = Angles::deg2deg(currentXsensHeading - adjustHeadingInitialXsens);
+                addData("xsens heading to last localization", diffXsens);
+
+                if (fabs(Angles::deg2deg(diffXsens - diffHeading)) < 5) {
+                    emit newANGSpeed(.0);
+                }
+            }
+
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
                 float diffHeading = Angles::pi2pi(initialXsensHeading - xsensHeading);
                 if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
@@ -154,23 +241,23 @@ void Module_Navigation::xsensUpdate( RobotModule * )
                     emit newANGSpeed(.0);
                 }
             }
-
-            if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
-                double currentXsensHeading = mti->getHeading();
-                double diffXsens = Angles::deg2deg(currentXsensHeading - adjustHeadingInitialXsens);
-                addData("xsens heading to last localization", diffXsens);
-
-                if (fabs(diffXsens - diffHeading) < 10) {
-                    emit newANGSpeed(.0);
-                }
-            }
         }
     }
 }
 
 Position Module_Navigation::getCurrentPosition()
 {
-    return currentPosition;
+    return sonarLoc->getLocalization();
+}
+
+bool Module_Navigation::hasGoal()
+{
+    return hasActiveGoal;
+}
+
+Waypoint Module_Navigation::getCurrentGoal()
+{
+    return currentGoal;
 }
 
 void Module_Navigation::sonarPositionUpdate()
@@ -186,7 +273,33 @@ void Module_Navigation::sonarPositionUpdate()
 
     addData("heading to goal", diffHeading);
 
+    //--------------------------------------------------------------------
+    //  STATE_IDLE
+    //
+    // Do nothing if we are idle.
+    //--------------------------------------------------------------------
+    if (state == NAV_STATE_IDLE) { }
+
+
+    //--------------------------------------------------------------------
+    //  STATE_PAUSED
+    //
+    // Do nothing if we are paused.
+    //--------------------------------------------------------------------
+    if (state == NAV_STATE_PAUSED) { }
+
+
+    //--------------------------------------------------------------------
+    //  STATE_GO_TO_GOAL
+    //
+    // Navigates to a goal:
+    //  1. adjust depth
+    //  2. adjust heading to goal
+    //  3. move forward for some time
+    //  4. start over
+    //--------------------------------------------------------------------
     if (state == NAV_STATE_GO_TO_GOAL) {
+
         // Check if we are close enough to the goal.
         if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +
                    ( currentPosition.getY() - currentGoal.posY ) * ( currentPosition.getY() - currentGoal.posY ) )
@@ -196,6 +309,7 @@ void Module_Navigation::sonarPositionUpdate()
             emit newFFSpeed(.0);
             emit newANGSpeed(.0);
         } else {
+
             // First adjust the depth.
             if (substate == NAV_SUBSTATE_ADJUST_DEPTH) {
                 if ( fabs( currentDepth - currentGoal.depth ) <
@@ -208,6 +322,7 @@ void Module_Navigation::sonarPositionUpdate()
             if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
                 // Check whether the heading needs to be corrected.
                 if ( fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
+
                     // positive: rotate right (clockwise)
                     float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                     float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
@@ -220,7 +335,9 @@ void Module_Navigation::sonarPositionUpdate()
                     addData("set speed", val);
                     emit newFFSpeed(.0);
                     emit newANGSpeed(val);
+
                 } else {
+
                     // If heading does not need to be adjusted, move forward.
                     emit newANGSpeed(.0);
                     float speed = getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat();
@@ -240,13 +357,22 @@ void Module_Navigation::sonarPositionUpdate()
                     // Move forward for "forward_time" seconds.
                     QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
                                         this, SLOT( forwardDone() ) );
+
                 }
             }
         }
     }
 
-    // If the goal was reached, the exit orientation may need to be adjusted.
+    //--------------------------------------------------------------------
+    //  STATE_REACHED_GOAL
+    //
+    // We reached the current goal position:
+    //  1. if needed, adjust the robot heading to match the desired exit
+    //     angle
+    //  2. stop all motors and navigate to next waypoint
+    //--------------------------------------------------------------------
     if (state == NAV_STATE_REACHED_GOAL) {
+
         if (currentGoal.useExitAngle) {
             float exitAngle = currentGoal.exitAngle;
             float diffHeadingExit = Angles::deg2deg(exitAngle - currentHeading);
@@ -259,15 +385,24 @@ void Module_Navigation::sonarPositionUpdate()
                 if (val < -maxAngSpeed) val = -maxAngSpeed;
                 if (val > 0 && val < minAngSpeed) val = minAngSpeed;
                 if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
+
+                emit newFFSpeed(.0);
                 emit newANGSpeed(val);
             } else {
+                emit newFFSpeed(.0);
                 emit newANGSpeed(.0);
                 emit reachedWaypoint( currentGoalName );
+
+                navigateToNextWaypoint();
             }
         } else {
+            emit newFFSpeed(.0);
             emit newANGSpeed(.0);
             emit reachedWaypoint( currentGoalName );
+
+            navigateToNextWaypoint();
         }
+
     }
 
     addData("state", state);
@@ -278,7 +413,9 @@ void Module_Navigation::sonarPositionUpdate()
 void Module_Navigation::forwardDone()
 {
     emit newFFSpeed(.0);
-    gotoWayPoint(currentGoalName);
+    substate = NAV_SUBSTATE_ADJUST_HEADING;
+    addData("substate", substate);
+    dataChanged( this );
 }
 
 Waypoint Module_Navigation::getWayPointPosition( QString name )
@@ -303,34 +440,6 @@ void Module_Navigation::removeWaypoint( QString name )
     updatedWaypoints( waypoints );
 }
 
-void Module_Navigation::save( QString path )
-{
-//    QString waypointPath = path;
-//    waypointPath.append( "/waypoint.txt" );
-
-//    QFile waypointFile( waypointPath );
-//    waypointFile.open( QIODevice::WriteOnly );
-//    QTextStream waypointTS( &waypointFile );
-//    this->saveWaypoints( waypointTS );
-//    waypointFile.close();
-}
-
-//void Module_Navigation::saveWaypoints( QTextStream &ts )
-//{
-//    // Number of waypoints.
-//    ts << waypoints.size() << endl;
-
-//    QList<QString> names = waypoints.keys();
-//    for ( int i = 0; i < waypoints.size(); i++ )
-//    {
-//        QString name = names[i];
-//        Position pos = waypoints[name];
-//        ts << name << endl;
-//        ts << pos.getX() << " " << pos.getY() << " " << pos.getDepth() <<
-//                " " << pos.getArrivalAngle() << " " << pos.getExitAngle() << endl;
-//    }
-//}
-
 void Module_Navigation::saveToSettings()
 {
     // Clear old waypoints.
@@ -350,44 +459,6 @@ void Module_Navigation::saveToSettings()
     }
     newSettings.endGroup();
 }
-
-void Module_Navigation::load( QString path )
-{
-//    QString waypointPath = path;
-//    waypointPath.append( "/waypoint.txt" );
-
-//    QFile waypointFile( waypointPath );
-//    waypointFile.open( QIODevice::ReadOnly );
-//    QTextStream waypointTS( &waypointFile );
-//    this->loadWaypoints( waypointTS );
-//    waypointFile.close();
-}
-
-//void Module_Navigation::loadWaypoints( QTextStream &ts )
-//{
-//    int waypointCount = 0;
-//    ts >> waypointCount;
-
-//    waypoints.clear();
-//    for ( int i = 0; i < waypointCount; i++ ) {
-//        QString name;
-//        double x, y, depth, arrivalAngle, exitAngle;
-
-//        ts >> name;
-//        ts >> x >> y >> depth >> arrivalAngle >> exitAngle;
-
-//        Position pos;
-//        pos.setX( x );
-//        pos.setY( y );
-//        pos.setDepth( depth );
-//        pos.setArrivalAngle( arrivalAngle );
-//        pos.setExitAngle( exitAngle );
-
-//        waypoints[name] = pos;
-//    }
-
-//    updatedWaypoints( waypoints );
-//}
 
 void Module_Navigation::loadFromSettings()
 {

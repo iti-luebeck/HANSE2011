@@ -257,5 +257,15 @@ void Form_Navigation::on_gotoButton_clicked()
 
 void Form_Navigation::on_clearGoalButton_clicked()
 {
-    nav->clearGoal();
+    QTimer::singleShot(0, nav, SLOT(clearGoal()));
+}
+
+void Form_Navigation::on_pauseButton_clicked()
+{
+    QTimer::singleShot(0, nav, SLOT(pause()));
+}
+
+void Form_Navigation::on_resumeButton_clicked()
+{
+    QTimer::singleShot(0, nav, SLOT(resume()));
 }

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="waypointTab">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -96,6 +96,32 @@
        </property>
        <property name="text">
         <string>Clear Goal</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pauseButton">
+       <property name="geometry">
+        <rect>
+         <x>330</x>
+         <y>90</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Pause</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="resumeButton">
+       <property name="geometry">
+        <rect>
+         <x>410</x>
+         <y>90</y>
+         <width>75</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Resume</string>
        </property>
       </widget>
      </widget>

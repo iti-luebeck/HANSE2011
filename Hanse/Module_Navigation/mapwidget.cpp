@@ -163,13 +163,13 @@ void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
     }
 
     QBrush brush( Qt::green );
-    QPen pen( Qt::white );
+    QPen pen(QBrush(Qt::white), 0.5);
     QGraphicsScene *scene = ui->graphicsView->scene();
     waypointsItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
     waypointsItem->setZValue( 1200 );
 
     QList<QString> waypointNames = waypoints.keys();
-    double width = 0.5;
+    double width = 3;
     for ( int i = 0; i < waypointNames.size(); i++ )
     {
         Waypoint pos = waypoints[waypointNames[i]];
@@ -178,14 +178,14 @@ void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
                                 pos.posY - width/2,
                                 width, width, pen, brush );
         item->setParentItem( waypointsItem );
-        item->setZValue( 1200 );
+        item->setZValue( 1220 );
 
-        QFont f( "Arial", 12 );
+        QFont f( "Arial", 15 * width );
         QGraphicsTextItem *textItem = scene->addText( waypointNames[i], f );
         textItem->setParentItem( waypointsItem );
         textItem->setZValue( 1210 );
-        textItem->setPos( pos.posX + width / 1.5, pos.posY - width/2 );
-        textItem->scale( 0.03, 0.03 );
+        textItem->setPos( pos.posX + width / 1.5, pos.posY - width / 2 );
+        textItem->scale( 0.1, 0.1 );
         textItem->setDefaultTextColor( Qt::white );
     }
 }
@@ -206,12 +206,13 @@ void MapWidget::updateGoal( Waypoint goal )
     goalItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
     goalItem->setZValue( 1150 );
 
+
     Position pos = nav->getCurrentPosition();
-    QGraphicsItem *item = scene->addLine( goal.posX, goal.posY,
-                           pos.getX(), pos.getY(),
-                           pen );
-    item->setParentItem( goalItem );
-    item->setZValue( 1100 );
+
+    QGraphicsLineItem *path = new QGraphicsLineItem(goal.posX, goal.posY, pos.getX(),
+            pos.getY(), masterParticle);
+    path->setPen(QPen(QBrush(QColor(150,150,0)), 0.5));
+    path->setZValue( 1000 );
 
     ui->graphicsView->show();
 }
@@ -276,6 +277,14 @@ void MapWidget::newSonarLocEstimate()
         e->setBrush(QBrush(QColor(0,210,255)));
     }
 
+    if (nav->hasGoal()) {
+        Waypoint goal = nav->getCurrentGoal();
+        Position pos = nav->getCurrentPosition();
+
+        QGraphicsLineItem *path = new QGraphicsLineItem(goal.posX, goal.posY, pos.getX(),
+                pos.getY(), masterParticle);
+        path->setPen(QPen(QBrush(QColor(200,200,0)), 0.5));
+    }
 }
 
 void MapWidget::createMap()

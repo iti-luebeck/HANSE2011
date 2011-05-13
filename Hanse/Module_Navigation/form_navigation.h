@@ -31,6 +31,8 @@ signals:
     void goToPosition(QString name);
 
 private slots:
+    void on_resumeButton_clicked();
+    void on_pauseButton_clicked();
     void on_clearGoalButton_clicked();
     void on_gotoButton_clicked();
     void on_applyButton_clicked();
