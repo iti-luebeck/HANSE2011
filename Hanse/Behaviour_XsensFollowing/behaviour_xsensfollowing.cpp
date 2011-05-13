@@ -27,6 +27,7 @@ bool Behaviour_XsensFollowing::isActive()
 void Behaviour_XsensFollowing::init()
 {
     //qDebug("Xsens follow init");
+    logger->info("Xsens Following init");
     setEnabled(false);
     turning = false;
     connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -39,7 +40,7 @@ void Behaviour_XsensFollowing::startBehaviour()
 {
     //    qDebug("Xsens follow start");
     //    qDebug()<<getSettingsValue("timer").toInt();
-    logger->info("starting Xsens Following");
+    logger->info("Starting Xsens Following");
     this->setEnabled(true);
     addData("ctrHeading",xsens->getHeading());
     turning = false;
@@ -58,6 +59,7 @@ void Behaviour_XsensFollowing::stop()
     setEnabled(false);
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
+    logger->info("Stop Xsens Following");
     emit finished(this,true);
 }
 
