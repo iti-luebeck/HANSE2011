@@ -82,7 +82,7 @@ void Module_XsensMTi::reset()
     mti = new Xsens::MTi();
 
     if(!mti->openPort((char*)getSettingsValue("port").toString().toStdString().c_str(), getSettingsValue("baudrate").toInt())) {
-        qDebug("MTi -- Unable to connect to the MTi.");
+        setHealthToSick("Unable to connect to the MTi");
     } else {
         Xsens::MTi::outputMode outputMode;
         outputMode.temperatureData = false;
@@ -100,9 +100,10 @@ void Module_XsensMTi::reset()
         outputSettings.orientationMode = Xsens::EulerAngles;
 
         if(!mti->setOutputModeAndSettings(outputMode, outputSettings, 1000)) {
-            qDebug("MTi -- Unable to set the output mode and settings.");
+            setHealthToSick("Unable to set the output mode and settings");
         } else {
             connected = true;
+            setHealthToOk();
         }
     }
 #endif
