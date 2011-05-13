@@ -3,7 +3,6 @@
 
 #include <Framework/robotmodule.h>
 #include <QtCore>
-#include <Framework/eventthread.h>
 #include <TaskHandControl/taskhandcontrol.h>
 #include <TaskWallNavigation/taskwallnavigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
@@ -63,8 +62,6 @@ private:
 
     TaskHandControl *taskhandcontrol;
     TaskWallNavigation *taskwallnavigation;
-
-    EventThread updateThread;
 
     QTimer controlTimer;
 

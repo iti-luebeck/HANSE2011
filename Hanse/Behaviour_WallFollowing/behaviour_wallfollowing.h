@@ -5,7 +5,6 @@
 
 #include <Behaviour_WallFollowing/wallfollowingform.h>
 #include <Module_EchoSounder/module_echosounder.h>
-#include <Framework/eventthread.h>
 
 class WallFollowingForm;
 class Module_ThrusterControlLoop;
@@ -43,7 +42,6 @@ private:
     Module_ThrusterControlLoop * tcl;
 
     Module_Simulation *sim;
-    EventThread updateThread;
 
     // int timerTime;
     bool running;

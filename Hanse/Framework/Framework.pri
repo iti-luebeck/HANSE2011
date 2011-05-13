@@ -17,7 +17,6 @@ HEADERS += Framework/healthstatus.h \
     Framework/moduledataview.h \
     Framework/modulehealthview.h \
     Framework/qclosabledockwidget.h \
-    Framework/eventthread.h \
     Framework/Angles.h \
     Framework/SoToSleep.h
 
@@ -39,7 +38,6 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/moduledataview.cpp \
     Framework/modulehealthview.cpp \
     Framework/qclosabledockwidget.cpp \
-    Framework/eventthread.cpp \
     Framework/pidwidget.cpp
 
 FORMS += Framework/mainwindow.ui \

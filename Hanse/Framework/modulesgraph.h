@@ -29,7 +29,6 @@ private:
     QList<RobotModule*> modules;
 
     QTimer healthTimer;
-    QThread sensorThread;
 
     /**
       * Logger

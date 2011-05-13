@@ -2,7 +2,6 @@
 #define TASKWALLNAVIGATION_H
 
 #include <Framework/robotbehaviour.h>
-#include <Framework/eventthread.h>
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 #include <Module_Navigation/module_navigation.h>
 
@@ -32,8 +31,6 @@ private:
     Module_Simulation *sim;
     Behaviour_WallFollowing *wall;
     Module_Navigation *navi;
-
-    EventThread updateThread;
 
     void init();
     bool running;

@@ -31,7 +31,6 @@ private:
     void init();
     Module_ThrusterControlLoop *thrustercontrolloop;
     Module_Simulation *sim;
-    EventThread updateThread;
     Module_HandControl *handcontrol;
 
     bool running;

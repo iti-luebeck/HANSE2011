@@ -68,7 +68,6 @@ private slots:
 private:
     bool client_running;
     QTimer timer;
-    QThread thread;
     quint32 blockSize;
     int     read_ret;
     QTcpSocket *tcpSocket;
