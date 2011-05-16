@@ -56,7 +56,6 @@ void CommandCenterForm::changeEvent(QEvent *e)
 
 void CommandCenterForm::on_addButton_clicked(){
     // Add new task
-    ui->scheduleList->insertPlainText(ui->scheduleInput->currentText()+"\n");
     emit addTask("scheduleList",ui->scheduleInput->currentText());
     ui->errorOutput->setText("Added one task");
 }
@@ -66,16 +65,11 @@ void CommandCenterForm::on_revertButton_clicked(){
     if(!this->com->scheduleList.isEmpty()){
         emit removeTask();
     }
-    ui->scheduleList->clear();
-    for(int i = this->com->scheduleList.length()-1; i>=0; i--){
-        ui->scheduleList->insertPlainText(this->com->scheduleList.at(i)+"\n");
-    }
     ui->errorOutput->setText("Reverted last add");
 }
 
 void CommandCenterForm::on_clearButton_clicked(){
     // Clear all scheduled tasks, but finish current working task
-    ui->scheduleList->clear();
     emit clearList("scheduleList");
     ui->errorOutput->setText("Schedule list cleared");
 }
@@ -134,17 +128,17 @@ void CommandCenterForm::updateMessage(QString s){
 
 void CommandCenterForm::updateGUI(){
     ui->scheduleList->clear();
-    for(int i = this->com->scheduleList.length()-1; i>=0; i--){
+    for(int i = 0; i<=this->com->scheduleList.length()-1; i++){
         ui->scheduleList->insertPlainText(this->com->scheduleList.at(i)+"\n");
     }
 
     ui->abortedList->clear();
-    for(int i = this->com->abortedList.length()-1; i>=0; i--){
+    for(int i = 0; i<=this->com->abortedList.length()-1; i++){
         ui->abortedList->insertPlainText(this->com->abortedList.at(i)+"\n");
     }
 
     ui->finishedList->clear();
-    for(int i = this->com->finishedList.length()-1; i>=0; i--){
+    for(int i = 0; i<=this->com->finishedList.length()-1; i++){
         ui->finishedList->insertPlainText(this->com->finishedList.at(i)+"\n");
     }
 

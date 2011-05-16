@@ -157,7 +157,7 @@ void CommandCenter::commandCenterControl(){
     }
     if(!scheduleList.isEmpty() && this->isEnabled()){
         logger->debug("Commandcenter control; Next scheduled task:");
-        QString temp=scheduleList.last();
+        QString temp=scheduleList.first();
         QString tempAkt = "";
         logger->debug(temp);
         for(int j = 0; j < temp.length(); j++){
@@ -168,7 +168,7 @@ void CommandCenter::commandCenterControl(){
             }
         }
         logger->debug(tempAkt);
-        scheduleList.removeLast();
+        scheduleList.removeFirst();
 
         if(tempAkt == "HandControl"){
             emit startTaskHandControl();
@@ -354,6 +354,7 @@ void CommandCenter::addTask(QString listName, QString taskName){
     } else {
         logger->info("List not found!");
     }
+    updateGUI();
 }
 
 void CommandCenter::clearList(QString listName){
@@ -366,8 +367,12 @@ void CommandCenter::clearList(QString listName){
     } else {
         logger->info("List not found!");
     }
+    updateGUI();
 }
 
 void CommandCenter::removeTask(){
-    this->scheduleList.removeFirst();
+    if(!this->scheduleList.isEmpty()){
+        this->scheduleList.removeLast();
+    }
+    emit updateGUI();
 }
