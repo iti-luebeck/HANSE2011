@@ -63,6 +63,8 @@ cereal::CerealPort::CerealPort() : fd_(-1)
 cereal::CerealPort::~CerealPort()
 {
 	if(portOpen()) close();
+
+        if (stream_thread_ != NULL) stopStream();
 }
 
 void cereal::CerealPort::open(const char * port_name, int baud_rate)
