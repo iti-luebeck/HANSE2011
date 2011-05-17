@@ -69,7 +69,7 @@ void SLTrainingUI::on_loadSVM_clicked()
     svm->loadClassifier("SLtrainingSVM");
 }
 
-void SLTrainingUI::updateSonarView2(const QList<QByteArray> curDataSet)
+void SLTrainingUI::updateSonarView2(const QList<QByteArray>  __attribute__ ((unused)) curDataSet)
 {
 
     float n = sam[0].getRawData().length();
@@ -401,7 +401,7 @@ void SLTrainingUI::showClassified()
 }
 
 
-void SLTrainingUI::updateSonarView3(const QList<QByteArray> curDataSet)
+void SLTrainingUI::updateSonarView3(const QList<QByteArray> __attribute__ ((unused)) curDataSet)
 {
 //    float n = curDataSet.first().length();
     float n = sam[0].getFiltered().length();
@@ -529,12 +529,8 @@ void SLTrainingUI::groupWallCandidates()
     QVector<int> noNoise;
     filter->getNoNoiseFilter(noNoise);
 
-    int area=0;
     int temp_area = 0;
-    int darknessArea=0;
-    int darknessBeginArea=0;
     int groupID=1;
-    int lastDirection=-1;
     int cutTH = 360;
 
     for(int i=0; i<sam.size();i++)

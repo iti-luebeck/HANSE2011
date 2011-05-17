@@ -21,7 +21,12 @@ OBJECTS_DIR = tmp/obj
 # so they show up the the project tree, for convenience
 OTHER_FILES += bin/log4qt.properties bin/ITI/Hanse.ini
 
-# QMAKE_CXXFLAGS += -O2 -funroll-loops -msse2 -mfpmath=sse
+# do more code optimizations
+# (-O2 would improve speed further, but would also make using the debugger harder)
+QMAKE_CXXFLAGS += -O1 -msse2 -mfpmath=sse
+
+# enable more warnings and turn warnings into errors >:)
+QMAKE_CXXFLAGS += -Wextra -Werror
 
 # external libraries
 include(../log4qt/log4qt.pri)

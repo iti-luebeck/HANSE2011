@@ -122,7 +122,7 @@ void SonarEchoData::setHeadingIncrement(float inc)
     this->headingIncrement = inc;
 }
 
-void SonarEchoData::addFeature(int index, float value)
+void SonarEchoData::addFeature(int __attribute__ ((unused)) index, float __attribute__ ((unused)) value)
 {
 //    qDebug() << "feature added " << value;
 //    features.at<float>(0,index) = value;

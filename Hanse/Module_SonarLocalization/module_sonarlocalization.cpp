@@ -29,7 +29,7 @@ void Module_SonarLocalization::init()
 
     connect(sonar, SIGNAL(newSonarData(SonarReturnData)), &filter, SLOT(newSonarData(SonarReturnData)));
     connect(&filter, SIGNAL(newImage(QList<QVector2D>)), &pf, SLOT(newImage(QList<QVector2D>)));
-    connect(&pf, SIGNAL(newPosition(QVector3D)), this, SLOT(newPositionEst(QVector3D)));
+    connect(&pf, SIGNAL(newPosition(QVector3D)), this, SIGNAL(newLocalizationEstimate()));
     connect(&filter,SIGNAL(newSonarEchoData(QList<SonarEchoData>)),this,SLOT(retrieveSonarEchoData(QList<SonarEchoData>)));
     connect(&filter,SIGNAL(newSonarPlotData(QList<SonarEchoData>)),this,SLOT(retrieveSonarPlotData(QList<SonarEchoData>)));
 }
@@ -66,11 +66,6 @@ SonarParticleFilter& Module_SonarLocalization::particleFilter()
 SonarEchoFilter& Module_SonarLocalization::sonarEchoFilter()
 {
     return this->filter;
-}
-
-void Module_SonarLocalization::newPositionEst(QVector3D p)
-{
-    emit newLocalizationEstimate();
 }
 
 void Module_SonarLocalization::setLocalization(QVector2D position)

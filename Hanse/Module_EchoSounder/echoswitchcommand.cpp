@@ -11,7 +11,7 @@ EchoSwitchCommand::EchoSwitchCommand(QByteArray fileData){
     extractHeader(fileData);
 }
 
-EchoSwitchCommand::EchoSwitchCommand(const EchoSwitchCommand& other){
+EchoSwitchCommand::EchoSwitchCommand(const EchoSwitchCommand& other) : QObject() {
     logger = Log4Qt::Logger::logger("EchoSwitchCommand");
     clone(other);
 }

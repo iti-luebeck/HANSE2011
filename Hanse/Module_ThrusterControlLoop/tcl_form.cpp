@@ -23,8 +23,6 @@ TCL_Form::TCL_Form(Module_ThrusterControlLoop *module, QWidget *parent) :
 
     ui->horizSpM_exp->setChecked( module->getSettingsValue("horizSpM_exp").toBool() );
 
-    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
-
     QLayout *l = new QBoxLayout(QBoxLayout::LeftToRight, ui->frame);
     PIDWidget *pid = new PIDWidget(module->pidController, this);
     l->addWidget(pid);
@@ -64,11 +62,4 @@ void TCL_Form::on_save_clicked()
     module->setSettingsValue("ignoreHealth", ui->ignoreHealth->isChecked() );
 
     module->updateConstantsFromInitNow();
-}
-
-void TCL_Form::dataChanged(RobotModule *mod)
-{
-    if (!ui->updatePlot->isChecked()) {
-        return;
-    }
 }

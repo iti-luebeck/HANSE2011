@@ -82,9 +82,6 @@ private:
 
     void init();
 
-private slots:
-    void newPositionEst(QVector3D p);
-
 };
 
 #endif // MODULE_SONARLOCALIZATION_H

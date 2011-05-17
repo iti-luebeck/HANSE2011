@@ -26,7 +26,6 @@ private:
 
 private slots:
     void on_save_clicked();
-    void dataChanged(RobotModule* mod);
 };
 
 #endif // TCL_FORM_H

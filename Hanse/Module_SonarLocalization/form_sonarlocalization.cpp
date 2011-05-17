@@ -246,7 +246,7 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->reset();
 }
 
-void Form_SonarLocalization::newPositionEstimate(QVector3D e)
+void Form_SonarLocalization::newPositionEstimate(QVector3D __attribute__ ((unused)) e)
 {
     if (!ui->update->isChecked())
         return;

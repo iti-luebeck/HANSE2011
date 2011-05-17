@@ -21,6 +21,7 @@ class sotoSleep : public QThread
 
 
 SonarDataSourceFileReader::SonarDataSourceFileReader(QObject *parent, QString path)
+    :QObject(parent)
 {
     this->stream = NULL;
     this->file = new QFile(path);

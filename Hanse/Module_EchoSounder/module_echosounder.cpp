@@ -111,9 +111,9 @@ bool Module_EchoSounder::doNextScan(){
             emit dataChanged(this);
             return true;
         } else {
-            setHealthToSick("Received §&%§%§=§$ Dropping packet.");
+            setHealthToSick("Received bullshit. Dropping packet.");
             emit dataError();
-            qDebug("Received §&%§%§=§$ Dropping packet.");
+            qDebug("Received bullshit. Dropping packet.");
             return false;
         }
     }
@@ -135,7 +135,6 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     // Berechnete Summe von avgTest Datenwerte
     float avgFilter = 0.0;
 
-    float temp = 0.0;
     float aktMax = 0.0;
     char c;
 

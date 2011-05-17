@@ -380,7 +380,7 @@ QString Module_UID::UID_Identify() {
     logger->trace("UID_Identify");
 
     char result[9];
-    result[9]=0;
+    result[8]=0;
     QByteArray send;
     send += Module_UID::UID_IDENTIFY;
     bool ret = SendCheckCommand(send,result,9);

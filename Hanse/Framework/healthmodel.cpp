@@ -38,13 +38,13 @@ void HealthModel::healthStatusChanged(RobotModule *module)
     emit dataChanged(index(mi,0), index(mi,4));
 }
 
-int HealthModel::rowCount(const QModelIndex &parent) const
+int HealthModel::rowCount(const QModelIndex __attribute__ ((unused)) &parent) const
 {
     return graph->getModules().size();
 }
 
 
-int HealthModel::columnCount(const QModelIndex &parent) const
+int HealthModel::columnCount(const QModelIndex __attribute__ ((unused)) &parent) const
 {
     return 5;
 }

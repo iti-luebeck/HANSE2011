@@ -277,6 +277,7 @@ double CBlob::ExternPerimeter( IplImage *maskImage, bool xBorder /* = true */, b
 								  m_storage );
 	cvStartAppendToSeq( externalPoints, &writer );
 	previousPoint.x = -1;
+        previousPoint.y = -1;
 
 	// which contour pixels touch border?
 	for( j=0; j< externContour->total; j++)
@@ -646,7 +647,7 @@ CvBox2D CBlob::GetEllipse()
 - CREATION DATE: 25-05-2005.
 - MODIFICATION: Date. Author. Description.
 */
-void CBlob::FillBlob( IplImage *imatge, CvScalar color, int offsetX /*=0*/, int offsetY /*=0*/) 					  
+void CBlob::FillBlob( IplImage *imatge, CvScalar color, int __attribute__ ((unused)) offsetX /*=0*/, int __attribute__ ((unused)) offsetY /*=0*/)
 {
 	cvDrawContours( imatge, m_externalContour.GetContourPoints(), color, color,0, CV_FILLED, 8 );
 }

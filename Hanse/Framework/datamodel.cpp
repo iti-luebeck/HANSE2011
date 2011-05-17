@@ -11,13 +11,13 @@ DataModel::DataModel(QObject *parent, ModulesGraph* graph)
 
 }
 
-int DataModel::rowCount(const QModelIndex &parent) const
+int DataModel::rowCount(const QModelIndex __attribute__ ((unused)) &parent) const
 {
     return mergedMap.size();
 }
 
 
-int DataModel::columnCount(const QModelIndex &parent) const
+int DataModel::columnCount(const QModelIndex __attribute__ ((unused)) &parent) const
 {
     return 2;
 }
