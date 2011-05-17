@@ -28,8 +28,6 @@ private:
       */
     QList<RobotModule*> modules;
 
-    QTimer healthTimer;
-
     /**
       * Logger
       */

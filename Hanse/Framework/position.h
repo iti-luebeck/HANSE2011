@@ -4,7 +4,6 @@
 #include <QtCore>
 #include <QVector3D>
 #include <opencv/cxcore.h>
-//#include <Module_VisualSLAM/slam/quaternion.h>
 
 /**
   * Position and orientation.

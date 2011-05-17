@@ -5,8 +5,7 @@
 #include <QMap>
 #include <log4qt/logger.h>
 #include "healthstatus.h"
-
-class DataRecorder;
+#include "datarecorder.h"
 
 /**
   * Abstract super class of every robot module.
@@ -261,9 +260,17 @@ private:
       * Timer to perform regular health checks.
       */
     QTimer healthCheckTimer;
+
+    /**
+      * This mutex protects \ref healthStatus. It must be taken whenever heathStatus
+      * is accessed.
+      */
     QMutex healthStatusMutex;
 
-    DataRecorder *recorder;
+    /**
+      * The data recorder logs all modifications to \ref data or settings to a CSV file.
+      */
+    DataRecorder recorder;
 
     /**
       * indicated if the module returned from init(). Meaning it is initialized

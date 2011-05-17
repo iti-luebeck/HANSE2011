@@ -1,5 +1,6 @@
 #include "datarecorder.h"
 #include <Framework/dataloghelper.h>
+#include "robotmodule.h"
 
 DataRecorder::DataRecorder(RobotModule& module)
     : module(module)

@@ -4,12 +4,9 @@
 #include <Module_Simulation/module_simulation.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
-Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo, Module_Simulation *sim)
+Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo)
     : RobotBehaviour(id)
 {
-    qDebug() << "wall thread id";
-    qDebug() << QThread::currentThreadId();
-    this->sim = sim;
     this->tcl = tcl;
     this->echo = echo;
     setDefaultValue("serialPort", "COM9");
@@ -103,7 +100,6 @@ QList<RobotModule*> Behaviour_WallFollowing::getDependencies()
     QList<RobotModule*> ret;
     ret.append(tcl);
     ret.append(echo);
-    ret.append(sim);
     return ret;
 }
 

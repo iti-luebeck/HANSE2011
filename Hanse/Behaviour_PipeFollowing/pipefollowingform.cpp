@@ -103,9 +103,6 @@ void PipeFollowingForm::on_startFromVideoFileButton_clicked()
 
 void PipeFollowingForm::on_saveApplyButton_clicked()
 {
-    qDebug() << "pipeform thread id";
-    qDebug() << QThread::currentThreadId();
-
     pipefollow->setSettingsValue("threshold",ui->thresholdLineEdit->text().toInt());
     pipefollow->setSettingsValue("timer",ui->timer_LineEdit->text().toInt());
     pipefollow->setSettingsValue("deltaDist",ui->deltaDistPipeLineEdit->text().toFloat());

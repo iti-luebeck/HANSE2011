@@ -5,7 +5,6 @@ HEADERS += Framework/healthstatus.h \
     Framework/mainwindow.h \
     Framework/healthmodel.h \
     Framework/modulesgraph.h \
-    Framework/graphview.h \
     Framework/datamodel.h \
     Framework/pidcontroller.h \
     Framework/pidwidget.h \
@@ -27,7 +26,6 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/main.cpp \
     Framework/healthmodel.cpp \
     Framework/modulesgraph.cpp \
-    Framework/graphview.cpp \
     Framework/datamodel.cpp \
     Framework/pidcontroller.cpp \
     Framework/position.cpp \
@@ -41,7 +39,6 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/pidwidget.cpp
 
 FORMS += Framework/mainwindow.ui \
-    Framework/graphview.ui \
     Framework/moduledataview.ui \
     Framework/modulehealthview.ui \
     Framework/pidwidget.ui

@@ -6,7 +6,6 @@
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
-#include <Module_IMU/module_imu.h>
 #include <Module_Compass/module_compass.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_Navigation/module_navigation.h>
@@ -16,7 +15,6 @@
 #include <Module_Webcams/module_webcams.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
-#include <Module_ADC/module_adc.h>
 #include <Module_Simulation/module_simulation.h>
 #include <Module_EchoSounder/module_echosounder.h>
 #include <Module_XsensMTi/module_xsensmti.h>
@@ -26,6 +24,8 @@
 #include <TaskHandControl/taskhandcontrol.h>
 #include <TaskWallNavigation/taskwallnavigation.h>
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
+//#include <Module_IMU/module_imu.h>
+//#include <Module_ADC/module_adc.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -56,8 +56,8 @@ void ModulesGraph::build()
     Module_PressureSensor* pressure = new Module_PressureSensor("pressure",uid,sim);
     this->modules.append(pressure);
 
-    Module_IMU* imu = new Module_IMU("adis",uid,sim);
-    this->modules.append(imu);
+//    Module_IMU* imu = new Module_IMU("adis",uid,sim);
+//    this->modules.append(imu);
 
     Module_Compass *compass = new Module_Compass("compass", uid,sim);
     this->modules.append(compass);
@@ -116,7 +116,7 @@ void ModulesGraph::build()
     this->modules.append(behavTurn);
 
     logger->debug("Creating Behaviour_WallFollowing");
-    Behaviour_WallFollowing* behavWall = new Behaviour_WallFollowing("wall",controlLoop, echo, sim);
+    Behaviour_WallFollowing* behavWall = new Behaviour_WallFollowing("wall",controlLoop, echo);
     this->modules.append(behavWall);
 
 //        logger->debug("Creating Behaviour_CompassFollowing");
@@ -143,17 +143,16 @@ void ModulesGraph::build()
     logger->info("Loading all Modules... Done");
 
     /* connect every modul to healtCheckTimer */
+    logger->debug("Starting threads...");
     foreach (RobotModule* b, modules)
     {
-        connect(&healthTimer,SIGNAL(timeout()),b,SLOT(doHealthCheck()));
-        logger->debug("Starting Thread for "+b->getId());
         b->start();
         while(!b->isInitialized())
             sotoSleep::msleep(10);
 
     }
-    healthTimer.setInterval(1000);
-    healthTimer.start(1000);
+
+
 }
 
 QList<RobotModule*> ModulesGraph::getModules()
@@ -165,7 +164,6 @@ void ModulesGraph::HastaLaVista()
 {
     logger->info("Terminating all modules...");
     // go backwards through the module list
-    healthTimer.stop();
     for (int i = modules.size()-1; i>=0; i--) {
         logger->info("Terminating "+modules[i]->getId());
         modules[i]->shutdown();

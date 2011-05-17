@@ -11,9 +11,6 @@
 CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn)
     : RobotModule(id)
 {
-    qDebug()<<"commandcenter thread id";
-    qDebug()<< QThread::currentThreadId();
-
     this->tcl = tcl;
     this->handControl = handControl;
     this->pressure = pressure;

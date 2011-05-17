@@ -104,6 +104,11 @@ namespace Log4Qt
             setMaximumFileSize(max_file_size);
     }
 
+    const QString RollingFileAppender::getMaxFileSize()
+    {
+        return "";
+    }
+
 	
 	void RollingFileAppender::append(const LoggingEvent &rEvent)
 	{

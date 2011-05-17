@@ -9,8 +9,6 @@
 Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_Webcams *cam, Module_Simulation *sim) :
         RobotBehaviour(id)
 {
-    qDebug() << "pipe thread id";
-    qDebug() << QThread::currentThreadId();
     this->tcl = tcl;
     this->cam = cam;
     this->sim = sim;
@@ -134,8 +132,6 @@ void Behaviour_PipeFollowing::timerSlot()
 
 void Behaviour_PipeFollowing::timerSlotExecute()
 {
-    //qDebug() << "pipe thread id";
-    //qDebug() << QThread::currentThreadId();
     QTime run,run2;
     run.restart();
 
@@ -584,7 +580,7 @@ void Behaviour_PipeFollowing::updateData()
 
 void Behaviour_PipeFollowing::updateFromSettings()
 {
-    qDebug() << "update Settings pipefollow";
+    logger->debug("update Settings pipefollow");
     this->dataLockerMutex.lock();
     this->firstRun = 1;
     this->timerTime = this->getSettingsValue("timer",0).toInt();

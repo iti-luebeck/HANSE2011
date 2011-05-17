@@ -71,6 +71,14 @@ namespace Log4Qt
          */
         Q_PROPERTY(qint64 maximumFileSize READ maximumFileSize WRITE setMaximumFileSize)
         
+        /*!
+         * The property sets the maximum file size from a string value.
+         *
+         * \sa setMaxFileSize(), maximumFileSize()
+         */
+        Q_PROPERTY(QString maxFileSize READ getMaxFileSize WRITE setMaxFileSize)
+
+
 	public:
 	    RollingFileAppender(QObject *pParent = 0);
 	    RollingFileAppender(Layout *pLayout,
@@ -91,6 +99,7 @@ namespace Log4Qt
 	    void setMaxBackupIndex(int maxBackupIndex);
         void setMaximumFileSize(qint64 maximumFileSize);
         void setMaxFileSize(const QString &rMaxFileSize);
+        const QString getMaxFileSize();
 	
 	protected:
 	    virtual void append(const LoggingEvent &rEvent);

@@ -113,14 +113,12 @@ Module_IMU::~Module_IMU()
 
 void Module_IMU::terminate()
 {
-//    QTimer::singleShot(0, &timer, SLOT(stop()));
     timer.stop();
     RobotModule::terminate();
 }
 
 void Module_IMU::init()
 {
-//    timer.moveToThread(this);
     connect(&timer,SIGNAL(timeout()), this, SLOT(refreshData()));
 
     /* connect sim */
@@ -172,10 +170,6 @@ void Module_IMU::reset()
 
 void Module_IMU::refreshData()
 {
-
-//    qDebug() << "adis ref THREAD ID";
-//    qDebug() << QThread::currentThreadId();
-
     if (!getSettingsValue("enabled").toBool())
         return;
 

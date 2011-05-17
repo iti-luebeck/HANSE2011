@@ -157,8 +157,6 @@ void Module_Webcams::grabRight( cv::Mat &right )
 
 void Module_Webcams::grabBottom( cv::Mat &bottom )
 {
-//    qDebug() << "cam thread id";
-//    qDebug() << QThread::currentThreadId();
     if ( bottomCap != NULL )//&& VI.isFrameNew(bottomID))
     {
         mutex.lock();
@@ -225,8 +223,6 @@ void Module_Webcams::grabBottom(IplImage *bottom)
 //{
 //    cv::Mat bottom;
 //    bottom.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-//    qDebug() << "cam thread id";
-//    qDebug() << QThread::currentThreadId();
 //    if ( bottomConnected )//&& VI.isFrameNew(bottomID))
 //    {
 //        mutex.lock();

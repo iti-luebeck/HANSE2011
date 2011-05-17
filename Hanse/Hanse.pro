@@ -47,14 +47,15 @@ include(Module_ThrusterControlLoop/Module_ThrusterControlLoop.pri)
 include(Module_UID/Module_UID.pri)
 include(Module_Webcams/Module_Webcams.pri)
 include(Module_XsensMTi/Module_XsensMTi.pri)
-include(Module_ADC/Module_ADC.pri)
 include(Module_Compass/Module_Compass.pri)
 include(Module_ScanningSonar/Module_ScanningSonar.pri)
 include(Module_EchoSounder/Module_EchoSounder.pri)
 include(Module_HandControl/Module_HandControl.pri)
-include(Module_IMU/Module_IMU.pri)
 include(Module_Navigation/Module_Navigation.pri)
 include(Module_PressureSensor/Module_PressureSensor.pri)
+# Disabled as we currently don't use them
+#include(Module_ADC/Module_ADC.pri)
+#include(Module_IMU/Module_IMU.pri)
 
 # behaviours
 include(Behaviour_BallFollowing/Behaviour_BallFollowing.pri)

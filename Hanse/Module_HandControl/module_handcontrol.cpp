@@ -49,12 +49,6 @@ void Module_HandControl::init()
 
 }
 
-void Module_HandControl::createServer()
-{
-//    server = new ServerMT();
-//    server->open(getSettingsValue("port").toInt());
-}
-
 QList<RobotModule*> Module_HandControl::getDependencies()
 {
     QList<RobotModule*> ret;
@@ -73,27 +67,20 @@ QWidget* Module_HandControl::createView(QWidget* parent)
 void Module_HandControl::terminate()
 {
     newMessage(0,0,0);
-//    server->close();
     emit stopServer();
     RobotModule::terminate();
 }
 
 void Module_HandControl::reset()
 {
-    qDebug() << "hctrl res THREAD ID";
-    qDebug() << QThread::currentThreadId();
-
     RobotModule::reset();
 
     newMessage(0,0,0);
-//server->close();
+
+    // TODO: this looks fishy. why the wait? shouldn't do much
     emit stopServer();
     msleep(100);
-
-//    server->setPort(getSettingsValue("port").toInt());
     emit startServer();
-//    server->open();
-//    server->open(getSettingsValue("port").toInt());
 }
 
 void Module_HandControl::emergencyStopReceived()

@@ -14,7 +14,7 @@ class Behaviour_WallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo, Module_Simulation *sim);
+    Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo);
 
     QList<RobotModule*> getDependencies();
 
@@ -40,8 +40,6 @@ private:
     // void timerSlotExecute();
 
     Module_ThrusterControlLoop * tcl;
-
-    Module_Simulation *sim;
 
     // int timerTime;
     bool running;

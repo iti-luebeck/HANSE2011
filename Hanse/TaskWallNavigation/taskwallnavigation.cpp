@@ -6,8 +6,6 @@
 TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behaviour_WallFollowing *w, Module_Navigation *n)
     : RobotBehaviour(id)
 {
-    qDebug()<<"taskwallnavigation thread id";
-    qDebug()<< QThread::currentThreadId();
     this->sim = sim;
     this->wall = w;
     this->wall->setEnabled(false);

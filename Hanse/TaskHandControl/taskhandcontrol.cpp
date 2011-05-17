@@ -6,8 +6,6 @@
 TaskHandControl::TaskHandControl(QString id, Module_ThrusterControlLoop *tcl, Module_Simulation *sim, Module_HandControl *hc)
     : RobotBehaviour(id)
 {
-    qDebug()<<"taskthrustercontrol thread id";
-    qDebug()<< QThread::currentThreadId();
     this->sim = sim;
     this->thrustercontrolloop = tcl;
     this->handcontrol = hc;

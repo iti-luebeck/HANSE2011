@@ -92,16 +92,11 @@ void Module_PressureSensor::reset()
 
 void Module_PressureSensor::refreshData()
 {
-
-   // qDebug() << "press ref THREAD ID";
-   // qDebug() << QThread::currentThreadId();
-
     if (!getSettingsValue("enabled").toBool())
         return;
 
     if(sim->isEnabled())
     {
-//        logger->debug("request");
         emit requestDepth();
         emit requestTemp();
     }
@@ -191,9 +186,6 @@ QWidget* Module_PressureSensor::createView(QWidget* parent)
 
 void Module_PressureSensor::doHealthCheck()
 {
-//    qDebug() << "pressure health THREAD ID";
-//    qDebug() << QThread::currentThreadId();
-
     if (!isEnabled())
         return;
 
