@@ -16,7 +16,8 @@ DataRecorder::DataRecorder(RobotModule& module)
     fileCount = 0;
 }
 
-DataRecorder::~DataRecorder() {
+void DataRecorder::stopRecording() {
+    this->disconnect();
     this->close();
 }
 

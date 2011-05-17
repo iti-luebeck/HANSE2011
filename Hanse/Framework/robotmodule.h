@@ -63,9 +63,9 @@ public:
     bool isEnabled();
 
     /**
-      * Return true if the module has been initialized (thread safe)
+      * Return once the module has been initialized (thread safe)
       */
-    bool isInitialized();
+    void waitForInitToComplete();
 
     /**
       * A copy of the settings of this module using dataLockerMutex (thread safe)
@@ -273,9 +273,15 @@ private:
     DataRecorder recorder;
 
     /**
-      * indicated if the module returned from init(). Meaning it is initialized
+      * Used during init to block other modules from starting while this module hasn't been
+      * initialized yet.
       */
-    bool initialized;
+    QWaitCondition initWaiter;
+
+    /**
+      * This mutex is used during init by initWaiter. It is nonRecursive.
+      */
+    QMutex initWaiterMutex;
 
 };
 

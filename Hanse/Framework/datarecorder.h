@@ -11,10 +11,8 @@ class DataRecorder : public QObject
 Q_OBJECT
 public:
     DataRecorder(RobotModule& module);
-    ~DataRecorder();
 
-
-signals:
+    void stopRecording();
 
 public slots:
     void newDataReceived(RobotModule* module);

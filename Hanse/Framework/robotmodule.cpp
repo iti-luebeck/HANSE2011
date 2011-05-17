@@ -9,12 +9,13 @@ RobotModule::RobotModule(QString newId)
     : dataLockerMutex(QMutex::Recursive),
       id(newId),
       healthCheckTimer(this),
-      recorder(*this),
-      initialized(false)
+      recorder(*this)
 {
     // move this module and all its children (in the Qt "parent" hierarchy)
     // to the module's own thread
     moveToThread(this);
+
+    this->initWaiterMutex.lock();
 
     setDefaultValue("enabled", true);
 
@@ -34,18 +35,20 @@ void RobotModule::run()
 
 #ifdef OS_UNIX
     // linux allows to put names to threads. they can be seen in the process list.
-    logger->debug("Setting pthread thread name");
+    logger->trace("Setting pthread thread name");
     prctl(PR_SET_NAME,("H: "+id).toStdString().c_str(),0,0,0);
 #endif
 
     logger->info("Initializing module");
     this->init();
-    dataLockerMutex.lock();
-    this->initialized = true;
-    dataLockerMutex.unlock();
+
+    this->initWaiter.wakeAll();
+
     logger->info("Init complete, starting event loop");
     this->exec();
+
     logger->info("Event loop finished.");
+
     this->terminate();
     logger->info("Stopped thread");
 
@@ -69,10 +72,9 @@ bool RobotModule::isEnabled()
     return getSettingsValue("enabled").toBool();
 }
 
-bool RobotModule::isInitialized()
+void RobotModule::waitForInitToComplete()
 {
-    QMutexLocker l(&dataLockerMutex);
-    return this->initialized;
+    initWaiter.wait(&initWaiterMutex);
 }
 
 QString RobotModule::getTabName()
@@ -209,9 +211,7 @@ void RobotModule::addData(QString key, QVariant value)
 
 void RobotModule::terminate()
 {
-    // delete recorder to make sure that all it won't log any longer
-//    delete recorder;
-//    recorder = NULL;
+    recorder.stopRecording();
 }
 
 bool RobotModule::shutdown()

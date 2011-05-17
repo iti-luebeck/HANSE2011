@@ -142,16 +142,12 @@ void ModulesGraph::build()
 
     logger->info("Loading all Modules... Done");
 
-    /* connect every modul to healtCheckTimer */
-    logger->debug("Starting threads...");
     foreach (RobotModule* b, modules)
     {
+        logger->debug("Starting module "+b->getId());
         b->start();
-        while(!b->isInitialized())
-            sotoSleep::msleep(10);
-
+        b->waitForInitToComplete();
     }
-
 
 }
 
