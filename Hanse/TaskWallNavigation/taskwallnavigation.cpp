@@ -97,7 +97,7 @@ void TaskWallNavigation::startBehaviour(){
 }
 
 void TaskWallNavigation::moveToStartSlot(){
-    if(this->isEnabled()){
+    if(this->isEnabled() && this->navi->isEnabled()){
         logger->debug("move to start");
         addData("state", "Move to start");
         emit dataChanged(this);
@@ -115,14 +115,18 @@ void TaskWallNavigation::moveToStartSlot(){
             emit dataChanged(this);
             emit doWallFollowSignal();
         }
+    } else {
+        logger->info("Something is wrong with navigation, abort...");
+        emit stopSignal();
     }
 }
 void TaskWallNavigation::doWallFollowSlot(){
-    if(this->isEnabled()){
+    if(this->isEnabled() && this->wall->isEnabled()){
         logger->debug("Do wallfollowing");
         addData("state", "Do wallfollowing");
         emit dataChanged(this);
-
+        this->wall->setSettingsValue("corridorWidth",this->getSettingsValue("corridorWidth").toFloat());
+        this->wall->setSettingsValue("desiredDistance",this->getSettingsValue("desiredDistance").toFloat());
         if(!this->wall->isEnabled()){
             logger->debug("enable wallfollow and echo");
             QTimer::singleShot(0, wall, SLOT(startBehaviour()));
@@ -156,11 +160,14 @@ void TaskWallNavigation::doWallFollowSlot(){
 
             emit controlNextStateSignal();
         }
+    } else {
+        logger->info("Something is wrong with wallfollow, abort...");
+        emit stopSignal();
     }
 }
 
 void TaskWallNavigation::moveToEndSlot(){
-    if(this->isEnabled()){
+    if(this->isEnabled() && this->navi->isEnabled()){
         logger->debug("Move to end");
         addData("state", "Move to end");
         emit dataChanged(this);
@@ -173,6 +180,9 @@ void TaskWallNavigation::moveToEndSlot(){
         } else {
             emit controlNextStateSignal();
         }
+    } else {
+        logger->info("Something is wrong with navigation, abort...");
+        emit stopSignal();
     }
 }
 
@@ -189,6 +199,9 @@ void TaskWallNavigation::controlNextStateSlot(){
             // Task finished, stop
             emit stopSignal();
         }
+    } else {
+        logger->info("Something is wrong with the task, abort...");
+        emit stopSignal();
     }
 }
 
@@ -209,11 +222,15 @@ void TaskWallNavigation::stop(){
             this->setEnabled(false);
             emit finished(this,true);
         }
+    } else {
+        logger->info("Something is really wrong...");
+        emit finished(this,false);
     }
 }
 
 void TaskWallNavigation::timeoutStop(){
-    if(this->isEnabled()){running = false;
+    if(this->isEnabled()){
+        running = false;
         logger->info("Taskwallnavigation timeout stopped");
 
         if (this->isActive())

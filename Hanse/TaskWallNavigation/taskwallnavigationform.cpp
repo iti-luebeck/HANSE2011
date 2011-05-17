@@ -66,12 +66,6 @@ void TaskWallNavigationForm::on_applyButton_clicked(){
     this->taskwallnavigation->setSettingsValue("taskStopTime", this->ui->taskStopInput->text());
     this->taskwallnavigation->setSettingsValue("signalTimer", this->ui->signalInput->text());
 
-
-    qDebug("Timer?");
-    qDebug()<<this->ui->enableTimerBox->isChecked();
-
-    qDebug("Loop?");
-    qDebug()<<this->ui->enableLoopBox->isChecked();
 }
 
 

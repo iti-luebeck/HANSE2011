@@ -28,8 +28,8 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
 
     this->scheduledTasks.append("TaskWallNavigation");
+    this->scheduledTasks.append("TaskXsensNavigation");
     this->scheduledTasks.append("HandControl");
-
 
     ui->scheduleInput->clear();
     for(int i = 0; i < this->scheduledTasks.length(); i++){

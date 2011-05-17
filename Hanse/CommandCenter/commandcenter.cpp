@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn,TaskXsensNavigation *txn)
     : RobotModule(id)
 {
     this->tcl = tcl;
@@ -22,6 +22,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->o80 = o80;
     this->wall = wall;
     this->xsens = xsens;
+    this->taskxsensnavigation = txn;
     //this->goal = goal;
 
     timer.moveToThread(this);
@@ -61,6 +62,12 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(startTaskWallNavigation()),taskwallnavigation,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskWallNavigation()),taskwallnavigation,SLOT(stop()));
     connect(this,SIGNAL(stopAllTasks()),taskwallnavigation,SLOT(emergencyStop()));
+
+    // TaskXsensNavigation
+    connect(taskxsensnavigation, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
+    connect(this,SIGNAL(startTaskXsensNavigation()),taskxsensnavigation,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskXsensNavigation()),taskxsensnavigation,SLOT(stop()));
+    connect(this,SIGNAL(stopAllTasks()),taskxsensnavigation,SLOT(emergencyStop()));
 
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
@@ -172,6 +179,9 @@ void CommandCenter::commandCenterControl(){
             activeTask = tempAkt;
         } else if(tempAkt == "TaskWallNavigation"){
             emit startTaskWallNavigation();
+            activeTask = tempAkt;
+        } else if(tempAkt == "TaskXsensNavigation"){
+            emit startTaskXsensNavigation();
             activeTask = tempAkt;
         } else  {
             logger->info("Task not found, skip task!");

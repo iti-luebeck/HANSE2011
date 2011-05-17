@@ -13,6 +13,7 @@
 #include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 //#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
+#include <TaskXsensNavigation/taskxsensnavigation.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -29,7 +30,7 @@ class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn, TaskXsensNavigation *txn);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -62,6 +63,7 @@ private:
 
     TaskHandControl *taskhandcontrol;
     TaskWallNavigation *taskwallnavigation;
+    TaskXsensNavigation *taskxsensnavigation;
 
     QTimer controlTimer;
 
@@ -119,7 +121,8 @@ signals:
     void startTaskWallNavigation();
     void stopTaskWallNavigation();
 
-
+    void startTaskXsensNavigation();
+    void stopTaskXsensNavigation();
 };
 
 #endif // COMMANDCENTER_H
