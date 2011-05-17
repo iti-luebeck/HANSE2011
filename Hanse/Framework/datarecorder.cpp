@@ -43,7 +43,7 @@ void DataRecorder::open()
 
     bool listsChanged = isChanged(dataKeys, dataKeysNew) || isChanged(settingsKeys, settingsKeysNew);
 
-    if (file->isOpen() && listsChanged) {
+    if (file == NULL || (file->isOpen() && listsChanged)) {
         this->close();
 
         fileCount++;
