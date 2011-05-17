@@ -70,3 +70,4 @@ include(Behaviour_XsensFollowing/Behaviour_XsensFollowing.pri)
 # tasks
 include(TaskHandControl/TaskHandControl.pri)
 include(TaskWallNavigation/TaskWallNavigation.pri)
+include(TaskXsensNavigation/TaskXsensNavigation.pri)
