@@ -19,9 +19,7 @@ MOC_DIR = tmp/moc
 OBJECTS_DIR = tmp/obj
 
 # so they show up the the project tree, for convenience
-OTHER_FILES += bin/log4qt.properties bin/ITI/Hanse.ini \
-    TaskHandControl/TaskHandControl.pri \
-    Behaviour_XsensFollowing/Behaviour_CompassFollowing.pri
+OTHER_FILES += bin/log4qt.properties bin/ITI/Hanse.ini
 
 # QMAKE_CXXFLAGS += -O2 -funroll-loops -msse2 -mfpmath=sse
 
