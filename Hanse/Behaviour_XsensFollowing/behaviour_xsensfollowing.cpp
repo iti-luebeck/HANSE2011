@@ -10,8 +10,8 @@ Behaviour_XsensFollowing::Behaviour_XsensFollowing(QString id, Module_ThrusterCo
     turnTimer.moveToThread(this);
     timer.moveToThread(this);
 
-    this->setDefaultValue("timer",100);
-    this->setDefaultValue("driveTime",30);
+    this->setDefaultValue("timer",30);
+    this->setDefaultValue("driveTime",10000);
     this->setDefaultValue("ffSpeed",0.3);
     this->setDefaultValue("kp",0.3);
     this->setDefaultValue("delta",0.3);

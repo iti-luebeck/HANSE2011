@@ -4,16 +4,18 @@
 #include <Framework/robotbehaviour.h>
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 #include <Module_Navigation/module_navigation.h>
+#include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 
 class Module_Simulation;
 class Module_Navigation;
 class Behaviour_XsensFollowing;
+class Behaviour_TurnOneEighty;
 
 class TaskXsensNavigation : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    TaskXsensNavigation(QString id, Module_Simulation *sim, Behaviour_XsensFollowing *xf, Module_Navigation *n);
+    TaskXsensNavigation(QString id, Module_Simulation *sim, Behaviour_XsensFollowing *xf, Module_Navigation *n, Behaviour_TurnOneEighty *o180);
 
     QWidget* createView(QWidget *parent);
 
@@ -23,7 +25,9 @@ public:
 
     QTimer taskTimer;
     QTimer moveToStartTimer;
+    QTimer moveToBTimer;
     QTimer moveToEndTimer;
+    QTimer doTurnTimer;
     QTimer doXsensFollowTimer;
     QTimer controlNextStateTimer;
 
@@ -31,13 +35,14 @@ private:
     Module_Simulation *sim;
     Behaviour_XsensFollowing *xsensfollow;
     Module_Navigation *navi;
+    Behaviour_TurnOneEighty *turn180;
 
     void init();
     bool running;
     void terminate();
     double distanceToStart;
     double distanceToTarget;
-
+    double distanceToB;
 
 
 signals:
@@ -49,9 +54,11 @@ signals:
 
 
     void moveToStartSignal();
+    void moveToBSignal();
     void moveToEndSignal();
     void doXsensFollowSignal();
     void controlNextStateSignal();
+    void doTurnSignal();
 
 
 public slots:
@@ -62,9 +69,12 @@ public slots:
 
 
     void moveToStartSlot();
+    void moveToBSlot();
     void moveToEndSlot();
     void doXsensFollowSlot();
+    void finishXsensFollowSlot();
     void controlNextStateSlot();
+    void doTurnSlot();
 
 };
 

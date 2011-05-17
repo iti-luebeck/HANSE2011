@@ -11,11 +11,11 @@ TaskXsensNavigationForm::TaskXsensNavigationForm(TaskXsensNavigation *txn, QWidg
     connect(taskxsensnavigation,SIGNAL(updateSettings()),this,SLOT(on_applyButton_clicked()));
 
     // Show settings from taskxsensfollowing
-    this->ui->forwardInput->setText(this->taskxsensnavigation->getSettingsValue("forwardSpeed").toString());
-    this->ui->angularInput->setText(this->taskxsensnavigation->getSettingsValue("angularSpeed").toString());
-
     this->ui->startInput->setText(this->taskxsensnavigation->getSettingsValue("startNavigation").toString());
     this->ui->startToleranceInput->setText(this->taskxsensnavigation->getSettingsValue("startTolerance").toString());
+
+    this->ui->bInput->setText(this->taskxsensnavigation->getSettingsValue("bNavigation").toString());
+    this->ui->bToleranceInput->setText(this->taskxsensnavigation->getSettingsValue("bTolerance").toString());
 
     this->ui->targetInput->setText(this->taskxsensnavigation->getSettingsValue("targetNavigation").toString());
     this->ui->targetToleranceInput->setText(this->taskxsensnavigation->getSettingsValue("targetTolerance").toString());
@@ -24,6 +24,18 @@ TaskXsensNavigationForm::TaskXsensNavigationForm(TaskXsensNavigation *txn, QWidg
 
     this->ui->taskStopInput->setText(this->taskxsensnavigation->getSettingsValue("taskStopTime").toString());
     this->ui->signalInput->setText(this->taskxsensnavigation->getSettingsValue("signalTimer").toString());
+
+    // Xsensfollow Settings
+    this->ui->ffSpeed->setText(this->taskxsensnavigation->getSettingsValue("ffSpeed").toString());
+    this->ui->kp->setText(this->taskxsensnavigation->getSettingsValue("kp").toString());
+    this->ui->delta->setText(this->taskxsensnavigation->getSettingsValue("delta").toString());
+    this->ui->driveTime->setText(this->taskxsensnavigation->getSettingsValue("driveTime").toString());
+    this->ui->timerInput->setText(this->taskxsensnavigation->getSettingsValue("timer").toString());
+
+    // Turn180 Settings
+    this->ui->hysteresisEdit->setText(this->taskxsensnavigation->getSettingsValue("hysteresis").toString());
+    this->ui->pEdit->setText(this->taskxsensnavigation->getSettingsValue("p").toString());
+
 }
 
 TaskXsensNavigationForm::~TaskXsensNavigationForm()
@@ -44,12 +56,11 @@ void TaskXsensNavigationForm::changeEvent(QEvent *e)
 }
 
 void TaskXsensNavigationForm::on_applyButton_clicked(){
-
-    this->taskxsensnavigation->setSettingsValue("forwardSpeed" ,this->ui->forwardInput->text());
-    this->taskxsensnavigation->setSettingsValue("angularSpeed" ,this->ui->angularInput->text());
-
     this->taskxsensnavigation->setSettingsValue("startNavigation", this->ui->targetInput->text());
     this->taskxsensnavigation->setSettingsValue("startTolerance", this->ui->startToleranceInput->text());
+
+    this->taskxsensnavigation->setSettingsValue("bNavigation", this->ui->bInput->text());
+    this->taskxsensnavigation->setSettingsValue("bTolerance", this->ui->bToleranceInput->text());
 
     this->taskxsensnavigation->setSettingsValue("targetNavigation", this->ui->startInput->text());
     this->taskxsensnavigation->setSettingsValue("targetTolerance", this->ui->targetToleranceInput->text());
@@ -59,6 +70,17 @@ void TaskXsensNavigationForm::on_applyButton_clicked(){
 
     this->taskxsensnavigation->setSettingsValue("taskStopTime", this->ui->taskStopInput->text());
     this->taskxsensnavigation->setSettingsValue("signalTimer", this->ui->signalInput->text());
+
+    // Xsensfollow Settings
+    this->taskxsensnavigation->setSettingsValue("ffSpeed", this->ui->ffSpeed->text());
+    this->taskxsensnavigation->setSettingsValue("kp", this->ui->kp->text());
+    this->taskxsensnavigation->setSettingsValue("delta", this->ui->delta->text());
+    this->taskxsensnavigation->setSettingsValue("driveTime", this->ui->driveTime->text());
+    this->taskxsensnavigation->setSettingsValue("timer", this->ui->timerInput->text());
+
+    // Turn180 Settings
+    this->taskxsensnavigation->setSettingsValue("hysteresis", this->ui->hysteresisEdit->text());
+    this->taskxsensnavigation->setSettingsValue("p", this->ui->pEdit->text());
 }
 
 

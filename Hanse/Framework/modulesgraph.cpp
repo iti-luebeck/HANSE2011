@@ -132,12 +132,16 @@ void ModulesGraph::build()
     TaskWallNavigation *taskwallnavigation = new TaskWallNavigation("taskWallNavi",sim, behavWall, navi);
     this->modules.append(taskwallnavigation);
 
+    logger->debug("Creating TaskXsensNavigation");
+    TaskXsensNavigation *taskxsensnavigation = new TaskXsensNavigation("taskXsensNavi",sim, behavXsens, navi, behavTurn);
+    this->modules.append(taskxsensnavigation);
+
     logger->debug("Creating TaskHandControl");
     TaskHandControl *taskhandcontrol = new TaskHandControl("taskHand", controlLoop, sim, handControl);
     this->modules.append(taskhandcontrol);
 
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation, taskxsensnavigation);
     this->modules.append(commCent);
 
     logger->info("Loading all Modules... Done");

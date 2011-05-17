@@ -166,7 +166,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Drive Time (msec):</string>
+    <string>Turn Time (msec):</string>
    </property>
   </widget>
   <widget class="QLabel" name="ffSpeedLabel">

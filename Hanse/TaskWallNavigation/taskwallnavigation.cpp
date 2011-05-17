@@ -1,3 +1,10 @@
+/*
+   - Fahre zu Position A
+   -  Mache dann Wandverfolgung bis Position B erreicht wird
+       -- Falls Wandverfolgung nicht möglich, fahre direkt zu Position B
+   - Wenn Position B erreicht, beende Task oder beginne von vorn
+*/
+
 #include "taskwallnavigation.h"
 #include "taskwallnavigationform.h"
 #include <QtGui>
@@ -21,7 +28,7 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     this->setDefaultValue("corridorWidth",0.2);
     this->setDefaultValue("description", "");
     this->setDefaultValue("taskStopTime",120000);
-    this->setDefaultValue("signalTimer",20000);
+    this->setDefaultValue("signalTimer",1000);
 
 
     this->setDefaultValue("startNavigation", "startN");

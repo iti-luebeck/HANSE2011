@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>401</height>
+    <width>636</width>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,111 +17,19 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>30</y>
+     <y>10</y>
      <width>601</width>
-     <height>351</height>
+     <height>471</height>
     </rect>
    </property>
    <property name="title">
-    <string>Settings:</string>
+    <string>Task Settings:</string>
    </property>
-   <widget class="QLineEdit" name="forwardInput">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>220</y>
-      <width>113</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="angularInput">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>260</y>
-      <width>113</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="corridorInput">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>180</y>
-      <width>113</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="desiredDistanceInput">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>140</y>
-      <width>113</width>
-      <height>27</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>140</y>
-      <width>121</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Desired distance:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_1">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>180</y>
-      <width>121</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Corridor width: </string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>220</y>
-      <width>111</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Forward speed: </string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>260</y>
-      <width>101</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Angular speed:</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>170</y>
+      <x>30</x>
+      <y>120</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -133,8 +41,8 @@
    <widget class="QLineEdit" name="startInput">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>170</y>
+      <x>170</x>
+      <y>120</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -143,8 +51,8 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>240</y>
+      <x>310</x>
+      <y>130</y>
       <width>141</width>
       <height>17</height>
      </rect>
@@ -156,8 +64,8 @@
    <widget class="QLineEdit" name="targetInput">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>240</y>
+      <x>460</x>
+      <y>130</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -166,8 +74,8 @@
    <widget class="QPushButton" name="applyButton">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>310</y>
+      <x>10</x>
+      <y>410</y>
       <width>591</width>
       <height>27</height>
      </rect>
@@ -179,8 +87,8 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>200</y>
+      <x>30</x>
+      <y>150</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -192,8 +100,8 @@
    <widget class="QLineEdit" name="startToleranceInput">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>200</y>
+      <x>170</x>
+      <y>150</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -202,8 +110,8 @@
    <widget class="QLineEdit" name="targetToleranceInput">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>270</y>
+      <x>460</x>
+      <y>160</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -212,8 +120,8 @@
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>270</y>
+      <x>310</x>
+      <y>160</y>
       <width>141</width>
       <height>17</height>
      </rect>
@@ -225,8 +133,8 @@
    <widget class="QCheckBox" name="enableTimerBox">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>90</y>
+      <x>370</x>
+      <y>50</y>
       <width>201</width>
       <height>22</height>
      </rect>
@@ -238,8 +146,8 @@
    <widget class="QCheckBox" name="enableLoopBox">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>120</y>
+      <x>370</x>
+      <y>80</y>
       <width>141</width>
       <height>22</height>
      </rect>
@@ -251,8 +159,8 @@
    <widget class="QLineEdit" name="signalInput">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>60</y>
+      <x>180</x>
+      <y>20</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -261,8 +169,8 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>60</y>
+      <x>40</x>
+      <y>20</y>
       <width>131</width>
       <height>20</height>
      </rect>
@@ -274,8 +182,8 @@
    <widget class="QLineEdit" name="taskStopInput">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>90</y>
+      <x>180</x>
+      <y>50</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -284,8 +192,8 @@
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>90</y>
+      <x>10</x>
+      <y>50</y>
       <width>161</width>
       <height>20</height>
      </rect>
@@ -293,6 +201,111 @@
     <property name="text">
      <string>Task stop timer (msec):</string>
     </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>210</y>
+      <width>331</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>WallFollowing Settings:</string>
+    </property>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>50</y>
+       <width>121</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Desired distance:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>170</y>
+       <width>101</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Angular speed:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_1">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>90</y>
+       <width>121</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Corridor width: </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="desiredDistanceInput">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>50</y>
+       <width>113</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>130</y>
+       <width>111</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Forward speed: </string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="corridorInput">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>90</y>
+       <width>113</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="forwardInput">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>130</y>
+       <width>113</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="angularInput">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>170</y>
+       <width>113</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
