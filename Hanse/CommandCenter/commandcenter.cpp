@@ -325,6 +325,7 @@ void CommandCenter::startTaskHandControlCC(){
     if(this->activeTask != "HandControl"){
         emit startTaskHandControl();
         activeTask = "HandControl";
+        logger->info("HandControl start");
     }
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
