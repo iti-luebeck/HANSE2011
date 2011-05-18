@@ -4,7 +4,6 @@
 #include <QtGui>
 #include <QtCore>
 #include <Framework/robotmodule.h>
-//#include <videoInput.h>
 #include <opencv/cxcore.h>
 #include <opencv/highgui.h>
 #include <opencv/cv.h>
@@ -22,37 +21,49 @@ public:
     QList<RobotModule*> getDependencies();
 
 
+    /**
+      * Grab current Frame from Webcam
+      * @param left / right / bottom - cv::Mat or IplImage to store
+      */
     void grabLeft( IplImage *left );
     void grabRight( IplImage *right );
     void grabBottom( IplImage *bottom );
     void grabLeft( cv::Mat &left );
     void grabRight( cv::Mat &right );
     void grabBottom( cv::Mat &bottom );
-    int numOfCams();
 
-private:
-    void stopWebcams();
-    void init();
+    /**
+      * Returns Vector containing Indices of available Cams
+      * @return Vector containing Indices of available Cams
+      */
+    std::vector<int> numOfCams();
 
 public slots:
 
-//    void statusChange( bool value );
     void settingsChanged();
     void reset();
     void terminate();
-//    void showSettings( int camNr );
 
 private:
-//    videoInput VI;
 
-//    cv::VideoCapture* leftCap;
-//    cv::VideoCapture* rightCap;
-//    cv::VideoCapture* bottomCap;
+     void init();
+    /**
+      * disconnects all connected devices
+      */
+    void stopWebcams();
+
+    /**
+      * Returns number of available video devices
+      * @return int - number of cams available
+      */
+    int numAvailableCams();
+
 
     CvCapture* leftCap;
     CvCapture* rightCap;
     CvCapture* bottomCap;
 
+    std::vector<int> camInd;
     int nCams;
     int leftID;
     bool leftConnected;
@@ -66,12 +77,10 @@ private:
     bool bottomConnected;
     bool bottomEnabled;
     int bottomFramerate;
-    QMutex mutex;
 
     IplImage *leftFrame;
     IplImage *rightFrame;
     IplImage *bottomFrame;
-    int count;
 };
 
 #endif // MODULE_WEBCAMS_H
