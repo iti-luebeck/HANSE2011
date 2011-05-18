@@ -242,6 +242,7 @@ std::vector<int> Module_Webcams::numOfCams()
 
 int Module_Webcams::numAvailableCams()
 { 
+    camInd.clear();
     CvCapture *cap;
     for(int i = 0; i < 5; i++)
     {
