@@ -180,6 +180,13 @@ void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
         item->setParentItem( waypointsItem );
         item->setZValue( 1220 );
 
+        if (pos.useExitAngle) {
+            QGraphicsItem *line =
+                    scene->addLine(pos.posX, pos.posY, pos.posX - 5 * sin(pos.exitAngle * M_PI / 180), pos.posY + 5 * cos(pos.exitAngle * M_PI / 180), pen);
+            line->setParentItem( waypointsItem );
+            line->setZValue( 1221 );
+        }
+
         QFont f( "Arial", 15 * width );
         QGraphicsTextItem *textItem = scene->addText( waypointNames[i], f );
         textItem->setParentItem( waypointsItem );

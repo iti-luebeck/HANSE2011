@@ -106,7 +106,7 @@ SonarReturnDataRivas SonarDataSourceRivas::readPacket()
         currentHeading = yaw;
     }
 
-    qDebug("%f -- %f, %f", time, lastTime, headPos);
+//    qDebug("%f -- %f, %f", time, lastTime, headPos);
 
     SonarReturnDataRivas d(cmd, data, headPos * 180 / M_PI);
 

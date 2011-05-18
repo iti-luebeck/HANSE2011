@@ -325,7 +325,6 @@ void Form_SonarLocalization::on_selSat_clicked()
 
 void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
 {
-    qDebug() << "list length = " << list.length();
     sonarEchoDataList.clear();
     while (!list.empty()) {
         SonarEchoData d = list.takeFirst();
@@ -394,7 +393,10 @@ void Form_SonarLocalization::updateSonarViewUnfiltered()
         QList<float> data = sonarEchoDataList[j].getGradient();
         QLinearGradient gi(0, 0, 0, data.length());
         for (int i = 0; i < data.length(); i++) {
-            unsigned char b = (unsigned char) (255 - 255 * data[i] / maxVal);            
+            int col = 255 - 255 * data[i] / maxVal;
+            if (col < 0) col = 0;
+            if (col > 255) col = 255;
+            unsigned char b = (unsigned char)col;
             gi.setColorAt(1.0 * i / data.length(), QColor(b,b,b));
         }
 
@@ -415,7 +417,10 @@ void Form_SonarLocalization::updateSonarViewRaw()
         QByteArray data = sonarEchoDataList[j].getRawData();
         QLinearGradient gi(0, 0, 0, data.length());
         for (int i = 0; i < data.length(); i++) {
-            unsigned char b = (unsigned char) (255 - 2 * data[i]);
+            int col = 255 - 2 * data[i];
+            if (col < 0) col = 0;
+            if (col > 255) col = 255;
+            unsigned char b = (unsigned char)col;
             gi.setColorAt(1.0 * i / data.length(), QColor(b, b, b));
         }
         sceneRaw.addRect(j*stepWidth, 1, stepWidth, height, Qt::NoPen, QBrush(gi));
