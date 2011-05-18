@@ -38,6 +38,7 @@ void Module_Webcams::init()
 
 void Module_Webcams::stopWebcams()
 {
+    dataLockerMutex.lock();
     if ( leftCap != NULL )
     {
         cvReleaseCapture(&leftCap);
@@ -53,20 +54,22 @@ void Module_Webcams::stopWebcams()
         cvReleaseCapture(&bottomCap);
         bottomCap = NULL;
     }
+    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::grabLeft( cv::Mat &left )
 {
+    dataLockerMutex.lock();
     if ( leftCap != NULL )
     {
-        this->dataLockerMutex.lock();
+
         IplImage* img = cvQueryFrame(leftCap);
         if(img)
         {
             cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
-        cv::Mat mtx(img);
+            cv::Mat mtx(img);
 
-        left = mtx.clone();
+            left = mtx.clone();
         }
         dataLockerMutex.unlock();
     }
@@ -74,9 +77,10 @@ void Module_Webcams::grabLeft( cv::Mat &left )
 
 void Module_Webcams::grabRight( cv::Mat &right )
 {
+    dataLockerMutex.lock();
     if ( rightCap != NULL )
     {
-        dataLockerMutex.lock();
+
         IplImage* img = cvQueryFrame(rightCap);
         if(img)
         {
@@ -91,15 +95,15 @@ void Module_Webcams::grabRight( cv::Mat &right )
 
 void Module_Webcams::grabBottom( cv::Mat &bottom )
 {
+    dataLockerMutex.lock();
     if ( bottomCap != NULL )
     {
-        dataLockerMutex.lock();
         IplImage* img = cvQueryFrame(bottomCap);
         if(img)
         {
             cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
-        cv::Mat mat(img);
-        bottom = mat.clone();
+            cv::Mat mat(img);
+            bottom = mat.clone();
 
         }
         dataLockerMutex.unlock();
@@ -108,9 +112,10 @@ void Module_Webcams::grabBottom( cv::Mat &bottom )
 
 void Module_Webcams::grabLeft(IplImage *left)
 {
+    dataLockerMutex.lock();
     if(leftCap != NULL)
     {
-        dataLockerMutex.lock();
+
         assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(leftCap),left);
         cvConvertImage(left,left,CV_CVTIMG_SWAP_RB);
@@ -120,9 +125,10 @@ void Module_Webcams::grabLeft(IplImage *left)
 
 void Module_Webcams::grabRight(IplImage *right)
 {
+    dataLockerMutex.lock();
     if(rightCap != NULL)
     {
-        dataLockerMutex.lock();
+
         assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(rightCap),right);
         cvConvertImage(right,right,CV_CVTIMG_SWAP_RB);
@@ -132,9 +138,10 @@ void Module_Webcams::grabRight(IplImage *right)
 
 void Module_Webcams::grabBottom(IplImage *bottom)
 {
+    dataLockerMutex.lock();
     if(bottomCap != NULL)
     {
-        dataLockerMutex.lock();
+
         assert( bottom->width == WEBCAM_WIDTH && bottom->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(bottomCap),bottom);
         cvShowImage("buhu",bottom);
