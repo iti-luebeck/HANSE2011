@@ -50,6 +50,8 @@ ScanningSonarForm::ScanningSonarForm(Module_ScanningSonar* sonar,QWidget *parent
     ui->format852->setChecked(!sonar->getSettingsValue("formatCSV").toBool());
     ui->startTime->setDateTime(sonar->getSettingsValue("startTime").toDateTime());
 
+    ui->rivasBox->setChecked(sonar->getSettingsValue("is rivas", false).toBool());
+
     ui->recorderFilename->setText(DataLogHelper::getLogDir()+"sonarlog.XXX");
 }
 
@@ -160,6 +162,7 @@ void ScanningSonarForm::on_fileCfgApply_clicked()
     sonar->setSettingsValue("enableRecording", ui->enableRecording->isChecked());
     sonar->setSettingsValue("formatCSV", ui->formatCSV->isChecked());
     sonar->setSettingsValue("startTime", ui->startTime->dateTime());
+    sonar->setSettingsValue("is rivas", ui->rivasBox->isChecked());
 
     // richtiges reset?
     QTimer::singleShot(0,sonar,SLOT(reset()));
@@ -174,8 +177,16 @@ void ScanningSonarForm::on_fileReaderDelay_valueChanged(int )
 void ScanningSonarForm::on_selFile_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-         "Open Sonar Recording", ui->fileName->text(), "Recording (*.852)");
+         "Open Sonar Recording", ui->fileName->text(), "Recording (*.852);; Rivas Log File (*.log)");
 
-    if (fileName.length()>0)
+    if (fileName.length() > 0)
         ui->fileName->setText(fileName);
+
+    if (ui->rivasBox->isChecked()) {
+        fileName = QFileDialog::getOpenFileName(this,
+                 "Open MTi Recording", ui->fileName->text(), "Rivas Log File (*.log)");
+        if (fileName.length() > 0) {
+            sonar->setSettingsValue("mti filename", fileName);
+        }
+    }
 }

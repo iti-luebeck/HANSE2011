@@ -20,6 +20,7 @@ Module_XsensMTi::Module_XsensMTi(QString id, Module_Simulation *sim)
     mti = NULL;
     timer.moveToThread(this);
     heading = 0;
+    lastHeading = 0;
 }
 
 void Module_XsensMTi::init()

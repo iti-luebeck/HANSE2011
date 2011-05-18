@@ -19,7 +19,7 @@ class SonarEchoFilter: public QObject
 public:
     SonarEchoFilter(Module_SonarLocalization* sonar, Module_XsensMTi *mti, Module_Simulation *sim);
 
-    const static int N = 250;
+//    const static int N = 250;
 
     void reset();
 
@@ -62,9 +62,9 @@ private:
     QList<SonarEchoData> candidates;
     //grouping
     int groupID;
-    int diff;
+//    int diff;
     int newDirection;
-    int temp_area;
+    double temp_area;
 
     QList<int> localKlist;
     QList<double> localKlistHeading;

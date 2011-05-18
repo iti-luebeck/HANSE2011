@@ -37,7 +37,7 @@ public:
       * Checks if this packet is valid, i.e. if the packet fulfills the spec
       * and none of the error bits in the status field are set.
       */
-    bool isPacketValid() const;
+    virtual bool isPacketValid() const;
 
     /**
       * XXX: Some kind of error code?
@@ -82,6 +82,12 @@ public:
     SonarReturnData& operator =(SonarReturnData);
 
     SonarSwitchCommand switchCommand;
+
+protected:
+    double headPos;
+    bool valid;
+    QByteArray echo;
+    int range;
 
 private:
 

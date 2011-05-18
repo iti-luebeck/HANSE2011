@@ -10,26 +10,71 @@ SonarReturnData::SonarReturnData(const SonarReturnData& c)
 {
     this->packet = c.packet;
     this->switchCommand = c.switchCommand;
+    this->headPos = c.headPos;
+    this->valid = c.valid;
+    this->echo = c.echo;
+    this->range = c.range;
 }
 
 SonarReturnData::SonarReturnData(SonarSwitchCommand& cmd, QByteArray& returnDataPacket)
 {
     this->packet = returnDataPacket;
     this->switchCommand = cmd;
+
+    valid = true;
+    if (packet.size()<8)
+        valid = false;
+
+    // ID Bytes
+    if (packet[0] != 'I' || packet[2] != 'X')
+        valid = false;
+
+    if (packet.length()==265) {
+        if (packet[1] != 'M')
+            valid = false;
+        if (getDataBytes() != 252)
+            valid = false;
+    }
+    if (packet.length()==513) {
+        if (packet[1] != 'G')
+            valid = false;
+        if (getDataBytes() != 500)
+            valid = false;
+    }
+
+    if (!isSwitchesAccepted())
+        valid = false;
+    if (isCharacterOverrun())
+        valid = false;
+
+    // HeadID
+    if ((char)packet[3] != 0x10)
+        valid = false;
+
+    // Termination byte
+    if (packet[packet.length()-1] != (char)0xFC)
+        valid = false;
+
+    echo = packet;
+    echo.remove(0,12); // remove header
+    echo.remove(getDataBytes(), 1); // remove termination byte
+
+    headPos = THCHeadPosDecoder(packet[5], packet[6]);
+    headPos = (0.15*(headPos - 1400));
+    //+90 offset
+
+    range = packet[7];
 }
 
 SonarReturnData& SonarReturnData::operator =(SonarReturnData other) {
     this->packet = other.packet;
     this->switchCommand = other.switchCommand;
-    return *this;
-}
+    this->headPos = other.headPos;
+    this->valid = other.valid;
+    this->echo = other.echo;
+    this->range = other.range;
 
-QByteArray SonarReturnData::getEchoData() const
-{
-    QByteArray clone = packet;
-    clone.remove(0,12); // remove header
-    clone.remove(getDataBytes(), 1); // remove termination byte
-    return clone;
+    return *this;
 }
 
 int SonarReturnData::THCDecoder(char byteLO, char byteHI) const
@@ -63,57 +108,27 @@ bool SonarReturnData::isCWDirection() const
     return (packet[6] & 0x40) >> 6;
 }
 
-double SonarReturnData::getHeadPosition() const
-{
-    int headPos = THCHeadPosDecoder(packet[5], packet[6]);
-    return (0.15*(headPos - 1400));
-    //+90 offset
-}
-
 int SonarReturnData::getDataBytes() const
 {
     return THCDecoder(packet[10], packet[11]);
 }
 
+QByteArray SonarReturnData::getEchoData() const
+{
+    return echo;
+}
+
+double SonarReturnData::getHeadPosition() const
+{
+    return headPos;
+}
+
 int SonarReturnData::getRange() const
 {
-    return packet[7];
+    return range;
 }
 
 bool SonarReturnData::isPacketValid() const
 {
-    if (packet.size()<8)
-        return false;
-
-    // ID Bytes
-    if (packet[0] != 'I' || packet[2] != 'X')
-        return false;
-
-    if (packet.length()==265) {
-        if (packet[1] != 'M')
-            return false;
-        if (getDataBytes() != 252)
-            return false;
-    }
-    if (packet.length()==513) {
-        if (packet[1] != 'G')
-            return false;
-        if (getDataBytes() != 500)
-            return false;
-    }
-
-    if (!isSwitchesAccepted())
-        return false;
-    if (isCharacterOverrun())
-        return false;
-
-    // HeadID
-    if ((char)packet[3] != 0x10)
-        return false;
-
-    // Termination byte
-    if (packet[packet.length()-1] != (char)0xFC)
-        return false;
-
     return true;
 }

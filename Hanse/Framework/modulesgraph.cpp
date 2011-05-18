@@ -75,7 +75,7 @@ void ModulesGraph::build()
     //    this->modules.append(adc1);
 
     logger->debug("Creating Module_ScanningSonar");
-    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar", sim);
+    Module_ScanningSonar* sonar = new Module_ScanningSonar("sonar", sim, xsens);
     this->modules.append(sonar);
 
     logger->debug("Creating Module_EchoSounder");

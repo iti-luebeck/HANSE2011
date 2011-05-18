@@ -8,18 +8,20 @@
 class QextSerialPort;
 //class SonarReturnData;
 class SonarDataSource;
+class SonarDataSourceRivas;
 class SonarDataRecorder;
-class Module_ThrusterControlLoop;
 class Module_Simulation;
+class Module_XsensMTi;
 
 class Module_ScanningSonar : public RobotModule {
     Q_OBJECT
 
     friend class SonarDataSourceFile;
     friend class SonarDataSourceSerial;
+    friend class SonarDataSourceRivas;
 
 public:
-    Module_ScanningSonar(QString id, Module_Simulation *sim);
+    Module_ScanningSonar(QString id, Module_Simulation *sim, Module_XsensMTi *mti);
     ~Module_ScanningSonar();
 
     QWidget* createView(QWidget* parent);
@@ -45,6 +47,7 @@ signals:
 
 private:
     Module_Simulation *sim;
+    Module_XsensMTi *mti;
     QTimer timer;
     SonarDataSource* source;
     SonarDataRecorder* recorder;

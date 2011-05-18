@@ -8,6 +8,7 @@
 #include <Module_SonarLocalization/svm.h>
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Module_Simulation/module_simulation.h>
+#include <Framework/Angles.h>
 
 using namespace cv;
 
@@ -25,6 +26,8 @@ SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent, Module_XsensM
     reset();
     this->lastMaxValue = -1;
     this->lastMaxValues.clear();
+
+    temp_area = 0;
 }
 
 /**
@@ -48,22 +51,19 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     if (this->sloc->getSettingsValue("medianFilter").toBool()) {
         this->medianFilter(currData);
     }
-//    this->findWall(currData);
+
     this->gradientFilter(currData);
-//    this->extractFeatures(currData);
-//    CvMat feat = currData.getFeatures();
     int predClass = 1;
-//    if(this->sloc->getSettingsValue("enableSVM").toBool())
-//        predClass = svm->svmClassification(&feat);
     currData.setClassLabel(predClass);
     candidates.append(currData);
-    this->grouping();
 
+    this->grouping();
 }
 
 void SonarEchoFilter::filterEcho(SonarEchoData &data)
 {
     Mat echo = this->byteArray2Mat(data.getRawData());
+    int N = echo.cols;
 
     // No filtering on simulator image.
     if (sim->isEnabled()) {
@@ -73,13 +73,14 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
 
         // Estimate signal to noise ratio.
         int gain = data.getGain();
-        for(int j=0;j<N;j++)
-        {
-            if(gain < 17)
-            {
-                echoFiltered.at<float>(0,j) = qMax(0.0f, echo.at<float>(0,j) - noiseMat.at<float>(gain-1,j));
-            } else
-            {
+        for (int j = 0; j < N; j++) {
+            if(gain < 17) {
+                if (j < noiseMat.cols) {
+                    echoFiltered.at<float>(0,j) = qMax(0.0f, echo.at<float>(0,j) - noiseMat.at<float>(gain-1,j));
+                } else {
+                    echoFiltered.at<float>(0,j) = qMax(0.0f, echo.at<float>(0,j));
+                }
+            } else {
                 echoFiltered.at<float>(0,j) = 0.0;
             }
         }
@@ -90,6 +91,7 @@ void SonarEchoFilter::filterEcho(SonarEchoData &data)
 void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 {
     Mat echoFiltered = this->byteArray2Mat(data.getFiltered());
+    int N = echoFiltered.cols;
 
     if (sim->isEnabled()) {
         // In simulation, we have perfect data. A wall is indicated by
@@ -118,7 +120,7 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
             integral.at<float>(0,i) = integral.at<float>(0,i) + integral.at<float>(0,i-1);
         }
 
-        echoFiltered = Mat::ones(1,250,CV_32F);
+        echoFiltered = Mat::ones(1, integral.cols, CV_32F);
 
         // Calculate gradient (and at the same time the maximum value,
         // which may be used as the wall candidate).
@@ -230,6 +232,7 @@ void SonarEchoFilter::medianFilter(SonarEchoData &data)
 void SonarEchoFilter::findWall(SonarEchoData &data)
 {
     Mat echo = this->byteArray2Mat(data.getFiltered());
+    int N = echo.cols;
     int wSize= this->sloc->getSettingsValue("wallWindowSize").toInt();
     int K = -1;
 
@@ -367,104 +370,99 @@ void SonarEchoFilter::applyHeuristic()
 
 void SonarEchoFilter::grouping()
 {
-    QVector<int> noNoise;
-    this->getNoNoiseFilter(noNoise);
     int maxCutTH = this->sloc->getSettingsValue("groupingMaxArea",360).toInt();
+    float diff = 0;
 
-//    if(noNoise.at(candidates[candidates.size()-1].getGain()) == 0)
-//        qDebug("no noise Information");
-//    else
-//    {
-        if(candidates.size() > 1)
-        {
-            int i = candidates.size()-1;
-            diff = abs(candidates[i-1].getHeadPosition()-candidates[i].getHeadPosition());
-            if (diff>180)
-                diff = abs(diff - 360);
-            newDirection = (candidates[i-1].getHeadPosition()-candidates[i].getHeadPosition());
+    if (candidates.size() > 1) {
+        int i = candidates.size() - 1;
 
-            if(newDirection > 0)
-                newDirection = 1;
-            else if(newDirection < 0)
-                newDirection = -1;
-            else
-                newDirection= 0;
+        if (this->sloc->getSettingsValue("use xsens").toBool()) {
+            diff = (candidates[i-1].getHeadPosition() + candidates[i-1].getHeadingIncrement()) -
+                   (candidates[i].getHeadPosition() + candidates[i].getHeadingIncrement());
+        } else {
+            diff = candidates[i-1].getHeadPosition() - candidates[i].getHeadPosition();
         }
+
+        diff = Angles::deg2deg(diff);
+
+        newDirection = candidates[i-1].getHeadPosition() - candidates[i].getHeadPosition();
+
+        if(newDirection > 0)
+            newDirection = 1;
+        else if(newDirection < 0)
+            newDirection = -1;
         else
-        {
-            newDirection=1;
+            newDirection= 0;
+    } else {
+        newDirection = 1;
+        diff = 0;
+    }
+
+    // Add heading difference to total sonar head movement.
+    temp_area += abs(diff);
+    mti->addData("area", temp_area);
+//    qDebug("%f", temp_area);
+
+    // Do grouping, if enough data was collected.
+    if (temp_area > maxCutTH) {
+
+        // Find cutting index.
+        int cutIndex = 0;
+        int darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
+        for (int i = candidates.size()-1; i > 0; i--) {
+            if (candidates[i].getWallCandidate() > 1 && candidates[i].getClassLabel() == 1)
+                darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
+            else
+                darknessCount--;
+
+            if (darknessCount == 0) {
+                cutIndex = i;
+                break;
+            }
+        }
+
+        if(cutIndex == 0) {
+            qDebug() << "No Darkness. Cutting Candidates at 360 degrees";
+            this->sendImage();
+        } else {
+            qDebug() << "cut at " << cutIndex << " of " << candidates.size();
+            QList<SonarEchoData> tmp;
+
+            temp_area = 0;
             diff = 0;
-        }
 
-        //Grouping
-        temp_area = temp_area + diff;
-//        qDebug() << "tempArea " << temp_area;
-        if(temp_area > maxCutTH)
-        {
-//            if(candidates.last().getClassLabel() == 0)
-//            {
-//                this->sendImage();
-//                return;
-//            }
-            //TODO search backwards for darkness
-            int cutIndex = 0;
-            int darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
-            for(int i = candidates.size()-1; i > 0; i--)
+            //splitting candidates at cutIndex
+            int total = candidates.size();
+            for(int i = cutIndex; i < total; i++)
             {
-                if(candidates[i].getWallCandidate() > 1 && candidates[i].getClassLabel() == 1)
-                    darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
-                else
-                    darknessCount--;
+                int last = candidates.size()-1;
 
-                if(darknessCount == 0)
-                {
-                    cutIndex = i;
-                    break;
+                if (this->sloc->getSettingsValue("use xsens").toBool()) {
+                    diff = (candidates[last-1].getHeadPosition() + candidates[last-1].getHeadingIncrement()) -
+                           (candidates[last].getHeadPosition() + candidates[last].getHeadingIncrement());
+                } else {
+                    diff = candidates[last-1].getHeadPosition() - candidates[last].getHeadPosition();
                 }
+
+                diff = Angles::deg2deg(diff);
+                temp_area += abs(diff);
+
+                //just keep positiv wallCandidates
+//                if (candidates.last().getClassLabel() == 1)
+                    tmp.append(candidates.takeLast());
+//                else
+//                    candidates.removeLast();
+
             }
+            this->sendImage();
+            candidates.clear();
 
-            if(cutIndex == 0)
-            {
-                qDebug() << "No Darkness. Cutting Candidates at 360 degrees";
-                this->sendImage();
-            }
-            else
-            {
-                qDebug() << "cut at " << cutIndex << " of " << candidates.size();
-                QList<SonarEchoData> tmp;
-                tmp.clear();
-                int tmp_area = 0;
-                int tmp_diff = 0;
-
-                //splitting candidates at cutIndex
-                for(int i = cutIndex; i < candidates.size(); i++)
-                {
-                    int last = candidates.size()-1;
-                    tmp_diff = abs(candidates[last-1].getHeadPosition()-candidates[last].getHeadPosition());
-                    if (tmp_diff>180)
-                        tmp_diff = abs(tmp_diff - 360);
-                    tmp_area+= tmp_diff;
-
-                    //just keep positiv wallCandidates
-                    if(candidates.last().getClassLabel() == 1)
-                        tmp.append(candidates.takeLast());
-                    else
-                        candidates.removeLast();
-
-                }
-                this->sendImage();
-                candidates.clear();
-                //restore candidates
-                temp_area = tmp_area;
-                for (int i = 0; i < tmp.size(); i++)
-                    candidates.append(tmp.takeFirst());
-            }
+            //restore candidates
+//            for (int i = 0; i < tmp.size(); i++)
+//                candidates.append(tmp.takeFirst());
+            candidates = tmp;
         }
-        else
-        {
-            candidates[candidates.size()-1].setGroupID(groupID);
-        }
-    noNoise.clear();
+    }
 }
 
 void SonarEchoFilter::sendImage()
@@ -480,7 +478,8 @@ void SonarEchoFilter::sendImage()
     for (int i = 0; i < 25; i++) {
         float mean = 0;
         for (int j = 0; j < candidates.size(); j++) {
-            QList<float> data = candidates[j].getGradient();
+//            QList<float> data = candidates[j].getGradient();
+            QByteArray data = candidates[j].getFiltered();
             mean += (float)data[i];
         }
         mean /= candidates.size();
@@ -558,7 +557,6 @@ void SonarEchoFilter::sendImage()
     candidates.clear();
     groupID++;
     temp_area = 0;
-    diff = 0;
     newDirection = 0;
 }
 
@@ -617,7 +615,6 @@ void SonarEchoFilter::reset()
     darknessCount = 0;
 
     temp_area = 0;
-    diff = 0;
     newDirection = 0;
     groupID = 1;
     prevWallCandidate = 0.0;
@@ -652,8 +649,8 @@ QList<float> SonarEchoFilter::mat2List(cv::Mat &mat)
     {
         arr.append(mat.at<float>(0,i));
     }
-    for(int i=arr.size();i<250;i++)
-        arr.append(0.0);
+//    for(int i=arr.size();i<250;i++)
+//        arr.append(0.0);
     return arr;
 }
 

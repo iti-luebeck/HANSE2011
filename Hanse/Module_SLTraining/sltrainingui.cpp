@@ -428,10 +428,10 @@ void SLTrainingUI::updateSonarView3(const QList<QByteArray> __attribute__ ((unus
                 //mark groups
                 if(i<=2)
                 {
-                if(sam[viewSamplePointer+j].getGroupID()%2 == 0)
+//                if(sam[viewSamplePointer+j].getGroupID()%2 == 0)
                     gi.setColorAt(1.0*i/n,QColor(255,0,0));
-                else
-                    gi.setColorAt(1.0*i/n,QColor(0,0,255));
+//                else
+//                    gi.setColorAt(1.0*i/n,QColor(0,0,255));
                 }
 
                 if((cl == 1)  && (i > wc- skalarM ) && (i < wc + skalarM))
@@ -570,7 +570,7 @@ void SLTrainingUI::groupWallCandidates()
         else
         {
             //add to current Group
-            sam[i].setGroupID(groupID);
+//            sam[i].setGroupID(groupID);
         }
 
     }

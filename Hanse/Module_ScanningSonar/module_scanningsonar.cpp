@@ -7,12 +7,15 @@
 #include "sonardatasourcefile.h"
 #include "sonardatacsvrecorder.h"
 #include "sonardata852recorder.h"
-#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
+#include "sonardatasourcerivas.h"
 #include <Module_Simulation/module_simulation.h>
-Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim)
+#include <Module_XsensMTi/module_xsensmti.h>
+
+Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim, Module_XsensMTi *mti)
     : RobotModule(id)
 {
     this->sim = sim;
+    this->mti = mti;
     setDefaultValue("serialPort", "COM1");
 
     setDefaultValue("range", 50);
@@ -149,7 +152,11 @@ void Module_ScanningSonar::reset()
 
         if (getSettingsValue("readFromFile").toBool())
         {
-            source = new SonarDataSourceFile(*this, getSettingsValue("filename").toString());
+            if (getSettingsValue("is rivas", false).toBool()) {
+                source = new SonarDataSourceRivas(*this, this->mti, getSettingsValue("filename").toString(), getSettingsValue("mti filename").toString());
+            } else {
+                source = new SonarDataSourceFile(*this, getSettingsValue("filename").toString());
+            }
             if(!source->isOpen())
             {
                 logger->error("source not opened");

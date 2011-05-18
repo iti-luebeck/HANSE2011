@@ -36,9 +36,6 @@ public:
     void addOffsetToHeadPos(float degree);
     void setHeadingIncrement(float inc);
 
-    void setGroupID(int id);
-    int getGroupID();
-
     QVector2D getEuclidean();
 
     const static int N = 250;
@@ -55,7 +52,6 @@ private:
     QDateTime timestamp;
 //    cv::Mat features;
     float gain;
-    int group;
     float headingIncrement;
 //    QByteArray features;
 };

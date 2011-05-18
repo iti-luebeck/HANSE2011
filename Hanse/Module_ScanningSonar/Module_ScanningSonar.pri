@@ -7,7 +7,9 @@ HEADERS += Module_ScanningSonar/sonardatasourcefile.h \
     Module_ScanningSonar/scanningsonar_form.h \
     Module_ScanningSonar/sonarswitchcommand.h \
     Module_ScanningSonar/sonardatacsvrecorder.h \
-    Module_ScanningSonar/sonardata852recorder.h
+    Module_ScanningSonar/sonardata852recorder.h \
+    Module_ScanningSonar/sonardatasourcerivas.h \
+    Module_ScanningSonar/sonarreturndatarivas.h
 
 
 SOURCES += Module_ScanningSonar/sonardatasourcefile.cpp \
@@ -19,6 +21,8 @@ SOURCES += Module_ScanningSonar/sonardatasourcefile.cpp \
     Module_ScanningSonar/sonarswitchcommand.cpp \
     Module_ScanningSonar/sonardatacsvrecorder.cpp \
     Module_ScanningSonar/sonardata852recorder.cpp \
-    Module_ScanningSonar/scanningsonar_form.cpp
+    Module_ScanningSonar/scanningsonar_form.cpp \
+    Module_ScanningSonar/sonardatasourcerivas.cpp \
+    Module_ScanningSonar/sonarreturndatarivas.cpp
 
 FORMS +=     Module_ScanningSonar/scanningsonar_form.ui
