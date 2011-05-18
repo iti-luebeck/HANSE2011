@@ -47,13 +47,6 @@ signals:
     void stopSignal();
     void updateSettings();
 
-
-    void moveToStartSignal();
-    void moveToEndSignal();
-    void doWallFollowSignal();
-    void controlNextStateSignal();
-
-
 public slots:
     void startBehaviour();
     void stop();
@@ -61,10 +54,10 @@ public slots:
     void timeoutStop();
 
 
-    void moveToStartSlot();
-    void moveToEndSlot();
-    void doWallFollowSlot();
-    void controlNextStateSlot();
+    void moveToStart();
+    void moveToEnd();
+    void doWallFollow();
+    void controlNextState();
 
 };
 

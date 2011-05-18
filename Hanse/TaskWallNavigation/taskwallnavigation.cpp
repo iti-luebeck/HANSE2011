@@ -45,14 +45,6 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     distanceToStart = 0;
     distanceToTarget = 0;
 
-
-    connect(this, SIGNAL(stopSignal()), this, SLOT(stop()));
-
-    connect(this, SIGNAL(moveToStartSignal()), this, SLOT(moveToStartSlot()));
-    connect(this, SIGNAL(moveToEndSignal()), this, SLOT(moveToEndSlot()));
-    connect(this, SIGNAL(doWallFollowSignal()), this, SLOT(doWallFollowSlot()));
-    connect(this, SIGNAL(controlNextStateSignal()), this, SLOT(controlNextStateSlot()));
-
     taskTimer.moveToThread(this);
     moveToStartTimer.moveToThread(this);
     moveToEndTimer.moveToThread(this);
@@ -98,13 +90,11 @@ void TaskWallNavigation::startBehaviour(){
         taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
         taskTimer.start();
     }
-
-    emit moveToStartSignal();
-
+    QTimer::singleShot(0, this, SLOT(moveToStart()));
 }
 
-void TaskWallNavigation::moveToStartSlot(){
-    if(this->isEnabled() && this->navi->isEnabled()){
+void TaskWallNavigation::moveToStart(){
+    if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
         logger->debug("move to start");
         addData("state", "Move to start");
         emit dataChanged(this);
@@ -114,21 +104,21 @@ void TaskWallNavigation::moveToStartSlot(){
         if(distanceToStart > this->getSettingsValue("startTolerance").toDouble()){
             addData("remaining distance", distanceToStart);
             emit dataChanged(this);
-            moveToStartTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToStartSlot()));
+            moveToStartTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToStart()));
         } else {
             addData("remaining distance", "-");
             emit dataChanged(this);
             addData("state", "Startposition reached");
             emit dataChanged(this);
-            emit doWallFollowSignal();
+            QTimer::singleShot(0, this, SLOT(doWallFollow()));
         }
     } else {
         logger->info("Something is wrong with navigation, abort...");
-        emit stopSignal();
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
-void TaskWallNavigation::doWallFollowSlot(){
-    if(this->isEnabled() && this->wall->isEnabled()){
+void TaskWallNavigation::doWallFollow(){
+    if(this->isEnabled() && this->wall->getHealthStatus().isHealthOk()){
         logger->debug("Do wallfollowing");
         addData("state", "Do wallfollowing");
         emit dataChanged(this);
@@ -147,9 +137,9 @@ void TaskWallNavigation::doWallFollowSlot(){
 
             // Too many errors, abort wallfollowing and move to endposition
             if(this->wall->badDataCount > 100){
-                emit moveToEndSignal();
+                QTimer::singleShot(0, this, SLOT(moveToEnd()));
             } else {
-                doWallFollowTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(doWallFollowSlot()));
+                doWallFollowTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(doWallFollow()));
             }
         } else {
             addData("remaining distance", "-");
@@ -164,17 +154,16 @@ void TaskWallNavigation::doWallFollowSlot(){
                 QTimer::singleShot(0, wall, SLOT(stop()));
                 this->wall->echo->setEnabled(false);
             }
-
-            emit controlNextStateSignal();
+            QTimer::singleShot(0, this, SLOT(controlNextState()));
         }
     } else {
         logger->info("Something is wrong with wallfollow, abort...");
-        emit stopSignal();
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
 
-void TaskWallNavigation::moveToEndSlot(){
-    if(this->isEnabled() && this->navi->isEnabled()){
+void TaskWallNavigation::moveToEnd(){
+    if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
         logger->debug("Move to end");
         addData("state", "Move to end");
         emit dataChanged(this);
@@ -183,17 +172,17 @@ void TaskWallNavigation::moveToEndSlot(){
         if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
             addData("remaining distance", distanceToTarget);
             emit dataChanged(this);
-            moveToEndTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToEndSlot()));
+            moveToEndTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToEnd()));
         } else {
-            emit controlNextStateSignal();
+            QTimer::singleShot(0, this, SLOT(controlNextState()));
         }
     } else {
         logger->info("Something is wrong with navigation, abort...");
-        emit stopSignal();
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
 
-void TaskWallNavigation::controlNextStateSlot(){
+void TaskWallNavigation::controlNextState(){
     if(this->isEnabled()){
         logger->debug("idle, controlNextState");
         addData("state", "Idle, control next state");
@@ -201,14 +190,14 @@ void TaskWallNavigation::controlNextStateSlot(){
 
         if(this->getSettingsValue("loopActivated").toBool()){
             logger->debug("start again");
-            emit moveToStartSignal();
+            QTimer::singleShot(0, this, SLOT( moveToStart()));
         } else {
             // Task finished, stop
-            emit stopSignal();
+            QTimer::singleShot(0, this, SLOT(stop()));
         }
     } else {
         logger->info("Something is wrong with the task, abort...");
-        emit stopSignal();
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
 

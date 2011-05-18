@@ -52,15 +52,6 @@ signals:
     void stopSignal();
     void updateSettings();
 
-
-    void moveToStartSignal();
-    void moveToBSignal();
-    void moveToEndSignal();
-    void doXsensFollowSignal();
-    void controlNextStateSignal();
-    void doTurnSignal();
-
-
 public slots:
     void startBehaviour();
     void stop();
@@ -68,13 +59,13 @@ public slots:
     void timeoutStop();
 
 
-    void moveToStartSlot();
-    void moveToBSlot();
-    void moveToEndSlot();
-    void doXsensFollowSlot();
-    void finishXsensFollowSlot();
-    void controlNextStateSlot();
-    void doTurnSlot();
+    void moveToStart();
+    void moveToB();
+    void moveToEnd();
+    void doXsensFollow();
+    void finishXsensFollow();
+    void controlNextState();
+    void doTurn();
 
 };
 
