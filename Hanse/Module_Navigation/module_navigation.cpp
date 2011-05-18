@@ -22,6 +22,17 @@ Module_Navigation::Module_Navigation( QString id,
     this->pressure = pressure;
     this->compass = compass;
     this->mti = mti;
+
+    headingToGoal = 0;
+    distanceToGoal = 0;
+
+    // For driving straight.
+    initialCompassHeading = 0;
+    initialXsensHeading = 0;
+
+    // For not turning too much.
+    adjustHeadingInitialXsens = 0;
+    diffHeading = 0;
 }
 
 void Module_Navigation::init()
@@ -269,9 +280,6 @@ void Module_Navigation::sonarPositionUpdate()
     float currentDepth = pressure->getDepth();
     currentPosition = sonarLoc->getLocalization();
     double currentHeading = currentPosition.getYaw();
-    diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
-
-    addData("heading to goal", diffHeading);
 
     //--------------------------------------------------------------------
     //  STATE_IDLE
@@ -299,6 +307,8 @@ void Module_Navigation::sonarPositionUpdate()
     //  4. start over
     //--------------------------------------------------------------------
     if (state == NAV_STATE_GO_TO_GOAL) {
+        diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
+        addData("heading to goal", diffHeading);
 
         // Check if we are close enough to the goal.
         if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +

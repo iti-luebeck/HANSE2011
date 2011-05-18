@@ -126,7 +126,15 @@ bool SonarDataSourceRivas::isOpen()
 
 void SonarDataSourceRivas::stop()
 {
+    if (sonarStream) {
+        delete(sonarStream);
+        sonarStream = NULL;
+    }
     if (sonarFile) sonarFile->close();
+    if (mtiStream) {
+        delete(mtiStream);
+        mtiStream = NULL;
+    }
     if (mtiFile) mtiFile->close();
 }
 

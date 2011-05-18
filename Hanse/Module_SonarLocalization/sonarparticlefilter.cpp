@@ -310,24 +310,26 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
 
     logger->debug("Updating the particle filter...");
 
+    // Update orientation with information from Xsens MTi.
+    float diffHeading = 0;
+    if (sonar.getSettingsValue("use xsens").toBool()) {
+        float compassHeading = mti->getHeading();
+        if (lastCompassHeading < -1000) {
+            lastCompassHeading = compassHeading;
+        } else {
+            diffHeading = Angles::deg2pi(compassHeading - lastCompassHeading);
+            sonar.addData("particle diff heading", Angles::pi2pi(diffHeading));
+            lastCompassHeading = compassHeading;
+        }
+    }
+
     // update paricles filter
     for(int i=0; i<N; i++) {
 
         QVector3D oldPos = oldParticles[i].toVector3D();
 
-        // Update orientation with information from Xsens MTi.
-        if (sonar.getSettingsValue("use xsens").toBool()) {
-            float compassHeading = mti->getHeading();
-            if (lastCompassHeading < -1000) {
-                lastCompassHeading = compassHeading;
-            } else {
-                float diffHeading = Angles::deg2pi(compassHeading - lastCompassHeading);
-                sonar.addData("particle diff heading", Angles::deg2deg(diffHeading));
-                float newHeading = Angles::pi2pi(oldPos.z() + diffHeading);
-                oldPos.setZ(newHeading);
-                lastCompassHeading = compassHeading;
-            }
-        }
+        float newHeading = Angles::pi2pi(oldPos.z() + diffHeading);
+        oldPos.setZ(newHeading);
 
         QVector3D newPos = oldPos + sampleGauss(QVector3D(), controlVariance);
         oldParticles[i] = newPos.toVector4D();
