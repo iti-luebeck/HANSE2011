@@ -11,9 +11,9 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     ui->setupUi(this);
     this->cams = cams;
 
-    ui->leftConnectCheckBox->setChecked(cams->getSettingsValue("leftEnabled",false).toBool());
-    ui->rightConnectCheckBox->setChecked(cams->getSettingsValue("rightEnabled",false).toBool());
-    ui->bottomConnectCheckBox->setChecked(cams->getSettingsValue("bottomEnabled",false).toBool());
+    ui->leftConnectCheckBox->setChecked(false);
+    ui->rightConnectCheckBox->setChecked(false);
+    ui->bottomConnectCheckBox->setChecked(false);
 
     int pos = cams->getSettingsValue("leftFramerate",5).toInt();
     ui->leftFrameRateSlider->setValue(pos/5);
@@ -267,8 +267,8 @@ void Form_Webcams::on_bottomConnectCheckBox_clicked()
     if( (ui->leftConnectCheckBox->isChecked() && (ui->bottomBox->currentIndex() == ui->leftBox->currentIndex()))
         || (ui->rightConnectCheckBox->isChecked() && (ui->bottomBox->currentIndex() == ui->rightBox->currentIndex())))
     {
-        ui->rightErrorLabel->setText("The cam you selected is already in use");
-        ui->rightConnectCheckBox->setChecked(false);
+        ui->bottomErrorLabel->setText("The cam you selected is already in use");
+        ui->bottomConnectCheckBox->setChecked(false);
         return;
     }
 

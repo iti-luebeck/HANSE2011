@@ -29,16 +29,20 @@ Module_Webcams::~Module_Webcams()
 void Module_Webcams::init()
 {
     nCams = this->numAvailableCams();
-    settingsChanged();
+
     leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
 
+    this->setSettingsValue("leftEnabled",false);
+    this->setSettingsValue("rightEnabled",false);
+    this->setSettingsValue("bottomEnabled",false);
+
+        settingsChanged();
 }
 
 void Module_Webcams::stopWebcams()
 {
-    dataLockerMutex.lock();
     if ( leftCap != NULL )
     {
         cvReleaseCapture(&leftCap);
@@ -54,7 +58,6 @@ void Module_Webcams::stopWebcams()
         cvReleaseCapture(&bottomCap);
         bottomCap = NULL;
     }
-    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::grabLeft( cv::Mat &left )
@@ -71,8 +74,8 @@ void Module_Webcams::grabLeft( cv::Mat &left )
 
             left = mtx.clone();
         }
-        dataLockerMutex.unlock();
     }
+    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::grabRight( cv::Mat &right )
@@ -89,8 +92,8 @@ void Module_Webcams::grabRight( cv::Mat &right )
 
             right = mat.clone();
         }
-        dataLockerMutex.unlock();
     }
+    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::grabBottom( cv::Mat &bottom )
@@ -106,8 +109,8 @@ void Module_Webcams::grabBottom( cv::Mat &bottom )
             bottom = mat.clone();
 
         }
-        dataLockerMutex.unlock();
     }
+    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::grabLeft(IplImage *left)
@@ -119,8 +122,8 @@ void Module_Webcams::grabLeft(IplImage *left)
         assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(leftCap),left);
         cvConvertImage(left,left,CV_CVTIMG_SWAP_RB);
-        dataLockerMutex.unlock();
     }
+    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::grabRight(IplImage *right)
@@ -132,8 +135,8 @@ void Module_Webcams::grabRight(IplImage *right)
         assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(rightCap),right);
         cvConvertImage(right,right,CV_CVTIMG_SWAP_RB);
-        dataLockerMutex.unlock();
     }
+    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::grabBottom(IplImage *bottom)
@@ -146,8 +149,8 @@ void Module_Webcams::grabBottom(IplImage *bottom)
         cvCopy(cvQueryFrame(bottomCap),bottom);
         cvShowImage("buhu",bottom);
         cvConvertImage(bottom,bottom,CV_CVTIMG_SWAP_RB);
-        dataLockerMutex.unlock();
     }
+    dataLockerMutex.unlock();
 }
 //
 //void Module_Webcams::grabBottom(QImage bottom1)
@@ -167,6 +170,7 @@ void Module_Webcams::grabBottom(IplImage *bottom)
 
 void Module_Webcams::reset()
 {
+    qDebug() << "cams reset";
     dataLockerMutex.lock();
     stopWebcams();
     this->nCams = this->numAvailableCams();
@@ -174,6 +178,7 @@ void Module_Webcams::reset()
 
     if ( this->isEnabled() )
     {
+        qDebug() << "gonna connect";
         if ( 0 <= bottomID && bottomEnabled && connectedCams < nCams)
         {
             logger->debug("Trying to Connect bottom Cam with ID "+QString::number(bottomID));
@@ -195,7 +200,7 @@ void Module_Webcams::reset()
             }
         }
 
-        if ( 0 <= leftID && leftEnabled && connectedCams < nCams && leftID != bottomID )
+        if ( 0 <= leftID && leftEnabled && connectedCams < nCams && (leftID != bottomID || !bottomEnabled) )
         {
             logger->debug("Trying to Connect left Cam with ID "+QString::number(leftID));
             leftCap = cvCaptureFromCAM(leftID);
@@ -213,7 +218,7 @@ void Module_Webcams::reset()
             }
 
         }
-        if ( 0 <= rightID && rightEnabled && connectedCams < nCams && rightID != leftID && rightID != bottomID)
+        if ( 0 <= rightID && rightEnabled && connectedCams < nCams && (rightID != leftID || !leftEnabled) && (rightID != bottomID || bottomEnabled))
         {
             logger->debug("Trying to Connect right Cam with ID "+QString::number(rightID));
             rightCap = cvCaptureFromCAM(rightID);
@@ -249,6 +254,7 @@ int Module_Webcams::numAvailableCams()
         cap = cvCreateCameraCapture(i);
         if(cap != NULL)
         {
+            qDebug() << "Found Webcam at /dev/video" << i;
             camInd.push_back(i);
             cvReleaseCapture(&cap);
         }
