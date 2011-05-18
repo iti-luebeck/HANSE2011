@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QDataStream>
 #include <QtCore>
+#include <log4qt/logger.h>
 
 class QTcpServer;
 
@@ -38,6 +39,8 @@ private:
     QTcpSocket *tcpSocket;
     QDataStream *stream;
     QMutex modulMutex;
+
+    Log4Qt::Logger *logger;
 
 };
 

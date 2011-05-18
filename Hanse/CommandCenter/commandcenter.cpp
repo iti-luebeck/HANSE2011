@@ -329,6 +329,10 @@ void CommandCenter::emergencyStopCommandCenter(){
 }
 
 void CommandCenter::startTaskHandControlCC(){
+
+    if (this->taskhandcontrol->isEnabled())
+        return;
+
     controlTimer.stop();
     logger ->info("Stop and deactivate all task - handcontrol active");
     emit stopAllTasks();

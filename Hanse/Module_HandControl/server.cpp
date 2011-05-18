@@ -8,12 +8,14 @@ Server::Server() {
     stream = NULL;
     tcpSocket = NULL;
     tcpServer = NULL;
+
+    logger = Log4Qt::Logger::logger("HandControlServer");
+
 }
 
 void Server::open()
 {
-    qDebug() << "server THREAD ID";
-    qDebug() << QThread::currentThreadId();
+    logger->debug("open");
 
     if(tcpServer == NULL)
     {
@@ -28,7 +30,7 @@ void Server::open()
 }
 
 void Server::openSocket() {
-    std::cout << "openSocket()" << std::endl;
+    logger->debug("opening socket");
 
     // we allow only one connection at a time
     if (tcpSocket) {
@@ -52,14 +54,17 @@ void Server::openSocket() {
 
 void Server::receiveMessage() {
 
+    logger->debug("Received handcontrol msg");
+
     signed short forwardSpeed, angularSpeed, upDownSpeed;
     bool emergencyButton, stHandControl;
     while(tcpSocket && tcpSocket->bytesAvailable())
         *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton >> stHandControl;
 
-    if (stHandControl)
-        emit startHandControl();
+    if (stHandControl) {
 
+        emit startHandControl();
+    }
 
     if (emergencyButton)
         emit emergencyStop();
@@ -68,8 +73,8 @@ void Server::receiveMessage() {
 }
 
 void Server::close() {
-    qDebug() << "serverCL THREAD ID";
-    qDebug() << QThread::currentThreadId();
+
+    logger->debug("close");
 
     QMutexLocker l(&modulMutex);
     if(tcpServer) {
@@ -85,6 +90,8 @@ bool Server::isConnected()
 
 void Server::clientDisconnected()
 {
+    logger->debug("client disconnect");
+
     if (tcpSocket) {
         tcpSocket->close();
         tcpSocket = NULL;

@@ -17,6 +17,7 @@ class Behaviour_XsensFollowing;
 class TaskHandControl;
 class TaskWallNavigation;
 class TaskXsensNavigation;
+class RobotBehaviour;
 
 
 

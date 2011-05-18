@@ -103,6 +103,8 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     addData("angularSpeed", angularSpeed);
     addData("speedUpDown", speedUpDown);
 
+    logger->trace("Received new message");
+
     sendNewControls();
 
     // seems to be working..
@@ -116,7 +118,7 @@ void Module_HandControl::sendNewControls()
     if (!getSettingsValue("enabled").toBool())
         return;
 
-    int forwardSpeed = getDataValue("forwardSpeed").toInt();
+     int forwardSpeed = getDataValue("forwardSpeed").toInt();
     int angularSpeed = getDataValue("angularSpeed").toInt();
     int speedUpDown = getDataValue("speedUpDown").toInt();
 
@@ -137,10 +139,6 @@ void Module_HandControl::sendNewControls()
         emit setUpDownSpeed(updown);
         emit setRightSpeed(right);
         emit setLeftSpeed(left);
-//        thrusterDown->setSpeed(updown);
-//        thrusterDownFront->setSpeed(updown);
-//        thrusterLeft->setSpeed(left);
-//        thrusterRight->setSpeed(right);
 
     } else {
         if (!controlLoop->isEnabled())
@@ -151,7 +149,6 @@ void Module_HandControl::sendNewControls()
         emit setForwardSpeed(forwardSpeed/divFw);
         if(speedUpDown < 0)
             speedUpDown = 0;
-        logger->debug("emit signal to tcl containing depth: "+QString::number(speedUpDown));
         emit setDepth(speedUpDown/divUD);
     }
     

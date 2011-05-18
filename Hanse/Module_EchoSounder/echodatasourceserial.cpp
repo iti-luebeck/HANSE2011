@@ -39,7 +39,7 @@ const EchoReturnData EchoDataSourceSerial::getNextPacket(){
     }else{
         expectedLength = 265;
     }
-    int timeout = 2000;
+    int timeout = 500;
     while(timeout>0 && (retData.length()==0 || retData[retData.length()-1] != (char)0xFC)) {
         QByteArray ret = port->read(expectedLength - retData.length());
        // qDebug() << "ret" << ret ;
