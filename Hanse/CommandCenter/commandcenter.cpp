@@ -7,6 +7,17 @@
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
+#include <TaskHandControl/taskhandcontrol.h>
+#include <TaskWallNavigation/taskwallnavigation.h>
+#include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
+#include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
+#include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
+#include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
+#include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
+#include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
+//#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
+#include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
+#include <TaskXsensNavigation/taskxsensnavigation.h>
 
 CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn,TaskXsensNavigation *txn)
     : RobotModule(id)
@@ -325,7 +336,7 @@ void CommandCenter::startTaskHandControlCC(){
     if(this->activeTask != "HandControl"){
         emit startTaskHandControl();
         activeTask = "HandControl";
-        logger->info("HandControl start");
+         logger->info("Set activeTask: HandControl");
     }
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
