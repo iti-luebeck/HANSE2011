@@ -3,6 +3,7 @@
 #include <Module_Compass/module_compass.h>
 #include <Behaviour_TurnOneEighty/form_turnoneeighty.h>
 #include <Module_XsensMTi/module_xsensmti.h>
+#include <Framework/Angles.h>
 
 Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass, Module_XsensMTi *x) :
         RobotBehaviour( id )
@@ -45,6 +46,7 @@ void Behaviour_TurnOneEighty::startBehaviour()
         this->setHealthToOk();
         setEnabled( true );
         emit started(this);
+        initialHeadingUpdate();
     }
 }
 
@@ -89,20 +91,7 @@ void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
         }
 
         double targetHeading = initialHeading + 180;
-        if ( targetHeading > 360 )
-        {
-            targetHeading -= 360;
-        }
-        double diffHeading = targetHeading - currentHeading;
-
-        if ( diffHeading > 180 )
-        {
-            diffHeading -= 360;
-        }
-        if ( diffHeading < -180 )
-        {
-            diffHeading += 360;
-        }
+        double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
 
         logger->debug( "current heading %f", currentHeading );
         addData("current_heading", currentHeading);

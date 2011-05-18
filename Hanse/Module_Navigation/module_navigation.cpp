@@ -134,7 +134,7 @@ void Module_Navigation::navigateToCurrentWaypoint()
     Position currentPosition = sonarLoc->getLocalization();
     double dx = currentGoal.posX - currentPosition.getX();
     double dy = currentGoal.posY - currentPosition.getY();
-    headingToGoal = atan2(-dx, dy) * 180 / CV_PI;
+    headingToGoal = atan2(dx, dy) * 180 / CV_PI + 90;
     distanceToGoal = sqrt(dx*dx + dy*dy);
 
     emit newDepth(currentGoal.depth);
@@ -246,7 +246,7 @@ void Module_Navigation::xsensUpdate( RobotModule * )
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
                 float diffHeading = Angles::pi2pi(initialXsensHeading - xsensHeading);
                 if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
-                    float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
+                    float val = -getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
                     emit newANGSpeed(val);
                 } else {
                     emit newANGSpeed(.0);
@@ -279,7 +279,12 @@ void Module_Navigation::sonarPositionUpdate()
     // Update all important values.
     float currentDepth = pressure->getDepth();
     currentPosition = sonarLoc->getLocalization();
-    double currentHeading = currentPosition.getYaw();
+    double currentHeading = currentPosition.getYaw();    
+
+    double dx = currentGoal.posX - currentPosition.getX();
+    double dy = currentGoal.posY - currentPosition.getY();
+    headingToGoal = atan2(-dx, dy) * 180 / CV_PI;
+    distanceToGoal = sqrt(dx*dx + dy*dy);
 
     //--------------------------------------------------------------------
     //  STATE_IDLE

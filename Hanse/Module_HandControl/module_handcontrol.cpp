@@ -128,19 +128,19 @@ void Module_HandControl::sendNewControls()
 
     dataLockerMutex.lock();
     
-    if (getSettingsValue("receiver").toString()=="thruster") {
-        controlLoop->setEnabled(false);
+//    if (getSettingsValue("receiver").toString()=="thruster") {
+//        controlLoop->setEnabled(false);
 
-        logger->debug("set thruster direct");
-        float left = forwardSpeed/divFw+angularSpeed/divLR;
-        float right = forwardSpeed/divFw-angularSpeed/divLR;
-        float updown = (float)speedUpDown / divUD;
+//        logger->debug("set thruster direct");
+//        float left = forwardSpeed/divFw+angularSpeed/divLR;
+//        float right = forwardSpeed/divFw-angularSpeed/divLR;
+//        float updown = (float)speedUpDown / divUD;
 
-        emit setUpDownSpeed(updown);
-        emit setRightSpeed(right);
-        emit setLeftSpeed(left);
+//        emit setUpDownSpeed(updown);
+//        emit setRightSpeed(right);
+//        emit setLeftSpeed(left);
 
-    } else {
+//    } else {
         if (!controlLoop->isEnabled())
             controlLoop->setEnabled(true);
 
@@ -150,7 +150,7 @@ void Module_HandControl::sendNewControls()
         if(speedUpDown < 0)
             speedUpDown = 0;
         emit setDepth(speedUpDown/divUD);
-    }
+//    }
     
     dataLockerMutex.unlock();
 

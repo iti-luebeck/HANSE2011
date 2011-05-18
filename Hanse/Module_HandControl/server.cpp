@@ -61,6 +61,7 @@ void Server::receiveMessage() {
     while(tcpSocket && tcpSocket->bytesAvailable())
         *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton >> stHandControl;
 
+    qDebug()<< forwardSpeed << " " << angularSpeed << " " << upDownSpeed << " " << emergencyButton << " " << stHandControl;
     if (stHandControl) {
 
         emit startHandControl();

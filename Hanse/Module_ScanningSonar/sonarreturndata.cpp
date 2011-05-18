@@ -61,6 +61,7 @@ SonarReturnData::SonarReturnData(SonarSwitchCommand& cmd, QByteArray& returnData
 
     headPos = THCHeadPosDecoder(packet[5], packet[6]);
     headPos = (0.15*(headPos - 1400));
+    headPos += 90;
     //+90 offset
 
     range = packet[7];
