@@ -3,17 +3,6 @@
 
 #include <Framework/robotmodule.h>
 #include <QtCore>
-#include <TaskHandControl/taskhandcontrol.h>
-#include <TaskWallNavigation/taskwallnavigation.h>
-#include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
-#include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
-#include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
-#include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
-#include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
-#include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
-//#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
-#include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
-#include <TaskXsensNavigation/taskxsensnavigation.h>
 
 class Module_Simulation;
 class Module_ThrusterControlLoop;
@@ -25,6 +14,11 @@ class Behaviour_TurnOneEighty;
 class Behaviour_WallFollowing;
 class Behaviour_XsensFollowing;
 //class Behaviour_GoalFollowing;
+class TaskHandControl;
+class TaskWallNavigation;
+class TaskXsensNavigation;
+
+
 
 class CommandCenter : public RobotModule
 {

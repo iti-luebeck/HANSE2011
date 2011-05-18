@@ -26,6 +26,7 @@
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 //#include <Module_IMU/module_imu.h>
 //#include <Module_ADC/module_adc.h>
+#include <TaskXsensNavigation/taskxsensnavigation.h>
 
 ModulesGraph::ModulesGraph()
 {
