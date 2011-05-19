@@ -89,6 +89,13 @@ void Module_EchoSounder::refreshSimData(EchoReturnData dat){
 }
 
 bool Module_EchoSounder::doNextScan(){
+
+    if(!this->isEnabled())
+    {
+        timer.stop();
+        return false;
+    }
+
     if(sim->isEnabled()){
         emit requestSonarSideSignal();
         return true;
@@ -289,11 +296,6 @@ void Module_EchoSounder::reset(){
         timer.start();
 
     } else {
-
-        // read as fast as possible from the echo sounder
-        timer.setInterval(0);
-        timer.start();
-
         logger->debug("open source");
         if (getSettingsValue("readFromFile").toBool())
         {
@@ -303,7 +305,12 @@ void Module_EchoSounder::reset(){
         else
             source = new EchoDataSourceSerial(*this);
 
-        logger->debug("Restarting reader.");
+        if(source->isOpen())
+        {
+        // read as fast as possible from the echo sounder
+        timer.setInterval(0);
+        timer.start();
+    }
     }
 }
 

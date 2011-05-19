@@ -80,6 +80,11 @@ void Module_ScanningSonar::refreshSimData(SonarReturnData data)
 
 bool Module_ScanningSonar::doNextScan()
 {
+    if(!this->isEnabled())
+    {
+        timer.stop();
+        return false;
+    }
 
     if(sim->isEnabled())
     {
@@ -168,15 +173,12 @@ void Module_ScanningSonar::reset()
         }
 
         logger->debug("Restarting reader.");
-        if(source != NULL)
+        if(source->isOpen())
         {
            timer.setInterval(0); // timerSlot will block
            timer.start();
        }
-        else
-        {
-            setHealthToSick("source is null");
-        }
+
     }
 
 }
