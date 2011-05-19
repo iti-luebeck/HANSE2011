@@ -28,6 +28,8 @@ QMAKE_CXXFLAGS += -O1 -msse2 -mfpmath=sse
 # enable more warnings and turn warnings into errors >:)
 QMAKE_CXXFLAGS += -Wextra -Werror
 
+INCLUDEPATH += .
+
 # external libraries
 include(../log4qt/log4qt.pri)
 include(../OpenCV.pri)

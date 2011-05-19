@@ -383,13 +383,15 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
     // resample
     QVector<QVector4D> resampledParticles(N);
     for (int i=0; i<N; i++) {
-        double r = 1.0*qrand()/RAND_MAX;
+        double r = 1.0*qrand()/(RAND_MAX + 1);
         int particle = 0;
         while (cumsum[particle] < r)
             particle++;
 
-        if (particle==N)
+        if (particle >= N) {
             logger->error("BUG while resampling!");
+            particle = N - 1;
+        }
 
         resampledParticles[i] = oldParticles[particle];
     }

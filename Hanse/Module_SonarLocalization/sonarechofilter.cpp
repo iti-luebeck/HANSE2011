@@ -108,7 +108,7 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
             }
         }
 
-        if (maxVal > 0) {
+        if (maxVal > 20) {
             data.setWallCandidate(maxIdx);
         } else {
             data.setWallCandidate(-1);
@@ -402,7 +402,7 @@ void SonarEchoFilter::grouping()
 
     // Add heading difference to total sonar head movement.
     temp_area += abs(diff);
-    mti->addData("area", temp_area);
+//    mti->addData("area", temp_area);
 //    qDebug("%f", temp_area);
 
     // Do grouping, if enough data was collected.
@@ -494,12 +494,14 @@ void SonarEchoFilter::sendImage()
         }
     }
 
-    if (maxValue > 0.001*lastMaxValue) {
-        // Filter those wall candidates that might be ground.
-        for (int j = 0; j < candidates.size(); j++) {
-            int wc = candidates[j].getWallCandidate();
-            if (qAbs(wc - groundIdx) <= 10) {
-                candidates[j].setWallCandidate(-1);
+    if (!sim->isEnabled()) {
+        if (maxValue > 0.001*lastMaxValue) {
+            // Filter those wall candidates that might be ground.
+            for (int j = 0; j < candidates.size(); j++) {
+                int wc = candidates[j].getWallCandidate();
+                if (qAbs(wc - groundIdx) <= 10) {
+                    candidates[j].setWallCandidate(-1);
+                }
             }
         }
     }

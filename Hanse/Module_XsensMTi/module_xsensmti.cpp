@@ -44,12 +44,14 @@ void Module_XsensMTi::setEnabled(bool value)
 {
     RobotModule::setEnabled(value);
 
+#ifdef ENABLE_XSENS
     if (!value) {
         if (mti != NULL) {
             delete(mti);
             mti = NULL;
         }
     }
+#endif
 }
 
 void Module_XsensMTi::reset()

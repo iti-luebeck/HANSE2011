@@ -28,7 +28,7 @@ RobotModule::RobotModule(QString newId)
 
 void RobotModule::run()
 {
-    logger->info("Started thread id="+QString::number(QThread::currentThreadId()));
+    logger->info("Started thread id="+QString::number((int)QThread::currentThreadId()));
 
     // start health check timer
     healthCheckTimer.start();

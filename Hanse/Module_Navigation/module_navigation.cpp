@@ -109,7 +109,7 @@ void Module_Navigation::navigateToNextWaypoint()
 
         addData("state", state);
         addData("substate", substate);
-        addData("headingToGoal", .0);
+        addData("position to goal angle", .0);
         addData("current goal", "");
         emit dataChanged(this);
     } else {
@@ -143,7 +143,7 @@ void Module_Navigation::navigateToCurrentWaypoint()
 
     addData("state", state);
     addData("substate", substate);
-    addData("headingToGoal", headingToGoal);
+    addData("position to goal angle", headingToGoal);
     dataChanged(this);
 }
 
@@ -194,7 +194,7 @@ void Module_Navigation::clearPath()
 
     addData("state", state);
     addData("substate", substate);
-    addData("headingToGoal", .0);
+    addData("position to goal angle", .0);
     addData("current goal", "");
     dataChanged( this );
     emit clearedGoal();
@@ -325,7 +325,7 @@ void Module_Navigation::sonarPositionUpdate()
     //--------------------------------------------------------------------
     if (state == NAV_STATE_GO_TO_GOAL) {
         diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
-        addData("heading to goal", diffHeading);
+        addData("heading difference to goal", diffHeading);
 
         // Check if we are close enough to the goal.
         if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +
