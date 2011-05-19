@@ -149,10 +149,16 @@ void Module_Navigation::navigateToCurrentWaypoint()
 
 void Module_Navigation::pause()
 {
+    // Set pause state.
     pauseState = state;
     pauseSubstate = substate;
     state = NAV_STATE_PAUSED;
     addData("state", state);
+
+    // Reset thruster values.
+    emit newFFSpeed(.0);
+    emit newANGSpeed(.0);
+
     dataChanged(this);
 }
 
@@ -279,7 +285,13 @@ void Module_Navigation::sonarPositionUpdate()
     // Update all important values.
     float currentDepth = pressure->getDepth();
     currentPosition = sonarLoc->getLocalization();
-    double currentHeading = currentPosition.getYaw();    
+    double currentHeading = currentPosition.getYaw();
+
+    // Adjust heading to compensate for movement after the last observation was captured.
+    if (getSettingsValue("use xsens", true).toBool()) {
+        currentHeading += (mti->getHeading() - sonarLoc->sonarEchoFilter().getLastObservationHeading());
+        currentHeading = Angles::deg2deg(currentHeading);
+    }
 
     double dx = currentGoal.posX - currentPosition.getX();
     double dy = currentGoal.posY - currentPosition.getY();

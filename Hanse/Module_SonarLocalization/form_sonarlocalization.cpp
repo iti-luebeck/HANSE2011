@@ -396,8 +396,7 @@ void Form_SonarLocalization::updateSonarViewUnfiltered()
             int col = 255 - 255 * data[i] / maxVal;
             if (col < 0) col = 0;
             if (col > 255) col = 255;
-            unsigned char b = (unsigned char)col;
-            gi.setColorAt(1.0 * i / data.length(), QColor(b,b,b));
+            gi.setColorAt(1.0 * i / data.length(), QColor(col,col,col));
         }
 
         sceneUnfiltered.addRect(j*stepWidth, 1, stepWidth, height, Qt::NoPen, QBrush(gi));
@@ -420,8 +419,7 @@ void Form_SonarLocalization::updateSonarViewRaw()
             int col = 255 - 2 * data[i];
             if (col < 0) col = 0;
             if (col > 255) col = 255;
-            unsigned char b = (unsigned char)col;
-            gi.setColorAt(1.0 * i / data.length(), QColor(b, b, b));
+            gi.setColorAt(1.0 * i / data.length(), QColor(col, col, col));
         }
         sceneRaw.addRect(j*stepWidth, 1, stepWidth, height, Qt::NoPen, QBrush(gi));
     }

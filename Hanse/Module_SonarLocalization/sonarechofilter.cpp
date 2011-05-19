@@ -5,7 +5,6 @@
 #include <QtAlgorithms>
 #include <Module_ScanningSonar/module_scanningsonar.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
-#include <Module_SonarLocalization/svm.h>
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Module_Simulation/module_simulation.h>
 #include <Framework/Angles.h>
@@ -28,6 +27,9 @@ SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent, Module_XsensM
     this->lastMaxValues.clear();
 
     temp_area = 0;
+
+    lastValidDataHeading = 0;
+    currentDataHeading = 0;
 }
 
 /**
@@ -44,6 +46,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     SonarEchoData currData = SonarEchoData(data);
 
     if (this->sloc->getSettingsValue("use xsens").toBool()) {
+        currData.setCompassHeading(mti->getHeading());
         currData.setHeadingIncrement(mti->getHeadingIncrement());
     }
 
@@ -126,9 +129,11 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
         // which may be used as the wall candidate).
         QList<int> ks;
         ks.clear();
-        ks.append(16);
+//        ks.append(24);
+//        ks.append(12);
         ks.append(8);
         ks.append(4);
+        ks.append(2);
         int k;
         foreach(k, ks) {
             for (int j = 0; j < N; j++) {
@@ -186,9 +191,6 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 
 //        // Set as wall, if response is above some threshold (depending on
 //        // maximum value in the last frames).
-//        if (lastMaxValue > 0) {
-//            maxValTH = maxValTH*lastMaxValue;
-//        }
 //        if (maxVal > maxValTH && maxIdx > maxIdxTH) {
 //            data.setWallCandidate(maxIdx);
 //        } else {
@@ -421,7 +423,10 @@ void SonarEchoFilter::grouping()
             }
         }
 
-        if(cutIndex == 0) {
+        currentDataHeading = candidates.last().getCompassHeading();
+        sloc->addData("heading at current sonar reading", currentDataHeading);
+
+        if (cutIndex == 0) {
             qDebug() << "No Darkness. Cutting Candidates at 360 degrees";
             this->sendImage();
         } else {
@@ -475,7 +480,7 @@ void SonarEchoFilter::sendImage()
     // Try to find the ground echo.
     float maxValue = 0;
     float groundIdx = 0;
-    for (int i = 0; i < 25; i++) {
+    for (int i = 0; i < 50; i++) {
         float mean = 0;
         for (int j = 0; j < candidates.size(); j++) {
 //            QList<float> data = candidates[j].getGradient();
@@ -493,7 +498,7 @@ void SonarEchoFilter::sendImage()
         // Filter those wall candidates that might be ground.
         for (int j = 0; j < candidates.size(); j++) {
             int wc = candidates[j].getWallCandidate();
-            if (qAbs(wc - groundIdx) <= 5) {
+            if (qAbs(wc - groundIdx) <= 10) {
                 candidates[j].setWallCandidate(-1);
             }
         }
@@ -518,6 +523,11 @@ void SonarEchoFilter::sendImage()
             posArray.append(vec);
             wallFeatures.append(candidates[i]);
         }
+    }
+
+    if (wallFeatures.size() > 0) {
+        lastValidDataHeading = wallFeatures.last().getCompassHeading();
+        sloc->addData("heading at last observation", lastValidDataHeading);
     }
 
     // Calculate maximum value in the current frame.
@@ -671,6 +681,11 @@ QVector<double> SonarEchoFilter::mat2QVector(Mat& mat)
         v.append(mat.at<float>(0,i));
     }
     return v;
+}
+
+float SonarEchoFilter::getLastObservationHeading()
+{
+    return lastValidDataHeading;
 }
 
 void SonarEchoFilter::initNoiseMat()

@@ -27,6 +27,7 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
 //    this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
     this->headingIncrement = 0;
+    this->compassHeading = 0;
 }
 
 SonarEchoData::SonarEchoData(const SonarEchoData& dat)
@@ -46,14 +47,8 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
         this->gradient.push_back(dat.gradient[i]);
     }
     this->headingIncrement = dat.headingIncrement;
+    this->compassHeading = dat.compassHeading;
 }
-
-//cv::Mat SonarEchoData::getFeatures()
-//{
-//    for(int i=0; i<features.cols;i++)
-//        qDebug() << "FEAT " << features.at<float>(0,i);
-//    return this->features;
-//}
 
 int SonarEchoData::getClassLabel()
 {
@@ -155,5 +150,15 @@ QVector2D SonarEchoData::getEuclidean()
 void SonarEchoData::addOffsetToHeadPos(float degree)
 {
     this->headPosition = this->headPosition + degree;
+}
+
+float SonarEchoData::getCompassHeading()
+{
+    return compassHeading;
+}
+
+void SonarEchoData::setCompassHeading(float head)
+{
+    this->compassHeading = head;
 }
 

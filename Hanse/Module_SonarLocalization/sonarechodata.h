@@ -26,7 +26,7 @@ public:
     float getGain();
     float getHeadingIncrement();
     QDateTime getTimeStamp();
-//    cv::Mat getFeatures();
+    float getCompassHeading();
 
     void setClassLabel(int label);
     void setFiltered(QByteArray data);
@@ -35,6 +35,7 @@ public:
     void addFeature(int index, float value);
     void addOffsetToHeadPos(float degree);
     void setHeadingIncrement(float inc);
+    void setCompassHeading(float head);
 
     QVector2D getEuclidean();
 
@@ -50,10 +51,9 @@ private:
     float headPosition;
     float range;
     QDateTime timestamp;
-//    cv::Mat features;
     float gain;
     float headingIncrement;
-//    QByteArray features;
+    float compassHeading;
 };
 
 #endif // SONARECHODATA_H

@@ -34,37 +34,40 @@ SonarReturnData::SonarReturnData(SonarSwitchCommand& cmd, QByteArray& returnData
             valid = false;
         if (getDataBytes() != 252)
             valid = false;
+    } else {
+        if (packet.length()==513) {
+            if (packet[1] != 'G')
+                valid = false;
+            if (getDataBytes() != 500)
+                valid = false;
+        } else {
+            if (!isSwitchesAccepted())
+                valid = false;
+            if (isCharacterOverrun())
+                valid = false;
+
+            // HeadID
+            if ((char)packet[3] != 0x10)
+                valid = false;
+
+            // Termination byte
+            if (packet[packet.length()-1] != (char)0xFC)
+                valid = false;
+        }
     }
-    if (packet.length()==513) {
-        if (packet[1] != 'G')
-            valid = false;
-        if (getDataBytes() != 500)
-            valid = false;
+
+    if (valid) {
+        echo = packet;
+        echo.remove(0,12); // remove header
+        echo.remove(getDataBytes(), 1); // remove termination byte
+
+        headPos = THCHeadPosDecoder(packet[5], packet[6]);
+        headPos = (0.15*(headPos - 1400));
+        headPos += 90;
+        //+90 offset
+
+        range = packet[7];
     }
-
-    if (!isSwitchesAccepted())
-        valid = false;
-    if (isCharacterOverrun())
-        valid = false;
-
-    // HeadID
-    if ((char)packet[3] != 0x10)
-        valid = false;
-
-    // Termination byte
-    if (packet[packet.length()-1] != (char)0xFC)
-        valid = false;
-
-    echo = packet;
-    echo.remove(0,12); // remove header
-    echo.remove(getDataBytes(), 1); // remove termination byte
-
-    headPos = THCHeadPosDecoder(packet[5], packet[6]);
-    headPos = (0.15*(headPos - 1400));
-    headPos += 90;
-    //+90 offset
-
-    range = packet[7];
 }
 
 SonarReturnData& SonarReturnData::operator =(SonarReturnData other) {

@@ -313,7 +313,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
     // Update orientation with information from Xsens MTi.
     float diffHeading = 0;
     if (sonar.getSettingsValue("use xsens").toBool()) {
-        float compassHeading = mti->getHeading();
+        float compassHeading = sonar.sonarEchoFilter().getLastObservationHeading();
         if (lastCompassHeading < -1000) {
             lastCompassHeading = compassHeading;
         } else {

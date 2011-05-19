@@ -182,7 +182,8 @@ void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
 
         if (pos.useExitAngle) {
             QGraphicsItem *line =
-                    scene->addLine(pos.posX, pos.posY, pos.posX - 5 * sin(pos.exitAngle * M_PI / 180), pos.posY + 5 * cos(pos.exitAngle * M_PI / 180), pen);
+                    scene->addLine(pos.posX, pos.posY, pos.posX - 5 * sin(pos.exitAngle * M_PI / 180),
+                                   pos.posY + 5 * cos(pos.exitAngle * M_PI / 180), pen);
             line->setParentItem( waypointsItem );
             line->setZValue( 1221 );
         }

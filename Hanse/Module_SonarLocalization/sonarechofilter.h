@@ -44,6 +44,7 @@ public:
     QList<float> mat2List(cv::Mat& mat);
 
     void getNoNoiseFilter(QVector<int> &vec);
+    float getLastObservationHeading();
 
 signals:
     void newImage(QList<QVector2D> observations);
@@ -97,6 +98,9 @@ private:
     cv::Mat noiseMat;
     void initNoiseMat();
     float prevWallCandidate;
+
+    float lastValidDataHeading;
+    float currentDataHeading;
 
 };
 
