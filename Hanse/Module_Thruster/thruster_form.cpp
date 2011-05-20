@@ -11,6 +11,7 @@ Thruster_Form::Thruster_Form(Module_Thruster *module, QWidget *parent) :
     ui->i2cAddress->setText(thruster->getSettingsValue("i2cAddress").toString());
     ui->channel->setText(thruster->getSettingsValue("channel").toString());
     ui->multi->setText(thruster->getSettingsValue("multiplicator").toString());
+    ui->frequency->setText(thruster->getSettingsValue("frequency").toString());
 }
 
 Thruster_Form::~Thruster_Form()
@@ -35,4 +36,6 @@ void Thruster_Form::on_save_clicked()
     thruster->setSettingsValue("i2cAddress", ui->i2cAddress->text().toInt(0,0));
     thruster->setSettingsValue("channel", ui->channel->text().toInt(0,0));
     thruster->setSettingsValue("multiplicator", ui->multi->text().toInt(0,0));
+    thruster->setSettingsValue("frequency", ui->frequency->text().toInt());
+    QTimer::singleShot(0, thruster, SLOT(reset()));
 }

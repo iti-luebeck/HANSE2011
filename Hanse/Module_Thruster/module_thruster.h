@@ -12,17 +12,14 @@ class Module_Thruster : public RobotModule {
 
 public:
     Module_Thruster(QString id, Module_UID *uid, Module_Simulation *sim);
-    ~Module_Thruster();
 
     QWidget* createView(QWidget* parent);
 
-    // TODO: getView();
     QList<RobotModule*> getDependencies();
 
 public slots:
     void reset();
     void terminate();
-    void stop();
 
 protected slots:
 
@@ -41,6 +38,13 @@ protected slots:
     void setSpeed(float speed);
 
 
+private slots:
+
+    /**
+      * Send current speed to motors
+      */
+    void updateSpeed();
+
 signals:
     void healthStatusChanged(HealthStatus data);
     void requestThrusterSpeed(QString id, int speed);
@@ -50,6 +54,9 @@ private:
     Module_Simulation *sim;
     void initController();
     void init();
+
+
+    QTimer timer;
 
 };
 

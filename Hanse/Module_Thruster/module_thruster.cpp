@@ -14,7 +14,7 @@
 #define MAGIC_SWREV 10
 
 Module_Thruster::Module_Thruster(QString id, Module_UID *uid, Module_Simulation *sim)
-    : RobotModule(id)
+    : RobotModule(id), timer(this)
 {
     this->uid=uid;
     this->sim=sim;
@@ -22,6 +22,9 @@ Module_Thruster::Module_Thruster(QString id, Module_UID *uid, Module_Simulation 
     setDefaultValue("i2cAddress", 0x01);
     setDefaultValue("channel", 1);
     setDefaultValue("multiplicator", 127);
+    setDefaultValue("frequency", 5);
+
+    connect(&timer, SIGNAL(timeout()), this, SLOT(updateSpeed()));
 }
 
 void Module_Thruster::initController()
@@ -43,10 +46,6 @@ void Module_Thruster::initController()
         setHealthToOk();
 }
 
-Module_Thruster::~Module_Thruster()
-{
-}
-
 void Module_Thruster::init()
 {
     connect(this,SIGNAL(enabled(bool)), this, SLOT(gotEnabled(bool)));
@@ -54,13 +53,12 @@ void Module_Thruster::init()
     /* connect simulation */
     connect(this,SIGNAL(requestThrusterSpeed(QString,int)),sim,SLOT(requestThrusterSpeedSlot(QString,int)));
 
-    initController();
+    reset();
 }
 
 void Module_Thruster::terminate()
 {
     setSpeed(0);
-//    QTimer::singleShot(0,this,SLOT(stop()));
     RobotModule::terminate();
 }
 
@@ -68,21 +66,24 @@ void Module_Thruster::reset()
 {
     RobotModule::reset();
 
+    timer.stop();
     initController();
-
     setSpeed(0);
+
+    if (getSettingsValue("frequency").toInt()>0) {
+        timer.setInterval(1000/getSettingsValue("frequency").toInt());
+    }
+
+    if (isEnabled())
+        timer.start();
 }
 
-void Module_Thruster::stop()
+void Module_Thruster::updateSpeed()
 {
-    setSpeed(0);
-}
-
-void Module_Thruster::setSpeed(float speed)
-{
-
     if (!getSettingsValue("enabled").toBool())
         return;
+
+    float speed = getDataValue("speed").toFloat();
 
     if (speed > 1)
         speed = 1;
@@ -91,16 +92,13 @@ void Module_Thruster::setSpeed(float speed)
         speed = -1;
 
     int speedRaw = (int)(speed * getSettingsValue("multiplicator").toInt());
-    addData("speed", speedRaw);
+    addData("speedRaw", speedRaw);
 
     if(sim->isEnabled())
     {
-        QVariant tmp(speedRaw);
         emit requestThrusterSpeed(this->getId(),speedRaw);
         setHealthToOk();
         emit dataChanged(this);
-//        logger->debug("Speed an Sim "+QString::number(speedRaw));
-//        addData("speedSim",speedRaw);
         return;
     }
 
@@ -120,6 +118,15 @@ void Module_Thruster::setSpeed(float speed)
         setHealthToOk();
         emit dataChanged(this);
     }
+}
+
+void Module_Thruster::setSpeed(float speed)
+{
+
+    if (!getSettingsValue("enabled").toBool())
+        return;
+
+    addData("speed", speed);
 }
 
 QList<RobotModule*> Module_Thruster::getDependencies()
@@ -159,7 +166,7 @@ void Module_Thruster::doHealthCheck()
 void Module_Thruster::gotEnabled(bool value)
 {
     if (value)
-        initController();
+        reset();
     else
         setSpeed(0);
 }
