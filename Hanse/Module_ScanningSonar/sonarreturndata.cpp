@@ -29,7 +29,9 @@ SonarReturnData::SonarReturnData(SonarSwitchCommand& cmd, QByteArray& returnData
     if (packet[0] != 'I' || packet[2] != 'X')
         valid = false;
 
-    if (packet.length()==265) {
+    if (packet.size() < 8) {
+        valid = false;
+    } else if (packet.length()==265) {
         if (packet[1] != 'M')
             valid = false;
         if (getDataBytes() != 252)
@@ -134,5 +136,5 @@ int SonarReturnData::getRange() const
 
 bool SonarReturnData::isPacketValid() const
 {
-    return true;
+    return valid;
 }
