@@ -240,8 +240,7 @@ void Module_Navigation::xsensUpdate( RobotModule * )
         if (state == NAV_STATE_GO_TO_GOAL) {
 
             if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
-                double currentXsensHeading = mti->getHeading();
-                double diffXsens = Angles::deg2deg(currentXsensHeading - adjustHeadingInitialXsens);
+                double diffXsens = Angles::deg2deg(xsensHeading - adjustHeadingInitialXsens);
                 addData("xsens heading to last localization", diffXsens);
 
                 if (fabs(Angles::deg2deg(diffXsens - diffHeading)) < 5) {
@@ -250,9 +249,9 @@ void Module_Navigation::xsensUpdate( RobotModule * )
             }
 
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
-                float diffHeading = Angles::pi2pi(initialXsensHeading - xsensHeading);
-                if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
-                    float val = -getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
+                float headingError = Angles::deg2deg(initialXsensHeading - xsensHeading);
+                if (fabs(headingError) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
+                    float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * headingError;
                     emit newANGSpeed(val);
                 } else {
                     emit newANGSpeed(.0);

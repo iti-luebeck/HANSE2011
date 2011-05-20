@@ -401,7 +401,7 @@ void SonarEchoFilter::grouping()
     }
 
     // Add heading difference to total sonar head movement.
-    temp_area += abs(diff);
+    temp_area += fabs(diff);
 //    mti->addData("area", temp_area);
 //    qDebug("%f", temp_area);
 
