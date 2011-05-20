@@ -67,9 +67,6 @@ double PIDController::nextControlValue(double setpoint, double actual, bool &ok)
         u = max;
     }
 
-    qDebug(" 1 deltaT: %f, laste: %f, e: %f, lastu: %f", deltaT, laste, e, lastu);
-    qDebug(" 2 deltaU: %f, u: %f", deltaU, u);
-
     lastTime = time;
     lastu = u;
     lastlaste = laste;
