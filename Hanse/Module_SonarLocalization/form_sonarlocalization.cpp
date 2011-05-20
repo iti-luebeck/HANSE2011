@@ -90,12 +90,12 @@ void Form_SonarLocalization::createMap()
 
     QVector<QVector4D> particles = m->pf.getParticles();
     foreach (QVector4D p, particles) {
-        particleItems.append(scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("green"))));
+        particleItems.append(scene->addEllipse(p.x(), p.y(), 1, 1, QPen(QColor("green"))));
     }
 
     // draw map
     foreach (QVector2D p, m->pf.getMapPoints()) {
-        scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("yellow")));
+        scene->addEllipse(p.x(), p.y(), 1 ,1, QPen(QColor("yellow")));
     }
 }
 

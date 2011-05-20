@@ -28,7 +28,7 @@ public:
     void reset();
 
     QVector<QVector4D> getParticles();
-    QVector<QVector2D> getMapPoints();
+    QList<QVector2D> getMapPoints();
     QList<QVector2D> getLatestObservation();
     int getParticleCount();
 
@@ -62,9 +62,10 @@ private:
     SonarEchoFilter& filter;
     QVector<QVector4D> particles;
 
-    QVector<QVector2D> mapPoints;
+    QList<QVector2D> mapPoints;
     cv::flann::Index* mapPointsFlann;
-    Mat* mapPointsMat;
+    Mat mapPointsMat;
+    bool mapLoaded;
 
     Mat forbiddenArea;
 
@@ -94,7 +95,7 @@ private:
 
     void updateParticleFilter(const QList<QVector2D>& observations);
 
-    void addToList(QVector<QVector2D>& list, const QVector2D p);
+    void addToList(QList<QVector2D>& list, const QVector2D p);
 
 private slots:
     void newImage(QList<QVector2D> observations);

@@ -145,13 +145,11 @@ void ScanningSonarForm::on_save_clicked()
 
     QTimer::singleShot(0,sonar,SLOT(reset()));
 
-
-
     // the scan resolution may have changed, clear the graphics scene
-    scene.clear();
-//    foreach(QGraphicsItem* g, queue) {
-//        delete queue.takeFirst();
-//    }
+    foreach(QGraphicsItem* g, queue) {
+        delete g;
+    }
+    queue.clear();
 }
 
 void ScanningSonarForm::on_fileCfgApply_clicked()

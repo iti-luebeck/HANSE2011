@@ -29,7 +29,6 @@ private:
 
     QTimer t;
 
-    QGraphicsItem *visualSLAMItem;
     QGraphicsItem *waypointsItem;
     QGraphicsItem *goalItem;
 
@@ -40,7 +39,6 @@ private:
     QGraphicsEllipseItem *sonarPosition;
     QGraphicsLineItem *sonarPositionOrient;
 
-    void createMap();
     void stopSonarLocalization(QPointF point);
     void startSonarLocalization();
     bool isSonarLocalizationInProgress;
@@ -55,6 +53,7 @@ public slots:
     void clearGoal();
 
     void newSonarLocEstimate();
+    void createMap();
 
 private slots:
     void on_initialLocalizationBtn_clicked();

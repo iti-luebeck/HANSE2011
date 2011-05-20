@@ -23,8 +23,6 @@ SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization& sonar, Module
 
     logger->debug("ParticleFilter constructor");
 
-    loadMap();
-
     reset();
 }
 
@@ -39,6 +37,8 @@ void SonarParticleFilter::newImage(QList<QVector2D> observations)
 void SonarParticleFilter::reset()
 {
     QMutexLocker m(&particlesMutex);
+
+    loadMap();
 
     N = sonar.getSettingsValue("particleCount").toInt();
     if (N<1)
@@ -74,7 +74,8 @@ void SonarParticleFilter::reset()
 
 void SonarParticleFilter::loadMap()
 {
-    mapPointsMat = NULL;
+    mapLoaded = false;
+    mapPointsMat.release();
 
     if (!QFile(sonar.getSettingsValue("mapFile").toString()).exists()) {
         logger->error("No localization map found!");
@@ -99,16 +100,16 @@ void SonarParticleFilter::loadMap()
         return;
     }
 
-    vector<Mat> channels;
-    channels.resize(3);
+    Mat channels[3];
 
-    split(combinedMap, &channels[0]);
+    split(combinedMap, channels);
 
     // forbidden area is red. allowed area is white. thus the forbidden area will have blue==0 and
     // the allowed have blue==255 (green would also work)
     forbiddenArea = channels[0]; // channels: BGR
     Mat map = channels[1];
 
+    mapPoints.clear();
     for (int r = 0; r<map.rows; r++) {
         for ( int c=0; c<map.cols; c++) {
             if (channels[0].at<unsigned char>(r,c)==0
@@ -120,34 +121,36 @@ void SonarParticleFilter::loadMap()
     }
 
     // the flann data structure keeps referencing the original Mat object!!!
-    mapPointsMat = new Mat(Mat::zeros(mapPoints.size(),2,CV_32F));
+    mapPointsMat = Mat(Mat::zeros(mapPoints.size(),2,CV_32F));
     for(int i=0;i<mapPoints.size();i++) {
-        mapPointsMat->at<float>(i,0) = mapPoints[i].x();
-        mapPointsMat->at<float>(i,1) = mapPoints[i].y();
-        logger->trace("Adding point x="+QString::number(mapPointsMat->at<float>(i,0))
-                      +" y="+QString::number(mapPointsMat->at<float>(i,1)));
+        mapPointsMat.at<float>(i,0) = mapPoints[i].x() - 1;
+        mapPointsMat.at<float>(i,1) = mapPoints[i].y() - 1;
+        logger->trace("Adding point x="+QString::number(mapPointsMat.at<float>(i,0))
+                      +" y="+QString::number(mapPointsMat.at<float>(i,1)));
     }
 
     //this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::KDTreeIndexParams(4));
     //this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::LinearIndexParams());
-    this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::AutotunedIndexParams());
+    this->mapPointsFlann = new cv::flann::Index(mapPointsMat, cv::flann::AutotunedIndexParams());
+
+    mapLoaded = true;
 
 }
 
 bool SonarParticleFilter::hasMap() {
-    return mapPointsMat != NULL;
+    return mapLoaded;
 }
 
-void SonarParticleFilter::addToList(QVector<QVector2D>& list, const QVector2D p)
+void SonarParticleFilter::addToList(QList<QVector2D>& list, const QVector2D p)
 {
-    if (list.size()==0) {
-        list.append(p);
-        return;
+    double minDist = 10000;
+    foreach (QVector2D q, list) {
+        minDist = qMin((q - p).length(), minDist);
     }
 
-    QVector2D& q = list[list.size()-1];
-    if ((q-p).length()>0.5)
+    if (minDist > 0.5) {
         list.append(p);
+    }
 }
 
 QVector2D SonarParticleFilter::map2img(const QVector2D& mapPoint)
@@ -415,7 +418,7 @@ QList<QVector2D> SonarParticleFilter::getLatestObservation()
     return lastZ;
 }
 
-QVector<QVector2D> SonarParticleFilter::getMapPoints()
+QList<QVector2D> SonarParticleFilter::getMapPoints()
 {
     QMutexLocker m(&particlesMutex);
     return mapPoints;

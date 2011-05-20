@@ -21,10 +21,16 @@ MapWidget::MapWidget( QWidget *parent) :
 
     isSonarLocalizationInProgress = false;
 
-    visualSLAMItem = NULL;
     waypointsItem = NULL;
     goalItem = NULL;
     nav = NULL;
+
+    masterMapPoint = NULL;
+    masterObsPoint = NULL;
+    satImage = NULL;
+    masterParticle = NULL;
+    sonarPosition = NULL;
+    sonarPositionOrient = NULL;
 }
 
 MapWidget::~MapWidget()
@@ -49,7 +55,7 @@ void MapWidget::setNavigation(Module_Navigation *nav)
     ui->showSonarObs->setChecked(nav->getSettingsValue("showSonarObs").toBool());
     ui->showVisSLAM->setChecked(nav->getSettingsValue("showVisSLAM").toBool());
 
-    connect(nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
+    connect( nav->sonarLoc, SIGNAL(newLocalizationEstimate()), this, SLOT(newSonarLocEstimate()));
     connect( nav, SIGNAL(updatedWaypoints(QMap<QString,Waypoint>)), this, SLOT(updateWaypoints(QMap<QString,Waypoint>)) );
     connect( nav, SIGNAL(setNewGoal(Waypoint)), this, SLOT(updateGoal(Waypoint)) );
     connect( nav, SIGNAL(clearedGoal()), this, SLOT(clearGoal()) );
@@ -85,74 +91,6 @@ void MapWidget::graphicsMouseReleased( QPointF point )
     if (isSonarLocalizationInProgress)
         stopSonarLocalization(point);
 }
-
-//void MapWidget::updateVisualSLAM()
-//{
-//    if ( visualSLAMItem != NULL )
-//    {
-//        delete( visualSLAMItem );
-//        visualSLAMItem = NULL;
-//    }
-
-//    if ( ui->showVisSLAM->isChecked() )
-//    {
-//        QBrush brush( Qt::blue );
-//        QPen pen( Qt::blue );
-
-//        QGraphicsScene *scene = ui->graphicsView->scene();
-//        visualSLAMItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
-//        visualSLAMItem->setZValue( 1000 );
-
-//        QList<Position> landmarks;
-//        QList<Position> particles;
-//        int bestParticle;
-
-//        double width = 0.1;
-//        for ( int i = 0; i < landmarks.size(); i++ )
-//        {
-//            QGraphicsItem *item =
-//                    scene->addEllipse( landmarks[i].getX() - width/2,
-//                                       landmarks[i].getY() - width/2,
-//                                       width, width, pen, brush );
-//            item->setParentItem( visualSLAMItem );
-//            item->setZValue( 1000 );
-//        }
-
-//        width = 0.1;
-//        brush = QBrush( Qt::lightGray );
-//        pen = QPen( Qt::lightGray );
-//        for ( int i = 0; i < particles.size(); i++ )
-//        {
-//            QGraphicsItem *item =
-//                    scene->addEllipse( particles[i].getX() - width/2,
-//                                       particles[i].getY() - width/2,
-//                                       width, width, pen, brush );
-//            item->setParentItem( visualSLAMItem );
-//            item->setZValue( 1000 );
-//        }
-
-//        width = 0.3;
-//        brush = QBrush( Qt::red );
-//        pen = QPen( Qt::white );
-//        QGraphicsItem *item =
-//                scene->addEllipse( particles[bestParticle].getX() - width/2,
-//                                   particles[bestParticle].getY() - width/2,
-//                                   width, width, pen, brush );
-//        item->setParentItem( visualSLAMItem );
-//        item->setZValue( 1100 );
-
-//        pen = QPen( Qt::red );
-//        pen.setWidthF( 0.2 );
-//        item = scene->addLine( particles[bestParticle].getX(), particles[bestParticle].getY(),
-//                               particles[bestParticle].getX() - sin( particles[bestParticle].getYaw() * CV_PI / 180 ),
-//                               particles[bestParticle].getY() + cos( particles[bestParticle].getYaw() * CV_PI / 180 ),
-//                               pen );
-//        item->setParentItem( visualSLAMItem );
-//        item->setZValue( 1100 );
-
-//        ui->graphicsView->show();
-//    }
-//}
 
 void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
 {
@@ -236,6 +174,8 @@ void MapWidget::clearGoal()
 
 void MapWidget::newSonarLocEstimate()
 {
+    createMap();
+
     delete masterParticle;
     masterParticle = scene->addLine(0,0,0,0);
     masterParticle->setVisible(ui->showParticles->isChecked());
@@ -301,6 +241,14 @@ void MapWidget::createMap()
 
     QSettings s;
     s.beginGroup("sonarLocalize");
+
+    if (satImage) delete(satImage);
+    if (masterObsPoint) delete(masterObsPoint);
+    if (masterMapPoint) delete(masterMapPoint);
+    if (masterParticle) delete(masterParticle);
+    if (sonarPosition) delete(sonarPosition);
+    if (sonarPositionOrient) delete(sonarPositionOrient);
+
     QImage satImg(s.value("satImgFile").toString());
     satImage = scene->addPixmap(QPixmap::fromImage(satImg));
     satImage->setPos(0,0);
@@ -311,7 +259,7 @@ void MapWidget::createMap()
 
     // draw map
     masterMapPoint = scene->addLine(0,0,0,0);
-    QVector<QVector2D> mapPoints = nav->sonarLoc->particleFilter().getMapPoints();
+    QList<QVector2D> mapPoints = nav->sonarLoc->particleFilter().getMapPoints();
     foreach (QVector2D p, mapPoints) {
         double width = 1.5;
         QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), width, width, masterMapPoint);
