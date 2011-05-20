@@ -325,11 +325,12 @@ void Form_SonarLocalization::on_selSat_clicked()
 
 void Form_SonarLocalization::updateSonarViewList(QList<SonarEchoData> list)
 {
-    sonarEchoDataList.clear();
-    while (!list.empty()) {
-        SonarEchoData d = list.takeFirst();
-        sonarEchoDataList.append(d);
-    }
+    sonarEchoDataList = list;
+//    sonarEchoDataList.clear();
+//    while (!list.empty()) {
+//        SonarEchoData d = list.takeFirst();
+//        sonarEchoDataList.append(d);
+//    }
 
     if(this->ui->enableUnfilteredOutput->isChecked())
         this->updateSonarViewUnfiltered();

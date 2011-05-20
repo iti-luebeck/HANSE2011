@@ -243,8 +243,18 @@ void Module_Navigation::xsensUpdate( RobotModule * )
                 double diffXsens = Angles::deg2deg(xsensHeading - adjustHeadingInitialXsens);
                 addData("xsens heading to last localization", diffXsens);
 
-                if (fabs(Angles::deg2deg(diffXsens - diffHeading)) < 5) {
+                if (fabs(Angles::deg2deg(diffHeading - diffXsens)) < 5) {
                     emit newANGSpeed(.0);
+                } else {
+                    float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
+                    float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
+                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * (diffHeading - diffXsens);
+                    if (val > maxAngSpeed) val = maxAngSpeed;
+                    if (val < -maxAngSpeed) val = -maxAngSpeed;
+                    if (val > 0 && val < minAngSpeed) val = minAngSpeed;
+                    if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
+
+                    emit newANGSpeed(val);
                 }
             }
 

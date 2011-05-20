@@ -379,7 +379,7 @@ void SonarEchoFilter::grouping()
         int i = candidates.size() - 1;
 
         if (this->sloc->getSettingsValue("use xsens").toBool()) {
-            diff = (candidates[i-1].getHeadPosition() + candidates[i-1].getHeadingIncrement()) -
+            diff = (candidates[i-1].getHeadPosition()/* - candidates[i-1].getHeadingIncrement()*/) -
                    (candidates[i].getHeadPosition() + candidates[i].getHeadingIncrement());
         } else {
             diff = candidates[i-1].getHeadPosition() - candidates[i].getHeadPosition();
@@ -402,11 +402,11 @@ void SonarEchoFilter::grouping()
 
     // Add heading difference to total sonar head movement.
     temp_area += fabs(diff);
-//    mti->addData("area", temp_area);
+    mti->addData("area", temp_area);
 //    qDebug("%f", temp_area);
 
     // Do grouping, if enough data was collected.
-    if (temp_area > maxCutTH) {
+    if (temp_area >= maxCutTH) {
 
         // Find cutting index.
         int cutIndex = 0;
@@ -417,7 +417,7 @@ void SonarEchoFilter::grouping()
             else
                 darknessCount--;
 
-            if (darknessCount == 0) {
+            if (darknessCount <= 0) {
                 cutIndex = i;
                 break;
             }
@@ -443,7 +443,7 @@ void SonarEchoFilter::grouping()
                 int last = candidates.size()-1;
 
                 if (this->sloc->getSettingsValue("use xsens").toBool()) {
-                    diff = (candidates[last-1].getHeadPosition() + candidates[last-1].getHeadingIncrement()) -
+                    diff = (candidates[last-1].getHeadPosition()/* - candidates[last-1].getHeadingIncrement()*/) -
                            (candidates[last].getHeadPosition() + candidates[last].getHeadingIncrement());
                 } else {
                     diff = candidates[last-1].getHeadPosition() - candidates[last].getHeadPosition();

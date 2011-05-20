@@ -150,7 +150,6 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
 void Module_ThrusterControlLoop::updateHorizontalThrustersNow()
 {
     QMutexLocker l(&dataLockerMutex);
-    qDebug() << "update hor thru";
     float speedL=0.0;
     float speedR=0.0;
 #define MINSP 0.01

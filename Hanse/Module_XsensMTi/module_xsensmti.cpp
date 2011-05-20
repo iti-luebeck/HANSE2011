@@ -171,13 +171,7 @@ float Module_XsensMTi::getHeading() {
 
 float Module_XsensMTi::getHeadingIncrement() {
     float increment = 0;
-    if (sim->isEnabled()) {
-        increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
-    } else {
-#ifdef ENABLE_XSENS
-            increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
-#endif
-    }
+    increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
 
     lastHeading = getDataValue("yaw").toFloat();
     return increment;
