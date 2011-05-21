@@ -44,6 +44,10 @@ void TaskHandControl::init(){
 
 
 void TaskHandControl::startBehaviour(){
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
     this->reset();
     logger->info("TaskHandControl started" );
     running = true;
@@ -62,6 +66,10 @@ void TaskHandControl::startBehaviour(){
 }
 
 void TaskHandControl::stop(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     running = false;
     logger->info( "Task handcontrol stopped" );
 
@@ -81,6 +89,10 @@ void TaskHandControl::stop(){
 
 void TaskHandControl::emergencyStop()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     running = false;
     logger->info( "Task handcontrol emergency stopped" );
 
@@ -116,6 +128,10 @@ QList<RobotModule*> TaskHandControl::getDependencies()
 }
 
 void TaskHandControl::handControlFinishedSlot(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
     this->handcontrol->setEnabled(false);

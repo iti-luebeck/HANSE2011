@@ -47,6 +47,10 @@ bool Behaviour_BallFollowing::isActive()
 
 void Behaviour_BallFollowing::startBehaviour()
 {
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
     logger->debug( "Behaviour started" );
     this->setEnabled( true );
     state = BALL_STATE_TURN_45;
@@ -130,6 +134,11 @@ QWidget* Behaviour_BallFollowing::createView(QWidget* parent)
 
 void Behaviour_BallFollowing::testBehaviour( QString path )
 {
+    if (!this->isEnabled()){
+        logger->info("Not enabled!");
+        return;
+    }
+
     QDir dir( path );
     dir.setFilter( QDir::Files );
     QStringList filters;
@@ -195,6 +204,10 @@ void Behaviour_BallFollowing::testBehaviour( QString path )
 
 void Behaviour_BallFollowing::ctrBallFollowing()
 {
+    if (!this->isEnabled()){
+        logger->info("Not enabled!");
+        return;
+    }
     IplImage *gray = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
     IplImage *thresh = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
     IplImage *disp = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
@@ -276,6 +289,10 @@ void Behaviour_BallFollowing::ctrBallFollowing()
 
 void Behaviour_BallFollowing::timerSlot()
 {
+    if (!this->isEnabled()){
+        logger->info("Not enabled!");
+        return;
+    }
     timerNoBall.stop();
     stop();
 }

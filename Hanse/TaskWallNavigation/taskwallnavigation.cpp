@@ -64,6 +64,10 @@ void TaskWallNavigation::init(){
 
 
 void TaskWallNavigation::startBehaviour(){
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
     this->reset();
     logger->info("Taskwallnavigation started" );
     running = true;
@@ -244,6 +248,10 @@ void TaskWallNavigation::timeoutStop(){
 }
 
 void TaskWallNavigation::emergencyStop(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     running = false;
     logger->info( "Taskwallnavigation emergency stopped" );
 

@@ -24,6 +24,10 @@ bool Behaviour_GoalFollowing::isActive()
 
 void Behaviour_GoalFollowing::start()
 {
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
     this->setEnabled(true);
     timerNoGoal.start(10000);
 }
@@ -36,11 +40,11 @@ void Behaviour_GoalFollowing::newData(int classNr)
 void Behaviour_GoalFollowing::stop()
 {
     if (isEnabled()) {
-       this->tcl->setForwardSpeed(0.0);
-       this->tcl->setAngularSpeed(0.0);
-       setEnabled(false);
-       emit finished(this,false);
-   }
+        this->tcl->setForwardSpeed(0.0);
+        this->tcl->setAngularSpeed(0.0);
+        setEnabled(false);
+        emit finished(this,false);
+    }
 }
 
 void Behaviour_GoalFollowing::reset()
@@ -64,6 +68,10 @@ QWidget* Behaviour_GoalFollowing::createView(QWidget* parent)
 
 void Behaviour_GoalFollowing::ctrGoalFollowing()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     timerNoGoal.stop();
     QRectF rect;
     QDateTime current;
@@ -87,6 +95,10 @@ void Behaviour_GoalFollowing::ctrGoalFollowing()
 
 void Behaviour_GoalFollowing::timerSlot()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     timerNoGoal.stop();
     switch(this->state)
     {
@@ -104,7 +116,7 @@ void Behaviour_GoalFollowing::timerSlot()
     case STATE_TURNING:
         state = STATE_FAILED;
         this->setHealthToSick("no goal in sight");
-         emit finished(this,false);
+        emit finished(this,false);
         break;
     }
 }

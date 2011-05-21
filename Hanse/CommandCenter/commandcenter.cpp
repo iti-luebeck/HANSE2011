@@ -99,6 +99,10 @@ void CommandCenter::init(){
 }
 
 void CommandCenter::startCommandCenter(){
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
     RobotModule::reset();
     running = true;
 
@@ -136,8 +140,11 @@ void CommandCenter::startCommandCenter(){
 }
 
 void CommandCenter::stopCommandCenter(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     RobotModule::reset();
-
     logger->info("CommandCenter stoped");
     //this->setHealthToSick("Commandcenter stoped, everything stop/disable");
     //this->setEnabled(false);
@@ -161,6 +168,10 @@ void CommandCenter::stopCommandCenter(){
 }
 
 void CommandCenter::commandCenterControl(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
 
     if(!this->tcl->isEnabled()){
         this->tcl->setEnabled(true);
@@ -221,7 +232,10 @@ void CommandCenter::commandCenterControl(){
 
 void CommandCenter::finishedControl(RobotBehaviour *, bool success){
     // Evaluate task success
-
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
 
     if(!this->tcl->isEnabled() && !this->handControl->isEnabled()){
         this->handControl->setEnabled(true);
@@ -263,6 +277,10 @@ void CommandCenter::doNextTask(){
 
 // Not used....
 void CommandCenter::timeout(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     // Timeout, stop everything
     logger->info("Commandcenter timeout!");
     emit setDepth(0);
@@ -328,10 +346,10 @@ void CommandCenter::emergencyStopCommandCenter(){
 }
 
 void CommandCenter::startTaskHandControlCC(){
-
-    if (this->taskhandcontrol->isEnabled())
+    if (this->handControl->isEnabled() == false){
+        logger->info("Not enabled!");
         return;
-
+    }
     controlTimer.stop();
     logger ->info("Stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
@@ -348,6 +366,10 @@ void CommandCenter::startTaskHandControlCC(){
 }
 
 void CommandCenter::handControlFinishedCC(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     emit setAngularSpeed(0.0);
     emit setForwardSpeed(0.0);
     if(this->getSettingsValue("subEx").toBool() == true){
@@ -367,6 +389,10 @@ void CommandCenter::handControlFinishedCC(){
 }
 
 void CommandCenter::addTask(QString listName, QString taskName){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     if(listName == "scheduleList"){
         this->scheduleList.append(taskName);
     } else if(listName == "abortedList"){
@@ -380,6 +406,10 @@ void CommandCenter::addTask(QString listName, QString taskName){
 }
 
 void CommandCenter::clearList(QString listName){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     if(listName == "scheduleList"){
         this->scheduleList.clear();
     } else if(listName == "abortedList"){
@@ -393,6 +423,10 @@ void CommandCenter::clearList(QString listName){
 }
 
 void CommandCenter::removeTask(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     if(!this->scheduleList.isEmpty()){
         this->scheduleList.removeLast();
     }

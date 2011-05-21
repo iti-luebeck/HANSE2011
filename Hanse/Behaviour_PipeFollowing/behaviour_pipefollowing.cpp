@@ -15,7 +15,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     setEnabled(false);
     timer.moveToThread(this);
 
- }
+}
 
 bool Behaviour_PipeFollowing::isActive()
 {
@@ -44,17 +44,26 @@ void Behaviour_PipeFollowing::init()
 
 void Behaviour_PipeFollowing::startBehaviour()
 {
-        this->reset();
-        logger->info("Behaviour started" );
-        Behaviour_PipeFollowing::updateFromSettings();
-        this->setHealthToOk();
-        setEnabled(true);
-        timer.start(timerTime);
-        emit started(this);
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
+
+    this->reset();
+    logger->info("Behaviour started" );
+    Behaviour_PipeFollowing::updateFromSettings();
+    this->setHealthToOk();
+    setEnabled(true);
+    timer.start(timerTime);
+    emit started(this);
 }
 
 void Behaviour_PipeFollowing::stop()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
     timer.stop();
@@ -65,7 +74,7 @@ void Behaviour_PipeFollowing::stop()
         emit angularSpeed(0.0);
         setEnabled(false);
         emit finished(this,false);
-   }
+    }
 }
 
 void Behaviour_PipeFollowing::terminate()
@@ -80,11 +89,11 @@ void Behaviour_PipeFollowing::reset()
     this->curAngle = 0.0;
     this->distanceY = 0.0;
     this->noPipeCnt = 0;
-//    RobotBehaviour_MT::reset();
+    //    RobotBehaviour_MT::reset();
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
-//    this->tcl->setForwardSpeed(0.0);
-//    this->tcl->setAngularSpeed(0.0);
+    //    this->tcl->setForwardSpeed(0.0);
+    //    this->tcl->setAngularSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_PipeFollowing::getDependencies()
@@ -104,7 +113,11 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 {
     logger->debug(" simu data");
-  //  QMutexLocker l(&this->dataLockerMutex);
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+    //  QMutexLocker l(&this->dataLockerMutex);
     this->dataLockerMutex.lock();
     simFrame.copyTo(frame);
     this->dataLockerMutex.unlock();
@@ -114,6 +127,11 @@ void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 
 void Behaviour_PipeFollowing::timerSlot()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     if(sim->isEnabled())
     {
         emit requestBottomFrame();
@@ -132,20 +150,25 @@ void Behaviour_PipeFollowing::timerSlot()
 
 void Behaviour_PipeFollowing::timerSlotExecute()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     QTime run,run2;
     run.restart();
 
-//    Mat binaryFrame;
+    //    Mat binaryFrame;
     if(!frame.empty())
     {
         this->setHealthToOk();
-//        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
-//        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
+        //        Behaviour_PipeFollowing::findPipe(frame,binaryFrame);
+        //        Behaviour_PipeFollowing::computeLineBinary(frame, binaryFrame);
         run2.restart();
         Behaviour_PipeFollowing::moments(frame);
         addData("run moments",run2.elapsed());
-//        binaryFrame.release();
-//        Behaviour_PipeFollowing::updateData();
+        //        binaryFrame.release();
+        //        Behaviour_PipeFollowing::updateData();
         if(isEnabled() && this->getHealthStatus().isHealthOk())
         {
             run2.restart();
@@ -161,13 +184,18 @@ void Behaviour_PipeFollowing::timerSlotExecute()
         logger->error("pipefollow to slow");
         toSlowCnt++;
         addData("err toSlow",toSlowCnt);
-//        this->setHealthToSick("to slow " + QString::number(getDataValue("run grab").toInt()) + "(" + QString::number(getDataValue("run").toInt()) + ") / " + QString::number(timerTime));
-//        emit stop();
+        //        this->setHealthToSick("to slow " + QString::number(getDataValue("run grab").toInt()) + "(" + QString::number(getDataValue("run").toInt()) + ") / " + QString::number(timerTime));
+        //        emit stop();
     }
 }
 
 void Behaviour_PipeFollowing::initPictureFolder()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     QDir dir( this->getSettingsValue("videoFilePath").toString());
     dir.setFilter( QDir::Files );
     QStringList filters;
@@ -181,33 +209,43 @@ void Behaviour_PipeFollowing::initPictureFolder()
 
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
-   float ctrAngleSpeed = 0.0;
-//   logger->debug( "pipe angle" +QString::number(curAngle) + "°");
-//   logger->debug( "pipe distance " +QString::number( distanceY ));
-   addData("pipe_angle",curAngle);
-   addData("pipe_distance",distanceY);
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
 
-   if(fabs(Behaviour_PipeFollowing::curAngle) > Behaviour_PipeFollowing::deltaAngPipe)
-   {
-       ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
-   }
+    float ctrAngleSpeed = 0.0;
+    //   logger->debug( "pipe angle" +QString::number(curAngle) + "°");
+    //   logger->debug( "pipe distance " +QString::number( distanceY ));
+    addData("pipe_angle",curAngle);
+    addData("pipe_distance",distanceY);
 
-   if(fabs(Behaviour_PipeFollowing::distanceY) > Behaviour_PipeFollowing::deltaDistPipe)
-   {
-       ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
-   }
+    if(fabs(Behaviour_PipeFollowing::curAngle) > Behaviour_PipeFollowing::deltaAngPipe)
+    {
+        ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * Behaviour_PipeFollowing::curAngle / 90.0;
+    }
 
-   emit angularSpeed(ctrAngleSpeed);
-   emit forwardSpeed(this->constFWSpeed);
-   addData("angular_speed",ctrAngleSpeed);
-   addData("forward_speed",this->constFWSpeed);
-   addData("intersect_y",potentialY);
+    if(fabs(Behaviour_PipeFollowing::distanceY) > Behaviour_PipeFollowing::deltaDistPipe)
+    {
+        ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * Behaviour_PipeFollowing::distanceY / Behaviour_PipeFollowing::maxDistance;
+    }
 
-   emit dataChanged( this );
+    emit angularSpeed(ctrAngleSpeed);
+    emit forwardSpeed(this->constFWSpeed);
+    addData("angular_speed",ctrAngleSpeed);
+    addData("forward_speed",this->constFWSpeed);
+    addData("intersect_y",potentialY);
+
+    emit dataChanged( this );
 }
 
 void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     QDir dir( videoFile );
     dir.setFilter( QDir::Files );
     QStringList filters;
@@ -216,7 +254,7 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
     files = dir.entryList();
     Mat frame, binaryFrame;
 
-//    namedWindow("Dummy");
+    //    namedWindow("Dummy");
     for ( int i = 0; i < files.count(); i++ )
     {
         QString filePath = videoFile;
@@ -227,8 +265,8 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
         Behaviour_PipeFollowing::moments(frame);
         Behaviour_PipeFollowing::updateData();
         controlPipeFollow();
-//        Behaviour_PipeFollowing::findPipe( frame, binaryFrame );
-//        Behaviour_PipeFollowing::computeLineBinary( frame, binaryFrame );
+        //        Behaviour_PipeFollowing::findPipe( frame, binaryFrame );
+        //        Behaviour_PipeFollowing::computeLineBinary( frame, binaryFrame );
         if ( 'q' == waitKey( 100 ) )
             break;
     }
@@ -257,33 +295,38 @@ void Behaviour_PipeFollowing::analyzeVideo(QString videoFile)
 
 void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     if (!frame.empty())
     {
         int u;
         Mat frameHSV;
         cvtColor( frame, displayFrame, CV_RGB2GRAY );
-//        cvtColor( frame, frameHSV, CV_RGB2HSV );
-//        int channel = settings.value( "channel", 0 ).toInt();
-//
-//        for (int i = 0; i < WEBCAM_HEIGHT; i++)
-//        {
-//            for (int j = 0; j < WEBCAM_WIDTH; j++)
-//            {
-//                Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-//                displayFrame.at<unsigned char>(i, j) = hsvV[channel];
-//            }
-//        }
+        //        cvtColor( frame, frameHSV, CV_RGB2HSV );
+        //        int channel = settings.value( "channel", 0 ).toInt();
+        //
+        //        for (int i = 0; i < WEBCAM_HEIGHT; i++)
+        //        {
+        //            for (int j = 0; j < WEBCAM_WIDTH; j++)
+        //            {
+        //                Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
+        //                displayFrame.at<unsigned char>(i, j) = hsvV[channel];
+        //            }
+        //        }
         /**** Segmentation */
         Mat threshImg;
-//        IplImage *iplDisp = new IplImage( displayFrame );
-//        cvCLAdaptEqualize( iplDisp, iplDisp, 8, 8, 255, 12, CV_CLAHE_RANGE_FULL );
+        //        IplImage *iplDisp = new IplImage( displayFrame );
+        //        cvCLAdaptEqualize( iplDisp, iplDisp, 8, 8, 255, 12, CV_CLAHE_RANGE_FULL );
         int thresh = getSettingsValue( "threshold", 100 ).toInt();
         threshold( displayFrame, threshImg, thresh, 255, THRESH_BINARY);
-//        medianBlur( displayFrame, displayFrame, 5 );
+        //        medianBlur( displayFrame, displayFrame, 5 );
         double width = getSettingsValue( "camWidth", 100 ).toDouble();
         double height = getSettingsValue( "camHeight", 100 ).toDouble();
         Canny( threshImg, binaryFrame, width, height, 3, true );
-//        binaryFrame.copyTo( displayFrame );
+        //        binaryFrame.copyTo( displayFrame );
         /*debug */
         if(debug)
         {
@@ -299,169 +342,179 @@ void Behaviour_PipeFollowing::findPipe(Mat &frame, Mat &binaryFrame)
 
 void Behaviour_PipeFollowing::computeLineBinary(Mat &frame, Mat &binaryFrame)
 {
-        /* hough transformation */
-        vector<Vec2f> lines;
-        HoughLines(binaryFrame, lines, 1, CV_PI/180, 60 );
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
 
-        /* DEBUG durchschnitt fuer alle erkannten linien */
-        float avRho = 0.0;
-        float avTheta = 0.0;
+    /* hough transformation */
+    vector<Vec2f> lines;
+    HoughLines(binaryFrame, lines, 1, CV_PI/180, 60 );
 
-        for( size_t i = 0; i < lines.size(); i++ )
+    /* DEBUG durchschnitt fuer alle erkannten linien */
+    float avRho = 0.0;
+    float avTheta = 0.0;
+
+    for( size_t i = 0; i < lines.size(); i++ )
+    {
+        if ( abs(lines[i][1]) < CV_PI / 12 )
         {
-            if ( abs(lines[i][1]) < CV_PI / 12 )
-            {
-                lines[i][0] = -lines[i][0];
-                lines[i][1] = CV_PI + lines[i][1];
-            }
+            lines[i][0] = -lines[i][0];
+            lines[i][1] = CV_PI + lines[i][1];
         }
+    }
 
-        for( size_t i = 0; i < lines.size(); i++ )
-        {
-            if(debug)
-            {
-                Behaviour_PipeFollowing::drawLineHough(frame,lines[i][0],lines[i][1],Scalar(0,0,255));
-//                logger->debug("rho " + QString::number(lines[i][0]));
-//                logger->debug("theta " + QString::number(lines[i][1]));
-            }
-            avRho += lines[i][0];
-            avTheta += lines[i][1];
-//            qDebug( "%f, %f", lines[i][0], lines[i][1] );
-        }
-        avRho /= lines.size();
-        avTheta /= lines.size();
-        Behaviour_PipeFollowing::drawLineHough( displayFrame, avRho, avTheta,
-                                                Scalar(150,0,0) );
-
+    for( size_t i = 0; i < lines.size(); i++ )
+    {
         if(debug)
         {
-
-//            logger->debug("****************");
-//            logger->debug("= " +QString::number(avRho) + " " + QString::number(avTheta));
-            Behaviour_PipeFollowing::drawLineHough(frame,avRho,avTheta,Scalar(255,0,255));
+            Behaviour_PipeFollowing::drawLineHough(frame,lines[i][0],lines[i][1],Scalar(0,0,255));
+            //                logger->debug("rho " + QString::number(lines[i][0]));
+            //                logger->debug("theta " + QString::number(lines[i][1]));
         }
+        avRho += lines[i][0];
+        avTheta += lines[i][1];
+        //            qDebug( "%f, %f", lines[i][0], lines[i][1] );
+    }
+    avRho /= lines.size();
+    avTheta /= lines.size();
+    Behaviour_PipeFollowing::drawLineHough( displayFrame, avRho, avTheta,
+                                            Scalar(150,0,0) );
 
-        /* jeweils Durchschnitt fuer linke und rechte Seite des Rohrs berechnen */
-        float counterClass1 = 0;
-        float counterClass2 = 0;
-        float avRhoClass1 = 0.0;
-        float avRhoClass2 = 0.0;
-        float avThetaClass1 = 0.0;
-        float avThetaClass2 = 0.0;
+    if(debug)
+    {
 
-        for (size_t i = 0; i < lines.size(); i++)
-        {
+        //            logger->debug("****************");
+        //            logger->debug("= " +QString::number(avRho) + " " + QString::number(avTheta));
+        Behaviour_PipeFollowing::drawLineHough(frame,avRho,avTheta,Scalar(255,0,255));
+    }
 
-            if(lines[i][0] < avRho)
-            { //Class1
-                counterClass1 += 1.0;
-                avRhoClass1 += lines[i][0];
-                avThetaClass1 += lines[i][1];
-            }
-            else
-            { //Class2
-                counterClass2 += 1.0;
-                avRhoClass2 += lines[i][0];
-                avThetaClass2 += lines[i][1];
-            }
+    /* jeweils Durchschnitt fuer linke und rechte Seite des Rohrs berechnen */
+    float counterClass1 = 0;
+    float counterClass2 = 0;
+    float avRhoClass1 = 0.0;
+    float avRhoClass2 = 0.0;
+    float avThetaClass1 = 0.0;
+    float avThetaClass2 = 0.0;
 
-        }
-        if ( counterClass1 > 0 )
-        {
-            avRhoClass1 /= counterClass1;
-            avThetaClass1 /= counterClass1;
+    for (size_t i = 0; i < lines.size(); i++)
+    {
+
+        if(lines[i][0] < avRho)
+        { //Class1
+            counterClass1 += 1.0;
+            avRhoClass1 += lines[i][0];
+            avThetaClass1 += lines[i][1];
         }
         else
-        {
-            if ( counterClass2 > 0 )
-            {
-                avRhoClass1 = avRhoClass2 / counterClass2;
-                avThetaClass1 = avThetaClass2 / counterClass2;
-            }
+        { //Class2
+            counterClass2 += 1.0;
+            avRhoClass2 += lines[i][0];
+            avThetaClass2 += lines[i][1];
         }
+
+    }
+    if ( counterClass1 > 0 )
+    {
+        avRhoClass1 /= counterClass1;
+        avThetaClass1 /= counterClass1;
+    }
+    else
+    {
         if ( counterClass2 > 0 )
         {
-            avRhoClass2 /= counterClass2;
-            avThetaClass2 /= counterClass2;
+            avRhoClass1 = avRhoClass2 / counterClass2;
+            avThetaClass1 = avThetaClass2 / counterClass2;
         }
-        else
+    }
+    if ( counterClass2 > 0 )
+    {
+        avRhoClass2 /= counterClass2;
+        avThetaClass2 /= counterClass2;
+    }
+    else
+    {
+        if ( counterClass1 > 0 )
         {
-            if ( counterClass1 > 0 )
-            {
-                avRhoClass2 = avRhoClass1 / counterClass1;
-                avThetaClass2 = avThetaClass1 / counterClass1;
-            }
+            avRhoClass2 = avRhoClass1 / counterClass1;
+            avThetaClass2 = avThetaClass1 / counterClass1;
         }
+    }
 
-        /***** DEBUG linkes und recht berechnen und Zeichnen */
-        if(debug)
+    /***** DEBUG linkes und recht berechnen und Zeichnen */
+    if(debug)
+    {
+        //            logger->debug("Class 1 " + QString::number(avRhoClass1) + " " + QString::number(avThetaClass1));
+        //            logger->debug("Class 2 " + QString::number(avRhoClass2) + " " + QString::number(avThetaClass2));
+        Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass1,avThetaClass1,Scalar(255,255,255));
+        Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass2,avThetaClass2,Scalar(255,255,255));
+
+    }
+
+    /* Parameter fuers Rohr bestimmen */
+    avRhoClass1 = (avRhoClass1 + avRhoClass2) / 2.0;
+    avThetaClass1 = (avThetaClass1 + avThetaClass2) / 2.0;
+    /* medianfilterung der Werte */
+    Behaviour_PipeFollowing::medianFilter(avRhoClass1,avThetaClass1);
+
+    /* ueberpruefen ob rohr zu sehen */
+    if(counterClass1 == 0 && counterClass2 == 0)
+    {
+        this->noPipeCnt++;
+        if(noPipeCnt > this->getSettingsValue("badFrames").toInt())
         {
-//            logger->debug("Class 1 " + QString::number(avRhoClass1) + " " + QString::number(avThetaClass1));
-//            logger->debug("Class 2 " + QString::number(avRhoClass2) + " " + QString::number(avThetaClass2));
-            Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass1,avThetaClass1,Scalar(255,255,255));
-            Behaviour_PipeFollowing::drawLineHough(frame,avRhoClass2,avThetaClass2,Scalar(255,255,255));
+            this->setHealthToSick("20 frames without pipe");
+            //TODO 180 drehen?
+            this->stop();
 
         }
+    }
+    else this->noPipeCnt = 0;
 
-        /* Parameter fuers Rohr bestimmen */
-        avRhoClass1 = (avRhoClass1 + avRhoClass2) / 2.0;
-        avThetaClass1 = (avThetaClass1 + avThetaClass2) / 2.0;
-        /* medianfilterung der Werte */
-        Behaviour_PipeFollowing::medianFilter(avRhoClass1,avThetaClass1);
+    //        data["rohrRho"] =  avRho; //avRhoClass1;
+    //        data["rohrTheta"] = avTheta; //avThetaClass1;
 
-        /* ueberpruefen ob rohr zu sehen */
-        if(counterClass1 == 0 && counterClass2 == 0)
-        {
-            this->noPipeCnt++;
-            if(noPipeCnt > this->getSettingsValue("badFrames").toInt())
-            {
-                this->setHealthToSick("20 frames without pipe");
-                //TODO 180 drehen?
-                this->stop();
+    /* Istwinkel */
+    curAngle = ((avThetaClass1 * 180.0) / CV_PI);
+    if(curAngle > 90)
+        curAngle -= 180;
 
-            }
-        }
-        else this->noPipeCnt = 0;
+    /* Rohrlinie berechnen und Zeichnen */
+    Behaviour_PipeFollowing::drawLineHough( displayFrame, avRhoClass1, avThetaClass1,
+                                            Scalar(200,0,0) );
 
-//        data["rohrRho"] =  avRho; //avRhoClass1;
-//        data["rohrTheta"] = avTheta; //avThetaClass1;
+    /* Schnittpunkt des erkannten Rohrs mit der Ideallinie */
+    Behaviour_PipeFollowing::compIntersect(avRhoClass1,avThetaClass1);
+    if(debug)
+    {
+        //            logger->debug("Schnittpunkt " + QString::number(intersect.x) + " " + QString::number(intersect.y));
+        circle(frame,intersect,3,Scalar(255,0,255),3,8);
+        circle(frame,robCenter,3,Scalar(255,0,255),3,8);
 
-        /* Istwinkel */
-        curAngle = ((avThetaClass1 * 180.0) / CV_PI);
-        if(curAngle > 90)
-            curAngle -= 180;
-
-        /* Rohrlinie berechnen und Zeichnen */
-        Behaviour_PipeFollowing::drawLineHough( displayFrame, avRhoClass1, avThetaClass1,
-                                                Scalar(200,0,0) );
-
-        /* Schnittpunkt des erkannten Rohrs mit der Ideallinie */
-        Behaviour_PipeFollowing::compIntersect(avRhoClass1,avThetaClass1);
-        if(debug)
-        {
-//            logger->debug("Schnittpunkt " + QString::number(intersect.x) + " " + QString::number(intersect.y));
-            circle(frame,intersect,3,Scalar(255,0,255),3,8);
-            circle(frame,robCenter,3,Scalar(255,0,255),3,8);
-
-        }
+    }
 
 
 
-        /* Ideallinie zeichnen */
-        line( displayFrame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(255,0,0), 3, 8 );
+    /* Ideallinie zeichnen */
+    line( displayFrame,Point(frame.cols/2,0.0) , Point(frame.cols/2,frame.rows), Scalar(255,0,0), 3, 8 );
 
-        /* ins Qt Widget malen */
-//        emit printFrameOnUi( displayFrame );
+    /* ins Qt Widget malen */
+    //        emit printFrameOnUi( displayFrame );
 
-        if(debug)
-        {
-            imshow("image",frame);
-            waitKey();
-        }
+    if(debug)
+    {
+        imshow("image",frame);
+        waitKey();
+    }
 }
 
 void Behaviour_PipeFollowing::drawLineHough(Mat &frame, double rho, double theta, Scalar color)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     double a = cos(theta), b = sin(theta);
     double x1 = a*rho, y1 = b*rho;
     Point pt1(cvRound(x1 + 1000*(-b)),
@@ -473,6 +526,11 @@ void Behaviour_PipeFollowing::drawLineHough(Mat &frame, double rho, double theta
 
 void Behaviour_PipeFollowing::compIntersect(double rho, double theta)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     double a = cos(theta), b = sin(theta);
     double x1 = a*rho, y1 = b*rho;
     Point pt1(cvRound(x1 + 1000.0*(-b)),
@@ -486,23 +544,23 @@ void Behaviour_PipeFollowing::compIntersect(double rho, double theta)
               pt1.y + (((r) * rv[1])));
     intersect = gmp;
 
-     potentialVec = robCenter.y - intersect.y;
+    potentialVec = robCenter.y - intersect.y;
 
     /* Entfernung auf der Bildhalbierenden Y-Achse */
     r = ((robCenter.y)/1.0 - pt1.x)/rv[1];
-   distanceY = robCenter.x - (pt1.x + (((r) * rv[0])));
+    distanceY = robCenter.x - (pt1.x + (((r) * rv[0])));
 
     /*Abstand zwischen ermittelter Gerade und robCenter */
     /*Richtungsvekter double[] rv und Stuetzvektor Point pt1 */
-//    double zaehler[2] = {((robCenter.x - pt1.x) *rv[0]),((robCenter.y - pt1.y) *rv[1])};
-//    double nenner[2] = {(rv[0] * rv[0]),(rv[1]*rv[1])};
-//    double c[2] = {0.0,0.0};
-//    c[0] = (rv[0] * (zaehler[0] / nenner[0])) + pt1.x;
-//    c[1] = (rv[1] * (zaehler[1] / nenner[1])) + pt1.y;
-//    double d[2] ={0, 0};
-//    d[0] = robCenter.x - c[0];
-//    d[1] = robCenter.y - c[1];
-//  distance = sqrt((d[0] * d[0]) + (d[1] * d[1]));
+    //    double zaehler[2] = {((robCenter.x - pt1.x) *rv[0]),((robCenter.y - pt1.y) *rv[1])};
+    //    double nenner[2] = {(rv[0] * rv[0]),(rv[1]*rv[1])};
+    //    double c[2] = {0.0,0.0};
+    //    c[0] = (rv[0] * (zaehler[0] / nenner[0])) + pt1.x;
+    //    c[1] = (rv[1] * (zaehler[1] / nenner[1])) + pt1.y;
+    //    double d[2] ={0, 0};
+    //    d[0] = robCenter.x - c[0];
+    //    d[1] = robCenter.y - c[1];
+    //  distance = sqrt((d[0] * d[0]) + (d[1] * d[1]));
 
     /* abstand zwischen gmp2 und ideallinie */
     /* ideal zwischen robCenter.x, robCenter.y und robCenter.x und robCenter.y *2 */
@@ -519,6 +577,11 @@ void Behaviour_PipeFollowing::compIntersect(double rho, double theta)
 
 void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     //    Point richtungsv((pt2.x - pt1.x) , (pt2.y - pt1.y));
     double rv[2] = {(pt2.x - pt1.x) , (pt2.y - pt1.y)};
     float r = ((robCenter.x)/1.0 - pt1.x)/rv[0];
@@ -533,9 +596,9 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
     potentialY = robCenter.x - (pt1.x + (((r) * rv[0])));
 
 
-//    /* Entfernung auf der Bildhalbierenden Y-Achse */
-//    r = ((robCenter.y)/1.0 - pt1.x)/rv[1];
-//   distanceY = robCenter.x - (pt1.x + (((r) * rv[0])));
+    //    /* Entfernung auf der Bildhalbierenden Y-Achse */
+    //    r = ((robCenter.y)/1.0 - pt1.x)/rv[1];
+    //   distanceY = robCenter.x - (pt1.x + (((r) * rv[0])));
 
     /* ABSTAnd punkt gerade. der richtige */
     double n[2] = {-(pt1.y-pt2.y) , pt1.x - pt2.x};
@@ -543,7 +606,7 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
 
     double d = pt1.x * nzero[0] + pt1.y * nzero[1];
 
-//    nzero * p - d
+    //    nzero * p - d
     distanceY = (nzero[0] * robCenter.x) + (nzero[1] * robCenter.y) - d;
     if ( potentialY > 0 )
     {
@@ -555,8 +618,8 @@ void Behaviour_PipeFollowing::compIntersect(Point pt1, Point pt2)
     }
 
 
-//    data["nullabstand"] = d;
-//    distanceY = (pt1.x - robCenter.x) * (pt1.y - pt2.y) + (robCenter.y - pt1.y) * (pt1.x - pt2.x);
+    //    data["nullabstand"] = d;
+    //    distanceY = (pt1.x - robCenter.x) * (pt1.y - pt2.y) + (robCenter.y - pt1.y) * (pt1.x - pt2.x);
 }
 
 void Behaviour_PipeFollowing::updateData()
@@ -598,8 +661,12 @@ void Behaviour_PipeFollowing::updateFromSettings()
 
 void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
 {
-//    logger->debug("in median: rho " +QString::number(rho));
-//    logger->debug("in median: theta " +QString::number(theta));
+    //    logger->debug("in median: rho " +QString::number(rho));
+    //    logger->debug("in median: theta " +QString::number(theta));
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
 
     if(std::isnan(rho))
         logger->error("rho is NAN");
@@ -645,6 +712,10 @@ void Behaviour_PipeFollowing::medianFilter(float &rho, float &theta)
 
 void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
 
     sum = 0;
     for(int i = 0; i < frame.rows; i++)
@@ -655,12 +726,17 @@ void Behaviour_PipeFollowing::countPixel(Mat &frame, int &sum)
                 sum++;
         }
     }
-//    logger->debug("summe" + QString::number(sum));
+    //    logger->debug("summe" + QString::number(sum));
 
 }
 
 void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     int farbraum =  this->getSettingsValue("convColor").toInt();
     addData("farbraum",farbraum);
     if(farbraum == 4)
@@ -703,23 +779,28 @@ void Behaviour_PipeFollowing::convertColor(Mat &frame, Mat &convFrame)
 
 
         //    for (int i = 0; i < frame.rows; i++)
-//    {
-//        for (int j = 0; j < frame.cols; j++)
-//        {
-//            Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
-//            if(this->getSettings().value("convColor").toInt() == 1)
-//                convFrame.at<unsigned char>(i, j) = hsvV[0];
-//            else if(this->getSettings().value("convColor").toInt() == 2)
-//                convFrame.at<unsigned char>(i, j) = hsvV[1];
-//            else if(this->getSettings().value("convColor").toInt() == 3)
-//                convFrame.at<unsigned char>(i, j) = hsvV[2];
-//        }
-//    }
+        //    {
+        //        for (int j = 0; j < frame.cols; j++)
+        //        {
+        //            Vec<unsigned char, 3> hsvV = frameHSV.at<Vec<unsigned char, 3> >(i, j);
+        //            if(this->getSettings().value("convColor").toInt() == 1)
+        //                convFrame.at<unsigned char>(i, j) = hsvV[0];
+        //            else if(this->getSettings().value("convColor").toInt() == 2)
+        //                convFrame.at<unsigned char>(i, j) = hsvV[1];
+        //            else if(this->getSettings().value("convColor").toInt() == 3)
+        //                convFrame.at<unsigned char>(i, j) = hsvV[2];
+        //        }
+        //    }
     }
 }
 
 void Behaviour_PipeFollowing::moments( Mat &frame)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     QTime blub;
     Mat gray;
     blub.restart();
@@ -786,7 +867,7 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
         }
 
         theta = (curAngle * CV_PI) / 180.0;
-//        data["rohrThetaMod"] = theta;
+        //        data["rohrThetaMod"] = theta;
         Behaviour_PipeFollowing::compIntersect(pt1,pt2);
         Behaviour_PipeFollowing::updateData();
     }
@@ -813,6 +894,11 @@ void Behaviour_PipeFollowing::moments( Mat &frame)
 
 void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     dataLockerMutex.lock();
     if(getSettingsValue("frameOutput").toBool())
         displayFrame.copyTo(frame);

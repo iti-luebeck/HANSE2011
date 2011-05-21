@@ -71,6 +71,10 @@ bool Behaviour_TurnOneEighty::isActive()
 
 void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     //    qDebug() << QThread::currentThreadId();
     if ( isActive() )
     {
@@ -106,6 +110,10 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 
 void Behaviour_TurnOneEighty::initialHeadingUpdate()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     //    qDebug() << "turn thread id";
     //    qDebug() << QThread::currentThreadId();
     this->dataLockerMutex.lock();

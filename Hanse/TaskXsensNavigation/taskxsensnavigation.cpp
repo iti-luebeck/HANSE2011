@@ -79,6 +79,10 @@ void TaskXsensNavigation::init(){
 
 
 void TaskXsensNavigation::startBehaviour(){
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
     this->reset();
     logger->info("Taskxsensnavigation started" );
     running = true;
@@ -287,7 +291,8 @@ void TaskXsensNavigation::stop(){
 }
 
 void TaskXsensNavigation::timeoutStop(){
-    if(this->isEnabled()){running = false;
+    if(this->isEnabled()){
+        running = false;
         logger->info("Taskxsensnavigation timeout stopped");
 
         if (this->isActive())
@@ -304,6 +309,10 @@ void TaskXsensNavigation::timeoutStop(){
 }
 
 void TaskXsensNavigation::emergencyStop(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     running = false;
     logger->info( "Taskxsensnavigation emergency stopped" );
 

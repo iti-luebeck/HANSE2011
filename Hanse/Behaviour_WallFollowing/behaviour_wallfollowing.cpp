@@ -49,6 +49,11 @@ void Behaviour_WallFollowing::init()
 
 void Behaviour_WallFollowing::startBehaviour()
 {
+    if (this->isEnabled() == true){
+        logger->info("Already enabled/started!");
+        return;
+    }
+
     this->echo->setEnabled(true);
     this->reset();
     logger->info("Behaviour started" );
@@ -63,6 +68,11 @@ void Behaviour_WallFollowing::startBehaviour()
 
 void Behaviour_WallFollowing::stop()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     running = false;
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
@@ -111,6 +121,11 @@ QWidget* Behaviour_WallFollowing::createView(QWidget* parent)
 
 void Behaviour_WallFollowing::controlWallFollow()
 {
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
     avgDistance = echo->avgDistance;
     float temp = 0.0;
 
@@ -213,6 +228,10 @@ void Behaviour_WallFollowing::updateFromSettings()
 }
 
 void Behaviour_WallFollowing::stopOnEchoError(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
     badDataCount = badDataCount+1;
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
