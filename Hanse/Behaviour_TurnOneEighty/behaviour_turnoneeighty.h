@@ -7,14 +7,13 @@
 #define TURN_DEFAULT_HYSTERESIS 10
 
 class Module_ThrusterControlLoop;
-class Module_Compass;
 class Module_XsensMTi;
 
 class Behaviour_TurnOneEighty : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass, Module_XsensMTi *x);
+    Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_XsensMTi *x);
     QList<RobotModule*> getDependencies();
     QWidget* createView(QWidget *parent);
 
@@ -23,13 +22,12 @@ public:
 public slots:
     void startBehaviour();
     void stop();
-    void compassUpdate( RobotModule * );
+    void xsensUpdate( RobotModule * );
     void initialHeadingUpdate();
     void terminate();
 
 private:
     Module_ThrusterControlLoop* tcl;
-    Module_Compass *compass;
     double initialHeading;
     void init();
     Module_XsensMTi *xsens;

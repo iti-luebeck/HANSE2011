@@ -1,25 +1,21 @@
 #include "behaviour_turnoneeighty.h"
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
-#include <Module_Compass/module_compass.h>
 #include <Behaviour_TurnOneEighty/form_turnoneeighty.h>
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Framework/Angles.h>
 
-Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_Compass *compass, Module_XsensMTi *x) :
+Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_XsensMTi *x) :
         RobotBehaviour( id )
 {
     this->tcl = tcl;
-    this->compass = compass;
     this->xsens = x;
 
 }
 
 void Behaviour_TurnOneEighty::init()
 {
-    QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( compassUpdate(RobotModule*) ) );
     QObject::connect( xsens, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( compassUpdate(RobotModule*) ) );
+                      this, SLOT( xsensUpdate(RobotModule*) ) );
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 }
 
@@ -27,7 +23,6 @@ QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append( tcl );
-    ret.append( compass );
     ret.append( xsens );
     return ret;
 }
@@ -74,21 +69,15 @@ bool Behaviour_TurnOneEighty::isActive()
     return isEnabled();
 }
 
-void Behaviour_TurnOneEighty::compassUpdate( RobotModule * )
+void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 {
-    //    qDebug() << "turn compass thread id";
     //    qDebug() << QThread::currentThreadId();
     if ( isActive() )
     {
         this->dataLockerMutex.lock();
         double currentHeading = 0.0;
-        if(this->xsens->isEnabled()){
-            qDebug("get xsens heading");
-            currentHeading = this->xsens->getHeading();
-        } else {
-            qDebug("get compass heading");
-            currentHeading = compass->getHeading();
-        }
+
+        currentHeading = this->xsens->getHeading();
 
         double targetHeading = initialHeading + 180;
         double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
@@ -121,13 +110,8 @@ void Behaviour_TurnOneEighty::initialHeadingUpdate()
     //    qDebug() << QThread::currentThreadId();
     this->dataLockerMutex.lock();
 
-    if(this->xsens->isEnabled()){
-        qDebug("get xsens initialheading");
-        initialHeading = this->xsens->getHeading();
-    } else {
-        qDebug("get compass initialheading");
-        initialHeading = compass->getHeading();
-    }
+    initialHeading = this->xsens->getHeading();
+
     logger->debug( "initial heading set to %f°", initialHeading );
     addData("initial_heading", initialHeading);
     dataChanged( this );

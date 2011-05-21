@@ -13,13 +13,13 @@
 
 class Module_ThrusterControlLoop;
 class GoalFollowingForm;
-class Module_Compass;
+class Module_XsensMTi;
 
 class Behaviour_BallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cams, Module_Compass *compass);
+    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cams, Module_XsensMTi *xsens);
 
     QList<RobotModule*> getDependencies();
 
@@ -35,7 +35,7 @@ private:
 
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cams;
-    Module_Compass *compass;
+    Module_XsensMTi *xsens;
     QDateTime last;
     QTimer timerNoBall;
     QTimer updateTimer;
@@ -47,7 +47,7 @@ private:
 
 public slots:
     void testBehaviour( QString path );
-    void compassUpdate( RobotModule * );
+    void xsensUpdate( RobotModule * );
     void startBehaviour();
     void stop();
     void reset();

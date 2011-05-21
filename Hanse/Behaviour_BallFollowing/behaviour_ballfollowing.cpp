@@ -6,15 +6,15 @@
 #include <Behaviour_BallFollowing/blobs/blob.h>
 #include <Behaviour_BallFollowing/blobs/BlobResult.h>
 #include <opencv/highgui.h>
-#include <Module_Compass/module_compass.h>
+#include <Module_XsensMTi/module_xsensmti.h>
 
 Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop *tcl,
-                                                 Module_Webcams *cams, Module_Compass *compass)
+                                                 Module_Webcams *cams, Module_XsensMTi *xsens)
     : RobotBehaviour(id)
 {
     this->tcl = tcl;
     this->cams = cams;
-    this->compass = compass;
+    this->xsens = xsens;
 
     setEnabled(false);
     state = BALL_STATE_IDLE;
@@ -31,13 +31,13 @@ void Behaviour_BallFollowing::init()
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
 
-    targetHeading = compass->getHeading() - 45;
+    targetHeading = xsens->getHeading() - 45;
     if ( targetHeading < 0 )
     {
         targetHeading += 360;
     }
-    QObject::connect( compass, SIGNAL(dataChanged(RobotModule*)),
-                      this, SLOT(compassUpdate(RobotModule*)) );
+    QObject::connect( xsens, SIGNAL(dataChanged(RobotModule*)),
+                      this, SLOT(xsensUpdate(RobotModule*)) );
 }
 
 bool Behaviour_BallFollowing::isActive()
@@ -50,7 +50,7 @@ void Behaviour_BallFollowing::startBehaviour()
     logger->debug( "Behaviour started" );
     this->setEnabled( true );
     state = BALL_STATE_TURN_45;
-    targetHeading = compass->getHeading() - 45;
+    targetHeading = xsens->getHeading() - 45;
     if ( targetHeading < 0 )
     {
         targetHeading += 360;
@@ -76,11 +76,11 @@ void Behaviour_BallFollowing::newData()
     }
 }
 
-void Behaviour_BallFollowing::compassUpdate( RobotModule * )
+void Behaviour_BallFollowing::xsensUpdate( RobotModule * )
 {
     if ( isEnabled() && state == BALL_STATE_TURN_45 )
     {
-        double currentHeading = compass->getHeading();
+        double currentHeading = xsens->getHeading();
         double diffHeading = fabs( targetHeading - currentHeading );
         if ( diffHeading < 5 )
         {
@@ -119,7 +119,7 @@ QList<RobotModule*> Behaviour_BallFollowing::getDependencies()
     QList<RobotModule*> ret;
     ret.append(tcl);
     ret.append( cams );
-    ret.append( compass );
+    ret.append( xsens );
     return ret;
 }
 

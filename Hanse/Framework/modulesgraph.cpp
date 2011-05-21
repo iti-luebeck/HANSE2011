@@ -14,7 +14,6 @@
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 #include <Module_Webcams/module_webcams.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
-#include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 #include <Module_Simulation/module_simulation.h>
 #include <Module_EchoSounder/module_echosounder.h>
 #include <Module_XsensMTi/module_xsensmti.h>
@@ -109,20 +108,16 @@ void ModulesGraph::build()
     //    this->modules.append(behavGoal);
 
     logger->debug("Creating Behaviour_BallFollowing");
-    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, compass);
+    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, xsens);
     this->modules.append(behavBall);
 
     logger->debug("Creating Behaviour_TurnOneEighty");
-    Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, compass, xsens);
+    Behaviour_TurnOneEighty* behavTurn = new Behaviour_TurnOneEighty("turn",controlLoop, xsens);
     this->modules.append(behavTurn);
 
     logger->debug("Creating Behaviour_WallFollowing");
     Behaviour_WallFollowing* behavWall = new Behaviour_WallFollowing("wall",controlLoop, echo);
     this->modules.append(behavWall);
-
-//        logger->debug("Creating Behaviour_CompassFollowing");
-//        Behaviour_CompassFollowing* behavComp = new Behaviour_CompassFollowing("compFollow",controlLoop, compass);
-//        this->modules.append(behavComp);
 
     logger->debug("Creating Behaviour_XsensFollowing");
     Behaviour_XsensFollowing* behavXsens = new Behaviour_XsensFollowing("xsensFollow",controlLoop, xsens);

@@ -14,7 +14,6 @@
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
-#include <Behaviour_CompassFollowing/behaviour_compassfollowing.h>
 //#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 #include <TaskXsensNavigation/taskxsensnavigation.h>
