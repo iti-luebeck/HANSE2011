@@ -47,6 +47,8 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStopCommandCenter()));
     connect(handControl, SIGNAL(startHandControl()), this, SLOT(startTaskHandControlCC()));
+    connect(handControl, SIGNAL(enabled(bool)), this, SLOT(startTaskHandControlCC()));
+    connect(handControl, SIGNAL(enabled(bool)), this, SLOT(handControlFinishedCC()));
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
     connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
 
@@ -350,6 +352,12 @@ void CommandCenter::startTaskHandControlCC(){
         logger->info("Not enabled!");
         return;
     }
+
+    if (this->handControl->isEnabled() == true){
+        logger->info("Handcontrol already enabled!");
+        return;
+    }
+
     controlTimer.stop();
     logger ->info("Stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
@@ -367,9 +375,15 @@ void CommandCenter::startTaskHandControlCC(){
 
 void CommandCenter::handControlFinishedCC(){
     if (this->isEnabled() == false){
+        logger->info("Handcontrol not enabled!");
+        return;
+    }
+
+    if (this->handControl->isEnabled() == false){
         logger->info("Not enabled!");
         return;
     }
+
     emit setAngularSpeed(0.0);
     emit setForwardSpeed(0.0);
     if(this->getSettingsValue("subEx").toBool() == true){

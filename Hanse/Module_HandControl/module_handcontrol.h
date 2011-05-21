@@ -39,6 +39,7 @@ signals:
     void setRightSpeed(float rightSpeed);
     void stopServer();
     void startServer();
+
 private:
 
     Module_Thruster* thrusterLeft;
