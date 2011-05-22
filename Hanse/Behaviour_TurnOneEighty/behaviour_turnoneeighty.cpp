@@ -72,7 +72,6 @@ bool Behaviour_TurnOneEighty::isActive()
 void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 {
     if (this->isEnabled() == false){
-        logger->info("Not enabled!");
         return;
     }
     //    qDebug() << QThread::currentThreadId();
