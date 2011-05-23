@@ -30,7 +30,6 @@
 class Module_SonarLocalization;
 class Module_ThrusterControlLoop;
 class Module_PressureSensor;
-class Module_Compass;
 class Module_XsensMTi;
 
 class MapWidget;
@@ -44,7 +43,6 @@ public:
                        Module_SonarLocalization *sonarLoc,
                        Module_ThrusterControlLoop* tcl,
                        Module_PressureSensor *pressure,
-                       Module_Compass *compass,
                        Module_XsensMTi *mti );
 
     QWidget* createView(QWidget* parent);
@@ -120,7 +118,6 @@ public slots:
     void saveToSettings();
     void loadFromSettings();
 
-    void compassUpdate(RobotModule *);
     void xsensUpdate(RobotModule *);
     void sonarPositionUpdate();
     void forwardDone();
@@ -147,7 +144,6 @@ private:
     Module_SonarLocalization *sonarLoc;
     Module_ThrusterControlLoop* tcl;
     Module_PressureSensor *pressure;
-    Module_Compass *compass;
     Module_XsensMTi *mti;
 
     QMap<QDateTime, QString> history;
@@ -162,7 +158,6 @@ private:
     double distanceToGoal;
 
     // For driving straight.
-    float initialCompassHeading;
     float initialXsensHeading;
 
     // For not turning too much.

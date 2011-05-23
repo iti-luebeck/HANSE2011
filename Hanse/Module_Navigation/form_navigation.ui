@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="waypointTab">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -323,24 +323,11 @@
         <string>Use Heading</string>
        </property>
       </widget>
-      <widget class="QRadioButton" name="compassButton">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>140</y>
-         <width>117</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Compass</string>
-       </property>
-      </widget>
       <widget class="QRadioButton" name="xsensButton">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>160</y>
+         <y>140</y>
          <width>117</width>
          <height>22</height>
         </rect>

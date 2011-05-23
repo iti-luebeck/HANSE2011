@@ -22,10 +22,9 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     ui->maxAngularSpeed->setText(nav->getSettingsValue("angular_max_speed").toString());
     ui->minAngularSpeed->setText(nav->getSettingsValue("angular_min_speed").toString());
 
-    bool useCompass = nav->getSettingsValue("use compass", true).toBool();
     bool useXsens = nav->getSettingsValue("use xsens", false).toBool();
 
-    if (useCompass || useXsens) {
+    if (useXsens) {
         ui->headingBox->setChecked(true);
     } else {
         ui->headingBox->setChecked(false);
@@ -33,8 +32,6 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
 
     if (useXsens) {
         ui->xsensButton->setChecked(true);
-    } else if (useCompass) {
-        ui->compassButton->setChecked(true);
     }
 
     qRegisterMetaType<Position>("Position");
@@ -220,13 +217,10 @@ void Form_Navigation::on_applyButton_clicked()
         return;
     }
 
-    bool useCompass = false;
     bool useXsens = false;
     if (ui->headingBox->isChecked()) {
         if (ui->xsensButton->isChecked()) {
             useXsens = true;
-        } else if (ui->compassButton->isChecked()) {
-            useCompass = true;
         }
     }
 
@@ -241,7 +235,6 @@ void Form_Navigation::on_applyButton_clicked()
     nav->setSettingsValue("angular_max_speed", angular_max_speed);
     nav->setSettingsValue("angular_min_speed", angular_min_speed);
     nav->setSettingsValue("use xsens", useXsens);
-    nav->setSettingsValue("use compass", useCompass);
 }
 
 void Form_Navigation::on_gotoButton_clicked()

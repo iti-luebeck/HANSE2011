@@ -6,7 +6,6 @@
 #include <Module_PressureSensor/module_pressuresensor.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
-#include <Module_Compass/module_compass.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
@@ -59,9 +58,6 @@ void ModulesGraph::build()
 //    Module_IMU* imu = new Module_IMU("adis",uid,sim);
 //    this->modules.append(imu);
 
-    Module_Compass *compass = new Module_Compass("compass", uid,sim);
-    this->modules.append(compass);
-
     Module_XsensMTi *xsens = new Module_XsensMTi("xsens", sim);
     this->modules.append(xsens);
 
@@ -96,7 +92,7 @@ void ModulesGraph::build()
     this->modules.append(sonarLoc);
 
     logger->debug("Creating Module_Navigation");
-    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, controlLoop, pressure, compass, xsens );
+    Module_Navigation* navi = new Module_Navigation( "navigation", sonarLoc, controlLoop, pressure, xsens );
     this->modules.append(navi);
 
     logger->debug("Creating Behaviour_PipeFollowing");

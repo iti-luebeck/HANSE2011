@@ -5,7 +5,6 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_PressureSensor/module_pressuresensor.h>
-#include <Module_Compass/module_compass.h>
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Framework/Angles.h>
 
@@ -13,21 +12,18 @@ Module_Navigation::Module_Navigation( QString id,
                                       Module_SonarLocalization *sonarLoc,
                                       Module_ThrusterControlLoop *tcl,
                                       Module_PressureSensor *pressure,
-                                      Module_Compass *compass,
                                       Module_XsensMTi *mti ) :
         RobotModule(id)
 {
     this->sonarLoc = sonarLoc;
     this->tcl = tcl;
     this->pressure = pressure;
-    this->compass = compass;
     this->mti = mti;
 
     headingToGoal = 0;
     distanceToGoal = 0;
 
     // For driving straight.
-    initialCompassHeading = 0;
     initialXsensHeading = 0;
 
     // For not turning too much.
@@ -38,8 +34,6 @@ Module_Navigation::Module_Navigation( QString id,
 void Module_Navigation::init()
 {
     // Connect to signals from the sensors.
-    QObject::connect( compass, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( compassUpdate(RobotModule*) ) );
     QObject::connect( sonarLoc, SIGNAL( newLocalizationEstimate() ),
                       this, SLOT( sonarPositionUpdate() ) );
     QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
@@ -70,7 +64,6 @@ QList<RobotModule*> Module_Navigation::getDependencies()
     ret.append(sonarLoc);
     ret.append(tcl);
     ret.append(pressure);
-    ret.append(compass);
     ret.append(mti);
     return ret;
 }
@@ -198,27 +191,6 @@ void Module_Navigation::clearPath()
     addData("current goal", "");
     dataChanged( this );
     emit clearedGoal();
-}
-
-void Module_Navigation::compassUpdate( RobotModule * )
-{
-    if (!getSettingsValue("enabled").toBool())
-        return;
-
-    if (getSettingsValue("use compass", false).toBool()) {
-        float compassHeading = compass->getHeading();
-        if (state == NAV_STATE_GO_TO_GOAL) {
-            if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
-                float diffHeading = Angles::pi2pi(initialCompassHeading - compassHeading);
-                if (fabs(diffHeading) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
-                    float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * diffHeading;
-                    emit newANGSpeed(val);
-                } else {
-                    emit newANGSpeed(.0);
-                }
-            }
-        }
-    }
 }
 
 void Module_Navigation::xsensUpdate( RobotModule * )
@@ -387,7 +359,6 @@ void Module_Navigation::sonarPositionUpdate()
 
                     substate = NAV_SUBSTATE_MOVE_FORWARD;
 
-                    initialCompassHeading = compass->getHeading();
                     initialXsensHeading = mti->getHeading();
 
                     // Move forward for "forward_time" seconds.
