@@ -46,6 +46,7 @@ signals:
     void dataError();
     void stopSignal();
     void updateSettings();
+    void newState(QString state);
 
 public slots:
     void startBehaviour();
@@ -59,6 +60,7 @@ public slots:
     void doWallFollow();
     void controlNextState();
 
+    void controlEnabledChanged(bool b);
 };
 
 #endif // TASKWALLNAVIGATION_H

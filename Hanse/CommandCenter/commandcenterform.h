@@ -20,8 +20,6 @@ public:
     CommandCenterForm(CommandCenter *command, QWidget *parent = 0);
     ~CommandCenterForm();
 
-    QList<QString> scheduledTasks;
-
 protected:
     void changeEvent(QEvent *e);
 
@@ -37,6 +35,7 @@ signals:
     void addTask(QString listName, QString taskName);
     void removeTask();
     void clearList(QString listName);
+    void skipTask();
 
 public slots:
     void updateGUI();
@@ -47,9 +46,11 @@ private slots:
     void on_clearButton_clicked();
     void on_startButton_clicked();
     void on_stopButton_clicked();
+    void on_skipButton_clicked();
 
     void updateError(QString s);
     void updateMessage(QString s);
+    void updateState(QString s);
 };
 
 #endif // COMMANDCENTERFORM_H

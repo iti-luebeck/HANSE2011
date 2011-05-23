@@ -29,7 +29,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>60</y>
+      <y>40</y>
       <width>211</width>
       <height>21</height>
      </rect>
@@ -39,7 +39,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>100</y>
+      <y>80</y>
       <width>211</width>
       <height>28</height>
      </rect>
@@ -71,7 +71,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>180</y>
+      <y>170</y>
       <width>211</width>
       <height>28</height>
      </rect>
@@ -229,6 +229,19 @@
      <string>Wait timer (msec):</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="skipButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>110</y>
+      <width>211</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Skip next task</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
@@ -301,10 +314,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>Health status:</string>
+     <string>Current state:</string>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="healthOutput">
+   <widget class="QTextBrowser" name="stateOutput">
     <property name="geometry">
      <rect>
       <x>170</x>

@@ -63,6 +63,7 @@ void TaskHandControl::startBehaviour(){
     if(!this->thrustercontrolloop->isEnabled()){
         this->thrustercontrolloop->setEnabled(true);
     }
+    emit newState("HandControl");
 }
 
 void TaskHandControl::stop(){
@@ -136,5 +137,5 @@ void TaskHandControl::handControlFinishedSlot(){
     emit angularSpeed(0.0);
     this->handcontrol->setEnabled(false);
     this->setEnabled(false);
-    emit handControlFinished();
+    emit finished(this, true);
 }

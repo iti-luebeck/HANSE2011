@@ -65,6 +65,8 @@ TaskXsensNavigation::TaskXsensNavigation(QString id, Module_Simulation *sim, Beh
     moveToEndTimer.moveToThread(this);
     doXsensFollowTimer.moveToThread(this);
     controlNextStateTimer.moveToThread(this);
+
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 }
 
 bool TaskXsensNavigation::isActive(){
@@ -99,7 +101,8 @@ void TaskXsensNavigation::startBehaviour(){
 
     addData("loop", this->getSettingsValue("loopActivated").toBool());
     addData("timer", this->getSettingsValue("timerActivated").toBool());
-    addData("state", "start TaskXsensNavigation");
+    addData("state", "Start TaskXsensNavigation");
+    emit newState("Start TaskXsensNavigation");
     emit dataChanged(this);
 
     emit updateSettings();
@@ -118,6 +121,7 @@ void TaskXsensNavigation::moveToStart(){
         logger->debug("move to start");
         addData("state", "Move to start");
         emit dataChanged(this);
+        emit newState("Move to start");
         // First navigate to start position
         distanceToStart = this->navi->getDistance(this->getSettingsValue("startNavigation").toString());
         if(distanceToStart > this->getSettingsValue("startTolerance").toDouble()){
@@ -132,8 +136,8 @@ void TaskXsensNavigation::moveToStart(){
             QTimer::singleShot(0, this, SLOT(doXsensFollow()));
         }
     } else {
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
         logger->info("moveToStart not possible!");
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
 void TaskXsensNavigation::doXsensFollow(){
@@ -141,6 +145,7 @@ void TaskXsensNavigation::doXsensFollow(){
         logger->debug("Do xsensfollowing");
         addData("state", "Do xsensfollowing");
         emit dataChanged(this);
+        emit newState("Do xsensfollowing");
 
         if(!this->xsensfollow->isEnabled()){
             logger->debug("enable xsensfollow");
@@ -161,8 +166,8 @@ void TaskXsensNavigation::doXsensFollow(){
         int tempWait = this->getSettingsValue("driveTime").toInt()+10000;
         QTimer::singleShot(tempWait, this, SLOT(finishXsensFollow()));
     } else {
-        QTimer::singleShot(0, this, SLOT(moveToB()));
         logger->info("doXsensFollow not possible!");
+        QTimer::singleShot(0, this, SLOT(moveToB()));
     }
 }
 
@@ -172,8 +177,8 @@ void TaskXsensNavigation::finishXsensFollow(){
         QTimer::singleShot(0, xsensfollow, SLOT(stop()));
         QTimer::singleShot(0, this, SLOT(moveToB()));
     } else {
-        QTimer::singleShot(0, this, SLOT(moveToB()));
         logger->info("finishXsensFollow not possible!");
+        QTimer::singleShot(0, this, SLOT(moveToB()));       
     }
 }
 
@@ -182,7 +187,7 @@ void TaskXsensNavigation::moveToB(){
         logger->debug("move to b");
         addData("state", "Move to B");
         emit dataChanged(this);
-
+        emit newState("Move to B");
         // Navigate to B position
         distanceToB = this->navi->getDistance(this->getSettingsValue("bNavigation").toString());
         if(distanceToB > this->getSettingsValue("bTolerance").toDouble()){
@@ -198,8 +203,8 @@ void TaskXsensNavigation::moveToB(){
             QTimer::singleShot(0, this, SLOT(doTurn()));
         }
     } else {
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
         logger->info("moveToB not possible!");
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
 
@@ -209,6 +214,7 @@ void TaskXsensNavigation::doTurn(){
         logger->debug("turn180");
         addData("state", "Turn180");
         emit dataChanged(this);
+        emit newState("Turn180");
 
         if(!this->turn180->isEnabled()){
             logger->debug("enable turn180");
@@ -226,8 +232,8 @@ void TaskXsensNavigation::doTurn(){
             QTimer::singleShot(0, this, SLOT(moveToEnd()));
         }
     } else {
-        QTimer::singleShot(0, this, SLOT(moveToEnd()));
         logger->info("doTurn not possible!");
+        QTimer::singleShot(0, this, SLOT(moveToEnd()));
     }
 
 }
@@ -238,7 +244,7 @@ void TaskXsensNavigation::moveToEnd(){
         logger->debug("Move to end");
         addData("state", "Move to end");
         emit dataChanged(this);
-
+        emit newState("Move to end");
         distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
         if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
             addData("remaining distance", distanceToTarget);
@@ -248,8 +254,8 @@ void TaskXsensNavigation::moveToEnd(){
             QTimer::singleShot(0, this, SLOT(controlNextState()));
         }
     } else {
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
         logger->info("moveToEnd not possible!");
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
 
@@ -257,6 +263,7 @@ void TaskXsensNavigation::controlNextState(){
     if(this->isEnabled()){
         logger->debug("idle, controlNextState");
         addData("state", "Idle, control next state");
+        emit newState("Idle, control next state");
         emit dataChanged(this);
 
         if(this->getSettingsValue("loopActivated").toBool()){
@@ -267,8 +274,8 @@ void TaskXsensNavigation::controlNextState(){
             QTimer::singleShot(0, this, SLOT(stop()));
         }
     } else {
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
         logger->info("controlNextState not possible!");
+        QTimer::singleShot(0, this, SLOT(emergencyStop())); 
     }
 }
 
@@ -347,4 +354,10 @@ QList<RobotModule*> TaskXsensNavigation::getDependencies()
     return ret;
 }
 
+void TaskXsensNavigation::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
+    }
+}
 

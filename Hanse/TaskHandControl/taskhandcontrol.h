@@ -48,14 +48,13 @@ signals:
     void angularSpeed(float anSpeed);
     void setDepth(float depth);
     void handControlFinished();
+    void newState(QString state);
 
 public slots:
     void startBehaviour();
     void stop();
     void emergencyStop();
     void handControlFinishedSlot();
-
-
 };
 
 #endif // TASKHANDCONTROL_H

@@ -51,6 +51,7 @@ signals:
     void dataError();
     void stopSignal();
     void updateSettings();
+    void newState(QString state);
 
 public slots:
     void startBehaviour();
@@ -66,6 +67,8 @@ public slots:
     void finishXsensFollow();
     void controlNextState();
     void doTurn();
+
+    void controlEnabledChanged(bool b);
 
 };
 

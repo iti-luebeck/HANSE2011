@@ -18,22 +18,22 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     connect(com, SIGNAL(updateGUI()), this, SLOT(updateGUI()));
     connect(this, SIGNAL(updateGUISignal()), this, SLOT(updateGUI()));
 
+    connect(com,SIGNAL(newState(QString)),this,SLOT(updateState(QString)));
 
     connect(this, SIGNAL(addTask(QString,QString)), com, SLOT(addTask(QString,QString)));
     connect(this, SIGNAL(clearList(QString)), com, SLOT(clearList(QString)));
     connect(this, SIGNAL(removeTask()), com, SLOT(removeTask()));
 
+    connect(this, SIGNAL(skipTask()), com, SLOT(skipTask()));
+
     ui->setupUi(this);
     ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
 
-    this->scheduledTasks.append("TaskWallNavigation");
-    this->scheduledTasks.append("TaskXsensNavigation");
-    this->scheduledTasks.append("HandControl");
 
     ui->scheduleInput->clear();
-    for(int i = 0; i < this->scheduledTasks.length(); i++){
-        ui->scheduleInput->addItem(this->scheduledTasks.at(i),"");
+    for(int i = 0; i < this->com->taskInputList.length(); i++){
+        ui->scheduleInput->addItem(this->com->taskInputList.at(i),"");
     }
 }
 
@@ -59,6 +59,13 @@ void CommandCenterForm::on_addButton_clicked(){
     emit addTask("scheduleList",ui->scheduleInput->currentText());
     ui->errorOutput->setText("Added one task");
 }
+
+void CommandCenterForm::on_skipButton_clicked(){
+    // Skip next task from schedule list
+    emit skipTask();
+    ui->errorOutput->setText("Next task skipped");
+}
+
 
 void CommandCenterForm::on_revertButton_clicked(){
     // Delete last scheduled task
@@ -101,7 +108,7 @@ void CommandCenterForm::on_stopButton_clicked(){
     ui->scheduleList->clear();
 
     ui->activeOutput->clear();
-
+    ui->stateOutput->clear();
     QString temp = "";
 
     if(!this->com->scheduleList.isEmpty()){
@@ -119,6 +126,7 @@ void CommandCenterForm::updateError(QString s){
     // Update GUI with current error or message
     ui->errorOutput->setText(s);
     ui->activeOutput->clear();
+    ui->stateOutput->clear();
 }
 
 void CommandCenterForm::updateMessage(QString s){
@@ -144,4 +152,8 @@ void CommandCenterForm::updateGUI(){
 
     ui->activeOutput->clear();
     ui->activeOutput->setText(this->com->activeTask);
+}
+
+void CommandCenterForm::updateState(QString s){
+    ui->stateOutput->setText(s);
 }

@@ -32,11 +32,12 @@ public:
 
     bool isActive();
 
+    QList<RobotBehaviour*> taskList;
+    QList<QString> taskInputList;
     QList<QString> scheduleList;
     QList<QString> finishedList;
     QList<QString> abortedList;
     QString activeTask;
-    int count;
 
 private:
     void init();
@@ -53,6 +54,7 @@ private:
     Behaviour_BallFollowing* ball;
     Behaviour_XsensFollowing* xsens;
 
+    QList<RobotBehaviour*> behaviour;
 
     // Behaviour_WallFollowing* goal;
 
@@ -74,23 +76,27 @@ public slots:
     void stopCommandCenter();
 
     void emergencyStopCommandCenter();
+
     void startTaskHandControlCC();
+    void handControlFinishedCC(RobotBehaviour* name, bool success);
+    void controlTaskHandControl(bool b);
 
     void reset();
     void terminate();
 
-    void finishedControl(RobotBehaviour*, bool success);
+    void finishedControl(RobotBehaviour* name, bool success);
     void timeout();
 
     void setNewMessage(QString s);
 
-    void handControlFinishedCC();
 
 private slots:
     void doNextTask();
     void addTask(QString listName, QString taskName);
     void removeTask();
     void clearList(QString listName);
+    void updateState(QString state);
+    void skipTask();
 
 signals:
     void setDepth(float depth);
@@ -99,6 +105,8 @@ signals:
 
     void newError(QString s);
     void newMessage(QString s);
+
+    void newState(QString s);
 
     void stopAllTasks();
     void resetTCL();

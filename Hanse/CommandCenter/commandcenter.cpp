@@ -35,59 +35,73 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->taskxsensnavigation = txn;
     //this->goal = goal;
 
-    timer.moveToThread(this);
+    this->behaviour.append(pipe);
+    this->behaviour.append(ball);
+    this->behaviour.append(o80);
+    this->behaviour.append(wall);
+    this->behaviour.append(xsens);
 
-    setEnabled(false);
-    running = false;
+    // Emergency stop all behaviours
+    foreach (RobotBehaviour* b, behaviour)
+    {
+        connect(handControl, SIGNAL(stopAllTasks()), b, SLOT(stop()));
+    }
+
+    // Tasks specific signals
+    this->taskList.append(taskwallnavigation);
+    this->taskList.append(taskxsensnavigation);
+
+    foreach (RobotBehaviour* b, taskList)
+    {
+        connect(b, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
+        connect(this,SIGNAL(stopAllTasks()),b,SLOT(emergencyStop()));
+        connect(b, SIGNAL(newState(QString)), this, SLOT(updateState(QString)));
+    }
+
+    // Task WallNavigation
+    connect(this,SIGNAL(startTaskWallNavigation()),taskwallnavigation,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskWallNavigation()),taskwallnavigation,SLOT(stop()));
+
+    // Task XsensNavigation
+    connect(this,SIGNAL(startTaskXsensNavigation()),taskxsensnavigation,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskXsensNavigation()),taskxsensnavigation,SLOT(stop()));
+
+    // Task HandControl
+    this->taskList.append(taskhandcontrol);
+    connect(taskhandcontrol, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(handControlFinishedCC(RobotBehaviour*,bool)));
+    connect(this,SIGNAL(startTaskHandControl()),taskhandcontrol,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskHandControl()),taskhandcontrol,SLOT(stop()));
+    connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
+    connect(taskhandcontrol, SIGNAL(newState(QString)), this, SLOT(updateState(QString)));
+
+    // Add task to GUI list
+    for(int i = 0; i < this->taskList.length(); i++){
+        this->taskInputList.append(this->taskList.at(i)->getTabName());
+    }
 
     // Command center specific signals
     connect(this,SIGNAL(setDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
+
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStopCommandCenter()));
-    connect(handControl, SIGNAL(startHandControl()), this, SLOT(startTaskHandControlCC()));
-    connect(handControl, SIGNAL(enabled(bool)), this, SLOT(startTaskHandControlCC()));
-    connect(handControl, SIGNAL(enabled(bool)), this, SLOT(handControlFinishedCC()));
+    connect(handControl, SIGNAL(startHandControl()), this, SLOT(startTaskHandControlCC(bool)));
+    connect(handControl, SIGNAL(enabled(bool)), this, SLOT(controlTaskHandControl(bool)));
+
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
     connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
 
-    // Stop all behaviours
-    connect(handControl, SIGNAL(emergencyStop()), pipe, SLOT(stop()));
-    //connect(handControl, SIGNAL(emergencyStop()), goal, SLOT(stop()));
-    connect(handControl, SIGNAL(emergencyStop()), o80, SLOT(stop()));
-    connect(handControl, SIGNAL(emergencyStop()), ball, SLOT(stop()));
-    connect(handControl, SIGNAL(emergencyStop()), wall, SLOT(stop()));
-    connect(handControl, SIGNAL(emergencyStop()), xsens, SLOT(stop()));
-
-    // Tasks specific signals
-    // TaskHandConrol
-    connect(taskhandcontrol, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTaskHandControl()),taskhandcontrol,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskHandControl()),taskhandcontrol,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
-    connect(taskhandcontrol,SIGNAL(handControlFinished()),this,SLOT(handControlFinishedCC()));
-
-
-    // TaskWallNavigation
-    connect(taskwallnavigation, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTaskWallNavigation()),taskwallnavigation,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskWallNavigation()),taskwallnavigation,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),taskwallnavigation,SLOT(emergencyStop()));
-
-    // TaskXsensNavigation
-    connect(taskxsensnavigation, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
-    connect(this,SIGNAL(startTaskXsensNavigation()),taskxsensnavigation,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskXsensNavigation()),taskxsensnavigation,SLOT(stop()));
-    connect(this,SIGNAL(stopAllTasks()),taskxsensnavigation,SLOT(emergencyStop()));
-
+    // Default values
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
     setDefaultValue("waitTime",2000);
 
-    count = 1;
-
     controlTimer.moveToThread(this);
+    timer.moveToThread(this);
+
+    setEnabled(false);
+    running = false;
 }
 
 
@@ -96,15 +110,11 @@ bool CommandCenter::isActive(){
 }
 
 void CommandCenter::init(){
-    logger->debug("Command center init");
+    logger->debug("Commandcenter init");
     this->setEnabled(true);
 }
 
 void CommandCenter::startCommandCenter(){
-    if (this->isEnabled() == true){
-        logger->info("Already enabled/started!");
-        return;
-    }
     RobotModule::reset();
     running = true;
 
@@ -143,7 +153,7 @@ void CommandCenter::startCommandCenter(){
 
 void CommandCenter::stopCommandCenter(){
     if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+        logger->info("CC not enabled!");
         return;
     }
     RobotModule::reset();
@@ -171,7 +181,7 @@ void CommandCenter::stopCommandCenter(){
 
 void CommandCenter::commandCenterControl(){
     if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+        logger->info("CC not enabled!");
         return;
     }
 
@@ -197,13 +207,13 @@ void CommandCenter::commandCenterControl(){
         logger->debug(tempAkt);
         scheduleList.removeFirst();
 
-        if(tempAkt == "HandControl"){
+        if(tempAkt == "taskHand"){
             emit startTaskHandControl();
             activeTask = tempAkt;
-        } else if(tempAkt == "TaskWallNavigation"){
+        } else if(tempAkt == "taskWallNavi"){
             emit startTaskWallNavigation();
             activeTask = tempAkt;
-        } else if(tempAkt == "TaskXsensNavigation"){
+        } else if(tempAkt == "taskXsensNavi"){
             emit startTaskXsensNavigation();
             activeTask = tempAkt;
         } else  {
@@ -213,7 +223,6 @@ void CommandCenter::commandCenterControl(){
             activeTask = "";
             commandCenterControl();
         }
-        count++;
     } else {
         if(!this->isEnabled()){
             emit newError("Commandcenter not enabled!");
@@ -223,19 +232,19 @@ void CommandCenter::commandCenterControl(){
                 emit newError("No existing task");
             } else {
                 emit newError("No existing task, surface");
-                emit setDepth(0.0);
-                emit setForwardSpeed(0.0);
-                emit setAngularSpeed(0.0);
             }
+            emit setDepth(0.0);
+            emit setForwardSpeed(0.0);
+            emit setAngularSpeed(0.0);
         }
     }
     emit updateGUI();
 }
 
-void CommandCenter::finishedControl(RobotBehaviour *, bool success){
+void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
     // Evaluate task success
     if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+        logger->info("CC not enabled!");
         return;
     }
 
@@ -244,6 +253,7 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
         this->tcl->setEnabled(true);
     }
 
+    emit newState("");
     emit setAngularSpeed(0.0);
     emit setForwardSpeed(0.0);
     if(this->isEnabled()){
@@ -253,26 +263,35 @@ void CommandCenter::finishedControl(RobotBehaviour *, bool success){
             emit setDepth(0.0);
         }
     }
+
     if(success==true){
         logger->info("One task has finished successfully");
-        this->finishedList.append(activeTask);
+        this->finishedList.append(name->getTabName());
         activeTask = "";
     } else {
         logger->info("One task has finished unsuccessfully");
-        this->abortedList.append(activeTask);
+        this->abortedList.append(name->getTabName());
         activeTask = "";
     }
     if(this->isEnabled()){
         // Stop thruster, then make next task...
-        controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+        if(this->taskhandcontrol->isEnabled()  == false){
+            controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+        } else {
+            logger->info("Idle finishedControl, TaskHandControl active!");
+            activeTask = "taskHand";
+        }
     }
-
     // Update finished/aborted list
     emit updateGUI();
 }
 
 
 void CommandCenter::doNextTask(){
+    if (this->isEnabled() == false){
+        logger->info("CC not enabled!");
+        return;
+    }
     // After a wait time, the next task will be executed
     commandCenterControl();
 }
@@ -280,7 +299,7 @@ void CommandCenter::doNextTask(){
 // Not used....
 void CommandCenter::timeout(){
     if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+        logger->info("CC not enabled!");
         return;
     }
     // Timeout, stop everything
@@ -292,6 +311,10 @@ void CommandCenter::timeout(){
 }
 
 void CommandCenter::submergedExecute(){
+    if (this->isEnabled() == false){
+        logger->info("CC not enabled!");
+        return;
+    }
     // Set submerged depth
     logger->debug("Commandcenter submerged execute!");
     addData("Sub.exec.depth", this->getSettingsValue("targetDepth").toFloat());
@@ -302,6 +325,7 @@ void CommandCenter::submergedExecute(){
 
 void CommandCenter::terminate(){
     RobotModule::terminate();
+    logger->info("Terminate, stop all tasks");
     emit stopAllTasks();
     this->stopCommandCenter();
 }
@@ -320,6 +344,10 @@ void CommandCenter::reset(){
 }
 
 void CommandCenter::setNewMessage(QString s){
+    if (this->isEnabled() == false){
+        logger->info("CC not enabled!");
+        return;
+    }
     emit newMessage(s);
 }
 
@@ -335,6 +363,10 @@ QWidget* CommandCenter::createView(QWidget *parent){
 }
 
 void CommandCenter::emergencyStopCommandCenter(){
+    if (this->isEnabled() == false){
+        logger->info("CC not enabled!");
+        return;
+    }
     controlTimer.stop();
     logger ->info("Emergency stop, stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
@@ -347,60 +379,6 @@ void CommandCenter::emergencyStopCommandCenter(){
     emit updateGUI();
 }
 
-void CommandCenter::startTaskHandControlCC(){
-    if (this->handControl->isEnabled() == false){
-        logger->info("Not enabled!");
-        return;
-    }
-
-    if (this->handControl->isEnabled() == true){
-        logger->info("Handcontrol already enabled!");
-        return;
-    }
-
-    controlTimer.stop();
-    logger ->info("Stop and deactivate all task - handcontrol active");
-    emit stopAllTasks();
-    emit resetTCL();
-    if(this->activeTask != "HandControl"){
-        emit startTaskHandControl();
-        activeTask = "HandControl";
-         logger->info("Set activeTask: HandControl");
-    }
-    emit setDepth(0.0);
-    emit setForwardSpeed(0.0);
-    emit setAngularSpeed(0.0);
-    emit updateGUI();
-}
-
-void CommandCenter::handControlFinishedCC(){
-    if (this->isEnabled() == false){
-        logger->info("Handcontrol not enabled!");
-        return;
-    }
-
-    if (this->handControl->isEnabled() == false){
-        logger->info("Not enabled!");
-        return;
-    }
-
-    emit setAngularSpeed(0.0);
-    emit setForwardSpeed(0.0);
-    if(this->getSettingsValue("subEx").toBool() == true){
-        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
-    } else {
-        emit setDepth(0.0);
-    }
-
-    logger->info("Handcontrol has finished successfully");
-    this->finishedList.append("HandControl");
-
-    // Stop thruster, then make next task...
-    controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
-
-    activeTask = "";
-    emit updateGUI();
-}
 
 void CommandCenter::addTask(QString listName, QString taskName){
     if (this->isEnabled() == false){
@@ -444,5 +422,111 @@ void CommandCenter::removeTask(){
     if(!this->scheduleList.isEmpty()){
         this->scheduleList.removeLast();
     }
+    emit updateGUI();
+}
+
+void CommandCenter::skipTask(){
+    if(!this->scheduleList.isEmpty()){
+        this->abortedList.append(this->scheduleList.takeFirst());
+    }
+    emit updateGUI();
+}
+
+void CommandCenter::updateState(QString state){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+    emit newState(state);
+}
+
+void CommandCenter::controlTaskHandControl(bool b){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+    if(b == true){
+        if (this->taskhandcontrol->isEnabled() == true){
+            logger->info("TaskHandcontrol already enabled!");
+            return;
+        } else {
+            QTimer::singleShot(0, this, SLOT(startTaskHandControlCC()));
+        }
+    } else {
+        if (this->taskhandcontrol->isEnabled() == false){
+            logger->info("TaskHandcontrol already disabled!");
+            return;
+        } else {
+            emit stopTaskHandControl();
+        }
+    }
+}
+
+void CommandCenter::startTaskHandControlCC(){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
+    if (this->taskhandcontrol->isEnabled() == true){
+        logger->info("Taskhandcontrol already enabled!");
+        return;
+    }
+
+    controlTimer.stop();
+    logger ->info("Stop and deactivate all task - handcontrol active");
+    emit stopAllTasks();
+    emit resetTCL();
+    wait(1000);
+
+    if(this->activeTask != "taskHand"){
+        // Reschedule aborted task
+        QList<QString> temp;
+        temp.append(activeTask);
+        QString msg = "Reschedule "+activeTask;
+        emit newMessage(msg);
+        for(int i = 0; i < this->scheduleList.length(); i++){
+            temp.append(this->scheduleList.at(i));
+        }
+        this->scheduleList.clear();
+        for(int i = 0; i < temp.length(); i++){
+            this->scheduleList.append(temp.at(i));
+        }
+
+        // Now start taskhandcontrol
+        emit startTaskHandControl();
+        activeTask = "taskHand";
+        logger->info("Set activeTask: taskHand");
+    }
+    emit setDepth(0.0);
+    emit setForwardSpeed(0.0);
+    emit setAngularSpeed(0.0);
+    emit updateGUI();
+}
+
+void CommandCenter::handControlFinishedCC(RobotBehaviour *name, bool success){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
+    emit setAngularSpeed(0.0);
+    emit setForwardSpeed(0.0);
+    if(this->getSettingsValue("subEx").toBool() == true){
+        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+    } else {
+        emit setDepth(0.0);
+    }
+    logger->info("Handcontrol has finished");
+    if(success == true){
+
+        this->finishedList.append(name->getTabName());
+    } else {
+        this->abortedList.append(name->getTabName());
+    }
+    // Stop thruster, then make next task...
+    controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+
+    activeTask = "";
     emit updateGUI();
 }

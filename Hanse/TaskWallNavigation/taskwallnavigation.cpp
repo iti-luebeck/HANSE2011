@@ -50,6 +50,8 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     moveToEndTimer.moveToThread(this);
     doWallFollowTimer.moveToThread(this);
     controlNextStateTimer.moveToThread(this);
+
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 }
 
 bool TaskWallNavigation::isActive(){
@@ -84,8 +86,9 @@ void TaskWallNavigation::startBehaviour(){
 
     addData("loop", this->getSettingsValue("loopActivated").toBool());
     addData("timer", this->getSettingsValue("timerActivated").toBool());
-    addData("state", "start TaskWallNavigation");
+    addData("state", "Start TaskWallNavigation");
     emit dataChanged(this);
+    emit newState("Start TaskWallNavigation");
 
     emit updateSettings();
 
@@ -101,6 +104,7 @@ void TaskWallNavigation::moveToStart(){
     if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
         logger->debug("move to start");
         addData("state", "Move to start");
+        emit newState("Move to start");
         emit dataChanged(this);
 
         // First navigate to start position
@@ -125,6 +129,7 @@ void TaskWallNavigation::doWallFollow(){
     if(this->isEnabled() && this->wall->getHealthStatus().isHealthOk()){
         logger->debug("Do wallfollowing");
         addData("state", "Do wallfollowing");
+        emit newState("Do wallfollowing");
         emit dataChanged(this);
         this->wall->setSettingsValue("corridorWidth",this->getSettingsValue("corridorWidth").toFloat());
         this->wall->setSettingsValue("desiredDistance",this->getSettingsValue("desiredDistance").toFloat());
@@ -171,6 +176,7 @@ void TaskWallNavigation::moveToEnd(){
         logger->debug("Move to end");
         addData("state", "Move to end");
         emit dataChanged(this);
+        emit newState("Move to end");
 
         distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
         if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
@@ -191,6 +197,7 @@ void TaskWallNavigation::controlNextState(){
         logger->debug("idle, controlNextState");
         addData("state", "Idle, control next state");
         emit dataChanged(this);
+        emit newState("Idle, control next state");
 
         if(this->getSettingsValue("loopActivated").toBool()){
             logger->debug("start again");
@@ -236,7 +243,6 @@ void TaskWallNavigation::timeoutStop(){
         if (this->isActive())
         {
             this->taskTimer.stop();
-
             this->navi->setEnabled(false);
             this->wall->echo->setEnabled(false);
             QTimer::singleShot(0, wall, SLOT(stop()));
@@ -286,4 +292,9 @@ QList<RobotModule*> TaskWallNavigation::getDependencies()
     return ret;
 }
 
-
+void TaskWallNavigation::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(emergencyStop()));
+    }
+}
