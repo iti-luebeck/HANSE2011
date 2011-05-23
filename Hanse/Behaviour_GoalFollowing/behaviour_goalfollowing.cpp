@@ -120,3 +120,10 @@ void Behaviour_GoalFollowing::timerSlot()
         break;
     }
 }
+
+void Behaviour_GoalFollowing::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(stop()));
+    }
+}

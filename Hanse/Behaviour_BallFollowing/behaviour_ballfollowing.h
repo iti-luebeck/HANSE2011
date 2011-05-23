@@ -52,6 +52,7 @@ public slots:
     void stop();
     void reset();
     void terminate();
+    void controlEnabledChanged(bool);
 
 private slots:
     void newData();

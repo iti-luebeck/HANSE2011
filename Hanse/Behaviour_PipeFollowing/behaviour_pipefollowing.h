@@ -148,6 +148,7 @@ public slots:
     void terminate();
     void simFrame(cv::Mat simFrame);
     void setUpdatePixmapSlot(bool bol);
+    void controlEnabledChanged(bool);
 
 signals:
 //    void printFrameOnUi(cv::Mat &frame);

@@ -40,6 +40,8 @@ void Behaviour_PipeFollowing::init()
     connect(this,SIGNAL(requestBottomFrame()),sim,SLOT(requestImageSlot()));
     connect(sim,SIGNAL(newImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
 
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
+
 }
 
 void Behaviour_PipeFollowing::startBehaviour()
@@ -913,4 +915,11 @@ void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
 
 void Behaviour_PipeFollowing::setUpdatePixmapSlot(bool bol){
     emit setUpdatePixmapSignal(bol);
+}
+
+void Behaviour_PipeFollowing::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(stop()));
+    }
 }

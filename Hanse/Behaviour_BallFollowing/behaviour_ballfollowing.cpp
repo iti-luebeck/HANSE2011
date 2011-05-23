@@ -296,3 +296,10 @@ void Behaviour_BallFollowing::timerSlot()
     timerNoBall.stop();
     stop();
 }
+
+void Behaviour_BallFollowing::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(stop()));
+    }
+}

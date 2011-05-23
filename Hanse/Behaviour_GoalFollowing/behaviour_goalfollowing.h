@@ -46,7 +46,7 @@ public slots:
 
 private slots:
     void timerSlot();
-
+    void controlEnabledChanged(bool);
 
 };
 

@@ -64,6 +64,7 @@ public slots:
     void newWallBehaviourData(const EchoReturnData data, float avgDistance);
 
     void testEchoModule();
+    void controlEnabledChanged(bool);
 
 signals:
     void timerStart( int msec );

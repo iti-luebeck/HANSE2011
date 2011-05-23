@@ -45,6 +45,8 @@ void Behaviour_WallFollowing::init()
     echoControlTimer = new QTimer(this);
     connect(echoControlTimer, SIGNAL(timeout()), this, SLOT(testEchoModule()));
 
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
+
 }
 
 void Behaviour_WallFollowing::startBehaviour()
@@ -248,4 +250,11 @@ void Behaviour_WallFollowing::testEchoModule(){
         }
     }
     wallCase = "";
+}
+
+void Behaviour_WallFollowing::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(stop()));
+    }
 }
