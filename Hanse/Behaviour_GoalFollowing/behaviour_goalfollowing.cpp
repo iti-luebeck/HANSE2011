@@ -14,7 +14,7 @@ Behaviour_GoalFollowing::Behaviour_GoalFollowing(QString id, Module_ThrusterCont
     state = STATE_IDLE;
 
     setEnabled(false);
-
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 }
 
 bool Behaviour_GoalFollowing::isActive()

@@ -10,7 +10,7 @@
 
 Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop *tcl,
                                                  Module_Webcams *cams, Module_XsensMTi *xsens)
-    : RobotBehaviour(id)
+                                                     : RobotBehaviour(id)
 {
     this->tcl = tcl;
     this->cams = cams;
@@ -20,6 +20,7 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     state = BALL_STATE_IDLE;
     updateTimer.moveToThread(this);
     timerNoBall.moveToThread(this);
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 
 }
 
@@ -60,7 +61,7 @@ void Behaviour_BallFollowing::startBehaviour()
         targetHeading += 360;
     }
     emit setAngularSpeed(-0.4);
-//    tcl->setAngularSpeed( -0.4 );
+    //    tcl->setAngularSpeed( -0.4 );
 
     updateTimer.start( 100 );
     emit started(this);
@@ -105,7 +106,7 @@ void Behaviour_BallFollowing::stop()
         emit setAngularSpeed(0.0);
         setEnabled(false);
         emit finished(this,false);
-   }
+    }
 }
 
 void Behaviour_BallFollowing::reset()
@@ -114,8 +115,8 @@ void Behaviour_BallFollowing::reset()
     RobotBehaviour::reset();
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
-//    this->tcl->setForwardSpeed(0.0);
-//    this->tcl->setAngularSpeed(0.0);
+    //    this->tcl->setForwardSpeed(0.0);
+    //    this->tcl->setAngularSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_BallFollowing::getDependencies()
@@ -261,8 +262,8 @@ void Behaviour_BallFollowing::ctrBallFollowing()
         }
         emit setAngularSpeed(angleSpeed);
         emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
-//        tcl->setAngularSpeed(angleSpeed);
-//        tcl->setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+        //        tcl->setAngularSpeed(angleSpeed);
+        //        tcl->setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
 
         addData("ball_area", maxArea);
         addData("ball_x", x);
@@ -276,8 +277,8 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     {
         emit setAngularSpeed(0.0);
         emit setForwardSpeed(0.6);
-//        tcl->setAngularSpeed( .0 );
-//        tcl->setForwardSpeed( .6 );
+        //        tcl->setAngularSpeed( .0 );
+        //        tcl->setForwardSpeed( .6 );
     }
 
     cvReleaseImage( &left );
