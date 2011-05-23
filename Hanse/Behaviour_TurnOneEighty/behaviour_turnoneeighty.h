@@ -31,6 +31,7 @@ private:
     double initialHeading;
     void init();
     Module_XsensMTi *xsens;
+    void stopOnXsensError();
 
 signals:
     void setAngularSpeed(float angularSpeed);

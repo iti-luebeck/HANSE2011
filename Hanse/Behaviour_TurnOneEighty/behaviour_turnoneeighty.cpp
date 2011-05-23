@@ -8,8 +8,7 @@ Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterCon
         RobotBehaviour( id )
 {
     this->tcl = tcl;
-    this->xsens = x;
-
+    this->xsens = x;   
 }
 
 void Behaviour_TurnOneEighty::init()
@@ -75,35 +74,38 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
         return;
     }
     //    qDebug() << QThread::currentThreadId();
-    if ( isActive() )
-    {
-        this->dataLockerMutex.lock();
-        double currentHeading = 0.0;
+    if(this->xsens->isEnabled()){
+        if(this->xsens->getHealthStatus().isHealthOk()){
+            this->dataLockerMutex.lock();
+            double currentHeading = 0.0;
 
-        currentHeading = this->xsens->getHeading();
+            currentHeading = this->xsens->getHeading();
 
-        double targetHeading = initialHeading + 180;
-        double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+            double targetHeading = initialHeading + 180;
+            double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
 
-        logger->debug( "current heading %f", currentHeading );
-        addData("current_heading", currentHeading);
-        logger->debug( "heading difference %f°", diffHeading );
-        addData("difference_heading", diffHeading);
+            logger->debug( "current heading %f", currentHeading );
+            addData("current_heading", currentHeading);
+            logger->debug( "heading difference %f°", diffHeading );
+            addData("difference_heading", diffHeading);
 
-        if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
-        {
-            stop();
+            if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
+            {
+                stop();
+            }
+            else
+            {
+                diffHeading /= 180;
+                double angularSpeed = getSettingsValue( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
+                emit setAngularSpeed(angularSpeed);
+                //            tcl->setAngularSpeed( angularSpeed );
+            }
+
+            dataChanged( this );
+            this->dataLockerMutex.unlock();
         }
-        else
-        {
-            diffHeading /= 180;
-            double angularSpeed = getSettingsValue( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
-            emit setAngularSpeed(angularSpeed);
-            //            tcl->setAngularSpeed( angularSpeed );
-        }
-
-        dataChanged( this );
-        this->dataLockerMutex.unlock();
+    } else{
+        stopOnXsensError();
     }
 }
 
@@ -113,8 +115,6 @@ void Behaviour_TurnOneEighty::initialHeadingUpdate()
         logger->info("Not enabled!");
         return;
     }
-    //    qDebug() << "turn thread id";
-    //    qDebug() << QThread::currentThreadId();
     this->dataLockerMutex.lock();
 
     initialHeading = this->xsens->getHeading();
@@ -123,4 +123,12 @@ void Behaviour_TurnOneEighty::initialHeadingUpdate()
     addData("initial_heading", initialHeading);
     dataChanged( this );
     this->dataLockerMutex.unlock();
+}
+
+void Behaviour_TurnOneEighty::stopOnXsensError()
+{
+    logger->info("Xsens error. Stop!");
+    this->setEnabled(false);
+    setHealthToSick("xsens error");
+    emit setAngularSpeed(0.0);
 }

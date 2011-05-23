@@ -78,31 +78,30 @@ void Behaviour_XsensFollowing::reset()
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
     RobotModule::reset();
-    if(xsens->getHealthStatus().isHealthOk())
-    {
-        addData("ctrHeading",xsens->getHeading());
-        emit dataChanged(this);
-        turning = false;
-        this->setHealthToOk();
-        timer.start(getSettingsValue("timer").toInt());
-        turnTimer.start(getSettingsValue("driveTime").toInt());
-    }
-    else
-    {
+    if(xsens->isEnabled()){
+        if(xsens->getHealthStatus().isHealthOk()){
+            addData("ctrHeading",xsens->getHeading());
+            emit dataChanged(this);
+            turning = false;
+            this->setHealthToOk();
+            timer.start(getSettingsValue("timer").toInt());
+            turnTimer.start(getSettingsValue("driveTime").toInt());
+        }
+    } else {
         this->stopOnXsensError();
     }
 }
 
 void Behaviour_XsensFollowing::controlLoop()
 {
-    logger->debug("Xsens follow controlloop");
     if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+        emit newAngularSpeed(0.0);
+        emit newForwardSpeed(0.0);
         return;
     }
 
     float ctrAngle = getDataValue("ctrHeading").toFloat();
-    if(!xsens->getHealthStatus().isHealthOk())
+    if(!xsens->isEnabled() || !xsens->getHealthStatus().isHealthOk())
     {
         this->stopOnXsensError();
         return;
@@ -126,9 +125,9 @@ void Behaviour_XsensFollowing::controlLoop()
 
 void Behaviour_XsensFollowing::turnNinety()
 {
-    logger->debug("Xsens follow turnninety");
     if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+        emit newAngularSpeed(0.0);
+        emit newForwardSpeed(0.0);
         return;
     }
     float ctrAngle = getDataValue("ctrHeading").toFloat();
@@ -150,16 +149,17 @@ void Behaviour_XsensFollowing::turnNinety()
 
 void Behaviour_XsensFollowing::refreshHeading()
 {
-    logger->debug("Xsens follow refresh heading");
+    //logger->debug("Xsens follow refresh heading");
     if (this->isEnabled() == false){
         logger->info("Not enabled!");
         return;
     }
-
-    if(xsens->getHealthStatus().isHealthOk())
-        addData("ctrHeading",xsens->getHeading());
-    else
-        this->stopOnXsensError();
+    if(xsens->isEnabled()){
+        if(xsens->getHealthStatus().isHealthOk())
+            addData("ctrHeading",xsens->getHeading());
+        else
+            this->stopOnXsensError();
+    }
 }
 
 void Behaviour_XsensFollowing::stopOnXsensError()
