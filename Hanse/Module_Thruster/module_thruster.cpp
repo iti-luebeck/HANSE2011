@@ -72,6 +72,8 @@ void Module_Thruster::reset()
 
     if (getSettingsValue("frequency").toInt()>0) {
         timer.setInterval(1000/getSettingsValue("frequency").toInt());
+    } else {
+        timer.setInterval(1000);
     }
 
     if (isEnabled())
