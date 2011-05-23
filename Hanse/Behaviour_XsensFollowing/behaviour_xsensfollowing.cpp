@@ -52,10 +52,6 @@ void Behaviour_XsensFollowing::startBehaviour()
 void Behaviour_XsensFollowing::stop()
 {
     logger->info("Xsens follow stop");
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
-        return;
-    }
     this->setEnabled(false);
     timer.stop();
     turnTimer.stop();
@@ -86,17 +82,19 @@ void Behaviour_XsensFollowing::reset()
             this->setHealthToOk();
             timer.start(getSettingsValue("timer").toInt());
             turnTimer.start(getSettingsValue("driveTime").toInt());
+        }else{
+            this->stopOnXsensError();
         }
-    } else {
-        this->stopOnXsensError();
+    }else{
+        this->stop();
     }
 }
 
 void Behaviour_XsensFollowing::controlLoop()
 {
     if (this->isEnabled() == false){
-        emit newAngularSpeed(0.0);
-        emit newForwardSpeed(0.0);
+        logger->info("not enabled - controlloop");
+        this->stop();
         return;
     }
 
@@ -126,8 +124,8 @@ void Behaviour_XsensFollowing::controlLoop()
 void Behaviour_XsensFollowing::turnNinety()
 {
     if (this->isEnabled() == false){
-        emit newAngularSpeed(0.0);
-        emit newForwardSpeed(0.0);
+        logger->info("not enabled - 90");
+        this->stop();
         return;
     }
     float ctrAngle = getDataValue("ctrHeading").toFloat();
