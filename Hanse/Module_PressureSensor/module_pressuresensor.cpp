@@ -88,6 +88,8 @@ void Module_PressureSensor::reset()
     }
     msleep(100);
 
+    addData("updateRate", 0);
+
 }
 
 void Module_PressureSensor::refreshData()
@@ -108,6 +110,7 @@ void Module_PressureSensor::refreshData()
         if (getHealthStatus().isHealthOk()) {
             emit dataChanged(this);
             emit newDepthData(getDepth());
+            addData("updateRate", getDataValue("updateRate").toInt()+1);
         }
     }
 }

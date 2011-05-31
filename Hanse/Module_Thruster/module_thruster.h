@@ -56,7 +56,7 @@ private:
     void init();
 
 
-    QTimer timer;
+    QTimer *timer;
 
 };
 

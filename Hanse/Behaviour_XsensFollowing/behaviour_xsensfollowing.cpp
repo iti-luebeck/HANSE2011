@@ -162,6 +162,10 @@ void Behaviour_XsensFollowing::refreshHeading()
 
 void Behaviour_XsensFollowing::stopOnXsensError()
 {
+    if (!isEnabled()) {
+        return;
+    }
+
     logger->info("Xsens follow stop error");
     this->setEnabled(false);
     timer.stop();

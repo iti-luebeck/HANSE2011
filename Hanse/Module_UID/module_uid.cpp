@@ -283,7 +283,7 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
 
     QTime stop(QTime::currentTime());
     logger->trace("delta t: "+QString::number(stop.msecsTo(start)));
-    this->addData("busyMSecs", getDataValue("busyMSecs").toInt()+stop.msecsTo(start));
+    this->addData("busyMSecs", getDataValue("busyMSecs").toInt()+start.msecsTo(stop));
 
     lastError = E_NO_ERROR;
     return true;
@@ -334,6 +334,8 @@ void Module_UID::doHealthCheck()
     float busyTime = this->getDataValue("busyMSecs").toInt();
     float runTime = this->getDataValue("startTime").toTime().msecsTo(QTime::currentTime());
     addData("load", busyTime/runTime);
+    addData("startTime", QTime::currentTime());
+    addData("busyMSecs", 0);
 
     setHealthToOk();
 }

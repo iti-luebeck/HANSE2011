@@ -14,7 +14,7 @@
 #define MAGIC_SWREV 10
 
 Module_Thruster::Module_Thruster(QString id, Module_UID *uid, Module_Simulation *sim)
-    : RobotModule(id), timer(this)
+    : RobotModule(id)
 {
     this->uid=uid;
     this->sim=sim;
@@ -23,8 +23,6 @@ Module_Thruster::Module_Thruster(QString id, Module_UID *uid, Module_Simulation 
     setDefaultValue("channel", 1);
     setDefaultValue("multiplicator", 127);
     setDefaultValue("frequency", 5);
-
-    connect(&timer, SIGNAL(timeout()), this, SLOT(updateSpeed()));
 }
 
 void Module_Thruster::initController()
@@ -48,6 +46,9 @@ void Module_Thruster::initController()
 
 void Module_Thruster::init()
 {
+    this->timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateSpeed()));
+
     connect(this,SIGNAL(enabled(bool)), this, SLOT(gotEnabled(bool)));
 
     /* connect simulation */
@@ -66,18 +67,20 @@ void Module_Thruster::reset()
 {
     RobotModule::reset();
 
-    timer.stop();
+    timer->stop();
     initController();
     setSpeed(0);
 
     if (getSettingsValue("frequency").toInt()>0) {
-        timer.setInterval(1000/getSettingsValue("frequency").toInt());
+        timer->setInterval(1000/getSettingsValue("frequency").toInt());
     } else {
-        timer.setInterval(1000);
+        timer->setInterval(1000);
     }
 
     if (isEnabled())
-        timer.start();
+        timer->start();
+
+    this->addData("updateRate",0);
 }
 
 void Module_Thruster::updateSpeed()
@@ -119,6 +122,7 @@ void Module_Thruster::updateSpeed()
     else {
         setHealthToOk();
         emit dataChanged(this);
+        addData("updateRate", getDataValue("updateRate").toInt()+1);
     }
 }
 

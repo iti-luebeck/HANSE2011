@@ -3,7 +3,7 @@
 #include "robotmodule.h"
 
 DataRecorder::DataRecorder(RobotModule& module)
-    : module(module)
+    : QObject(&module), module(module)
 {
     logger = Log4Qt::Logger::logger("DataRecorder");
 
