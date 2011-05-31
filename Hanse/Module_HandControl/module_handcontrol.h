@@ -49,12 +49,12 @@ private:
     Module_ThrusterControlLoop *controlLoop;
 
 
-    QAction *forward;
-    QAction *backward;
-    QAction *left;
-    QAction *right;
-    QAction *up;
-    QAction *down;
+//    QAction *forward;
+//    QAction *backward;
+//    QAction *left;
+//    QAction *right;
+//    QAction *up;
+//    QAction *down;
 
     Server* server;
     void init();

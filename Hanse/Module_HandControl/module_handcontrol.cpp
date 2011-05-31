@@ -13,31 +13,6 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     this->thrusterLeft = thrusterLeft;
     this->thrusterRight = thrusterRight;
 
-    actionPos = new QAction(this);
-    actionPos->setShortcut(Qt::Key_1);
-    connect(actionPos,SIGNAL(triggered()),this,SLOT(positivSample()));
-
-    // missing SIGNALS...
-
-    forward = new QAction(this);
-    forward->setShortcut(Qt::Key_Up);
-
-    backward = new QAction(this);
-    backward->setShortcut(Qt::Key_Down);
-
-    left = new QAction(this);
-    left->setShortcut(Qt::Key_Left);
-
-    right = new QAction(this);
-    right->setShortcut(Qt::Key_Right);
-
-    up = new QAction(this);
-    up->setShortcut(Qt::Key_A);
-
-    down = new QAction(this);
-    down->setShortcut(Qt::Key_Y);
-
-
 
     setEnabled(false);
     setDefaultValue("port",1234);
@@ -70,6 +45,32 @@ void Module_HandControl::init()
     connect(this,SIGNAL(setUpDownSpeed(float)),thrusterDownFront,SLOT(setSpeed(float)));
     connect(this,SIGNAL(setRightSpeed(float)),thrusterRight,SLOT(setSpeed(float)));
     connect(this,SIGNAL(setLeftSpeed(float)),thrusterLeft,SLOT(setSpeed(float)));
+
+
+//    actionPos = new QAction(this);
+//    actionPos->setShortcut(Qt::Key_1);
+//    connect(actionPos,SIGNAL(triggered()),this,SLOT(positivSample()));
+
+//    forward = new QAction(this);
+//    forward->setShortcut(Qt::Key_Up);
+
+//    backward = new QAction(this);
+//    backward->setShortcut(Qt::Key_Down);
+
+//    left = new QAction(this);
+//    left->setShortcut(Qt::Key_Left);
+
+//    right = new QAction(this);
+//    right->setShortcut(Qt::Key_Right);
+
+//    up = new QAction(this);
+//    up->setShortcut(Qt::Key_A);
+
+//    down = new QAction(this);
+//    down->setShortcut(Qt::Key_Y);
+
+
+
 
     reset();
 
