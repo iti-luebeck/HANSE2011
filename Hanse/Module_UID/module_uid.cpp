@@ -62,6 +62,8 @@ void Module_UID::reset()
     uid = findUIDPort();
     addData("revision", this->UID_Revision());
     addData("identity" , this->UID_Identify());
+    addData("startTime", QTime::currentTime());
+    addData("busyMSecs", 0);
 }
 
 QList<RobotModule*> Module_UID::getDependencies()
@@ -281,6 +283,7 @@ bool Module_UID::SendCommand2(const QByteArray& send, char* recv, int recv_lengt
 
     QTime stop(QTime::currentTime());
     logger->trace("delta t: "+QString::number(stop.msecsTo(start)));
+    this->addData("busyMSecs", getDataValue("busyMSecs").toInt()+stop.msecsTo(start));
 
     lastError = E_NO_ERROR;
     return true;
@@ -327,6 +330,10 @@ void Module_UID::doHealthCheck()
         setHealthToSick("Wrong Id, received: " + received);
         return;
     }
+
+    float busyTime = this->getDataValue("busyMSecs").toInt();
+    float runTime = this->getDataValue("startTime").toTime().msecsTo(QTime::currentTime());
+    addData("load", busyTime/runTime);
 
     setHealthToOk();
 }
