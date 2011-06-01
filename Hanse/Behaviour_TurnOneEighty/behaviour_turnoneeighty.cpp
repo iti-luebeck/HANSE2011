@@ -74,7 +74,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
         return;
     }
     //    qDebug() << QThread::currentThreadId();
-    if(this->xsens->isEnabled()){
+    if(this->xsens->isEnabled() == true){
         if(this->xsens->getHealthStatus().isHealthOk()){
             this->dataLockerMutex.lock();
             double currentHeading = 0.0;
@@ -92,7 +92,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
             if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
             {
                 emit setAngularSpeed(0.0);
-                stop();
+                QTimer::singleShot(0, this, SLOT(stop()));
             }
             else
             {
