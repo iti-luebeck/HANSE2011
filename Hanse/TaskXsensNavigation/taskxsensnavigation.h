@@ -52,6 +52,7 @@ signals:
     void stopSignal();
     void updateSettings();
     void newState(QString state);
+    void newStateOverview(QString state);
 
 public slots:
     void startBehaviour();

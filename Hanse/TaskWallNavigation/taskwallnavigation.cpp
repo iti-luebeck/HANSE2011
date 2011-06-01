@@ -78,7 +78,12 @@ void TaskWallNavigation::startBehaviour(){
     emit started(this);
     running = true;
 
-
+    emit newStateOverview("Move to start");
+    emit newStateOverview("Do wallfollowing");
+    emit newStateOverview("Move to end");
+    if(this->getSettingsValue("loopActivated").toBool()){
+            emit newStateOverview("...in a loop");
+    }
     // Enable all components
     if(!this->navi->isEnabled()){
         this->navi->setEnabled(true);

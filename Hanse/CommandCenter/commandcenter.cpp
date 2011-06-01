@@ -56,6 +56,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
         connect(b, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
         connect(this,SIGNAL(stopAllTasks()),b,SLOT(emergencyStop()));
         connect(b, SIGNAL(newState(QString)), this, SLOT(updateState(QString)));
+        connect(b, SIGNAL(newStateOverview(QString)), this, SLOT(updateStateOverview(QString)));
     }
 
     // Task WallNavigation
@@ -438,6 +439,14 @@ void CommandCenter::updateState(QString state){
         return;
     }
     emit newState(state);
+}
+
+void CommandCenter::updateStateOverview(QString state){
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+    emit newStateOverview(state);
 }
 
 void CommandCenter::controlTaskHandControl(bool b){

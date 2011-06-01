@@ -51,6 +51,7 @@ private slots:
     void updateError(QString s);
     void updateMessage(QString s);
     void updateState(QString s);
+    void updateStateOverview(QString s);
 };
 
 #endif // COMMANDCENTERFORM_H

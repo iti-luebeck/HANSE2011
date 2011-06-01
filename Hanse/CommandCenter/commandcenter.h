@@ -96,6 +96,7 @@ private slots:
     void removeTask();
     void clearList(QString listName);
     void updateState(QString state);
+    void updateStateOverview(QString state);
     void skipTask();
 
 signals:
@@ -107,6 +108,7 @@ signals:
     void newMessage(QString s);
 
     void newState(QString s);
+    void newStateOverview(QString s);
 
     void stopAllTasks();
     void resetTCL();

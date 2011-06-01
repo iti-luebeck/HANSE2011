@@ -94,6 +94,15 @@ void TaskXsensNavigation::startBehaviour(){
     running = true;
 
 
+    // Stateoverview
+    emit newStateOverview("Move to start");
+    emit newStateOverview("Do xsensfollowing");
+    emit newStateOverview("Move to B");
+    emit newStateOverview("Turn180");
+    emit newStateOverview("Move to end");
+    if(this->getSettingsValue("loopActivated").toBool()){
+            emit newStateOverview("...in a loop");
+    }
     // Enable all components
     if(!this->navi->isEnabled()){
         this->navi->setEnabled(true);

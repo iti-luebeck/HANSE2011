@@ -19,6 +19,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     connect(this, SIGNAL(updateGUISignal()), this, SLOT(updateGUI()));
 
     connect(com,SIGNAL(newState(QString)),this,SLOT(updateState(QString)));
+    connect(com,SIGNAL(newStateOverview(QString)),this,SLOT(updateStateOverview(QString)));
 
     connect(this, SIGNAL(addTask(QString,QString)), com, SLOT(addTask(QString,QString)));
     connect(this, SIGNAL(clearList(QString)), com, SLOT(clearList(QString)));
@@ -109,6 +110,8 @@ void CommandCenterForm::on_stopButton_clicked(){
 
     ui->activeOutput->clear();
     ui->stateOutput->clear();
+    ui->stateOverviewOutput->clear();
+
     QString temp = "";
 
     if(!this->com->scheduleList.isEmpty()){
@@ -127,6 +130,7 @@ void CommandCenterForm::updateError(QString s){
     ui->errorOutput->setText(s);
     ui->activeOutput->clear();
     ui->stateOutput->clear();
+    ui->stateOverviewOutput->clear();
 }
 
 void CommandCenterForm::updateMessage(QString s){
@@ -157,3 +161,8 @@ void CommandCenterForm::updateGUI(){
 void CommandCenterForm::updateState(QString s){
     ui->stateOutput->setText(s);
 }
+
+void CommandCenterForm::updateStateOverview(QString s){
+    ui->stateOverviewOutput->insertPlainText(s+"\n");
+}
+

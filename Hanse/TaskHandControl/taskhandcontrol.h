@@ -49,6 +49,7 @@ signals:
     void setDepth(float depth);
     void handControlFinished();
     void newState(QString state);
+    void newStateOverview(QString state);
 
 public slots:
     void startBehaviour();

@@ -56,6 +56,8 @@ void TaskHandControl::startBehaviour(){
     emit started(this);
     running = true;
 
+    emit newStateOverview("Handcontrol");
+
     if(!this->handcontrol->isEnabled()){
         this->handcontrol->setEnabled(true);
     }
