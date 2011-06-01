@@ -53,9 +53,8 @@ void Behaviour_TurnOneEighty::stop()
         //       tcl->setAngularSpeed(0.0);
         setEnabled( false );
         emit finished( this, true );
-    } else {
-        logger->debug("Behaviour not enabled, cant stop");
     }
+}
 
 void Behaviour_TurnOneEighty::terminate()
 {
