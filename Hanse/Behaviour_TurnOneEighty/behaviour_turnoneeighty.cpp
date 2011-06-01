@@ -16,6 +16,7 @@ void Behaviour_TurnOneEighty::init()
     QObject::connect( xsens, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( xsensUpdate(RobotModule*) ) );
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 }
 
 QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()

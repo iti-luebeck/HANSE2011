@@ -31,6 +31,7 @@ void Behaviour_XsensFollowing::init()
     connect(this,SIGNAL(newForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
     connect(&turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 }
 
 void Behaviour_XsensFollowing::startBehaviour()
