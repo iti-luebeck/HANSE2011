@@ -46,14 +46,11 @@ void Behaviour_TurnOneEighty::startBehaviour()
 
 void Behaviour_TurnOneEighty::stop()
 {
-    if ( isActive() )
-    {
-        logger->debug( "Behaviour stopped" );
-        emit setAngularSpeed(0.0);
-        //       tcl->setAngularSpeed(0.0);
-        setEnabled( false );
-        emit finished( this, true );
-    }
+    logger->debug( "Behaviour stopped" );
+    emit setAngularSpeed(0.0);
+    //       tcl->setAngularSpeed(0.0);
+    setEnabled( false );
+    emit finished( this, true );
 }
 
 void Behaviour_TurnOneEighty::terminate()
@@ -91,6 +88,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 
             if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
             {
+                emit setAngularSpeed(0.0);
                 stop();
             }
             else
@@ -105,6 +103,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
             this->dataLockerMutex.unlock();
         }
     } else{
+        emit setAngularSpeed(0.0);
         stopOnXsensError();
     }
 }
