@@ -46,12 +46,16 @@ void Behaviour_TurnOneEighty::startBehaviour()
 
 void Behaviour_TurnOneEighty::stop()
 {
-    logger->debug( "Behaviour stopped" );
-    emit setAngularSpeed(0.0);
-    //       tcl->setAngularSpeed(0.0);
-    setEnabled( false );
-    emit finished( this, true );
-}
+    if ( isActive() )
+    {
+        logger->debug( "Behaviour stopped" );
+        emit setAngularSpeed(0.0);
+        //       tcl->setAngularSpeed(0.0);
+        setEnabled( false );
+        emit finished( this, true );
+    } else {
+        logger->debug("Behaviour not enabled, cant stop");
+    }
 
 void Behaviour_TurnOneEighty::terminate()
 {
