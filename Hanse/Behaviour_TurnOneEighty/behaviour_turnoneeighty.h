@@ -25,6 +25,7 @@ public slots:
     void xsensUpdate( RobotModule * );
     void initialHeadingUpdate();
     void terminate();
+    void controlEnabledChanged(bool);
 
 private:
     Module_ThrusterControlLoop* tcl;

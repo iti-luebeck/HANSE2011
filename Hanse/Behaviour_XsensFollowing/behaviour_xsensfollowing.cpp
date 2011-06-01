@@ -190,3 +190,9 @@ QWidget* Behaviour_XsensFollowing::createView(QWidget* parent)
     return new XsensFollowingForm(parent, this);
 }
 
+void Behaviour_XsensFollowing::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(stop()));
+    }
+}

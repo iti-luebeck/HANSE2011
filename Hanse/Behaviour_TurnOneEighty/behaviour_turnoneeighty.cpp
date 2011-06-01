@@ -132,3 +132,10 @@ void Behaviour_TurnOneEighty::stopOnXsensError()
     setHealthToSick("xsens error");
     emit setAngularSpeed(0.0);
 }
+
+void Behaviour_TurnOneEighty::controlEnabledChanged(bool b){
+    if(b == false){
+        logger->info("No longer enabled!");
+        QTimer::singleShot(0, this, SLOT(stop()));
+    }
+}

@@ -35,6 +35,7 @@ public slots:
         void reset();
         void refreshHeading();
         void init();
+        void controlEnabledChanged(bool);
 
 private slots:
         void controlLoop();
