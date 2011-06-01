@@ -131,6 +131,7 @@ void Behaviour_TurnOneEighty::stopOnXsensError()
     this->setEnabled(false);
     setHealthToSick("xsens error");
     emit setAngularSpeed(0.0);
+    emit finished( this, false );
 }
 
 void Behaviour_TurnOneEighty::controlEnabledChanged(bool b){
