@@ -52,10 +52,19 @@ void Behaviour_XsensFollowing::startBehaviour()
 
 void Behaviour_XsensFollowing::stop()
 {
+    if(timer.isActive()){
+        timer.stop();
+    }
+    if(turnTimer.isActive()){
+        turnTimer.stop();
+    }
+
+    if (!isEnabled()) {
+        return;
+    }
+
     logger->info("Xsens follow stop");
     this->setEnabled(false);
-    timer.stop();
-    turnTimer.stop();
     setEnabled(false);
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
