@@ -21,6 +21,8 @@ public:
 
         bool isActive();
 
+
+
 private:
         Module_XsensMTi* xsens;
         Module_ThrusterControlLoop* tcl;

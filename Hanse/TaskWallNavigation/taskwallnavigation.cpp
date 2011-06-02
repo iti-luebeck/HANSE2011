@@ -117,8 +117,10 @@ void TaskWallNavigation::moveToStart(){
         if(distanceToStart > this->getSettingsValue("startTolerance").toDouble()){
             addData("remaining distance", distanceToStart);
             emit dataChanged(this);
+            this->navi->gotoWayPoint(this->getSettingsValue("startNavigation").toString());
             moveToStartTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToStart()));
         } else {
+            QTimer::singleShot(0, navi, SLOT(clearGoal()));
             addData("remaining distance", "-");
             emit dataChanged(this);
             addData("state", "Startposition reached");
@@ -187,8 +189,10 @@ void TaskWallNavigation::moveToEnd(){
         if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
             addData("remaining distance", distanceToTarget);
             emit dataChanged(this);
+                 this->navi->gotoWayPoint(this->getSettingsValue("targetNavigation").toString());
             moveToEndTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToEnd()));
         } else {
+            QTimer::singleShot(0, navi, SLOT(clearGoal()));
             QTimer::singleShot(0, this, SLOT(controlNextState()));
         }
     } else {

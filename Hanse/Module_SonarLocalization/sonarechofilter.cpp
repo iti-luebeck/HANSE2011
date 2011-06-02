@@ -130,10 +130,10 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
         QList<int> ks;
         ks.clear();
 //        ks.append(24);
-//        ks.append(12);
+        ks.append(16);
         ks.append(8);
         ks.append(4);
-        ks.append(2);
+//        ks.append(2);
         int k;
         foreach(k, ks) {
             for (int j = 0; j < N; j++) {
@@ -494,7 +494,7 @@ void SonarEchoFilter::sendImage()
         }
     }
 
-    if (!sim->isEnabled()) {
+    if (!sim->isEnabled() && false) {
         if (maxValue > 0.001*lastMaxValue) {
             // Filter those wall candidates that might be ground.
             for (int j = 0; j < candidates.size(); j++) {

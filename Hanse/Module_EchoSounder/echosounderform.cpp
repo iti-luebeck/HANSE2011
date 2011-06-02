@@ -99,10 +99,10 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
     }
 
 
-    int rangeView = (int)range;
-    char r[2];
-    sprintf(r,"%i",rangeView);
-    ui->r2->setText(r);
+//    int rangeView = ((int)range) % 100;
+//    char r[2];
+//    sprintf(r,"%i",rangeView);
+//    ui->r2->setText(r);
 
 
     //    scene.addLine(-256,280,256,280,QPen(QColor("red")))->setZValue(10);

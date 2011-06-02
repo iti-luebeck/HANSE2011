@@ -216,7 +216,7 @@ void Module_Navigation::xsensUpdate( RobotModule * )
                 addData("xsens heading to last localization", diffXsens);
 
                 if (fabs(Angles::deg2deg(diffHeading - diffXsens)) < 5) {
-                    emit newANGSpeed(.0);
+//                    emit newANGSpeed(.0);
                 } else {
                     float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                     float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();

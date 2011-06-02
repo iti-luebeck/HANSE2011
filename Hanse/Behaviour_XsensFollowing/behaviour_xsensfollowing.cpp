@@ -140,19 +140,19 @@ void Behaviour_XsensFollowing::turnNinety()
     }
     float ctrAngle = getDataValue("ctrHeading").toFloat();
     float newHeading = ctrAngle;
-    if(getSettingsValue("turnClockwise").toBool())
-    {
-        newHeading = newHeading+90.0;
-        if(newHeading > 360)
-            newHeading = newHeading - 360;
-    }
-    else
-    {
-        newHeading = newHeading-90;
-        if(newHeading < 0)
-            newHeading =360-newHeading;
-    }
-    addData("ctrHeading",newHeading);
+//    if(getSettingsValue("turnClockwise").toBool())
+//    {
+//        newHeading = newHeading+90.0;
+//        if(newHeading > 360)
+//            newHeading = newHeading - 360;
+//    }
+//    else
+//    {
+//        newHeading = newHeading-90;
+//        if(newHeading < 0)
+//            newHeading =360-newHeading;
+//    }
+    addData("ctrAngle",newHeading);
 }
 
 void Behaviour_XsensFollowing::refreshHeading()
