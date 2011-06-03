@@ -26,7 +26,6 @@ void Behaviour_XsensFollowing::init()
 {
     logger->info("Xsens Following init");
     setEnabled(false);
-    turning = false;
     connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(newForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
@@ -42,8 +41,10 @@ void Behaviour_XsensFollowing::startBehaviour()
     }
     logger->info("Starting Xsens Following");
     this->setEnabled(true);
-    addData("ctrHeading",xsens->getHeading());
-    turning = false;
+
+    initialHeading = xsens->getHeading();
+    ctrAngle = initialHeading;
+
     emit dataChanged(this);
 
     timer.start(getSettingsValue("timer").toInt());
@@ -86,9 +87,9 @@ void Behaviour_XsensFollowing::reset()
     RobotModule::reset();
     if(xsens->isEnabled()){
         if(xsens->getHealthStatus().isHealthOk()){
-            addData("ctrHeading",xsens->getHeading());
+            initialHeading = xsens->getHeading();
+            ctrAngle = initialHeading;
             emit dataChanged(this);
-            turning = false;
             this->setHealthToOk();
             timer.start(getSettingsValue("timer").toInt());
             turnTimer.start(getSettingsValue("driveTime").toInt());
@@ -108,7 +109,6 @@ void Behaviour_XsensFollowing::controlLoop()
         return;
     }
 
-    float ctrAngle = getDataValue("ctrHeading").toFloat();
     if(!xsens->isEnabled() || !xsens->getHealthStatus().isHealthOk())
     {
         this->stopOnXsensError();
@@ -125,7 +125,8 @@ void Behaviour_XsensFollowing::controlLoop()
         ctrAngleSpeed = getSettingsValue("kp").toFloat()* faktor * curHeading / ctrAngle;
     }
     addData("angularSpeed",ctrAngleSpeed);
-    addData("current HEading",curHeading);
+    addData("current heading",curHeading);
+    addData("ctrAngle", ctrAngle);
     emit dataChanged(this);
     emit newAngularSpeed(ctrAngleSpeed);
     emit newForwardSpeed(getSettingsValue("ffSpeed").toFloat());
@@ -138,21 +139,24 @@ void Behaviour_XsensFollowing::turnNinety()
         this->stop();
         return;
     }
-    float ctrAngle = getDataValue("ctrHeading").toFloat();
-    float newHeading = ctrAngle;
-//    if(getSettingsValue("turnClockwise").toBool())
-//    {
-//        newHeading = newHeading+90.0;
-//        if(newHeading > 360)
-//            newHeading = newHeading - 360;
-//    }
-//    else
-//    {
-//        newHeading = newHeading-90;
-//        if(newHeading < 0)
-//            newHeading =360-newHeading;
-//    }
-    addData("ctrAngle",newHeading);
+
+    if(getSettingsValue("enableTurn").toBool() == true){
+        float newHeading = ctrAngle;
+
+        if(getSettingsValue("turnClockwise").toBool() == true){
+            newHeading = newHeading + 90.0;
+            if(newHeading > 180){
+                newHeading = newHeading -180;
+            }
+        } else {
+            newHeading = newHeading - 90.0;
+            if(newHeading < 180){
+                newHeading = 180 - newHeading;
+            }
+        }
+
+        ctrAngle = newHeading;
+    }
 }
 
 void Behaviour_XsensFollowing::refreshHeading()
@@ -163,10 +167,16 @@ void Behaviour_XsensFollowing::refreshHeading()
         return;
     }
     if(xsens->isEnabled()){
-        if(xsens->getHealthStatus().isHealthOk())
-            addData("ctrHeading",xsens->getHeading());
-        else
-            this->stopOnXsensError();
+
+        this->dataLockerMutex.lock();
+
+        initialHeading = this->xsens->getHeading();
+
+        logger->debug( "initial heading set to %f°", initialHeading );
+        addData("initial_heading", initialHeading);
+        dataChanged( this );
+        this->dataLockerMutex.unlock();
+
     }
 }
 

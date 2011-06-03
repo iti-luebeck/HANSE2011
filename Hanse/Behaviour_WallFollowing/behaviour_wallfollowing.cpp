@@ -234,7 +234,6 @@ void Behaviour_WallFollowing::stopOnEchoError(){
         logger->info("Not enabled!");
         return;
     }
-    badDataCount = badDataCount+1;
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
     wallCase = "No echosignal, stop thruster!";

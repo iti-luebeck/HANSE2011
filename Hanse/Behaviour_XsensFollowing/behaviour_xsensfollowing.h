@@ -28,9 +28,11 @@ private:
         Module_ThrusterControlLoop* tcl;
         QTimer timer;
         QTimer turnTimer;
-        // clockwise-turn
-        bool turning;
         void stopOnXsensError();
+
+        float initialHeading;
+        float ctrAngle;
+
 public slots:
         void startBehaviour();
         void stop();

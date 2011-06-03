@@ -32,7 +32,6 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
 
 
     this->setDefaultValue("startNavigation", "startN");
-    this->setDefaultValue("startTolerance", 10);
     this->setDefaultValue("targetNavigation", "targetN");
     this->setDefaultValue("targetTolerance", 10);
 
@@ -42,16 +41,11 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     taskTimer.setSingleShot(true);
     taskTimer.moveToThread(this);
 
-    distanceToStart = 0;
     distanceToTarget = 0;
 
-    taskTimer.moveToThread(this);
-    moveToStartTimer.moveToThread(this);
-    moveToEndTimer.moveToThread(this);
-    doWallFollowTimer.moveToThread(this);
-    controlNextStateTimer.moveToThread(this);
-
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
+    connect(navi, SIGNAL(reachedWaypoint(QString)), this, SLOT(seReached(QString)));
+
 }
 
 bool TaskWallNavigation::isActive(){
@@ -82,7 +76,7 @@ void TaskWallNavigation::startBehaviour(){
     emit newStateOverview("Do wallfollowing");
     emit newStateOverview("Move to end");
     if(this->getSettingsValue("loopActivated").toBool()){
-            emit newStateOverview("...in a loop");
+        emit newStateOverview("...in a loop");
     }
     // Enable all components
     if(!this->navi->isEnabled()){
@@ -90,7 +84,7 @@ void TaskWallNavigation::startBehaviour(){
     }
 
     addData("loop", this->getSettingsValue("loopActivated").toBool());
-    addData("timer", this->getSettingsValue("timerActivated").toBool());
+    addData("stoptimer", this->getSettingsValue("timerActivated").toBool());
     addData("state", "Start TaskWallNavigation");
     emit dataChanged(this);
     emit newState("Start TaskWallNavigation");
@@ -111,27 +105,31 @@ void TaskWallNavigation::moveToStart(){
         addData("state", "Move to start");
         emit newState("Move to start");
         emit dataChanged(this);
-
-        // First navigate to start position
-        distanceToStart = this->navi->getDistance(this->getSettingsValue("startNavigation").toString());
-        if(distanceToStart > this->getSettingsValue("startTolerance").toDouble()){
-            addData("remaining distance", distanceToStart);
-            emit dataChanged(this);
-            this->navi->gotoWayPoint(this->getSettingsValue("startNavigation").toString());
-            moveToStartTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToStart()));
-        } else {
-            QTimer::singleShot(0, navi, SLOT(clearGoal()));
-            addData("remaining distance", "-");
-            emit dataChanged(this);
-            addData("state", "Startposition reached");
-            emit dataChanged(this);
-            QTimer::singleShot(0, this, SLOT(doWallFollow()));
-        }
+        this->navi->gotoWayPoint(this->getSettingsValue("startNavigation").toString());
     } else {
-        logger->info("Something is wrong with navigation, abort...");
+        logger->info("Something is wrong with navigation/task, abort...");
         QTimer::singleShot(0, this, SLOT(emergencyStop()));
     }
 }
+
+void TaskWallNavigation::seReached(QString waypoint){
+    if(this->isEnabled() == true){
+        if(waypoint == this->getSettingsValue("startNavigation").toString()){
+            // Start reached, do wallfollowing
+            QTimer::singleShot(0, navi, SLOT(clearGoal()));
+            QTimer::singleShot(0, this, SLOT(doWallFollow()));
+        } else if(waypoint == this->getSettingsValue("targetNavigation").toString()){
+            // End reached, control next state
+            QTimer::singleShot(0, navi, SLOT(clearGoal()));
+            QTimer::singleShot(0, this, SLOT(controlNextState()));
+        } else {
+            // Error!
+            logger->info("Something is wrong with navigation waypoints, abort...");
+            QTimer::singleShot(0, this, SLOT(emergencyStop()));
+        }
+    }
+}
+
 void TaskWallNavigation::doWallFollow(){
     if(this->isEnabled() && this->wall->getHealthStatus().isHealthOk()){
         logger->debug("Do wallfollowing");
@@ -147,34 +145,29 @@ void TaskWallNavigation::doWallFollow(){
 
         // Now do wallfollowing until target position is reached
         distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
-        if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
+        while(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
             addData("remaining distance",distanceToTarget);
             emit dataChanged(this);
-
-            // Too many errors, abort wallfollowing and move to endposition
-            if(this->wall->badDataCount > 100){
-                QTimer::singleShot(0, this, SLOT(moveToEnd()));
-            } else {
-                doWallFollowTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(doWallFollow()));
-            }
-        } else {
-            addData("remaining distance", "-");
-            emit dataChanged(this);
-            addData("state", "Wallfollowing finished");
-            emit dataChanged(this);
-
-            // Target position reached, stop wallfollow
-            if(this->wall->isEnabled()){
-                logger->debug("Disable wallfollow and echo");
-
-                QTimer::singleShot(0, wall, SLOT(stop()));
-                this->wall->echo->setEnabled(false);
-            }
-            QTimer::singleShot(0, this, SLOT(controlNextState()));
+            msleep(100);
         }
+
+        addData("remaining distance", "-");
+        emit dataChanged(this);
+        addData("state", "Wallfollowing finished");
+        emit dataChanged(this);
+
+        // Target position reached, stop wallfollow
+        if(this->wall->isEnabled()){
+            logger->debug("Disable wallfollow and echo");
+            QTimer::singleShot(0, wall, SLOT(stop()));
+            this->wall->echo->setEnabled(false);
+        }
+
+        QTimer::singleShot(0, this, SLOT(controlNextState()));
+
     } else {
-        logger->info("Something is wrong with wallfollow, abort...");
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
+        logger->info("Something is wrong with wallfollow/task, moveToEnd...");
+        QTimer::singleShot(0, this, SLOT(moveToEnd()));
     }
 }
 
@@ -185,16 +178,7 @@ void TaskWallNavigation::moveToEnd(){
         emit dataChanged(this);
         emit newState("Move to end");
 
-        distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
-        if(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
-            addData("remaining distance", distanceToTarget);
-            emit dataChanged(this);
-                 this->navi->gotoWayPoint(this->getSettingsValue("targetNavigation").toString());
-            moveToEndTimer.singleShot(this->getSettingsValue("signalTimer").toInt(),this, SLOT(moveToEnd()));
-        } else {
-            QTimer::singleShot(0, navi, SLOT(clearGoal()));
-            QTimer::singleShot(0, this, SLOT(controlNextState()));
-        }
+        this->navi->gotoWayPoint(this->getSettingsValue("startNavigation").toString());
     } else {
         logger->info("Something is wrong with navigation, abort...");
         QTimer::singleShot(0, this, SLOT(emergencyStop()));
@@ -210,7 +194,7 @@ void TaskWallNavigation::controlNextState(){
 
         if(this->getSettingsValue("loopActivated").toBool()){
             logger->debug("start again");
-            QTimer::singleShot(0, this, SLOT( moveToStart()));
+            QTimer::singleShot(0, this, SLOT(moveToStart()));
         } else {
             // Task finished, stop
             QTimer::singleShot(0, this, SLOT(stop()));

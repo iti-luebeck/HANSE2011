@@ -36,6 +36,7 @@ private:
 
 signals:
     void setAngularSpeed(float angularSpeed);
+    void turn180finished(QString degree);
 
 };
 

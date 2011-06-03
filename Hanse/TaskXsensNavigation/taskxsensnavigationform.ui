@@ -315,7 +315,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Turn Timer (msec):</string>
+      <string>Turn after (msec):</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_4">
@@ -328,20 +328,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Heading timer (msec):</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="timerInput">
-     <property name="geometry">
-      <rect>
-       <x>170</x>
-       <y>40</y>
-       <width>113</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
+      <string>Refresh heading (msec):</string>
      </property>
     </widget>
    </widget>
@@ -407,8 +394,8 @@
    <widget class="QLineEdit" name="bToleranceInput">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>210</y>
+      <x>290</x>
+      <y>220</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -417,8 +404,8 @@
    <widget class="QLineEdit" name="bInput">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>180</y>
+      <x>290</x>
+      <y>190</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -427,8 +414,8 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>180</y>
+      <x>150</x>
+      <y>190</y>
       <width>121</width>
       <height>17</height>
      </rect>
@@ -440,14 +427,27 @@
    <widget class="QLabel" name="label_12">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>210</y>
+      <x>150</x>
+      <y>220</y>
       <width>121</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
      <string>B tolerance:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="timerInput">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>310</y>
+      <width>113</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

@@ -93,6 +93,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
             if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
             {
                 emit setAngularSpeed(0.0);
+                emit turn180finished("turn180");
                 QTimer::singleShot(0, this, SLOT(stop()));
             }
             else

@@ -58,7 +58,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Navigation target:</string>
+     <string>Wallfollow target:</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="targetInput">
@@ -82,29 +82,6 @@
     </property>
     <property name="text">
      <string>APPLY SETTINGS</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>150</y>
-      <width>121</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Start tolerance:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="startToleranceInput">
-    <property name="geometry">
-     <rect>
-      <x>170</x>
-      <y>150</y>
-      <width>113</width>
-      <height>27</height>
-     </rect>
     </property>
    </widget>
    <widget class="QLineEdit" name="targetToleranceInput">

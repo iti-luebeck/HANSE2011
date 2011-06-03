@@ -22,10 +22,6 @@ public:
     bool isActive();
 
     QTimer taskTimer;
-    QTimer moveToStartTimer;
-    QTimer moveToEndTimer;
-    QTimer doWallFollowTimer;
-    QTimer controlNextStateTimer;
 
 private:
     Module_Simulation *sim;
@@ -37,8 +33,6 @@ private:
     void terminate();
     double distanceToStart;
     double distanceToTarget;
-
-
 
 signals:
     void timerStart( int msec );
@@ -55,8 +49,8 @@ public slots:
     void emergencyStop();
     void timeoutStop();
 
-
     void moveToStart();
+    void seReached(QString waypoint);
     void moveToEnd();
     void doWallFollow();
     void controlNextState();

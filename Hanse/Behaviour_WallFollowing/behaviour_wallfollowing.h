@@ -24,8 +24,6 @@ public:
 
     bool echoTest;
 
-    int badDataCount;
-
     QTimer *echoControlTimer;
     Module_EchoSounder *echo;
 

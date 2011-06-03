@@ -24,12 +24,6 @@ public:
     bool isActive();
 
     QTimer taskTimer;
-    QTimer moveToStartTimer;
-    QTimer moveToBTimer;
-    QTimer moveToEndTimer;
-    QTimer doTurnTimer;
-    QTimer doXsensFollowTimer;
-    QTimer controlNextStateTimer;
 
 private:
     Module_Simulation *sim;
@@ -40,10 +34,6 @@ private:
     void init();
     bool running;
     void terminate();
-    double distanceToStart;
-    double distanceToTarget;
-    double distanceToB;
-
 
 signals:
     void timerStart( int msec );
@@ -57,19 +47,20 @@ signals:
 public slots:
     void startBehaviour();
     void stop();
-    void emergencyStop();
-    void timeoutStop();
-
 
     void moveToStart();
     void moveToB();
     void moveToEnd();
+    void seReached(QString waypoint);
     void doXsensFollow();
     void finishXsensFollow();
     void controlNextState();
     void doTurn();
 
     void controlEnabledChanged(bool b);
+    void emergencyStop();
+    void timeoutStop();
+
 
 };
 

@@ -47,6 +47,7 @@ void XsensFollowingForm::on_startButton_clicked()
     xsens->setSettingsValue("kp",ui->kp->text().toFloat());
     xsens->setSettingsValue("delta",ui->delta->text().toFloat());
     xsens->setSettingsValue("timer", ui->timerInput->text().toFloat());
+    xsens->setSettingsValue("enableTurn",this->ui->enableTurn->isChecked());
     emit startBehaviour();
 }
 
@@ -63,6 +64,7 @@ void XsensFollowingForm::on_apply_clicked()
     xsens->setSettingsValue("kp",ui->kp->text().toFloat());
     xsens->setSettingsValue("delta",ui->delta->text().toFloat());
     xsens->setSettingsValue("timer", ui->timerInput->text().toFloat());
+    xsens->setSettingsValue("enableTurn",this->ui->enableTurn->isChecked());
 
 }
 

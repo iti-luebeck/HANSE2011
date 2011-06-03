@@ -16,10 +16,7 @@ TaskWallNavigationForm::TaskWallNavigationForm(TaskWallNavigation *twn, QWidget 
     this->ui->desiredDistanceInput->setText(this->taskwallnavigation->getSettingsValue("desiredDistance").toString());
     this->ui->corridorInput->setText(this->taskwallnavigation->getSettingsValue("corridorWidth").toString());
 
-
-
     this->ui->startInput->setText(this->taskwallnavigation->getSettingsValue("startNavigation").toString());
-    this->ui->startToleranceInput->setText(this->taskwallnavigation->getSettingsValue("startTolerance").toString());
 
     this->ui->targetInput->setText(this->taskwallnavigation->getSettingsValue("targetNavigation").toString());
     this->ui->targetToleranceInput->setText(this->taskwallnavigation->getSettingsValue("targetTolerance").toString());
@@ -54,10 +51,9 @@ void TaskWallNavigationForm::on_applyButton_clicked(){
     this->taskwallnavigation->setSettingsValue("desiredDistance" ,this->ui->desiredDistanceInput->text());
     this->taskwallnavigation->setSettingsValue("corridorWidth" ,this->ui->corridorInput->text());
 
-    this->taskwallnavigation->setSettingsValue("startNavigation", this->ui->targetInput->text());
-    this->taskwallnavigation->setSettingsValue("startTolerance", this->ui->startToleranceInput->text());
+    this->taskwallnavigation->setSettingsValue("startNavigation", this->ui->startInput->text());
 
-    this->taskwallnavigation->setSettingsValue("targetNavigation", this->ui->startInput->text());
+    this->taskwallnavigation->setSettingsValue("targetNavigation", this->ui->targetInput->text());
     this->taskwallnavigation->setSettingsValue("targetTolerance", this->ui->targetToleranceInput->text());
 
     this->taskwallnavigation->setSettingsValue("timerActivated", this->ui->enableTimerBox->isChecked());
