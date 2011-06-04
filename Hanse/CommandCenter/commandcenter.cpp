@@ -489,17 +489,19 @@ void CommandCenter::startTaskHandControlCC(){
     wait(1000);
 
     if(this->activeTask != "taskHand"){
-        // Reschedule aborted task
-        QList<QString> temp;
-        temp.append(activeTask);
-        QString msg = "Reschedule "+activeTask;
-        emit newMessage(msg);
-        for(int i = 0; i < this->scheduleList.length(); i++){
-            temp.append(this->scheduleList.at(i));
-        }
-        this->scheduleList.clear();
-        for(int i = 0; i < temp.length(); i++){
-            this->scheduleList.append(temp.at(i));
+        if(this->activeTask != ""){
+            // Reschedule aborted task
+            QList<QString> temp;
+            temp.append(activeTask);
+            QString msg = "Reschedule "+activeTask;
+            emit newMessage(msg);
+            for(int i = 0; i < this->scheduleList.length(); i++){
+                temp.append(this->scheduleList.at(i));
+            }
+            this->scheduleList.clear();
+            for(int i = 0; i < temp.length(); i++){
+                this->scheduleList.append(temp.at(i));
+            }
         }
 
         // Now start taskhandcontrol
