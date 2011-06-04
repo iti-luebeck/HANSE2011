@@ -2,7 +2,7 @@
    - Fahre zu Position A
    -  Mache dann Wandverfolgung bis Position B erreicht wird
        -- Falls Wandverfolgung nicht möglich, fahre direkt zu Position B
-   - Wenn Position B erreicht, beende Task oder beginne von vorn
+   - Wenn Position B erreicht, beende Wallfollowing und beende Task oder beginne von vorn
 */
 
 #include "taskwallnavigation.h"
@@ -74,7 +74,7 @@ void TaskWallNavigation::startBehaviour(){
 
     emit newStateOverview("Move to start");
     emit newStateOverview("Do wallfollowing");
-    emit newStateOverview("Move to end");
+    emit newStateOverview("until end reached");
     if(this->getSettingsValue("loopActivated").toBool()){
         emit newStateOverview("...in a loop");
     }

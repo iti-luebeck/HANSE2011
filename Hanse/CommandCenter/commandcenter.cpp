@@ -157,11 +157,12 @@ void CommandCenter::stopCommandCenter(){
         logger->info("CC not enabled!");
         return;
     }
+    running = false;
+
     RobotModule::reset();
     logger->info("CommandCenter stoped");
     //this->setHealthToSick("Commandcenter stoped, everything stop/disable");
     //this->setEnabled(false);
-    controlTimer.stop();
 
     scheduleList.clear();
     emit stopAllTasks();
@@ -276,11 +277,8 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
     }
     if(this->isEnabled()){
         // Stop thruster, then make next task...
-        if(this->taskhandcontrol->isEnabled()  == false){
+        if(this->taskhandcontrol->isEnabled()  == false && running == true){
             controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
-        } else {
-            logger->info("Idle finishedControl, TaskHandControl active!");
-            activeTask = "taskHand";
         }
     }
     // Update finished/aborted list
@@ -309,6 +307,7 @@ void CommandCenter::timeout(){
     emit setForwardSpeed(0);
     emit setAngularSpeed(0);
     stopCommandCenter();
+    running = false;
 }
 
 void CommandCenter::submergedExecute(){
@@ -368,7 +367,7 @@ void CommandCenter::emergencyStopCommandCenter(){
         logger->info("CC not enabled!");
         return;
     }
-    controlTimer.stop();
+    running = false;
     logger ->info("Emergency stop, stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
     emit resetTCL();
@@ -482,7 +481,6 @@ void CommandCenter::startTaskHandControlCC(){
         return;
     }
 
-    controlTimer.stop();
     logger ->info("Stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
     emit resetTCL();
