@@ -116,7 +116,7 @@ void Behaviour_XsensFollowing::controlLoop()
         return;
     }
     float curHeading = xsens->getHeading();
-    float curDelta = fabs(ctrAngle - curHeading);
+    float curDelta = Angles::deg2deg(ctrAngle - curHeading);
     float ctrAngleSpeed = 0.0;
     float faktor = 1.0;
     if(ctrAngle-curHeading < 0)
