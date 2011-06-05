@@ -146,11 +146,11 @@ void Behaviour_XsensFollowing::turnNinety()
         if(getSettingsValue("turnClockwise").toBool() == true){
             newHeading = newHeading + 90.0;
             if(newHeading > 180){
-                newHeading = newHeading -180;
+                newHeading = -180 + newHeading;
             }
         } else {
             newHeading = newHeading - 90.0;
-            if(newHeading < 180){
+            if(newHeading < -180){
                 newHeading = 180 - newHeading;
             }
         }
