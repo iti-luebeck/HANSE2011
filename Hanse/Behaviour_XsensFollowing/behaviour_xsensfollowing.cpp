@@ -1,6 +1,7 @@
 #include "behaviour_xsensfollowing.h"
 #include <QtGui>
 #include <Behaviour_XsensFollowing/xsensfollowingform.h>
+#include <Framework/Angles.h>
 
 Behaviour_XsensFollowing::Behaviour_XsensFollowing(QString id, Module_ThrusterControlLoop *tcl, Module_XsensMTi *xsens)
     : RobotBehaviour(id)
@@ -145,17 +146,11 @@ void Behaviour_XsensFollowing::turnNinety()
 
         if(getSettingsValue("turnClockwise").toBool() == true){
             newHeading = newHeading + 90.0;
-            if(newHeading > 180){
-                newHeading = -180 + newHeading;
-            }
+            ctrAngle = Angles::deg2deg(newHeading);
         } else {
             newHeading = newHeading - 90.0;
-            if(newHeading < -180){
-                newHeading = 180 - newHeading;
-            }
+            ctrAngle = Angles::deg2deg(newHeading);
         }
-
-        ctrAngle = newHeading;
     }
 }
 
