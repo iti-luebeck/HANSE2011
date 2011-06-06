@@ -7,7 +7,7 @@
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
-class YsensFollwingForm;
+class XsensFollwingForm;
 
 class Behaviour_XsensFollowing : public RobotBehaviour
 {

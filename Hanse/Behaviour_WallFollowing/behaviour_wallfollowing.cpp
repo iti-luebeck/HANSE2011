@@ -3,12 +3,16 @@
 #include <Behaviour_WallFollowing/wallfollowingform.h>
 #include <Module_Simulation/module_simulation.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
+#include <Module_XsensMTi/module_xsensmti.h>
+#include <Framework/Angles.h>
 
-Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo)
+Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo, Module_XsensMTi* x)
     : RobotBehaviour(id)
 {
     this->tcl = tcl;
     this->echo = echo;
+    this->xsens = x;
+
     setDefaultValue("serialPort", "COM9");
     setDefaultValue("range", 5);
     setDefaultValue("forwardSpeed",0.5);
@@ -17,6 +21,7 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     setDefaultValue("corridorWidth",0.2);
 
     setDefaultValue("wallTime",2000);
+    setDefaultValue("initHeading", 0);
 
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
@@ -64,6 +69,13 @@ void Behaviour_WallFollowing::startBehaviour()
     this->setEnabled(true);
     emit started(this);
     running = true;
+    if(this->getSettingsValue("useInitHeading").toBool() == false){
+        initHeadingReached = true;
+    } else {
+        initHeadingReached = false;
+        QTimer::singleShot(0, this, SLOT(controlInitHeading()));
+    }
+
     echoControlTimer->start(wallTime);
 }
 
@@ -180,33 +192,40 @@ void Behaviour_WallFollowing::controlWallFollow()
 void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, float avgDistance)
 {
     if(this->isActive() && this->running == true){
-        if(echo->isEnabled()){
-            emit newWallUiData(data, avgDistance);
-            this->avgDistance = avgDistance;
-            if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
-                Behaviour_WallFollowing::controlWallFollow();
-            } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
-                if(wallCase!="Case 4: No average distance (no wall)?! Only turn right..."){
+        if(this->initHeadingReached == true){
+            if(echo->isEnabled()){
+                emit newWallUiData(data, avgDistance);
+                this->avgDistance = avgDistance;
+                if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
+                    Behaviour_WallFollowing::controlWallFollow();
+                } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
+                    if(wallCase!="Case 4: No average distance (no wall)?! Only turn right..."){
+                        emit forwardSpeed(0.0);
+                        emit angularSpeed(angSpeed);
+                        wallCase = "Case 4: No average distance (no wall)?! Only turn right...";
+                        emit updateWallCase(wallCase);
+                        addData("Current Case: ",wallCase);
+                        emit dataChanged(this);
+                    }
+                }
+            } else if(!echo->isEnabled()){
+                emit dataError();
+            } else {
+                this->setHealthToSick("Something is really wrong, stop thruster");
+                if(wallCase!="Something is really wrong, stop thruster"){
                     emit forwardSpeed(0.0);
-                    emit angularSpeed(angSpeed);
-                    wallCase = "Case 4: No average distance (no wall)?! Only turn right...";
+                    emit angularSpeed(0.0);
+                    wallCase = "Something is really wrong, stop thruster";
                     emit updateWallCase(wallCase);
                     addData("Current Case: ",wallCase);
                     emit dataChanged(this);
                 }
             }
-        } else if(!echo->isEnabled()){
-            emit dataError();
         } else {
-            this->setHealthToSick("Something is really wrong, stop thruster");
-            if(wallCase!="Something is really wrong, stop thruster"){
-                emit forwardSpeed(0.0);
-                emit angularSpeed(0.0);
-                wallCase = "Something is really wrong, stop thruster";
-                emit updateWallCase(wallCase);
-                addData("Current Case: ",wallCase);
-                emit dataChanged(this);
-            }
+            wallCase = "Adjust initial heading...";
+            emit updateWallCase(wallCase);
+            addData("Current Case: ",wallCase);
+            emit dataChanged(this);
         }
     } else {
         if(wallCase!="Wallfollowing not activated!"){
@@ -255,5 +274,19 @@ void Behaviour_WallFollowing::controlEnabledChanged(bool b){
     if(b == false){
         logger->info("No longer enabled!");
         QTimer::singleShot(0, this, SLOT(stop()));
+    }
+}
+
+void Behaviour_WallFollowing::controlInitHeading(){
+    float currentHeading = this->xsens->getHeading();
+    float targetHeading = this->getDataValue("initHeading").toFloat();
+    float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+    if(diffHeading < 20){
+        initHeadingReached = true;
+    } else {
+        diffHeading /= 180;
+        double newAngularSpeed = 0.4 * diffHeading;
+        emit angularSpeed(newAngularSpeed);
+        QTimer::singleShot(100, this, SLOT(controlInitHeading()));
     }
 }

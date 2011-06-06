@@ -37,6 +37,8 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
     this->ui->updateView->setChecked(false);
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTimer").toString());
+    this->ui->headingInput->setText(wallfollow->getSettingsValue("initHeading").toString());
+    this->ui->headingBox->setChecked(false);
 }
 
 WallFollowingForm::~WallFollowingForm()
@@ -65,6 +67,8 @@ void WallFollowingForm::on_startButton_clicked()
     wallfollow->setSettingsValue("corridorWidth", ui->corridorInput->text());
     wallfollow->setSettingsValue("wallTimer", ui->timerInput->text());
     //qDebug("startButton clicked");
+    wallfollow->setSettingsValue("initHeading", ui->headingInput->text());
+    wallfollow->setSettingsValue("useInitHeading", ui->headingBox->isChecked());
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
     //qDebug("startButton clicked2");
     emit startBehaviour();
@@ -146,5 +150,7 @@ void WallFollowingForm::updateUiView(){
     this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
     this->ui->updateView->setChecked(false);
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTime").toString());
+    this->ui->headingInput->setText(wallfollow->getSettingsValue("initHeading").toString());
+    this->ui->headingBox->setChecked(false);
 }
 

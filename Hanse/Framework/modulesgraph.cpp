@@ -112,7 +112,7 @@ void ModulesGraph::build()
     this->modules.append(behavTurn);
 
     logger->debug("Creating Behaviour_WallFollowing");
-    Behaviour_WallFollowing* behavWall = new Behaviour_WallFollowing("wall",controlLoop, echo);
+    Behaviour_WallFollowing* behavWall = new Behaviour_WallFollowing("wall",controlLoop, echo, xsens);
     this->modules.append(behavWall);
 
     logger->debug("Creating Behaviour_XsensFollowing");

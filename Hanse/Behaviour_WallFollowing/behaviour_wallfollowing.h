@@ -9,12 +9,13 @@
 class WallFollowingForm;
 class Module_ThrusterControlLoop;
 class Module_Simulation;
+class Module_XsensMTi;
 
 class Behaviour_WallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo);
+    Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo, Module_XsensMTi* x);
 
     QList<RobotModule*> getDependencies();
 
@@ -23,9 +24,11 @@ public:
     bool isActive();
 
     bool echoTest;
+    bool initHeadingReached;
 
     QTimer *echoControlTimer;
     Module_EchoSounder *echo;
+    Module_XsensMTi* xsens;
 
 private:
     //QTimer timer;
@@ -50,6 +53,7 @@ private:
     void timerSlotExecute();
     int wallTime;
 
+
 public slots:
     void updateFromSettings();
     void startBehaviour();
@@ -63,6 +67,8 @@ public slots:
 
     void testEchoModule();
     void controlEnabledChanged(bool);
+    void controlInitHeading();
+
 
 signals:
     void timerStart( int msec );

@@ -32,6 +32,8 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
 
     setDefaultValue("scanTimer",100);
     setDefaultValue("calcFactor",0.3);
+    setDefaultValue("formatCSV", false);
+    setDefaultValue("enableRecording", true);
 
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
 
