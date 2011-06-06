@@ -7,6 +7,7 @@
 #include <Behaviour_BallFollowing/blobs/BlobResult.h>
 #include <opencv/highgui.h>
 #include <Module_XsensMTi/module_xsensmti.h>
+#include <Framework/Angles.h>
 
 Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop *tcl,
                                                  Module_Webcams *cams, Module_XsensMTi *xsens)
@@ -32,11 +33,10 @@ void Behaviour_BallFollowing::init()
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
 
+    // Wieso in der init -45 und im Behav.start nochmal?
     targetHeading = xsens->getHeading() - 45;
-    if ( targetHeading < 0 )
-    {
-        targetHeading += 360;
-    }
+    targetHeading = Angles::deg2deg(targetHeading);
+
     QObject::connect( xsens, SIGNAL(dataChanged(RobotModule*)),
                       this, SLOT(xsensUpdate(RobotModule*)) );
 }
@@ -56,12 +56,9 @@ void Behaviour_BallFollowing::startBehaviour()
     this->setEnabled( true );
     state = BALL_STATE_TURN_45;
     targetHeading = xsens->getHeading() - 45;
-    if ( targetHeading < 0 )
-    {
-        targetHeading += 360;
-    }
+    targetHeading = Angles::deg2deg(targetHeading);
+
     emit setAngularSpeed(-0.4);
-    //    tcl->setAngularSpeed( -0.4 );
 
     updateTimer.start( 100 );
     emit started(this);
@@ -115,8 +112,6 @@ void Behaviour_BallFollowing::reset()
     RobotBehaviour::reset();
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
-    //    this->tcl->setForwardSpeed(0.0);
-    //    this->tcl->setAngularSpeed(0.0);
 }
 
 QList<RobotModule*> Behaviour_BallFollowing::getDependencies()
@@ -262,8 +257,6 @@ void Behaviour_BallFollowing::ctrBallFollowing()
         }
         emit setAngularSpeed(angleSpeed);
         emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
-        //        tcl->setAngularSpeed(angleSpeed);
-        //        tcl->setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
 
         addData("ball_area", maxArea);
         addData("ball_x", x);
@@ -277,8 +270,6 @@ void Behaviour_BallFollowing::ctrBallFollowing()
     {
         emit setAngularSpeed(0.0);
         emit setForwardSpeed(0.6);
-        //        tcl->setAngularSpeed( .0 );
-        //        tcl->setForwardSpeed( .6 );
     }
 
     cvReleaseImage( &left );
