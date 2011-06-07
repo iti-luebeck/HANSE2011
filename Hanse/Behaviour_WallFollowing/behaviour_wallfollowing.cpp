@@ -278,15 +278,20 @@ void Behaviour_WallFollowing::controlEnabledChanged(bool b){
 }
 
 void Behaviour_WallFollowing::controlInitHeading(){
-    float currentHeading = this->xsens->getHeading();
-    float targetHeading = this->getDataValue("initHeading").toFloat();
-    float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-    if(diffHeading < 20){
-        initHeadingReached = true;
+    if(this->xsens->isEnabled()){
+        float currentHeading = this->xsens->getHeading();
+        float targetHeading = this->getDataValue("initHeading").toFloat();
+        float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+        if(diffHeading < 20){
+            initHeadingReached = true;
+        } else {
+            diffHeading /= 180;
+            double newAngularSpeed = 0.4 * diffHeading;
+            emit angularSpeed(newAngularSpeed);
+            QTimer::singleShot(100, this, SLOT(controlInitHeading()));
+        }
     } else {
-        diffHeading /= 180;
-        double newAngularSpeed = 0.4 * diffHeading;
-        emit angularSpeed(newAngularSpeed);
-        QTimer::singleShot(100, this, SLOT(controlInitHeading()));
+        logger->info("Sry, xsens not enabled - start wallfollowing without initial heading");
+        initHeadingReached = true;
     }
 }
