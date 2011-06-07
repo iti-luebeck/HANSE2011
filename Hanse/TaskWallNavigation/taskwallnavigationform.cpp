@@ -25,6 +25,8 @@ TaskWallNavigationForm::TaskWallNavigationForm(TaskWallNavigation *twn, QWidget 
 
     this->ui->taskStopInput->setText(this->taskwallnavigation->getSettingsValue("taskStopTime").toString());
     this->ui->signalInput->setText(this->taskwallnavigation->getSettingsValue("signalTimer").toString());
+    this->ui->headingInput->setText(this->taskwallnavigation->getSettingsValue("initHeading").toString());
+    this->ui->headingBox->setChecked(false);
 }
 
 TaskWallNavigationForm::~TaskWallNavigationForm()
@@ -62,6 +64,8 @@ void TaskWallNavigationForm::on_applyButton_clicked(){
     this->taskwallnavigation->setSettingsValue("taskStopTime", this->ui->taskStopInput->text());
     this->taskwallnavigation->setSettingsValue("signalTimer", this->ui->signalInput->text());
 
+    this->taskwallnavigation->setSettingsValue("initHeading", ui->headingInput->text());
+    this->taskwallnavigation->setSettingsValue("useInitHeading", ui->headingBox->isChecked());
 }
 
 

@@ -37,6 +37,7 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
 
     this->setDefaultValue("timerActivated", true);
     this->setDefaultValue("loopActivated", true);
+    this->setDefaultValue("initHeading", 0);
 
     taskTimer.setSingleShot(true);
     taskTimer.moveToThread(this);
@@ -131,16 +132,22 @@ void TaskWallNavigation::seReached(QString waypoint){
 }
 
 void TaskWallNavigation::doWallFollow(){
-    if(this->isEnabled() && this->wall->getHealthStatus().isHealthOk()){
+    if(this->isEnabled()){
         logger->debug("Do wallfollowing");
         addData("state", "Do wallfollowing");
         emit newState("Do wallfollowing");
         emit dataChanged(this);
+
         this->wall->setSettingsValue("corridorWidth",this->getSettingsValue("corridorWidth").toFloat());
         this->wall->setSettingsValue("desiredDistance",this->getSettingsValue("desiredDistance").toFloat());
+        this->wall->setSettingsValue("initHeading",this->getSettingsValue("initHeading").toFloat());
+        this->wall->setSettingsValue("loopActivated",this->getSettingsValue("loopActivated").toBool());
+
         if(!this->wall->isEnabled()){
             logger->debug("enable wallfollow and echo");
             QTimer::singleShot(0, wall, SLOT(startBehaviour()));
+        } else {
+            QTimer::singleShot(0, wall, SLOT(reset()));
         }
 
         // Now do wallfollowing until target position is reached

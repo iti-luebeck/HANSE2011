@@ -164,16 +164,19 @@ void TaskXsensNavigation::doXsensFollow(){
         emit dataChanged(this);
         emit newState("Do xsensfollowing");
 
+        this->xsensfollow->setSettingsValue("ffSpeed", this->getSettingsValue("ffSpeed").toString());
+        this->xsensfollow->setSettingsValue("kp", this->getSettingsValue("kp").toString());
+        this->xsensfollow->setSettingsValue("delta", this->getSettingsValue("delta").toString());
+        this->xsensfollow->setSettingsValue("timer", this->getSettingsValue("timer").toString());
+
+        this->xsensfollow->setSettingsValue("turnClockwise", true);
+        this->xsensfollow->setSettingsValue("driveTime", this->getSettingsValue("driveTime").toString());
+
         if(!this->xsensfollow->isEnabled()){
             logger->debug("enable xsensfollow");
-            this->xsensfollow->setSettingsValue("ffSpeed", this->getSettingsValue("ffSpeed").toString());
-            this->xsensfollow->setSettingsValue("kp", this->getSettingsValue("kp").toString());
-            this->xsensfollow->setSettingsValue("delta", this->getSettingsValue("delta").toString());
-            this->xsensfollow->setSettingsValue("timer", this->getSettingsValue("timer").toString());
-
-            this->xsensfollow->setSettingsValue("turnClockwise", true);
-            this->xsensfollow->setSettingsValue("driveTime", this->getSettingsValue("driveTime").toString());
             QTimer::singleShot(0, xsensfollow, SLOT(startBehaviour()));
+        } else {
+            QTimer::singleShot(0, xsensfollow, SLOT(reset()));
         }
 
         addData("Time until turn90",this->getSettingsValue("driveTime").toInt());
