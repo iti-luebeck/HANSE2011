@@ -19,8 +19,6 @@ RobotModule::RobotModule(QString newId)
 
     this->initWaiterMutex.lock();
 
-    setDefaultValue("enabled", true);
-
     // perform a health check once a second
     connect(&healthCheckTimer,SIGNAL(timeout()),this,SLOT(doHealthCheck()));
     healthCheckTimer.setInterval(1000);
@@ -58,20 +56,24 @@ void RobotModule::run()
 
 void RobotModule::setEnabled(bool value)
 {
-    setSettingsValue("enabled",value);
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, "modulesgraph");
+    s.setValue(id,value);
 
     if (value) {
         // this method may be called from other threads, therefore we do the reset
         // asynchronously
         QTimer::singleShot(0, this, SLOT(reset()));
     }
-    emit enabled(getSettingsValue("enabled").toBool());
+    emit enabled(isEnabled());
 
 }
 
 bool RobotModule::isEnabled()
 {
-    return getSettingsValue("enabled").toBool();
+    // "enabled" is not stored in the module-specific ini file, but in a special one
+    // this avoids repeating SVN conflicts when commiting ini files.
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, "modulesgraph");
+    return s.value(id).toBool();
 }
 
 void RobotModule::waitForInitToComplete()
@@ -113,20 +115,29 @@ QStringList RobotModule::getSettingKeys()
 
 const QVariant RobotModule::getSettingsValue(const QString key, const QVariant defValue)
 {
-    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
-    QVariant qv = s.value(key,defValue);
-    return qv;
+    if (key == "enabled") {
+        return isEnabled();
+    } else {
+        QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
+        QVariant qv = s.value(key,defValue);
+        return qv;
+    }
 }
 
 const QVariant RobotModule::getSettingsValue(const QString key)
 {
-    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
-    QVariant qv = s.value(key);
-    return qv;
+    if (key == "enabled") {
+        return isEnabled();
+    } else {
+        QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
+        QVariant qv = s.value(key);
+        return qv;
+    }
 }
 
 void RobotModule::setSettingsValue(QString key, QVariant value)
 {
+    Q_ASSERT(key != "enabled");
     QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
     s.setValue(key,value);
 }
@@ -134,6 +145,7 @@ void RobotModule::setSettingsValue(QString key, QVariant value)
 
 void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
 {
+    Q_ASSERT(key != "enabled");
     QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
     if (!s.contains(key))
         s.setValue(key, value);
