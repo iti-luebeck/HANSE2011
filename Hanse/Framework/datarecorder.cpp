@@ -95,7 +95,7 @@ void DataRecorder::newDataReceived(RobotModule *module)
 
     QDateTime now = QDateTime::currentDateTime();
 
-    *stream << now.toTime_t() << "." << now.toString("z") << ",";
+    *stream << now.toTime_t() << "." << now.toString("zzz") << ",";
     *stream << module->getHealthStatus().isHealthOk();
 
     // TODO: write health status to different logfile
