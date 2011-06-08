@@ -303,7 +303,7 @@ void Behaviour_WallFollowing::controlInitHeading(){
                 faktor = -1.0;
             if(diffHeading > 10 || diffHeading < 10)
             {
-                ctrAngleSpeed = 0.4* faktor * currentHeading / targetHeading;
+                ctrAngleSpeed = 0.4 * faktor * diffHeading;
             }
             emit angularSpeed(ctrAngleSpeed);
             QTimer::singleShot(100, this, SLOT(controlInitHeading()));
