@@ -291,7 +291,7 @@ void Behaviour_WallFollowing::controlInitHeading(){
             float faktor = 1.0;
             if(diffHeading < 0)
                 faktor = -1.0;
-            if(curDelta > getSettingsValue("delta").toFloat() || curDelta < getSettingsValue("delta").toFloat())
+            if(diffHeading > 10 || diffHeading < 10)
             {
                 ctrAngleSpeed = 0.4* faktor * currentHeading / targetHeading;
             }
