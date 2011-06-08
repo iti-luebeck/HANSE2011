@@ -70,7 +70,7 @@ void Behaviour_WallFollowing::startBehaviour()
     emit started(this);
     running = true;
     if(this->getSettingsValue("useInitHeading").toBool() == false){
-        logger->info("No init heading");
+        logger->info("No init heading used");
         initHeadingReached = true;
     } else {
         initHeadingReached = false;
@@ -284,12 +284,18 @@ void Behaviour_WallFollowing::controlInitHeading(){
         float currentHeading = this->xsens->getHeading();
         float targetHeading = this->getDataValue("initHeading").toFloat();
         float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-        if(-20 < diffHeading && diffHeading < 20){
+        addData("currentHeading", currentHeading);
+        addData("targetHeading", targetHeading);
+        addData("diffHeading", diffHeading);
+        emit dataChanged(this);
+        if(-10 < diffHeading && diffHeading < 10){
+            logger->info("init heading reached");
             initHeadingReached = true;
         } else {
+            initHeadingReached = false;
             float ctrAngleSpeed = 0.0;
             float faktor = 1.0;
-            if(diffHeading < 0)
+            if(targetHeading-currentHeading < 0)
                 faktor = -1.0;
             if(diffHeading > 10 || diffHeading < 10)
             {
