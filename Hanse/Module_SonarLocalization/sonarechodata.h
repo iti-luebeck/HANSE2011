@@ -20,7 +20,6 @@ public:
     QByteArray getFiltered();
     QList<float> getGradient();
     int getWallCandidate();
-    int getClassLabel();
     float getRange();
     float getHeadPosition();
     float getGain();
@@ -28,11 +27,9 @@ public:
     QDateTime getTimeStamp();
     float getCompassHeading();
 
-    void setClassLabel(int label);
     void setFiltered(QByteArray data);
     void setGradient(QList<float> data);
     void setWallCandidate(int bin);
-    void addFeature(int index, float value);
     void addOffsetToHeadPos(float degree);
     void setHeadingIncrement(float inc);
     void setCompassHeading(float head);
@@ -44,9 +41,9 @@ public:
 
 private:
     QByteArray raw;
-    int classLabel;
     QByteArray filtered;
     QList<float> gradient;
+
     int wallCandidate;
     float headPosition;
     float range;

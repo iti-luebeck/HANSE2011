@@ -21,7 +21,6 @@ SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent, Module_XsensM
     logger = Log4Qt::Logger::logger("SonarFilter");
 
     this->initNoiseMat();
-    svm = new SVMClassifier();
     reset();
     this->lastMaxValue = -1;
     this->lastMaxValues.clear();
@@ -51,13 +50,7 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
     }
 
     this->filterEcho(currData);
-    if (this->sloc->getSettingsValue("medianFilter").toBool()) {
-        this->medianFilter(currData);
-    }
-
     this->gradientFilter(currData);
-    int predClass = 1;
-    currData.setClassLabel(predClass);
     candidates.append(currData);
 
     this->grouping();
@@ -127,21 +120,15 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
 
         // Calculate gradient (and at the same time the maximum value,
         // which may be used as the wall candidate).
-        QList<int> ks;
-        ks.clear();
-//        ks.append(24);
-        ks.append(16);
-        ks.append(8);
-        ks.append(4);
-//        ks.append(2);
-        int k;
-        foreach(k, ks) {
+        foreach(int k, ks) {
             for (int j = 0; j < N; j++) {
                 int up = qMax(0, j - k);
                 int down = qMin(j + k, N - 1);
                 float gradient = 0;
                 if (up == j - k && down == j + k) {
                     gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (2*k));
+                } else {
+                    gradient = 1;
                 }
                 echoFiltered.at<float>(0,j) = echoFiltered.at<float>(0,j) * gradient;
             }
@@ -199,172 +186,77 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
     }
 }
 
-void SonarEchoFilter::medianFilter(SonarEchoData &data)
-{
-    QByteArray echo = data.getFiltered();
-    int w = 1;
-    for (int i = 0; i < echo.size(); i++) {
-        QByteArray window;
-        for (int j = i - w; j <= i+w; j++) {
-            if (j >= 0 && j < echo.size()) {
-                window.append(echo[j]);
-            }
-        }
-        qSort(window.begin(), window.end());
-        echo[i] = window[(int)floor((window.size() - 1.0) / 2)];
-
-        switch (i) {
-        case 50:
-            w = 1;
-            break;
-        case 100:
-            w = 2;
-            break;
-        case 150:
-            w = 3;
-            break;
-        case 200:
-            w = 6;
-            break;
-        }
-    }
-    data.setFiltered(echo);
-}
-
-void SonarEchoFilter::findWall(SonarEchoData &data)
-{
-    Mat echo = this->byteArray2Mat(data.getFiltered());
-    int N = echo.cols;
-    int wSize= this->sloc->getSettingsValue("wallWindowSize").toInt();
-    int K = -1;
-
-    for(int j=N-wSize-1; j>=wSize; j--) {
-
-        // window around the point we're looking at
-        Mat window = echo.colRange(j-wSize, j+wSize);
-
-        Scalar mean;
-        Scalar stdDev;
-
-        // calc stdDev inside window
-        meanStdDev(window, mean,stdDev);
-        float stdDevInWindow = stdDev[0]*stdDev[0];
-
-        // TODO: fiddle with TH, or move it a little bit to the left
-        float gLargePeakTH = this->sloc->getSettingsValue("largePeakTH").toFloat();
-        bool largePeak = mean[0]>gLargePeakTH;
-
-        // calc mean in area behind our current pos.
-        Mat prev = echo.colRange(j+wSize,echo.cols-1);
-        meanStdDev(prev, mean, stdDev);
-        float meanBehind = mean[0];
-
-        // take first peak found.
-        float gVarianceTH = this->sloc->getSettingsValue("varTH").toFloat();
-        float gMeanBehindTH = this->sloc->getSettingsValue("meanBehindTH").toFloat();
-        if (stdDevInWindow > gVarianceTH
-            && meanBehind< gMeanBehindTH
-            && largePeak && K<0) {
-            K=j;
-            data.setWallCandidate(K);
-            break;
-        }
-    }
-}
-
-void SonarEchoFilter::extractFeatures(SonarEchoData &data)
-{
-    if(data.getWallCandidate() == -1)
-        return;
-
-    Mat echo = this->byteArray2Mat(data.getFiltered());
-
-    int xw = data.getWallCandidate();
-     int kp = this->sloc->getSettingsValue("wallWindowSize").toInt();
-     float f[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-     int xp = xw;
-     for(int i=xw-kp; i<xw+kp;i++)
-     {
-         if(echo.at<float>(0,i) > f[0])
-         {
-             f[0] = echo.at<float>(0,i);
-             xp = i;
-         }
-     }
-
-     data.addFeature(0,f[0]);
-
-     Scalar mean1 = Scalar();
-     Scalar mean2 = Scalar();
-     Scalar stdDev1 = Scalar();
-     Scalar stdDev2 = Scalar();
-
-     meanStdDev(echo.colRange(0,xw),mean1,stdDev1);
-     meanStdDev(echo.colRange(xw+1,echo.cols-1),mean2,stdDev2);
-     Scalar var1 = stdDev1.mul(stdDev1);
-     Scalar var2 = stdDev2.mul(stdDev2);
-
-     data.addFeature(1,mean1.val[0]/mean2.val[0]);
-     data.addFeature(2,var1.val[0]/var2.val[0]);
-     data.addFeature(3,xw);
-     data.addFeature(4,xw -prevWallCandidate);
-     f[1] = mean1.val[0]/mean2.val[0];
-     f[2] = var1.val[0]/var2.val[0];
-     f[3] = xw;
-     f[4] = xw - prevWallCandidate;
-     prevWallCandidate = xw;
-
-     meanStdDev(echo.colRange(xp-kp,xp+kp),mean1,stdDev1);
-     data.addFeature(5,mean1.val[0]);
-     data.addFeature(6,stdDev1.val[0] * stdDev1.val[0]);
-     f[5] = mean1.val[0];
-     f[6] = stdDev1.val[0] * stdDev1.val[0];
-
-     meanStdDev(echo.colRange(xw-kp,xw+kp),mean1,stdDev1);
-     f[7] = mean1.val[0];
-     f[8] = stdDev1.val[0] * stdDev1.val[0];
-     data.addFeature(7,mean1.val[0]);
-     data.addFeature(8,stdDev1.val[0] * stdDev1.val[0]);
-
-}
-
 void SonarEchoFilter::applyHeuristic()
 {
-    int deltaTH = this->sloc->getSettingsValue("darknessCnt").toInt();
+    float deltaTH = this->sloc->getSettingsValue("darknessCnt").toFloat();
     bool singlePoint = this->sloc->getSettingsValue("singlePoint").toBool();
     bool deltaK = this->sloc->getSettingsValue("deltaKH").toBool();
 
     //DeltaKMethod
-    if(deltaK)
-    {
-        for(int i = 1; i < candidates.size(); i++)
-        {
-            int wcPrev = candidates[i-1].getWallCandidate();
-            int wcCurr = candidates[i].getWallCandidate();
-            int absolut = abs(wcPrev-wcCurr);
-            if((absolut > deltaTH) && (wcPrev > 1))
-            {
-//                qDebug() << i << " wc " <<wcPrev << wcCurr;
-                candidates[i].setWallCandidate(-1);
-                candidates[i].setClassLabel(0);
+    if (deltaK) {
+        for (int i = 1; i < candidates.size() - 1; i++) {
+            if ((candidates[i-1].getWallCandidate() > 1) &&
+                    (candidates[i].getWallCandidate() > 1) &&
+                    (candidates[i+1].getWallCandidate() > 1)) {
+                int prevDist = candidates[i-1].getWallCandidate() - candidates[i].getWallCandidate();
+                int nextDist = candidates[i].getWallCandidate() - candidates[i+1].getWallCandidate();
+                if (abs(prevDist - nextDist) > deltaTH) {
+                    candidates[i].setWallCandidate(-1);
+                }
             }
         }
     }
 
     //SinglePoint Method
-    if(singlePoint)
+    if (singlePoint)
     {
-        for(int i = 1; i < candidates.size()-1; i++)
-        {
-            bool prev = (candidates[i-1].getWallCandidate() > 1);//candidates[i-1].hasWallCandidate();
-            bool next = (candidates[i+1].getWallCandidate() > 1);//candidates[i+1].hasWallCandidate();
-            prev = (candidates[i-1].getClassLabel() == 1);
-            next = (candidates[i+1].getClassLabel() == 1);
+        int kabs = 2;
+        QList<bool> flags;
+        for (int i = 0; i < candidates.size(); i++) {
+            int neighborCount = 0;
+            for (int k = -kabs; k <= kabs; k++) {
+                if (k == 0) {
+                    continue;
+                }
 
-            if(!prev && !next)
-            {
+                int neighborIdx = (i + k);
+                if (neighborIdx >=  candidates.size()) {
+                    neighborIdx -= candidates.size();
+                } else if (neighborIdx < 0) {
+                    neighborIdx += candidates.size();
+                }
+                bool neighborIsWall = (candidates[neighborIdx].getWallCandidate() > 1);
+                if (neighborIsWall) {
+                    neighborCount++;
+                }
+
+            }
+            if (neighborCount <= kabs) {
+                flags.append(false);
+            } else {
+                flags.append(true);
+            }
+        }
+
+        kabs = 1;
+        for (int i = 0; i < candidates.size(); i++) {
+            bool test = false;
+            for (int k = -kabs; k <= kabs; k++) {
+                if (k == 0) {
+                    continue;
+                }
+
+                int neighborIdx = (i + k);
+                if (neighborIdx >=  candidates.size()) {
+                    neighborIdx -= candidates.size();
+                } else if (neighborIdx < 0) {
+                    neighborIdx += candidates.size();
+                }
+
+                test |= flags[neighborIdx];
+            }
+            if (!test) {
                 candidates[i].setWallCandidate(-1);
-                candidates[i].setClassLabel(0);
             }
         }
     }
@@ -412,7 +304,7 @@ void SonarEchoFilter::grouping()
         int cutIndex = 0;
         int darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
         for (int i = candidates.size()-1; i > 0; i--) {
-            if (candidates[i].getWallCandidate() > 1 && candidates[i].getClassLabel() == 1)
+            if (candidates[i].getWallCandidate() > 1)
                 darknessCount = this->sloc->getSettingsValue("groupingDarkness").toInt();
             else
                 darknessCount--;
@@ -520,7 +412,7 @@ void SonarEchoFilter::sendImage()
 
     // Get Euclidian representation of wall features.
     for (int i = 0; i < candidates.size(); i++) {
-        if (candidates[i].getWallCandidate() > 0 && candidates[i].getClassLabel() == 1) {
+        if (candidates[i].getWallCandidate() > 0 ) {
             QVector2D vec  = candidates[i].getEuclidean();
             posArray.append(vec);
             wallFeatures.append(candidates[i]);
@@ -591,18 +483,6 @@ void SonarEchoFilter::getNoNoiseFilter(QVector<int> &vec)
         qDebug("ERROR Size of noiseMat != Size of NoNoiseFilter");
 }
 
-void SonarEchoFilter::addToList(QList<QVector2D>& list, const QVector2D p)
-{
-    if (list.length()==0) {
-        list.append(p);
-        return;
-    }
-
-    QVector2D& q = list[list.length()-1];
-    if ((q-p).length()>1)
-        list.append(p);
-}
-
 void SonarEchoFilter::reset()
 {
     if(this->sloc)
@@ -619,9 +499,6 @@ void SonarEchoFilter::reset()
     varHistory.clear();
     meanHistory.clear();
 
-    localKlist.clear();
-    localKlistHeading.clear();
-    localKlistID.clear();
     currentID = -1;
     swipedArea = 0;
     darknessCount = 0;
@@ -632,14 +509,15 @@ void SonarEchoFilter::reset()
     prevWallCandidate = 0.0;
     candidates.clear();
 
-//    QString path = this->sloc->getSettingsValue("Path2SVM").toString();
-//    if(path.length() > 0)
-//    {
-//        QByteArray ba = path.toLatin1();
-//          const char *c_str2 = ba.data();
-//          svm->loadClassifier(c_str2);
-
-//    }
+    ks.clear();
+    QStringList vals = sloc->getSettingsValue("filter lengths", "2;4;8").toString().split(";");
+    for (int i = 0; i < vals.size(); i++) {
+        bool ok = false;
+        int ktemp = vals[i].toInt(&ok);
+        if (ok) {
+            ks.append(ktemp);
+        }
+    }
 }
 
 QByteArray SonarEchoFilter::mat2byteArray(cv::Mat &mat)

@@ -95,7 +95,7 @@ private:
 
     void updateParticleFilter(const QList<QVector2D>& observations);
 
-    void addToList(QList<QVector2D>& list, const QVector2D p);
+    void addToList(QList<QVector2D>& list, const QVector2D p, double Tdist);
 
 private slots:
     void newImage(QList<QVector2D> observations);

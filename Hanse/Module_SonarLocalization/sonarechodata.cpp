@@ -6,7 +6,6 @@ SonarEchoData::SonarEchoData()
     this->filtered = QByteArray(250,0);
     this->gradient = QList<float>();
     for (int i = 0; i < 250; i++) this->gradient.append(0.0f);
-    this->classLabel = 0;
     this->wallCandidate = -1;
     this->headingIncrement = 0;
 }
@@ -19,7 +18,6 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     arr.clear();
     this->filtered.clear();
     this->gradient.clear();
-    this->classLabel = -1;
     this->wallCandidate = -1;
     this->headPosition = data.getHeadPosition();
     this->range = data.getRange();
@@ -33,13 +31,11 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
 SonarEchoData::SonarEchoData(const SonarEchoData& dat)
 {
     this->raw = dat.raw;
-    this->classLabel = dat.classLabel;
     this->filtered = dat.filtered;
     this->wallCandidate = dat.wallCandidate;
     this->headPosition = dat.headPosition;
     this->range = dat.range;
     this->timestamp = dat.timestamp;
-//    this->features = dat.features;
     this->gain = dat.gain;
 
     this->gradient.clear();
@@ -48,11 +44,6 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
     }
     this->headingIncrement = dat.headingIncrement;
     this->compassHeading = dat.compassHeading;
-}
-
-int SonarEchoData::getClassLabel()
-{
-    return this->classLabel;
 }
 
 int SonarEchoData::getWallCandidate()
@@ -103,20 +94,6 @@ float SonarEchoData::getHeadingIncrement()
 void SonarEchoData::setHeadingIncrement(float inc)
 {
     this->headingIncrement = inc;
-}
-
-void SonarEchoData::addFeature(int __attribute__ ((unused)) index, float __attribute__ ((unused)) value)
-{
-//    qDebug() << "feature added " << value;
-//    features.at<float>(0,index) = value;
-}
-
-void SonarEchoData::setClassLabel(int label)
-{
-   if(label > 0)
-        this->classLabel = 1;
-   else
-       this->classLabel = 0;
 }
 
 void SonarEchoData::setFiltered(QByteArray data)

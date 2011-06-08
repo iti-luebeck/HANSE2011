@@ -103,19 +103,13 @@ void Form_SonarLocalization::setFields()
 {
     ui->config_mapFile->setText(m->getSettingsValue("mapFile").toString());
     ui->config_satImage->setText(m->getSettingsValue("satImgFile").toString());
-    ui->scaleMap->setText(m->getSettingsValue("scaleMap").toString());
+    ui->scaleMap->setText(m->getSettingsValue("scaleMap", 0.2).toString());
 
     ui->debug->setChecked((m->getSettingsValue("debug", false).toBool()));
 
-    ui->medianFilterCB->setChecked(m->getSettingsValue("medianFilter", true).toBool());
     ui->darknessCnt->setText((m->getSettingsValue("darknessCnt", 20).toString()));
     ui->singlePointCB->setChecked(m->getSettingsValue("singlePoint",true).toBool());
     ui->deltaKHCB->setChecked(m->getSettingsValue("deltaKH",true).toBool());
-
-    ui->wallWindowSize->setText((m->getSettingsValue("wallWindowSize", 3).toString()));
-    ui->varTH->setText((m->getSettingsValue("varTH", 0.04).toString()));
-    ui->largePeakTH->setText((m->getSettingsValue("largePeakTH", 0.5).toString()));
-    ui->meanBehindTH->setText((m->getSettingsValue("meanBehindTH", 1.0).toString()));
 
     ui->imgMinPixels->setText((m->getSettingsValue("imgMinPixels", 10).toString()));
     ui->controlVariance->setText((m->getSettingsValue("controlVariance", "2;2;1").toString()));
@@ -124,17 +118,16 @@ void Form_SonarLocalization::setFields()
     ui->particleCount->setText((m->getSettingsValue("particleCount", 1000).toString()));
     ui->boltzmann->setText((m->getSettingsValue("observationVariance", 10).toString()));
 
-    ui->configure_SVM->setText(m->getSettingsValue("Path2SVM").toString());
-
     ui->groupingDarknessCnt->setText(m->getSettingsValue("groupingDarkness", 10).toString());
     ui->groupingMaxArea->setText(m->getSettingsValue("groupingMaxArea", 360).toString());
 
-    ui->enableSVM->setChecked(m->getSettingsValue("enableSVM", false).toBool());
     ui->gradMaxVal->setText(m->getSettingsValue("gradientMaxVal", 0.1).toString());
     ui->gradMaxIdx->setText(m->getSettingsValue("gradientMaxIdx", 5).toString());
     ui->histMaxVal->setText(m->getSettingsValue("histMaxVal", 1).toString());
 
     ui->xsensBox->setChecked(m->getSettingsValue("use xsens", false).toBool());
+    ui->obsDistEdit->setText(m->getSettingsValue("min obs dist", 2).toString());
+    ui->filterLengthBox->setText(m->getSettingsValue("filter lengths", "2;4;8").toString());
 }
 
 Form_SonarLocalization::~Form_SonarLocalization()
@@ -215,16 +208,9 @@ void Form_SonarLocalization::on_pushButton_clicked()
 
     m->setSettingsValue("debug", ui->debug->isChecked());
 
-    m->setSettingsValue("medianFilter",ui->medianFilterCB->isChecked());
-
     m->setSettingsValue("darknessCnt", ui->darknessCnt->text());
     m->setSettingsValue("deltaKH",ui->deltaKHCB->isChecked());
     m->setSettingsValue("singlePoint",ui->singlePointCB->isChecked());
-
-    m->setSettingsValue("wallWindowSize", ui->wallWindowSize->text());
-    m->setSettingsValue("varTH", ui->varTH->text());
-    m->setSettingsValue("largePeakTH", ui->largePeakTH->text());
-    m->setSettingsValue("meanBehindTH", ui->meanBehindTH->text());
 
     m->setSettingsValue("imgMinPixels", ui->imgMinPixels->text());
     m->setSettingsValue("controlVariance", ui->controlVariance->text());
@@ -236,12 +222,14 @@ void Form_SonarLocalization::on_pushButton_clicked()
     m->setSettingsValue("groupingDarkness",ui->groupingDarknessCnt->text());
     m->setSettingsValue("groupingMaxArea",ui->groupingMaxArea->text());
 
-    m->setSettingsValue("enableSVM",ui->enableSVM->isChecked());
     m->setSettingsValue("gradientMaxVal",ui->gradMaxVal->text());
     m->setSettingsValue("gradientMaxIdx",ui->gradMaxIdx->text());
     m->setSettingsValue("histMaxVal",ui->histMaxVal->text());
 
     m->setSettingsValue("use xsens",ui->xsensBox->isChecked());
+    m->setSettingsValue("min obs dist",ui->obsDistEdit->text().toFloat());
+
+    m->setSettingsValue("filter lengths", ui->filterLengthBox->text());
 
     m->reset();
 }
@@ -308,7 +296,7 @@ void Form_SonarLocalization::particleFilterStatus(bool status) {
 void Form_SonarLocalization::on_selMap_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-         "Open Map file", ui->config_mapFile->text(), "Selfmade map file (*.png *.jpg)");
+         "Open Map file", ui->config_mapFile->text(), "Selfmade map file (*.png *.jpg *.bmp)");
 
     if (fileName.length()>0)
         ui->config_mapFile->setText(fileName);
@@ -317,7 +305,7 @@ void Form_SonarLocalization::on_selMap_clicked()
 void Form_SonarLocalization::on_selSat_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-         "Open satellite image", ui->config_satImage->text(), "satellite image file (*.png *.jpg)");
+         "Open satellite image", ui->config_satImage->text(), "satellite image file (*.png *.jpg *.bmp)");
 
     if (fileName.length()>0)
         ui->config_satImage->setText(fileName);
@@ -354,10 +342,9 @@ void Form_SonarLocalization::updateSonarView()
         QLinearGradient gi(0, 0, 0, data.length());
         for (int i = 0; i < data.length(); i++) {
             int skalarM = 1;
-            int cl = sonarEchoDataList[j].getClassLabel();
             int wc = sonarEchoDataList[j].getWallCandidate();
 
-            if (((cl == 1) && (wc > 0)  && (i > wc- skalarM ) && (i < wc + skalarM))) {
+            if ((wc > 0)  && (i > wc - skalarM ) && (i < wc + skalarM)) {
                 gi.setColorAt(1.0 * i / data.length(), QColor(0,0,0));
             } else {
                 gi.setColorAt(1.0 * i / data.length(), QColor(255,255,255));
@@ -414,7 +401,7 @@ void Form_SonarLocalization::updateSonarViewRaw()
     float stepWidth = width / sonarEchoDataList.length();
 
     for (int j = 0; j < sonarEchoDataList.length(); j++) {
-        QByteArray data = sonarEchoDataList[j].getRawData();
+        QByteArray data = sonarEchoDataList[j].getFiltered();
         QLinearGradient gi(0, 0, 0, data.length());
         for (int i = 0; i < data.length(); i++) {
             int col = 255 - 2 * data[i];

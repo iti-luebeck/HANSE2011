@@ -112,10 +112,11 @@ void SonarParticleFilter::loadMap()
     mapPoints.clear();
     for (int r = 0; r<map.rows; r++) {
         for ( int c=0; c<map.cols; c++) {
-            if (channels[0].at<unsigned char>(r,c)==0
-                && channels[1].at<unsigned char>(r,c)==0
-                && channels[2].at<unsigned char>(r,c)==0) {
-                addToList(mapPoints, img2map(QVector2D(c,r)));
+//            qDebug("%d %d %d", channels[0].at<unsigned char>(r,c), channels[1].at<unsigned char>(r,c), channels[2].at<unsigned char>(r,c));
+            if ((channels[0].at<unsigned char>(r,c) < 100)
+                && (channels[1].at<unsigned char>(r,c) < 100)
+                && (channels[2].at<unsigned char>(r,c) < 100)) {
+                addToList(mapPoints, img2map(QVector2D(c,r)), 0.5);
             }
         }
     }
@@ -141,14 +142,14 @@ bool SonarParticleFilter::hasMap() {
     return mapLoaded;
 }
 
-void SonarParticleFilter::addToList(QList<QVector2D>& list, const QVector2D p)
+void SonarParticleFilter::addToList(QList<QVector2D>& list, const QVector2D p, double Tdist)
 {
     double minDist = 10000;
     foreach (QVector2D q, list) {
         minDist = qMin((q - p).length(), minDist);
     }
 
-    if (minDist > 0.5) {
+    if (minDist > Tdist) {
         list.append(p);
     }
 }
@@ -305,8 +306,14 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
         return;
     }
 
+    // Ignore observation that are close to another.
+    QList<QVector2D> filteredObservations;
+    for (int i = 0; i < observations.size(); i++) {
+        addToList(filteredObservations, observations[i], sonar.getSettingsValue("min obs dist", 2.0).toDouble());
+    }
+
     particlesMutex.lock();
-    lastZ = observations;
+    lastZ = filteredObservations;
     particlesMutex.unlock();
 
     QVector<double> weights(N);
@@ -342,8 +349,8 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
         // transform observation from local (particle relative) to global system
         QTransform rotM = QTransform().rotate(Angles::pi2deg(newPos.z())) * QTransform().translate(newPos.x(), newPos.y());
 
-        for(int j=0; j<observations.size(); j++) {
-            QPointF p = rotM.map(observations[j].toPointF());
+        for (int j = 0; j < filteredObservations.size(); j++) {
+            QPointF p = rotM.map(filteredObservations[j].toPointF());
             observationsTransformed[j] = QVector2D(p);
         }
 

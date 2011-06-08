@@ -206,7 +206,7 @@ void SLTrainingUI::positivSample()
     if(sam[viewSamplePointer+currSample].getWallCandidate() != -1)
     {
         qDebug() << "positive ";
-        sam[viewSamplePointer+currSample].setClassLabel(1);
+//        sam[viewSamplePointer+currSample].setClassLabel(1);
     }
     skipSample();
 }
@@ -216,7 +216,7 @@ void SLTrainingUI::negativSample()
     if(sam[viewSamplePointer+currSample].getWallCandidate() != -1)
     {
         qDebug() << "negative ";
-        sam[viewSamplePointer+currSample].setClassLabel(0);
+//        sam[viewSamplePointer+currSample].setClassLabel(0);
     }
     skipSample();
 }
@@ -342,7 +342,7 @@ void SLTrainingUI::applyHeuristic()
             {
                 qDebug() << " wc " <<wcPrev << wcCurr;
                 sam[i].setWallCandidate(-1);
-                sam[i].setClassLabel(0);
+//                sam[i].setClassLabel(0);
             }
 
         }
@@ -353,15 +353,14 @@ void SLTrainingUI::applyHeuristic()
     {
         for(int i = 1; i<sam.size()-1;i++)
         {
-            bool prev = sam[i-1].getClassLabel() == 1;
-            bool next = sam[i+1].getClassLabel() == 1;
-            if(!prev && !next)
-            {
-                qDebug() << "heuristic remove single WallCandidate";
-                sam[i].setWallCandidate(-1);
-                sam[i].setClassLabel(0);
-            }
-
+//            bool prev = sam[i-1].getClassLabel() == 1;
+//            bool next = sam[i+1].getClassLabel() == 1;
+//            if(!prev && !next)
+//            {
+//                qDebug() << "heuristic remove single WallCandidate";
+//                sam[i].setWallCandidate(-1);
+//                sam[i].setClassLabel(0);
+//            }
         }
     }
 
@@ -422,19 +421,15 @@ void SLTrainingUI::updateSonarView3(const QList<QByteArray> __attribute__ ((unus
 //                QByteArray data = sam[viewSamplePointer+j].getFiltered();
 //                char b = data[i];
                 int skalarM = 1;
-                int cl = sam[viewSamplePointer+j].getClassLabel();
                 int wc = sam[viewSamplePointer+j].getWallCandidate();
 
                 //mark groups
-                if(i<=2)
+                if (i <= 2)
                 {
-//                if(sam[viewSamplePointer+j].getGroupID()%2 == 0)
                     gi.setColorAt(1.0*i/n,QColor(255,0,0));
-//                else
-//                    gi.setColorAt(1.0*i/n,QColor(0,0,255));
                 }
 
-                if((cl == 1)  && (i > wc- skalarM ) && (i < wc + skalarM))
+                if((i > wc- skalarM ) && (i < wc + skalarM))
                     gi.setColorAt(1.0*i/n,QColor(0,255,0));
                 else if(i > 2)
                     gi.setColorAt(1.0*i/n,QColor(0,0,0));
@@ -458,10 +453,10 @@ void SLTrainingUI::getClassCount(int &pos, int &neg)
     for(int i=0; i<sam.size();i++)
     {
 
-        if(sam[i].getClassLabel() == 1)
-            pos++;
-        else if(sam[i].getClassLabel() == 0)
-            neg++;
+//        if(sam[i].getClassLabel() == 1)
+//            pos++;
+//        else if(sam[i].getClassLabel() == 0)
+//            neg++;
 
     }
 }
@@ -488,12 +483,12 @@ void SLTrainingUI::on_trainSVM_clicked()
     QByteArray array;
     cv::Mat features;
 
-    int cfs = 0;
-    for(int i=0; i<sam.size();i++)
-    {
-        if(sam[i].getClassLabel() != -1)
-        {
-            filter->extractFeatures(sam[i]);
+//    int cfs = 0;
+//    for(int i=0; i<sam.size();i++)
+//    {
+//        if(sam[i].getClassLabel() != -1)
+//        {
+//            filter->extractFeatures(sam[i]);
 //            features = sam[i].getFeatures();
 
 //            for(int j=0;j<sampls.cols;j++)
@@ -502,18 +497,18 @@ void SLTrainingUI::on_trainSVM_clicked()
 //                //            qDebug() << j << " add feature " << features.at<float>(0,j);
 //            }
 
-            int u = (int)sam[i].getClassLabel();
-            qDebug() << cfs << "<= " << pos+neg << " CL " << u;
-            cvSet2D(classes,cfs,0,cvScalar(u));
-            cfs++;
+//            int u = (int)sam[i].getClassLabel();
+//            qDebug() << cfs << "<= " << pos+neg << " CL " << u;
+//            cvSet2D(classes,cfs,0,cvScalar(u));
+//            cfs++;
 
-            if(cfs == pos+neg)
-            {
-                qDebug("found all marked samples");
-                break;
-            }
-        }
-    }
+//            if(cfs == pos+neg)
+//            {
+//                qDebug("found all marked samples");
+//                break;
+//            }
+//        }
+//    }
 
     qDebug() << "trying to convert ";
     CvMat samplsCvt = sampls;

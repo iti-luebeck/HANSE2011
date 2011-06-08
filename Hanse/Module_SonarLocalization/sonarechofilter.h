@@ -19,8 +19,6 @@ class SonarEchoFilter: public QObject
 public:
     SonarEchoFilter(Module_SonarLocalization* sonar, Module_XsensMTi *mti, Module_Simulation *sim);
 
-//    const static int N = 250;
-
     void reset();
 
     /* DEBUG information; for View's eyes only */
@@ -33,10 +31,7 @@ public:
 
     //filter chain
     void filterEcho(SonarEchoData &data);
-    void medianFilter(SonarEchoData &data);
-    void findWall(SonarEchoData &data);
     void gradientFilter(SonarEchoData &data);
-    void extractFeatures(SonarEchoData &data);
 
     cv::Mat byteArray2Mat(QByteArray array);
     QVector<double> mat2QVector(cv::Mat& mat);
@@ -58,23 +53,18 @@ private:
     // max value of any samples coming from the sonar
     const static float MAX = 127;
 
-    SVMClassifier* svm;
-
     QList<SonarEchoData> candidates;
     //grouping
     int groupID;
-//    int diff;
     int newDirection;
     double temp_area;
 
-    QList<int> localKlist;
-    QList<double> localKlistHeading;
-    QList<int> localKlistID;
     int currentID;
     double swipedArea;
     int darknessCount;
     float lastMaxValue;
     QList<float> lastMaxValues;
+    QList<int> ks;
 
     void addToList(QList<QVector2D>& list, const QVector2D p);
 

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -106,96 +106,52 @@
           <property name="fieldGrowthPolicy">
            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
           </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>variance threshold (2.25)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="varTH"/>
-          </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>wall window size (39</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="wallWindowSize"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>large peak TH (3.75)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="largePeakTH"/>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>mean behind TH (7.5)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="meanBehindTH"/>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="medianFilterCB">
-            <property name="text">
-             <string>MedianFilter</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QCheckBox" name="enableSVM">
-            <property name="text">
-             <string>SVM</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
            <widget class="QLabel" name="label_7">
             <property name="text">
              <string>Gradient maxVal:</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="2" column="1">
            <widget class="QLineEdit" name="gradMaxVal"/>
           </item>
-          <item row="7" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Gradient maxIdx:</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
+          <item row="3" column="1">
            <widget class="QLineEdit" name="gradMaxIdx"/>
           </item>
-          <item row="8" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_23">
             <property name="text">
              <string>HistMaxVal</string>
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
+          <item row="4" column="1">
            <widget class="QLineEdit" name="histMaxVal"/>
           </item>
-          <item row="9" column="0">
+          <item row="5" column="0">
            <widget class="QCheckBox" name="xsensBox">
             <property name="text">
              <string>Use Xsens Correction</string>
             </property>
            </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Gradien Filter Lengths:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="filterLengthBox"/>
           </item>
          </layout>
         </widget>
@@ -320,11 +276,14 @@
            <widget class="QLineEdit" name="boltzmann"/>
           </item>
           <item row="7" column="0">
-           <widget class="QPushButton" name="sltraining">
+           <widget class="QLabel" name="label_24">
             <property name="text">
-             <string>SLTraining</string>
+             <string>min obs dist</string>
             </property>
            </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QLineEdit" name="obsDistEdit"/>
           </item>
          </layout>
         </widget>
