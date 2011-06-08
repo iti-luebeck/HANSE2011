@@ -151,6 +151,5 @@ void WallFollowingForm::updateUiView(){
     this->ui->updateView->setChecked(false);
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTime").toString());
     this->ui->headingInput->setText(wallfollow->getSettingsValue("initHeading").toString());
-    this->ui->headingBox->setChecked(false);
 }
 

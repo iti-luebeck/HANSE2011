@@ -121,11 +121,12 @@ void Behaviour_XsensFollowing::controlLoop()
     float faktor = 1.0;
     if(ctrAngle-curHeading < 0)
         faktor = -1.0;
-    if(curDelta > getSettingsValue("delta").toFloat())
+    if(curDelta > getSettingsValue("delta").toFloat() || curDelta < getSettingsValue("delta").toFloat())
     {
         ctrAngleSpeed = getSettingsValue("kp").toFloat()* faktor * curHeading / ctrAngle;
     }
     addData("angularSpeed",ctrAngleSpeed);
+    addData("curDelta", curDelta);
     addData("current heading",curHeading);
     addData("ctrAngle", ctrAngle);
     emit dataChanged(this);
@@ -167,7 +168,7 @@ void Behaviour_XsensFollowing::refreshHeading()
 
         initialHeading = this->xsens->getHeading();
 
-        logger->debug( "initial heading set to %fÂ°", initialHeading );
+        logger->debug( "initial heading set to %f °", initialHeading );
         addData("initial_heading", initialHeading);
         dataChanged( this );
         this->dataLockerMutex.unlock();
