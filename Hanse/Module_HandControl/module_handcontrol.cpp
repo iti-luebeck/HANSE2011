@@ -171,9 +171,8 @@ void Module_HandControl::sendNewControls()
         if (!controlLoop->isEnabled())
             controlLoop->setEnabled(true);
 
-// Remove the - infront of angularSpeed
-// Ticket #136
-        emit setAngularSpeed(-angularSpeed/divLR);
+
+        emit setAngularSpeed(angularSpeed/divLR);
         emit setForwardSpeed(forwardSpeed/divFw);
         if(speedUpDown < 0)
             speedUpDown = 0;
