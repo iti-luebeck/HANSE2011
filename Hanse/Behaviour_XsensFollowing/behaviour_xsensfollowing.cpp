@@ -142,7 +142,7 @@ void Behaviour_XsensFollowing::turnNinety()
         return;
     }
     logger->info("Turn 90");
-    logger->info("ctrAngle %f", ctrAngle);
+    logger->info("ctrAngle", ctrAngle);
     if(getSettingsValue("enableTurn").toBool() == true){
         float newHeading = ctrAngle;
 
@@ -154,7 +154,7 @@ void Behaviour_XsensFollowing::turnNinety()
             ctrAngle = Angles::deg2deg(newHeading);
         }
     }
-    logger->info("ctrAngle new %f", ctrAngle);
+    logger->info("ctrAngle new", ctrAngle);
 }
 
 void Behaviour_XsensFollowing::refreshHeading()
@@ -170,7 +170,7 @@ void Behaviour_XsensFollowing::refreshHeading()
 
         initialHeading = this->xsens->getHeading();
 
-        logger->debug( "initial heading set to %f °", initialHeading );
+        logger->debug( "initial heading set to", initialHeading );
         addData("initial_heading", initialHeading);
         dataChanged( this );
         this->dataLockerMutex.unlock();
