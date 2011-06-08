@@ -154,9 +154,10 @@ void TaskWallNavigation::doWallFollow(){
 
         // Now do wallfollowing until target position is reached
         distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
-        addData("remaining distance",distanceToTarget);
+        logger->debug("remaining distance", distanceToTarget, "","");
         while(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
-            qDebug()<<"remaining distance"<<distanceToTarget;
+            distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
+            logger->debug("remaining distance", distanceToTarget, "","");
             addData("remaining distance",distanceToTarget);
             emit dataChanged(this);
             msleep(100);
