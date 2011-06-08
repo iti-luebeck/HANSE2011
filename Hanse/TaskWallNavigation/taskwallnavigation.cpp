@@ -102,7 +102,7 @@ void TaskWallNavigation::startBehaviour(){
 
 void TaskWallNavigation::moveToStart(){
     if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
-        logger->debug("move to start");
+        logger->info("Move to start");
         addData("state", "Move to start");
         emit newState("Move to start");
         emit dataChanged(this);
@@ -117,10 +117,12 @@ void TaskWallNavigation::seReached(QString waypoint){
     if(this->isEnabled() == true){
         if(waypoint == this->getSettingsValue("startNavigation").toString()){
             // Start reached, do wallfollowing
+            qDebug("Start reached");
             QTimer::singleShot(0, navi, SLOT(clearGoal()));
             QTimer::singleShot(0, this, SLOT(doWallFollow()));
         } else if(waypoint == this->getSettingsValue("targetNavigation").toString()){
             // End reached, control next state
+            qDebug("End reached");
             QTimer::singleShot(0, navi, SLOT(clearGoal()));
             QTimer::singleShot(0, this, SLOT(controlNextState()));
         } else {
@@ -133,7 +135,7 @@ void TaskWallNavigation::seReached(QString waypoint){
 
 void TaskWallNavigation::doWallFollow(){
     if(this->isEnabled()){
-        logger->debug("Do wallfollowing");
+        logger->info("Do wallfollowing");
         addData("state", "Do wallfollowing");
         emit newState("Do wallfollowing");
         emit dataChanged(this);
@@ -180,7 +182,7 @@ void TaskWallNavigation::doWallFollow(){
 
 void TaskWallNavigation::moveToEnd(){
     if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
-        logger->debug("Move to end");
+        logger->info("Move to end");
         addData("state", "Move to end");
         emit dataChanged(this);
         emit newState("Move to end");
