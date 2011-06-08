@@ -18,14 +18,14 @@ class TaskHandControl;
 class TaskWallNavigation;
 class TaskXsensNavigation;
 class RobotBehaviour;
-
+class Module_Navigation;
 
 
 class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn, TaskXsensNavigation *txn);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation* n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn, TaskXsensNavigation *txn);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -53,6 +53,7 @@ private:
     Behaviour_WallFollowing* wall;
     Behaviour_BallFollowing* ball;
     Behaviour_XsensFollowing* xsens;
+    Module_Navigation* navi;
 
     QList<RobotBehaviour*> behaviour;
 

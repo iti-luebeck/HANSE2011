@@ -294,6 +294,7 @@ void TaskXsensNavigation::timeoutStop(){
 
         if (this->isActive())
         {
+            QTimer::singleShot(0, navi, SLOT(clearGoal()));
             this->taskTimer.stop();
             this->navi->setEnabled(false);
             this->xsensfollow->setEnabled(false);
@@ -315,6 +316,7 @@ void TaskXsensNavigation::emergencyStop(){
 
     if (this->isActive())
     {
+        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         this->taskTimer.stop();
         this->navi->setEnabled(false);
         this->xsensfollow->setEnabled(false);

@@ -17,8 +17,9 @@
 //#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 #include <TaskXsensNavigation/taskxsensnavigation.h>
+#include <Module_Navigation/module_navigation.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn,TaskXsensNavigation *txn)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation *n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn,TaskXsensNavigation *txn)
     : RobotModule(id)
 {
     this->tcl = tcl;
@@ -33,6 +34,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->wall = wall;
     this->xsens = xsens;
     this->taskxsensnavigation = txn;
+    this->navi = n;
     //this->goal = goal;
 
     this->behaviour.append(pipe);
@@ -482,6 +484,7 @@ void CommandCenter::startTaskHandControlCC(){
         return;
     }
 
+    QTimer::singleShot(0, navi, SLOT(clearGoal()));
     logger ->info("Stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
     emit resetTCL();

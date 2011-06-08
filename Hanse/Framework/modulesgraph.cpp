@@ -133,7 +133,7 @@ void ModulesGraph::build()
     this->modules.append(taskhandcontrol);
 
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation, taskxsensnavigation);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation, taskxsensnavigation);
     this->modules.append(commCent);
 
     logger->info("Loading all Modules... Done");

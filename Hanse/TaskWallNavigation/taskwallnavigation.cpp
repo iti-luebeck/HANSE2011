@@ -242,6 +242,7 @@ void TaskWallNavigation::timeoutStop(){
 
         if (this->isActive())
         {
+            QTimer::singleShot(0, navi, SLOT(clearGoal()));
             this->taskTimer.stop();
             this->navi->setEnabled(false);
             this->wall->echo->setEnabled(false);
@@ -263,6 +264,7 @@ void TaskWallNavigation::emergencyStop(){
 
     if (this->isActive())
     {
+        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         this->taskTimer.stop();
         this->navi->setEnabled(false);
         this->wall->echo->setEnabled(false);
