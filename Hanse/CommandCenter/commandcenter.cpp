@@ -87,7 +87,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(resetTCL()),tcl,SLOT(reset()));
 
     connect(handControl, SIGNAL(emergencyStop()), this, SLOT(emergencyStopCommandCenter()));
-    connect(handControl, SIGNAL(startHandControl()), this, SLOT(startTaskHandControlCC(bool)));
+    connect(handControl, SIGNAL(startHandControl()), this, SLOT(startTaskHandControlCC()));
     connect(handControl, SIGNAL(enabled(bool)), this, SLOT(controlTaskHandControl(bool)));
 
     connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
