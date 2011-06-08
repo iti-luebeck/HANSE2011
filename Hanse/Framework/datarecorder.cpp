@@ -109,6 +109,11 @@ void DataRecorder::newDataReceived(RobotModule *module)
             *stream << "," << value.toDouble();
             continue;
         }
+        value = module->getDataValue(key);
+        if (value.convert(QVariant::String) && value.toString() != "false" && value.toString() != "true") {
+            *stream << ",\"" << value.toString() << "\"";
+            continue;
+        }
         value = settingsMap.value(key);
         if (value.convert(QVariant::Bool)) {
             *stream << "," << value.toBool();
