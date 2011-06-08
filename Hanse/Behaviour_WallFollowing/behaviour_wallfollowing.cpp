@@ -283,33 +283,33 @@ void Behaviour_WallFollowing::controlEnabledChanged(bool b){
 }
 
 void Behaviour_WallFollowing::controlInitHeading(){
-    logger->info("Ctrl init heading");
-    if(this->xsens->isEnabled()){
-        float currentHeading = this->xsens->getHeading();
-        float targetHeading = this->getSettingsValue("initHeading").toFloat();
-        float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-        addData("currentHeading", currentHeading);
-        addData("targetHeading", targetHeading);
-        addData("diffHeading", diffHeading);
-        emit dataChanged(this);
-        if(-10 < diffHeading && diffHeading < 10){
-            logger->info("init heading reached");
-            initHeadingReached = true;
-        } else {
-            initHeadingReached = false;
-            float ctrAngleSpeed = 0.0;
-            float faktor = 1.0;
-            if(targetHeading-currentHeading < 0)
-                faktor = -1.0;
-            if(diffHeading > 10 || diffHeading < 10)
-            {
-                ctrAngleSpeed = 0.4 * faktor * diffHeading;
+    if(this->isEnabled()){
+        logger->info("Ctrl init heading");
+        if(this->xsens->isEnabled()){
+            float currentHeading = this->xsens->getHeading();
+            float targetHeading = this->getSettingsValue("initHeading").toFloat();
+            float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+            addData("currentHeading", currentHeading);
+            addData("targetHeading", targetHeading);
+            addData("diffHeading", diffHeading);
+            emit dataChanged(this);
+            if(-10 < diffHeading && diffHeading < 10){
+                logger->info("init heading reached");
+                initHeadingReached = true;
+            } else {
+                initHeadingReached = false;
+                float ctrAngleSpeed = 0.0;
+                if(diffHeading > 10 || diffHeading < 10)
+                {
+                    diffHeading /= this->getSettingsValue("targetHeading").toDouble();
+                    ctrAngleSpeed = 0.4 * diffHeading;
+                }
+                emit angularSpeed(ctrAngleSpeed);
+                QTimer::singleShot(100, this, SLOT(controlInitHeading()));
             }
-            emit angularSpeed(ctrAngleSpeed);
-            QTimer::singleShot(100, this, SLOT(controlInitHeading()));
+        } else {
+            logger->info("Sry, xsens not enabled - start wallfollowing without initial heading");
+            initHeadingReached = true;
         }
-    } else {
-        logger->info("Sry, xsens not enabled - start wallfollowing without initial heading");
-        initHeadingReached = true;
     }
 }
