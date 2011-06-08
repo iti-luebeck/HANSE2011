@@ -1,6 +1,5 @@
 HEADERS += TaskXsensNavigation/taskxsensnavigationform.h \
-    TaskXsensNavigation/taskxsensnavigation.h \
-    TaskXsensNavigation/taskxsensnavigationform.h
+    TaskXsensNavigation/taskxsensnavigation.h
 
 
 SOURCES += TaskXsensNavigation/taskxsensnavigationform.cpp \

@@ -374,11 +374,11 @@ void CommandCenter::emergencyStopCommandCenter(){
     emit stopAllTasks();
     emit resetTCL();
 
-    this->handControl->setEnabled(false);
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
     emit updateGUI();
+
 }
 
 
