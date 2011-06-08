@@ -239,8 +239,7 @@ void MapWidget::createMap()
 {
     ui->graphicsView->setScene(scene);
 
-    QSettings s;
-    s.beginGroup("sonarLocalize");
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,"HanseCfg", "sonarLocalize");
 
     if (satImage) delete(satImage);
     if (masterObsPoint) delete(masterObsPoint);

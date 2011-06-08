@@ -3,7 +3,8 @@
 
 ModuleDataView::ModuleDataView(ModulesGraph *graph, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ModuleDataView)
+    ui(new Ui::ModuleDataView),
+    s(QSettings::IniFormat, QSettings::UserScope,"HanseCfg", "gui_docks")
 {
     ui->setupUi(this);
 
@@ -12,8 +13,6 @@ ModuleDataView::ModuleDataView(ModulesGraph *graph, QWidget *parent) :
     dataModel = new DataModel(this, graph);
 
     ui->dataView->setModel(dataModel);
-
-    s.beginGroup("docks");
 
     QStringList ds = s.value("openDataWidgets").toStringList();
     ds.append(parent->objectName());

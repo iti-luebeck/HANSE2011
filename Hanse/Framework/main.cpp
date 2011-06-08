@@ -23,8 +23,7 @@ int main(int argc, char *argv[])
     qsrand(42);
 
     QApplication a(argc,argv);
-    a.setApplicationName("Hanse");
-    a.setOrganizationName("ITI");
+    a.setOrganizationName("HanseCfg");
 
 #ifdef OS_UNIX
     prctl(PR_SET_NAME,"Hanse GUI");

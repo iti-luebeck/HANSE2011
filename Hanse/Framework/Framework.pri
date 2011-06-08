@@ -10,7 +10,6 @@ HEADERS += Framework/healthstatus.h \
     Framework/pidwidget.h \
     Framework/position.h \
     Framework/robotbehaviour.h \
-    Framework/hanseapp.h \
     Framework/dataloghelper.h \
     Framework/qgraphicsviewextended.h \
     Framework/moduledataview.h \
@@ -30,7 +29,6 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/pidcontroller.cpp \
     Framework/position.cpp \
     Framework/robotbehaviour.cpp \
-    Framework/hanseapp.cpp \
     Framework/dataloghelper.cpp \
     Framework/qgraphicsviewextended.cpp \
     Framework/moduledataview.cpp \

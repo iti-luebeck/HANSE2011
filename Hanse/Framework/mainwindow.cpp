@@ -9,7 +9,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    settings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse")
+    settings(QSettings::IniFormat, QSettings::UserScope, "HanseCfg", "gui_mainwindow")
 {
 
     logger = Log4Qt::Logger::logger("MainWindow");
@@ -60,8 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionNew_window, SIGNAL(triggered()), this, SLOT(openNewDataWindow()));
     connect(ui->actionHealthDockItem, SIGNAL(triggered()), this, SLOT(openNewHealthWindow()));
 
-    QSettings sets;
-    sets.beginGroup("docks");
+    QSettings sets(QSettings::IniFormat, QSettings::UserScope,"HanseCfg", "gui_docks");
 
     QStringList s = sets.value("openHealthWidgets").toStringList();
     s.removeDuplicates();

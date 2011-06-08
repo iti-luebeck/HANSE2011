@@ -18,8 +18,8 @@ QClosableDockWidget::QClosableDockWidget(QString title, QWidget *parent, QString
 void QClosableDockWidget::closeEvent(QCloseEvent *event)
 {
     QDockWidget::closeEvent(event);
-    QSettings s;
-    s.beginGroup("docks");
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,"HanseCfg", "gui_docks");
+
     QStringList ds = s.value("openDataWidgets").toStringList();
     ds.removeAll(objectName());
     s.setValue("openDataWidgets",ds);

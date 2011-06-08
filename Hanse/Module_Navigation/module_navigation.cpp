@@ -450,8 +450,7 @@ void Module_Navigation::removeWaypoint( QString name )
 void Module_Navigation::saveToSettings()
 {
     // Clear old waypoints.
-    QSettings newSettings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse");
-    newSettings.beginGroup(getId());
+    QSettings newSettings(QSettings::IniFormat, QSettings::UserScope, "HanseCfg", getId());
     newSettings.beginGroup("waypoints");
     newSettings.remove("");
 
@@ -473,8 +472,7 @@ void Module_Navigation::loadFromSettings()
     waypoints.clear();
 
     // Get all waypoints.
-    QSettings newSettings(QSettings::IniFormat, QSettings::UserScope, "ITI", "Hanse");
-    newSettings.beginGroup(getId());
+    QSettings newSettings(QSettings::IniFormat, QSettings::UserScope, "HanseCfg", getId());
     newSettings.beginGroup("waypoints");
     QStringList keys = newSettings.childKeys();
 

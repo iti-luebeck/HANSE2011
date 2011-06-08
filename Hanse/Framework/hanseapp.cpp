@@ -6,8 +6,7 @@
 HanseApp::HanseApp(int argc, char** argv)
     : QApplication(argc, argv)
 {
-    setApplicationName("Hanse");
-    setOrganizationName("ITI");
+    setOrganizationName("HanseCfg");
 }
 
 

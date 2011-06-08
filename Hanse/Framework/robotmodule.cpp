@@ -5,6 +5,8 @@
 #include <sys/prctl.h>
 #endif
 
+#define HANSE_FRAMEWORK_CONFIG_DIR "HanseCfg"
+
 RobotModule::RobotModule(QString newId)
     : dataLockerMutex(QMutex::Recursive),
       id(newId),
@@ -89,8 +91,7 @@ QString RobotModule::getId()
 
 const  QMap<QString,QVariant> RobotModule::getSettingsCopy()
 {
-    QSettings s;
-    s.beginGroup(id);
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
 
     QMap<QString,QVariant> map;
 
@@ -104,8 +105,7 @@ const  QMap<QString,QVariant> RobotModule::getSettingsCopy()
 
 QStringList RobotModule::getSettingKeys()
 {
-    QSettings s;
-    s.beginGroup(id);
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
     QStringList list = s.allKeys();
     return list;
 }
@@ -113,32 +113,28 @@ QStringList RobotModule::getSettingKeys()
 
 const QVariant RobotModule::getSettingsValue(const QString key, const QVariant defValue)
 {
-    QSettings s;
-    s.beginGroup(id);
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
     QVariant qv = s.value(key,defValue);
     return qv;
 }
 
 const QVariant RobotModule::getSettingsValue(const QString key)
 {
-    QSettings s;
-    s.beginGroup(id);
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
     QVariant qv = s.value(key);
     return qv;
 }
 
 void RobotModule::setSettingsValue(QString key, QVariant value)
 {
-    QSettings s;
-    s.beginGroup(id);
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
     s.setValue(key,value);
 }
 
 
 void RobotModule::setDefaultValue(const QString &key, const QVariant &value)
 {
-    QSettings s;
-    s.beginGroup(id);
+    QSettings s(QSettings::IniFormat, QSettings::UserScope,HANSE_FRAMEWORK_CONFIG_DIR, id);
     if (!s.contains(key))
         s.setValue(key, value);
 }

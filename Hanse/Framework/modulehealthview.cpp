@@ -3,14 +3,13 @@
 
 ModuleHealthView::ModuleHealthView(ModulesGraph *graph, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ModuleHealthView)
+    ui(new Ui::ModuleHealthView),
+    s(QSettings::IniFormat, QSettings::UserScope,"HanseCfg", "gui_docks")
 {
     ui->setupUi(this);
 
     model = new HealthModel(this, graph);
 
-    s.beginGroup("docks");
-    
     QStringList ds = s.value("openHealthWidgets").toStringList();
     ds.append(parent->objectName());
     ds.removeDuplicates();
