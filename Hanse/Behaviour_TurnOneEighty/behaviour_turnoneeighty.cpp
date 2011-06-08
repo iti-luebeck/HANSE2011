@@ -124,7 +124,7 @@ void Behaviour_TurnOneEighty::initialHeadingUpdate()
 
     initialHeading = this->xsens->getHeading();
 
-    logger->debug( "initial heading set to %f °", initialHeading );
+    qDebug()<< "initial heading set to" << initialHeading;
     addData("initial_heading", initialHeading);
     dataChanged( this );
     this->dataLockerMutex.unlock();
