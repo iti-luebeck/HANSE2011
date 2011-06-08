@@ -286,7 +286,7 @@ void Behaviour_WallFollowing::controlInitHeading(){
     logger->info("Ctrl init heading");
     if(this->xsens->isEnabled()){
         float currentHeading = this->xsens->getHeading();
-        float targetHeading = this->getDataValue("initHeading").toFloat();
+        float targetHeading = this->getSettingsValue("initHeading").toFloat();
         float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
         addData("currentHeading", currentHeading);
         addData("targetHeading", targetHeading);
