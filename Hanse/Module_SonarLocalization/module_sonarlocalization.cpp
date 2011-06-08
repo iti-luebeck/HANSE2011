@@ -90,7 +90,8 @@ Position Module_SonarLocalization::getLocalization()
 float Module_SonarLocalization::getLocalizationConfidence()
 {
     QMutexLocker l(&this->dataLockerMutex);
-    return pf.getParticles()[0].w();
+    QVector<SonarParticle> particles = pf.getParticles();
+    return particles[0].getWeight();
 }
 
 QDateTime Module_SonarLocalization::getLastRefreshTime()

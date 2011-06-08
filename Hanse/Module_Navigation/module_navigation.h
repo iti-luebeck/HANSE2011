@@ -18,12 +18,12 @@
 #define NAV_SUBSTATE_MOVE_FORWARD       "move forward"
 #define NAV_SUBSTATE_DONE               "done"
 
-#define NAV_P_HEADING           0.005
+#define NAV_P_HEADING           0.01
 #define NAV_HYSTERESIS_HEADING  10
-#define NAV_HYSTERESIS_GOAL     0.5
+#define NAV_HYSTERESIS_GOAL     2.0
 #define NAV_HYSTERESIS_DEPTH    0.1
 #define NAV_P_FORWARD           0.02
-#define NAV_FORWARD_MAX_SPEED   0.2
+#define NAV_FORWARD_MAX_SPEED   0.8
 #define NAV_FORWARD_MAX_DIST    4
 #define NAV_FORWARD_TIME        5
 

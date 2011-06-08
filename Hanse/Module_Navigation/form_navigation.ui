@@ -200,7 +200,7 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>Forward P Value:</string>
+           <string>Forward P Value (0.02):</string>
           </property>
          </widget>
         </item>
@@ -210,7 +210,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
-           <string>Forward Max Speed:</string>
+           <string>Forward Max Speed (0.8):</string>
           </property>
          </widget>
         </item>
@@ -224,7 +224,7 @@
         <item row="2" column="0">
          <widget class="QLabel" name="label_8">
           <property name="text">
-           <string>Forward Max Dist:</string>
+           <string>Forward Max Dist (4):</string>
           </property>
          </widget>
         </item>
@@ -234,7 +234,7 @@
         <item row="3" column="0">
          <widget class="QLabel" name="label_5">
           <property name="text">
-           <string>Forward Time (sec):</string>
+           <string>Forward Time (sec) (5):</string>
           </property>
          </widget>
         </item>
@@ -244,7 +244,7 @@
         <item row="4" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Heading P Value:</string>
+           <string>Heading P Value (0.01):</string>
           </property>
          </widget>
         </item>
@@ -254,7 +254,7 @@
         <item row="5" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Heading Hysteresis:</string>
+           <string>Heading Hysteresis (10):</string>
           </property>
          </widget>
         </item>
@@ -264,7 +264,7 @@
         <item row="8" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>Goal Hysteresis:</string>
+           <string>Goal Hysteresis (2):</string>
           </property>
          </widget>
         </item>
@@ -274,7 +274,7 @@
         <item row="9" column="0">
          <widget class="QLabel" name="label_6">
           <property name="text">
-           <string>Depth Hysteresis:</string>
+           <string>Depth Hysteresis (0.1):</string>
           </property>
          </widget>
         </item>
@@ -291,7 +291,7 @@
         <item row="6" column="0">
          <widget class="QLabel" name="label_10">
           <property name="text">
-           <string>Heading maxSpeed:</string>
+           <string>Heading Max Speed (0.3):</string>
           </property>
          </widget>
         </item>
@@ -301,7 +301,7 @@
         <item row="7" column="0">
          <widget class="QLabel" name="label_11">
           <property name="text">
-           <string>Heading minSpeed:</string>
+           <string>Heading Min Speed (0.1):</string>
           </property>
          </widget>
         </item>

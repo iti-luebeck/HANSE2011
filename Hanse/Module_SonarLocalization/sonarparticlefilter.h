@@ -17,6 +17,59 @@ class Module_SonarLocalization;
 class Module_XsensMTi;
 class SonarEchoFilter;
 
+class SonarParticle
+{
+public:
+    SonarParticle()
+    {
+        this->x = .0f;
+        this->y = .0f;
+        this->theta = .0f;
+        this->weight = .0f;
+    }
+    SonarParticle(float x, float y, float theta)
+    {
+        this->x = x;
+        this->y = y;
+        this->theta = theta;
+        this->weight = .0f;
+    }
+    SonarParticle(const SonarParticle &copy)
+    {
+        this->x = copy.x;
+        this->y = copy.y;
+        this->theta = copy.theta;
+        this->weight = copy.weight;
+    }
+
+    SonarParticle& operator=(const SonarParticle& copy)
+    {
+        this->x = copy.x;
+        this->y = copy.y;
+        this->theta = copy.theta;
+        this->weight = copy.weight;
+        return *this;
+    }
+
+    float getX() const { return x; }
+    void setX(float x) { this->x = x; }
+
+    float getY() const { return y; }
+    void setY(float y) { this->y = y; }
+
+    float getTheta() const { return theta; }
+    void setTheta(float theta) { this->theta = theta; }
+
+    float getWeight() const { return weight; }
+    void setWeight(float weight) { this->weight = weight; }
+
+private:
+    float x;
+    float y;
+    float theta;
+    float weight;
+};
+
 class SonarParticleFilter : public QObject
 {
 Q_OBJECT
@@ -27,7 +80,7 @@ public:
 
     void reset();
 
-    QVector<QVector4D> getParticles();
+    QVector<SonarParticle> getParticles();
     QList<QVector2D> getMapPoints();
     QList<QVector2D> getLatestObservation();
     int getParticleCount();
@@ -60,7 +113,7 @@ private:
     Module_XsensMTi *mti;
 
     SonarEchoFilter& filter;
-    QVector<QVector4D> particles;
+    QVector<SonarParticle> particles;
 
     QList<QVector2D> mapPoints;
     cv::flann::Index* mapPointsFlann;
@@ -78,7 +131,6 @@ private:
 
     cv::RNG rand;
 
-    QVector3D sampleGauss(const QVector3D& mean, const QVector3D& variance);
     double sampleGauss(double m, double sigma);
     double sampleUni(double min, double max);
 

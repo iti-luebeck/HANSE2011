@@ -88,9 +88,9 @@ void Form_SonarLocalization::createMap()
     //0.2
     result->setScale(m->getSettingsValue("scaleMap").toReal());
 
-    QVector<QVector4D> particles = m->pf.getParticles();
-    foreach (QVector4D p, particles) {
-        particleItems.append(scene->addEllipse(p.x(), p.y(), 1, 1, QPen(QColor("green"))));
+    QVector<SonarParticle> particles = m->pf.getParticles();
+    foreach (SonarParticle p, particles) {
+        particleItems.append(scene->addEllipse(p.getX(), p.getY(), 1, 1, QPen(QColor("green"))));
     }
 
     // draw map
@@ -243,9 +243,9 @@ void Form_SonarLocalization::newPositionEstimate(QVector3D __attribute__ ((unuse
         delete it;
     }
     particleItems.clear();
-    QVector<QVector4D> particles = m->pf.getParticles();
-    foreach (QVector4D p, particles) {
-        particleItems.append(scene->addEllipse(p.x(), p.y(), 1,1,QPen(QColor("green"))));
+    QVector<SonarParticle> particles = m->pf.getParticles();
+    foreach (SonarParticle p, particles) {
+        particleItems.append(scene->addEllipse(p.getX(), p.getY(), 1,1,QPen(QColor("green"))));
     }
 
     on_spinBox_valueChanged(ui->spinBox->value());
@@ -270,14 +270,14 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
     }
     volatileItems.clear();
 
-    QVector4D particle = m->pf.getParticles()[p];
-    m->logger->debug("particle: X="+QString::number(particle.x())+",Y="+QString::number(particle.y())+",Z="
-                     +QString::number(particle.z())+",W="+QString::number(particle.w()));
+    SonarParticle particle = m->pf.getParticles()[p];
+    m->logger->debug("particle: X="+QString::number(particle.getX())+",Y="+QString::number(particle.getY())+",Z="
+                     +QString::number(particle.getTheta())+",W="+QString::number(particle.getWeight()));
 
     for (int i=0; i<z.size(); i++) {
         QVector2D o = z[i];
 
-        QTransform rotM = QTransform().rotate(particle.z()/M_PI*180) * QTransform().translate(particle.x(), particle.y());
+        QTransform rotM = QTransform().rotate(particle.getTheta()/M_PI*180) * QTransform().translate(particle.getX(), particle.getY());
         QPointF q = rotM.map(o.toPointF());
 
         volatileItems.append(scene->addEllipse(q.x(), q.y(), 1,1,QPen(QColor("blue"))));
@@ -285,7 +285,7 @@ void Form_SonarLocalization::on_spinBox_valueChanged(int p)
 
     if (currentPos != NULL)
         delete currentPos;
-    currentPos = scene->addEllipse(m->pf.getParticles()[p].x(), m->pf.getParticles()[p].y(), 1,1,QPen(QColor("red")));
+    currentPos = scene->addEllipse(m->pf.getParticles()[p].getX(), m->pf.getParticles()[p].getY(), 1,1,QPen(QColor("red")));
     currentPos->setZValue(10);
 }
 

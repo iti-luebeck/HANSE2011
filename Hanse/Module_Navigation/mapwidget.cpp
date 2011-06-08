@@ -179,16 +179,16 @@ void MapWidget::newSonarLocEstimate()
     delete masterParticle;
     masterParticle = scene->addLine(0,0,0,0);
     masterParticle->setVisible(ui->showParticles->isChecked());
-    QVector<QVector4D> particles = nav->sonarLoc->particleFilter().getParticles();
+    QVector<SonarParticle> particles = nav->sonarLoc->particleFilter().getParticles();
     qreal maxWeight = 0;
-    foreach (QVector4D p, particles) {
-        if (p.w() > maxWeight) maxWeight = p.w();
+    foreach (SonarParticle p, particles) {
+        if (p.getWeight() > maxWeight) maxWeight = p.getWeight();
     }
 
-    foreach (QVector4D p, particles) {
+    foreach (SonarParticle p, particles) {
         double width = 1.5;
-        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), width, width, masterParticle);
-        qreal pint = 255 * (p.w() / maxWeight);
+        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.getX(), p.getY(), width, width, masterParticle);
+        qreal pint = 255 * (p.getWeight() / maxWeight);
         int weight = (int) pint;
 
         if (weight < 0) {
@@ -203,11 +203,11 @@ void MapWidget::newSonarLocEstimate()
         e->setZValue(weight + 5);
     }
 
-    QVector4D particle = particles[0];
-    sonarPosition->setRect(particle.x() - 1, particle.y() - 1, 2, 2);
-    sonarPositionOrient->setLine(particle.x(), particle.y(),
-                                 particle.x() - 8 * sin( particle.z() ),
-                                 particle.y() + 8 * cos( particle.z() )
+    SonarParticle particle = particles[0];
+    sonarPosition->setRect(particle.getX() - 1, particle.getY() - 1, 2, 2);
+    sonarPositionOrient->setLine(particle.getX(), particle.getY(),
+                                 particle.getX() - 8 * sin( particle.getTheta() ),
+                                 particle.getY() + 8 * cos( particle.getTheta() )
                                  );
 
     delete masterObsPoint;
@@ -217,7 +217,7 @@ void MapWidget::newSonarLocEstimate()
 //    zList.append(QVector2D(1,1));
     foreach (QVector2D o, zList) {
         double width = 1.5;
-        QTransform rotM = QTransform().rotate(particle.z()/M_PI*180) * QTransform().translate(particle.x(), particle.y());
+        QTransform rotM = QTransform().rotate(particle.getTheta()/M_PI*180) * QTransform().translate(particle.getX(), particle.getY());
         QPointF q = rotM.map(o.toPointF());
 
         QGraphicsEllipseItem *e = new QGraphicsEllipseItem(q.x(), q.y(), width, width, masterObsPoint);
@@ -268,19 +268,19 @@ void MapWidget::createMap()
     }
 
     masterParticle = scene->addLine(0,0,0,0);
-    QVector<QVector4D> particles = nav->sonarLoc->particleFilter().getParticles();
-    foreach (QVector4D p, particles) {
+    QVector<SonarParticle> particles = nav->sonarLoc->particleFilter().getParticles();
+    foreach (SonarParticle p, particles) {
         double width = 1;
-        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.x(), p.y(), width, width, masterParticle);
+        QGraphicsEllipseItem *e = new QGraphicsEllipseItem(p.getX(), p.getY(), width, width, masterParticle);
         e->setPen(Qt::NoPen);
         e->setBrush(QBrush(Qt::green));
         e->setZValue(2);
     }
 
-    sonarPosition = scene->addEllipse(particles[0].x() - 1, particles[0].y() - 1, 2, 2, Qt::NoPen);
-    sonarPositionOrient = scene->addLine( particles[0].x(), particles[0].y(),
-                           particles[0].x() - 8 * sin( particles[0].z() ),
-                           particles[0].y() + 8 * cos( particles[0].z() ),
+    sonarPosition = scene->addEllipse(particles[0].getX() - 1, particles[0].getY() - 1, 2, 2, Qt::NoPen);
+    sonarPositionOrient = scene->addLine( particles[0].getX(), particles[0].getY(),
+                           particles[0].getX() - 8 * sin( particles[0].getTheta() ),
+                           particles[0].getY() + 8 * cos( particles[0].getTheta() ),
                            QPen(QBrush(Qt::red), 1) );
     sonarPosition->setZValue(300);
     sonarPosition->setBrush(QBrush(Qt::red));

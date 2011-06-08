@@ -19,10 +19,10 @@ Form_Navigation::Form_Navigation( Module_Navigation *nav, QWidget *parent ) :
     ui->forwardMaxDistEdit->setText(nav->getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST).toString());
     ui->forwardMaxSpeedEdit->setText( nav->getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toString());
     ui->forwardTimeEdit->setText(nav->getSettingsValue(QString("forward_time"), NAV_FORWARD_TIME).toString());
-    ui->maxAngularSpeed->setText(nav->getSettingsValue("angular_max_speed").toString());
-    ui->minAngularSpeed->setText(nav->getSettingsValue("angular_min_speed").toString());
+    ui->maxAngularSpeed->setText(nav->getSettingsValue("angular_max_speed", 0.3).toString());
+    ui->minAngularSpeed->setText(nav->getSettingsValue("angular_min_speed", 0.1).toString());
 
-    bool useXsens = nav->getSettingsValue("use xsens", false).toBool();
+    bool useXsens = nav->getSettingsValue("use xsens", true).toBool();
 
     if (useXsens) {
         ui->headingBox->setChecked(true);

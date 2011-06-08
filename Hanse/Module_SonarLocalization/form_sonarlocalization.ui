@@ -100,7 +100,7 @@
        <item row="4" column="0">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
-          <string>wall finding</string>
+          <string>Wall Finding</string>
          </property>
          <layout class="QFormLayout" name="formLayout_3">
           <property name="fieldGrowthPolicy">
@@ -109,7 +109,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_7">
             <property name="text">
-             <string>Gradient maxVal:</string>
+             <string>wall threshold - relative to max (0.3):</string>
             </property>
            </widget>
           </item>
@@ -119,7 +119,7 @@
           <item row="3" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
-             <string>Gradient maxIdx:</string>
+             <string>maximum index (1):</string>
             </property>
            </widget>
           </item>
@@ -129,7 +129,7 @@
           <item row="4" column="0">
            <widget class="QLabel" name="label_23">
             <property name="text">
-             <string>HistMaxVal</string>
+             <string>maximum value window size (10):</string>
             </property>
            </widget>
           </item>
@@ -139,14 +139,14 @@
           <item row="5" column="0">
            <widget class="QCheckBox" name="xsensBox">
             <property name="text">
-             <string>Use Xsens Correction</string>
+             <string>use xsens correction</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Gradien Filter Lengths:</string>
+             <string>filterl lengths (4;8):</string>
             </property>
            </widget>
           </item>
@@ -168,7 +168,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>DeltaKH</string>
+             <string>position change threshold (20):</string>
             </property>
            </widget>
           </item>
@@ -178,14 +178,14 @@
           <item row="1" column="0">
            <widget class="QCheckBox" name="deltaKHCB">
             <property name="text">
-             <string>DeltaKH</string>
+             <string>use position change threshold</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="singlePointCB">
             <property name="text">
-             <string>SinglePoint</string>
+             <string>eliminate single points</string>
             </property>
            </widget>
           </item>
@@ -202,14 +202,14 @@
        <item row="6" column="1">
         <widget class="QCheckBox" name="debug">
          <property name="text">
-          <string>Enable debugging</string>
+          <string>enable debugging</string>
          </property>
         </widget>
        </item>
        <item row="4" column="1">
         <widget class="QGroupBox" name="groupBox_6">
          <property name="title">
-          <string>Particle filter</string>
+          <string>Particle Filter</string>
          </property>
          <layout class="QFormLayout" name="formLayout_5">
           <property name="fieldGrowthPolicy">
@@ -218,7 +218,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_17">
             <property name="text">
-             <string>image min pixels</string>
+             <string>min pixels (10):</string>
             </property>
            </widget>
           </item>
@@ -228,7 +228,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_12">
             <property name="text">
-             <string>Distance cutoff</string>
+             <string>distance cutoff (20):</string>
             </property>
            </widget>
           </item>
@@ -238,7 +238,7 @@
           <item row="3" column="0">
            <widget class="QLabel" name="label_13">
             <property name="text">
-             <string>Control variance</string>
+             <string>control variance (2;2;0.5):</string>
             </property>
            </widget>
           </item>
@@ -248,7 +248,7 @@
           <item row="4" column="0">
            <widget class="QLabel" name="label_14">
             <property name="text">
-             <string>Initial variance</string>
+             <string>initial variance (5;5;3):</string>
             </property>
            </widget>
           </item>
@@ -258,7 +258,7 @@
           <item row="5" column="0">
            <widget class="QLabel" name="label_15">
             <property name="text">
-             <string>Particle count</string>
+             <string>particle count (200):</string>
             </property>
            </widget>
           </item>
@@ -268,7 +268,7 @@
           <item row="6" column="0">
            <widget class="QLabel" name="label_16">
             <property name="text">
-             <string>obs. variance</string>
+             <string>obs. variance (10):</string>
             </property>
            </widget>
           </item>
@@ -278,7 +278,7 @@
           <item row="7" column="0">
            <widget class="QLabel" name="label_24">
             <property name="text">
-             <string>min obs dist</string>
+             <string>min obs. distance (1.5):</string>
             </property>
            </widget>
           </item>
@@ -297,7 +297,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_20">
             <property name="text">
-             <string>darkness count</string>
+             <string>darkness count (0):</string>
             </property>
            </widget>
           </item>
@@ -307,7 +307,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="label_21">
             <property name="text">
-             <string>max area</string>
+             <string>max area (360):</string>
             </property>
            </widget>
           </item>
