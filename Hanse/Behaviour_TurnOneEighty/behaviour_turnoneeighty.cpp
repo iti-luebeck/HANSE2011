@@ -86,9 +86,9 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
             double targetHeading = initialHeading + this->getSettingsValue("degree").toDouble();
             double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
 
-            logger->debug( "current heading %f", currentHeading );
+            logger->debug( "current heading", currentHeading );
             addData("current_heading", currentHeading);
-            logger->debug( "heading difference %f°", diffHeading );
+            logger->debug( "heading difference", diffHeading );
             addData("difference_heading", diffHeading);
 
             if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
