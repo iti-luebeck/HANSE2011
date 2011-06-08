@@ -121,6 +121,9 @@ void SonarParticleFilter::loadMap()
         }
     }
 
+    if (mapPoints.size()==0)
+        return;
+
     // the flann data structure keeps referencing the original Mat object!!!
     mapPointsMat = Mat(Mat::zeros(mapPoints.size(),2,CV_32F));
     for(int i=0;i<mapPoints.size();i++) {
