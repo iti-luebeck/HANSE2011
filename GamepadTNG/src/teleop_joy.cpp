@@ -105,9 +105,11 @@ void TeleopHanse::timerCallback(const ros::TimerEvent &e)
     vel.angular.z = value_angular;
     vel.linear.x = value_linear;
     vel.linear.z = value_depth;
-    pub_cmd_vel.publish(vel);
 
-    ROS_INFO("Current target depth: %d cm", value_depth);
+    ROS_INFO("Current target depth: %f cm - FF %f - ANG %f", value_depth, value_linear, value_angular);
+    std::cout << "Forward " << value_linear << " Angular " << value_angular << std::endl;
+
+    pub_cmd_vel.publish(vel);
 
     client.sendMessage(value_linear, value_angular, value_depth, emergency_stop, enable_handcontrol);
 
