@@ -10,7 +10,7 @@ void QextSerialPort::platformSpecificInit()
     Win_Handle=INVALID_HANDLE_VALUE;
     ZeroMemory(&overlap, sizeof(OVERLAPPED));
     overlap.hEvent = CreateEvent(NULL, true, false, NULL);
-    winEventNotifier = 0;
+    //winEventNotifier = 0;
     bytesToWriteLock = new QReadWriteLock;
     _bytesToWrite = 0;
 }
@@ -87,8 +87,8 @@ bool QextSerialPort::open(OpenMode mode) {
                     qWarning() << "failed to set Comm Mask. Error code:", GetLastError();
                     return false;
                 }
-                winEventNotifier = new QWinEventNotifier(overlap.hEvent, this);
-                connect(winEventNotifier, SIGNAL(activated(HANDLE)), this, SLOT(onWinEvent(HANDLE)));
+                //winEventNotifier = new QWinEventNotifier(overlap.hEvent, this);
+                //connect(winEventNotifier, SIGNAL(activated(HANDLE)), this, SLOT(onWinEvent(HANDLE)));
                 WaitCommEvent(Win_Handle, &eventMask, &overlap);
             }
         }
@@ -111,8 +111,8 @@ void QextSerialPort::close()
         CancelIo(Win_Handle);
         if (CloseHandle(Win_Handle))
             Win_Handle = INVALID_HANDLE_VALUE;
-        if (winEventNotifier)
-            winEventNotifier->deleteLater();
+        //if (winEventNotifier)
+        //    winEventNotifier->deleteLater();
 
         _bytesToWrite = 0;
 

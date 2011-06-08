@@ -135,7 +135,7 @@ struct PortSettings
 #include <windows.h>
 #include <QThread>
 #include <QReadWriteLock>
-#include <QtCore/private/qwineventnotifier_p.h>
+#include <QtCore>
 #endif
 
 /*!
@@ -289,7 +289,7 @@ class QEXTSERIALPORT_EXPORT QextSerialPort: public QIODevice
         OVERLAPPED overlap;
         COMMCONFIG Win_CommConfig;
         COMMTIMEOUTS Win_CommTimeouts;
-        QWinEventNotifier *winEventNotifier;
+        //QWinEventNotifier *winEventNotifier;
         DWORD eventMask;
         QList<OVERLAPPED*> pendingWrites;
         QReadWriteLock* bytesToWriteLock;
