@@ -67,7 +67,7 @@ void WallFollowingForm::on_startButton_clicked()
     wallfollow->setSettingsValue("corridorWidth", ui->corridorInput->text());
     wallfollow->setSettingsValue("wallTimer", ui->timerInput->text());
     //qDebug("startButton clicked");
-    wallfollow->setSettingsValue("initHeading", ui->headingInput->text());
+    wallfollow->setSettingsValue("initHeading", ui->headingInput->text().toFloat());
     wallfollow->setSettingsValue("useInitHeading", ui->headingBox->isChecked());
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
     //qDebug("startButton clicked2");

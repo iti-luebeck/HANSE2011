@@ -74,6 +74,10 @@ void Behaviour_WallFollowing::startBehaviour()
         initHeadingReached = true;
     } else {
         initHeadingReached = false;
+        wallCase = "Adjust initial heading...";
+        emit updateWallCase(wallCase);
+        addData("Current Case: ",wallCase);
+        emit dataChanged(this);
         QTimer::singleShot(0, this, SLOT(controlInitHeading()));
     }
 
