@@ -452,7 +452,7 @@ void CommandCenter::controlTaskHandControl(bool b){
     if (this->isEnabled() == false){
         logger->info("Not enabled!");
         return;
-    }<
+    }
     this->wait(100);
     if(b == true){
         if (this->taskhandcontrol->isEnabled() == true){
