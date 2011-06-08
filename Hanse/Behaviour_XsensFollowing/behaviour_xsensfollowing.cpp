@@ -118,14 +118,13 @@ void Behaviour_XsensFollowing::controlLoop()
     float curHeading = xsens->getHeading();
     float curDelta = Angles::deg2deg(ctrAngle - curHeading);
     float ctrAngleSpeed = 0.0;
-    float faktor = 1.0;
 
-    if(curDelta < 0){
-        faktor = -1.0;
-    }
     if(curDelta > getSettingsValue("delta").toFloat() || curDelta < getSettingsValue("delta").toFloat())
     {
-        ctrAngleSpeed = getSettingsValue("kp").toFloat()* faktor * curHeading / ctrAngle;
+        curDelta /= ctrAngle;
+        ctrAngleSpeed = getSettingsValue("kp").toFloat()* curDelta;
+    } else {
+        ctrAngleSpeed = 0.0;
     }
     addData("angularSpeed",ctrAngleSpeed);
     addData("curDelta", curDelta);

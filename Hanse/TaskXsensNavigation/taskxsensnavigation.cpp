@@ -80,20 +80,21 @@ void TaskXsensNavigation::startBehaviour(){
     logger->info("Taskxsensnavigation started" );
     running = true;
     setHealthToOk();
+    if(!this->isEnabled()){
+        // Stateoverview
+        emit newStateOverview("Move to start");
+        emit newStateOverview("Do xsensfollowing");
+        emit newStateOverview("Move to B");
+        emit newStateOverview("Turn180");
+        emit newStateOverview("Move to end");
+        if(this->getSettingsValue("loopActivated").toBool()){
+            emit newStateOverview("...in a loop");
+        }
+    }
     setEnabled(true);
     emit started(this);
     running = true;
 
-
-    // Stateoverview
-    emit newStateOverview("Move to start");
-    emit newStateOverview("Do xsensfollowing");
-    emit newStateOverview("Move to B");
-    emit newStateOverview("Turn180");
-    emit newStateOverview("Move to end");
-    if(this->getSettingsValue("loopActivated").toBool()){
-        emit newStateOverview("...in a loop");
-    }
     // Enable all components
     if(!this->navi->isEnabled()){
         this->navi->setEnabled(true);
