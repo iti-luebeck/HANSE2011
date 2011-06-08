@@ -17,6 +17,7 @@ void Behaviour_TurnOneEighty::init()
                       this, SLOT( xsensUpdate(RobotModule*) ) );
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
+    this->setDefaultValue("degree", 180);
 }
 
 QList<RobotModule*> Behaviour_TurnOneEighty::getDependencies()
@@ -82,7 +83,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 
             currentHeading = this->xsens->getHeading();
 
-            double targetHeading = initialHeading + 180;
+            double targetHeading = initialHeading + this->getSettingsValue("degree").toDouble();
             double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
 
             logger->debug( "current heading %f", currentHeading );
@@ -98,7 +99,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
             }
             else
             {
-                diffHeading /= 180;
+                diffHeading /= this->getSettingsValue("degree").toDouble();
                 double angularSpeed = getSettingsValue( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
                 emit setAngularSpeed(angularSpeed);
                 //            tcl->setAngularSpeed( angularSpeed );

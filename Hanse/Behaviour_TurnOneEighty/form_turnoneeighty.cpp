@@ -12,6 +12,7 @@ Form_TurnOneEighty::Form_TurnOneEighty( Behaviour_TurnOneEighty *behaviour, QWid
 //    QSettings& settings = behaviour->getSettings();
     ui->pEdit->setText( behaviour->getSettingsValue( "p", TURN_DEFAULT_P ).toString() );
     ui->hysteresisEdit->setText( behaviour->getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toString() );
+    ui->degreeInput->setText(behaviour->getSettingsValue("degree").toString());
 }
 
 Form_TurnOneEighty::~Form_TurnOneEighty()
@@ -36,10 +37,15 @@ void Form_TurnOneEighty::on_applyButton_clicked()
 //    QSettings& settings = behaviour->getSettings();
     behaviour->setSettingsValue( "p", ui->pEdit->text().toDouble() );
     behaviour->setSettingsValue( "hysteresis", ui->hysteresisEdit->text().toDouble() );
+    behaviour->setSettingsValue("degree", ui->degreeInput->text().toDouble());
 }
 
 void Form_TurnOneEighty::on_startButton_clicked()
 {
+
+    behaviour->setSettingsValue( "p", ui->pEdit->text().toDouble() );
+    behaviour->setSettingsValue( "hysteresis", ui->hysteresisEdit->text().toDouble() );
+    behaviour->setSettingsValue("degree", ui->degreeInput->text().toDouble());
     behaviour->startBehaviour();
 }
 
