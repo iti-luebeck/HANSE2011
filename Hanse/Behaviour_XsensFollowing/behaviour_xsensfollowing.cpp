@@ -13,9 +13,9 @@ Behaviour_XsensFollowing::Behaviour_XsensFollowing(QString id, Module_ThrusterCo
 
     this->setDefaultValue("timer",30);
     this->setDefaultValue("driveTime",10000);
-    this->setDefaultValue("ffSpeed",0.3);
+    this->setDefaultValue("ffSpeed",0.5);
     this->setDefaultValue("kp",0.3);
-    this->setDefaultValue("delta",0.3);
+    this->setDefaultValue("delta",10);
 }
 
 bool Behaviour_XsensFollowing::isActive()

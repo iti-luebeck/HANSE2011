@@ -32,10 +32,12 @@ TaskXsensNavigationForm::TaskXsensNavigationForm(TaskXsensNavigation *txn, QWidg
     this->ui->delta->setText(this->taskxsensnavigation->getSettingsValue("delta").toString());
     this->ui->driveTime->setText(this->taskxsensnavigation->getSettingsValue("driveTime").toString());
     this->ui->timerInput->setText(this->taskxsensnavigation->getSettingsValue("timer").toString());
+    this->ui->waitInput->setText(this->taskxsensnavigation->getSettingsValue("waitTime").toString());
 
     // Turn180 Settings
     this->ui->hysteresisEdit->setText(this->taskxsensnavigation->getSettingsValue("hysteresis").toString());
     this->ui->pEdit->setText(this->taskxsensnavigation->getSettingsValue("p").toString());
+    this->ui->degreeInput->setText(this->taskxsensnavigation->getSettingsValue("degree").toString());
 
 }
 
@@ -78,10 +80,12 @@ void TaskXsensNavigationForm::on_applyButton_clicked(){
     this->taskxsensnavigation->setSettingsValue("delta", this->ui->delta->text());
     this->taskxsensnavigation->setSettingsValue("driveTime", this->ui->driveTime->text());
     this->taskxsensnavigation->setSettingsValue("timer", this->ui->timerInput->text());
+    this->taskxsensnavigation->setSettingsValue("waitTime", this->ui->waitInput->text());
 
     // Turn180 Settings
     this->taskxsensnavigation->setSettingsValue("hysteresis", this->ui->hysteresisEdit->text());
     this->taskxsensnavigation->setSettingsValue("p", this->ui->pEdit->text());
+    this->taskxsensnavigation->setSettingsValue("degree", this->ui->degreeInput->text());
 }
 
 

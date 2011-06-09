@@ -156,6 +156,7 @@ void CommandCenterForm::updateGUI(){
 
     ui->activeOutput->clear();
     ui->activeOutput->setText(this->com->activeTask);
+
 }
 
 void CommandCenterForm::updateState(QString s){
@@ -163,6 +164,10 @@ void CommandCenterForm::updateState(QString s){
 }
 
 void CommandCenterForm::updateStateOverview(QString s){
-    ui->stateOverviewOutput->insertPlainText(s+"\n");
+    if(s!="CLEAR"){
+        ui->stateOverviewOutput->insertPlainText(s+"\n");
+    } else {
+        ui->stateOverviewOutput->clear();
+    }
 }
 

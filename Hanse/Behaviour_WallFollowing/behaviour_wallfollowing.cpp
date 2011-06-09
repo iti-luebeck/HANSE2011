@@ -286,24 +286,24 @@ void Behaviour_WallFollowing::controlInitHeading(){
     if(this->isEnabled()){
         logger->info("Ctrl init heading");
         if(this->xsens->isEnabled()){
-            float currentHeading = this->xsens->getHeading();
-            float targetHeading = this->getSettingsValue("initHeading").toFloat();
-            float diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+            double currentHeading = this->xsens->getHeading();
+            double targetHeading = this->getSettingsValue("initHeading").toFloat();
+            double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
             addData("currentHeading", currentHeading);
             addData("targetHeading", targetHeading);
             addData("diffHeading", diffHeading);
             emit dataChanged(this);
-            if(-10 < diffHeading && diffHeading < 10){
+
+            double ctrAngleSpeed = 0.0;
+
+            if(fabs(diffHeading) < 20)
+            {
                 logger->info("init heading reached");
                 initHeadingReached = true;
+                ctrAngleSpeed = 0.0;
             } else {
                 initHeadingReached = false;
-                float ctrAngleSpeed = 0.0;
-                if(diffHeading > 10 || diffHeading < 10)
-                {
-                    diffHeading /= this->getSettingsValue("targetHeading").toDouble();
-                    ctrAngleSpeed = 0.4 * diffHeading;
-                }
+                ctrAngleSpeed = 0.4*diffHeading;
                 emit angularSpeed(ctrAngleSpeed);
                 QTimer::singleShot(100, this, SLOT(controlInitHeading()));
             }

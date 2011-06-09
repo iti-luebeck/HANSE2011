@@ -53,7 +53,7 @@ public slots:
     void seReached(QString waypoint);
     void moveToEnd();
     void doWallFollow();
-    void controlWallFollowDistance();
+    void controlWallFollowRemainingDistance();
     void controlNextState();
 
     void controlEnabledChanged(bool b);

@@ -285,6 +285,7 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
     }
     // Update finished/aborted list
     emit updateGUI();
+    emit newStateOverview("CLEAR");
 }
 
 

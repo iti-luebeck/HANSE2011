@@ -50,10 +50,12 @@ TaskXsensNavigation::TaskXsensNavigation(QString id, Module_Simulation *sim, Beh
     this->setDefaultValue("delta", 10);
     this->setDefaultValue("timer", 30);
     this->setDefaultValue("driveTime", 10000);
+    this->setDefaultValue("waitTime", 10000);
 
     // Default turn180 settings
     this->setDefaultValue("hysteresis", 10);
     this->setDefaultValue("p", 0.4);
+    this->setDefaultValue("degree", 180);
 
     taskTimer.setSingleShot(true);
     taskTimer.moveToThread(this);
@@ -185,7 +187,7 @@ void TaskXsensNavigation::doXsensFollow(){
         emit dataChanged(this);
 
         // Finish state after drivetime msec and a little bit time to finish turn
-        int tempWait = this->getSettingsValue("driveTime").toInt()+15000;
+        int tempWait = this->getSettingsValue("driveTime").toInt()+this->getSettingsValue("waitTime").toInt();
         QTimer::singleShot(tempWait, this, SLOT(finishXsensFollow()));
     } else {
         logger->info("doXsensFollow not possible!");
@@ -229,7 +231,7 @@ void TaskXsensNavigation::doTurn(){
             logger->debug("enable turn180");
             this->turn180->setSettingsValue("hysteresis", this->getSettingsValue("hysteresis").toFloat());
             this->turn180->setSettingsValue("p", this->getSettingsValue("p").toFloat());
-            this->turn180->setSettingsValue("degree", 180);
+            this->turn180->setSettingsValue("degree", this->getSettingsValue("degree").toFloat());
             QTimer::singleShot(0, turn180, SLOT(startBehaviour()));
         }
     } else {
