@@ -19,6 +19,7 @@ TaskXsensNavigationForm::TaskXsensNavigationForm(TaskXsensNavigation *txn, QWidg
 
     this->ui->targetInput->setText(this->taskxsensnavigation->getSettingsValue("targetNavigation").toString());
     this->ui->targetToleranceInput->setText(this->taskxsensnavigation->getSettingsValue("targetTolerance").toString());
+
     this->ui->enableTimerBox->setChecked(this->taskxsensnavigation->getSettingsValue("timerActivated").toBool());
     this->ui->enableLoopBox->setChecked(this->taskxsensnavigation->getSettingsValue("loopActivated").toBool());
 
@@ -56,13 +57,13 @@ void TaskXsensNavigationForm::changeEvent(QEvent *e)
 }
 
 void TaskXsensNavigationForm::on_applyButton_clicked(){
-    this->taskxsensnavigation->setSettingsValue("startNavigation", this->ui->targetInput->text());
+    this->taskxsensnavigation->setSettingsValue("startNavigation", this->ui->startInput->text());
     this->taskxsensnavigation->setSettingsValue("startTolerance", this->ui->startToleranceInput->text());
 
     this->taskxsensnavigation->setSettingsValue("bNavigation", this->ui->bInput->text());
     this->taskxsensnavigation->setSettingsValue("bTolerance", this->ui->bToleranceInput->text());
 
-    this->taskxsensnavigation->setSettingsValue("targetNavigation", this->ui->startInput->text());
+    this->taskxsensnavigation->setSettingsValue("targetNavigation", this->ui->targetInput->text());
     this->taskxsensnavigation->setSettingsValue("targetTolerance", this->ui->targetToleranceInput->text());
 
     this->taskxsensnavigation->setSettingsValue("timerActivated", this->ui->enableTimerBox->isChecked());

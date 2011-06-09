@@ -54,14 +54,14 @@ void Server::openSocket() {
 
 void Server::receiveMessage() {
 
-    logger->debug("Received handcontrol msg");
+//    logger->debug("Received handcontrol msg");
 
     signed short forwardSpeed, angularSpeed, upDownSpeed;
     bool emergencyButton, stHandControl;
     while(tcpSocket && tcpSocket->bytesAvailable())
         *stream >> forwardSpeed >> angularSpeed >> upDownSpeed >> emergencyButton >> stHandControl;
 
-    qDebug()<< forwardSpeed << " " << angularSpeed << " " << upDownSpeed << " " << emergencyButton << " " << stHandControl;
+//    qDebug()<< forwardSpeed << " " << angularSpeed << " " << upDownSpeed << " " << emergencyButton << " " << stHandControl;
     if (stHandControl) {
 
         emit startHandControl();

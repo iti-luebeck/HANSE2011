@@ -30,8 +30,7 @@ private:
         QTimer turnTimer;
         void stopOnXsensError();
 
-        float initialHeading;
-        float ctrAngle;
+        float targetHeading;
 
 public slots:
         void startBehaviour();

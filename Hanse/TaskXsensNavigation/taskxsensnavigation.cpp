@@ -32,20 +32,21 @@ TaskXsensNavigation::TaskXsensNavigation(QString id, Module_Simulation *sim, Beh
     this->setDefaultValue("taskStopTime",120000);
     this->setDefaultValue("signalTimer",1000);
 
-    this->setDefaultValue("startNavigation", "startN");
-    this->setDefaultValue("startTolerance", 10);
-    this->setDefaultValue("targetNavigation", "targetN");
-    this->setDefaultValue("targetTolerance", 10);
+    this->setDefaultValue("startNavigation", "a");
+    this->setDefaultValue("startTolerance", 2);
+    this->setDefaultValue("bNavigation", "b");
+    this->setDefaultValue("bTolerance", 2);
+    this->setDefaultValue("targetNavigation", "c");
+    this->setDefaultValue("targetTolerance", 2);
 
-    this->setDefaultValue("bNavigation", "bN");
-    this->setDefaultValue("bTolerance", 10);
+
 
     this->setDefaultValue("timerActivated", true);
     this->setDefaultValue("loopActivated", true);
 
     // Default xsensfollow settings
-    this->setDefaultValue("ffSpeed", 10);
-    this->setDefaultValue("kp", 10);
+    this->setDefaultValue("ffSpeed", 0.5);
+    this->setDefaultValue("kp", 0.4);
     this->setDefaultValue("delta", 10);
     this->setDefaultValue("timer", 30);
     this->setDefaultValue("driveTime", 10000);

@@ -83,13 +83,15 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 
             currentHeading = this->xsens->getHeading();
 
-            double targetHeading = initialHeading + this->getSettingsValue("degree").toDouble();
+            double targetHeading = Angles::deg2deg(initialHeading + this->getSettingsValue("degree").toDouble());
             double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-
-            logger->debug( "current heading", currentHeading );
+            qDebug()<<"currentHeading" <<currentHeading;
             addData("current_heading", currentHeading);
-            logger->debug( "heading difference", diffHeading );
+            qDebug()<<"targetHeading" <<targetHeading;
+            addData("targetHeading", targetHeading);
+            qDebug()<<"diffHeading" <<diffHeading;
             addData("difference_heading", diffHeading);
+
 
             if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
             {
@@ -99,10 +101,9 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
             }
             else
             {
-                diffHeading /= this->getSettingsValue("degree").toDouble();
+                //diffHeading /= this->getSettingsValue("degree").toDouble();
                 double angularSpeed = getSettingsValue( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
                 emit setAngularSpeed(angularSpeed);
-                //            tcl->setAngularSpeed( angularSpeed );
             }
 
             dataChanged( this );
