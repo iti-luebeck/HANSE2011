@@ -187,8 +187,7 @@ void TaskWallNavigation::controlWallFollowRemainingDistance(){
                 QTimer::singleShot(0, wall, SLOT(stop()));
                 this->wall->echo->setEnabled(false);
             }
-            logger->info("Something is wrong with wallfollow/task, moveToEnd...");
-            QTimer::singleShot(0, this, SLOT(moveToEnd()));
+            QTimer::singleShot(0, this, SLOT(controlNextState()));
         }
     } else {
         logger->info("Not enabled!");
