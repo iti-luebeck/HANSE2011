@@ -164,10 +164,19 @@ void Module_Simulation::requestIMU()
     }
 }
 
-void Module_Simulation::requestImage()
+void Module_Simulation::requestBottomImage()
 {
     if(client_running){
         QString request = QString("Camera ").append("bottom_cam").append("\n");
+        tcpSocket->write(request.toAscii().data(), request.length());
+        tcpSocket->flush();
+    }
+}
+
+void Module_Simulation::requestFrontImage()
+{
+    if(client_running){
+        QString request = QString("Camera ").append("front_cam").append("\n");
         tcpSocket->write(request.toAscii().data(), request.length());
         tcpSocket->flush();
     }
@@ -182,8 +191,12 @@ void Module_Simulation::requestPinger()
     }
 }
 
-void Module_Simulation::requestImageSlot(){
-    requestImage();
+void Module_Simulation::requestBottomImageSlot(){
+    requestBottomImage();
+}
+
+void Module_Simulation::requestFrontImageSlot(){
+    requestFrontImage();
 }
 
 void Module_Simulation::requestSonarSlot(){
@@ -264,22 +277,27 @@ void Module_Simulation::parse_input(QString input){
         QByteArray inputdata;
         input_stream2 >> inputdata;
 
-        // cv::Mat* mat = new cv::Mat(rows, cols, CV_8UC4,readbuf);
-         //emit newImageData(*mat);
-        //emit test(readbuf);
-
         char *datas = inputdata.data();
 
-        //emit test(datas);
-
-        int rows = 480;
-        int cols = 640;
-        cv::Mat* mat = new cv::Mat(rows, cols, CV_8UC4,datas);
-        cv::Mat img_yuv;
-        cv::Mat img_yuv2;
-        cv::cvtColor(*mat,img_yuv,CV_RGBA2RGB);
-        cv::flip(img_yuv,img_yuv2,1);
-        emit newImageData(img_yuv2);
+        if(cam_name.startsWith("bottom_cam")){
+            int rows = 480;
+            int cols = 640;
+            cv::Mat* mat = new cv::Mat(rows, cols, CV_8UC4,datas);
+            cv::Mat img_yuv;
+            cv::Mat img_yuv2;
+            cv::cvtColor(*mat,img_yuv,CV_RGBA2RGB);
+            cv::flip(img_yuv,img_yuv2,1);
+            emit newBottomImageData(img_yuv2);
+        }else if(cam_name.startsWith("front_cam")){
+            int rows = 480;
+            int cols = 640;
+            cv::Mat* mat = new cv::Mat(rows, cols, CV_8UC4,datas);
+            cv::Mat img_yuv;
+            cv::Mat img_yuv2;
+            cv::cvtColor(*mat,img_yuv,CV_RGBA2RGB);
+            cv::flip(img_yuv,img_yuv2,1);
+            emit newFrontImageData(img_yuv2);
+        }
 
     }
     else if(input.startsWith("Thruster"))

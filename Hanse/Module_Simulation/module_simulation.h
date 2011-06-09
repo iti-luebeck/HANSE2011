@@ -31,7 +31,8 @@ public slots:
     void requestSonarSlot();
     void requestSonarGroundSlot();
     void requestSonarSideSlot();
-    void requestImageSlot();
+    void requestFrontImageSlot();
+    void requestBottomImageSlot();
     void requestDepthSlot();
     void requestTempSlot();
     void requestThrusterSpeedSlot(QString id,int speed);
@@ -56,7 +57,8 @@ signals:
     void newSonarGroundData(EchoReturnData echodat);
     void newSonarSideData(EchoReturnData echodat);
     void newIMUData(float accl_x,float accl_y,float accl_z,float angvel_x,float angvel_y,float angvel_z);
-    void newImageData(cv::Mat simframe);
+    void newBottomImageData(cv::Mat simframe);
+    void newFrontImageData(cv::Mat simframe);
     void newPingerData(float angle);
 
 protected:
@@ -84,7 +86,8 @@ private:
     void requestSonarGround();
     void requestSonarSide();
     void requestIMU();
-    void requestImage();
+    void requestFrontImage();
+    void requestBottomImage();
     void requestPinger();
 };
 

@@ -37,8 +37,8 @@ void Behaviour_PipeFollowing::init()
     this->updateFromSettings();
     connect(&timer,SIGNAL(timeout()),this,SLOT(timerSlot()));
     /* connect simulation */
-    connect(this,SIGNAL(requestBottomFrame()),sim,SLOT(requestImageSlot()));
-    connect(sim,SIGNAL(newImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
+    connect(this,SIGNAL(requestBottomFrame()),sim,SLOT(requestBottomImageSlot()));
+    connect(sim,SIGNAL(newBottomImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
 
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 
