@@ -101,7 +101,7 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
             }
         }
 
-        if (maxVal > 20) {
+        if (maxVal > 5) {
             data.setWallCandidate(maxIdx);
         } else {
             data.setWallCandidate(-1);
@@ -272,7 +272,7 @@ void SonarEchoFilter::grouping()
 
         if (this->sloc->getSettingsValue("use xsens").toBool()) {
             diff = (candidates[i-1].getHeadPosition()/* - candidates[i-1].getHeadingIncrement()*/) -
-                   (candidates[i].getHeadPosition() + candidates[i].getHeadingIncrement());
+                   (candidates[i].getHeadPosition() - candidates[i].getHeadingIncrement());
         } else {
             diff = candidates[i-1].getHeadPosition() - candidates[i].getHeadPosition();
         }

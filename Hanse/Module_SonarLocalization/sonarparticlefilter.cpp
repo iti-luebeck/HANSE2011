@@ -415,6 +415,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
     logger->debug("Updating the particle filter... DONE");
 
     this->sonar.setSettingsValue("savedPosition", getBestEstimate().toPointF());
+    sonar.addData("heading", particles[0].getTheta());
 
     emit newPosition(getBestEstimate());
 }

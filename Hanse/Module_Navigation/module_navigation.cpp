@@ -209,14 +209,14 @@ void Module_Navigation::xsensUpdate( RobotModule * )
     //--------------------------------------------------------------------
     if (getSettingsValue("use xsens", true).toBool()) {
         float xsensHeading = mti->getHeading();
-        if (state == NAV_STATE_GO_TO_GOAL) {
+        if (state == NAV_STATE_GO_TO_GOAL || state == NAV_STATE_REACHED_GOAL) {
 
             if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
                 double diffXsens = Angles::deg2deg(xsensHeading - adjustHeadingInitialXsens);
                 addData("xsens heading to last localization", diffXsens);
 
                 if (fabs(Angles::deg2deg(diffHeading - diffXsens)) < 5) {
-//                    emit newANGSpeed(.0);
+                    emit newANGSpeed(.0);
                 } else {
                     float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                     float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
@@ -231,7 +231,7 @@ void Module_Navigation::xsensUpdate( RobotModule * )
             }
 
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
-                float headingError = Angles::deg2deg(initialXsensHeading - xsensHeading);
+                float headingError = Angles::deg2deg(xsensHeading - initialXsensHeading);
                 if (fabs(headingError) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
                     float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * headingError;
                     emit newANGSpeed(val);
@@ -276,8 +276,13 @@ void Module_Navigation::sonarPositionUpdate()
 
     double dx = currentGoal.posX - currentPosition.getX();
     double dy = currentGoal.posY - currentPosition.getY();
-    headingToGoal = atan2(-dx, dy) * 180 / CV_PI;
+    headingToGoal = -atan2(dx, dy) * 180 / CV_PI;
     distanceToGoal = sqrt(dx*dx + dy*dy);
+
+    addData("currentHeading", currentHeading);
+    addData("dx", dx);
+    addData("dy", dy);
+    addData("dtheta", headingToGoal);
 
     //--------------------------------------------------------------------
     //  STATE_IDLE
@@ -314,6 +319,8 @@ void Module_Navigation::sonarPositionUpdate()
             < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
             state = NAV_STATE_REACHED_GOAL;
             substate = NAV_SUBSTATE_ADJUST_HEADING;
+            addData("ANGspeed", .0);
+            addData("FFspeed",.0);
             emit newFFSpeed(.0);
             emit newANGSpeed(.0);
         } else {
@@ -328,6 +335,8 @@ void Module_Navigation::sonarPositionUpdate()
 
             // Then adjust the heading towards the goal.
             if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
+                adjustHeadingInitialXsens = mti->getHeading();
+
                 // Check whether the heading needs to be corrected.
                 if ( fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
 
@@ -339,14 +348,16 @@ void Module_Navigation::sonarPositionUpdate()
                     if (val < -maxAngSpeed) val = -maxAngSpeed;
                     if (val > 0 && val < minAngSpeed) val = minAngSpeed;
                     if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
-                    adjustHeadingInitialXsens = mti->getHeading();
-                    addData("set speed", val);
+                    addData("ANGspeed", val);
+                    addData("FFspeed",.0);
                     emit newFFSpeed(.0);
                     emit newANGSpeed(val);
 
                 } else {
 
                     // If heading does not need to be adjusted, move forward.
+                    addData("ANGspeed", .0);
+
                     emit newANGSpeed(.0);
                     float speed = getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat();
 
@@ -355,6 +366,7 @@ void Module_Navigation::sonarPositionUpdate()
                         speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
                                  ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
                     }
+                    addData("FFspeed",speed);
                     emit newFFSpeed(speed);
 
                     substate = NAV_SUBSTATE_MOVE_FORWARD;
@@ -381,13 +393,14 @@ void Module_Navigation::sonarPositionUpdate()
     if (state == NAV_STATE_REACHED_GOAL) {
 
         if (currentGoal.useExitAngle) {
+            adjustHeadingInitialXsens = mti->getHeading();
             float exitAngle = currentGoal.exitAngle;
-            float diffHeadingExit = Angles::deg2deg(exitAngle - currentHeading);
-            if (fabs(diffHeadingExit) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
+            diffHeading = Angles::deg2deg(exitAngle - currentHeading);
+            if (fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
                 // positive: rotate right (clockwise)
                 float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                 float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
-                float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeadingExit;
+                float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
                 if (val > maxAngSpeed) val = maxAngSpeed;
                 if (val < -maxAngSpeed) val = -maxAngSpeed;
                 if (val > 0 && val < minAngSpeed) val = minAngSpeed;
@@ -409,6 +422,10 @@ void Module_Navigation::sonarPositionUpdate()
 
             navigateToNextWaypoint();
         }
+
+
+        addData("ANGspeed",.0);
+        addData("FFspeed",.0);
 
     }
 

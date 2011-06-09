@@ -140,7 +140,7 @@ void Module_XsensMTi::refreshData()
 #ifdef ENABLE_XSENS
         if (mti != NULL) {
             if (getSettingsValue("upsidedown").toBool()) {
-                addData("yaw", Angles::deg2deg(-mti->yaw()));
+                addData("yaw", -Angles::deg2deg(mti->yaw()));
             } else {
                 addData("yaw", Angles::deg2deg(mti->yaw()));
             }
@@ -157,7 +157,11 @@ void Module_XsensMTi::refreshData()
 
 void Module_XsensMTi::refreshSimData(float angle_yaw, float angle_pitch, float angle_roll)
 {
-    addData("yaw", Angles::deg2deg(angle_yaw));
+    if (getSettingsValue("upsidedown").toBool()) {
+        addData("yaw", -Angles::deg2deg(angle_yaw));
+    } else {
+        addData("yaw", Angles::deg2deg(angle_yaw));
+    }
     addData("pitch", Angles::deg2deg(angle_pitch));
     addData("roll", Angles::deg2deg(angle_roll));
     if (getHealthStatus().isHealthOk()) {
