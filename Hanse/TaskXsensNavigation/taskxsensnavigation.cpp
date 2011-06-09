@@ -144,7 +144,7 @@ void TaskXsensNavigation::seReached(QString waypoint){
             // End reached, control next state
             QTimer::singleShot(0, navi, SLOT(clearGoal()));
             QTimer::singleShot(0, this, SLOT(doTurn()));
-        } else if(waypoint == this->getSettingsValue("turn180").toString()){
+        } else if(waypoint == "turn180"){
             // Turn180 finished, move to end
             QTimer::singleShot(0, this, SLOT(moveToEnd()));
         } else if(waypoint == this->getSettingsValue("targetNavigation").toString()){
@@ -227,8 +227,9 @@ void TaskXsensNavigation::doTurn(){
 
         if(!this->turn180->isEnabled()){
             logger->debug("enable turn180");
-            this->turn180->setSettingsValue("hysteresis", this->getSettingsValue("hysteresis").toInt());
-            this->turn180->setSettingsValue("p", this->getSettingsValue("p").toInt());
+            this->turn180->setSettingsValue("hysteresis", this->getSettingsValue("hysteresis").toFloat());
+            this->turn180->setSettingsValue("p", this->getSettingsValue("p").toFloat());
+            this->turn180->setSettingsValue("degree", 180);
             QTimer::singleShot(0, turn180, SLOT(startBehaviour()));
         }
     } else {

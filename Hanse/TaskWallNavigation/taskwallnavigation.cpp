@@ -156,13 +156,13 @@ void TaskWallNavigation::doWallFollow(){
 
         // Now do wallfollowing until target position is reached
         distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
-        logger->debug("remaining distance "+QString::number(distanceToTarget));
-        while(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
+        logger->debug("remaining distance "+QString::number(distanceToTarget) );
+        while(distanceToTarget > this->getSettingsValue("targetTolerance").toDouble() && this->isEnabled()){
             distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
             logger->debug("remaining distance "+QString::number(distanceToTarget));
             addData("remaining distance",distanceToTarget);
             emit dataChanged(this);
-            msleep(100);
+            msleep(2000);
         }
 
         addData("remaining distance", "-");
@@ -182,6 +182,14 @@ void TaskWallNavigation::doWallFollow(){
     } else {
         logger->info("Something is wrong with wallfollow/task, moveToEnd...");
         QTimer::singleShot(0, this, SLOT(moveToEnd()));
+    }
+}
+
+void TaskWallNavigation::controlWallFollowDistance(){
+    if(this->isEnabled()){
+
+
+
     }
 }
 

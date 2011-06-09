@@ -104,6 +104,7 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
                 //diffHeading /= this->getSettingsValue("degree").toDouble();
                 double angularSpeed = getSettingsValue( "p", TURN_DEFAULT_P ).toDouble() * diffHeading;
                 emit setAngularSpeed(angularSpeed);
+                qDebug()<<"angulraSpeed" <<angularSpeed;
             }
 
             dataChanged( this );

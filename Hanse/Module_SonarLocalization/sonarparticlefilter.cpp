@@ -373,7 +373,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
         }
         particle.setWeight(weights[i]);
         oldParticles[i] = particle;
-        logger->trace("Particle "+QString::number(i)+" has weight "+QString::number(weights[i]));
+        //logger->trace("Particle "+QString::number(i)+" has weight "+QString::number(weights[i]));
     }
 
     double sumW = sum(weights);
