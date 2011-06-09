@@ -114,7 +114,7 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 
 void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 {
-    logger->debug(" simu data");
+  //  logger->debug(" simu data");
     if (this->isEnabled() == false){
         logger->info("Not enabled!");
         return;
@@ -123,7 +123,7 @@ void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
     this->dataLockerMutex.lock();
     simFrame.copyTo(frame);
     this->dataLockerMutex.unlock();
-    //imshow("blub",frame);
+//    imshow("blub",frame);
     timerSlotExecute();
 }
 

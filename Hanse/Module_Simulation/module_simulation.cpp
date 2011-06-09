@@ -110,7 +110,7 @@ void Module_Simulation::requestTemp()
 void Module_Simulation::requestThrusterSpeed(QString id,int speed)
 {
     if(client_running){
-//        addData(id,speed);
+        addData(id,speed);
 //        emit dataChanged(this);
         QVariant tmp(speed);
         QString request = QString("Thruster ").append(id).append(" ").append(tmp.toString()).append("\n");
