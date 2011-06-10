@@ -30,6 +30,8 @@ public:
 
     void emitSonarSignal();
 
+    double sonarTime;
+
 public slots:
     bool doNextScan();
 

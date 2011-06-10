@@ -39,6 +39,7 @@ SonarDataSourceRivas::SonarDataSourceRivas(Module_ScanningSonar &parent, Module_
     currentHeading = 0;
     lastHeading = 0;
     this->mti = mti;
+    sonarTime = 0;
 }
 
 SonarDataSourceRivas::~SonarDataSourceRivas()
@@ -75,16 +76,18 @@ SonarReturnDataRivas SonarDataSourceRivas::readPacket()
     }
 
     double time = 0;
-    float sonarTime = 0;
+    float bla = 0;
     float headPos = 0;
 
-    *sonarStream >> time >> sonarTime >> headPos;
+    *sonarStream >> time >> bla >> headPos;
     QByteArray data;
     for (int i = 0; i < 500; i++) {
         int value = 0;
         *sonarStream >> value;
         data.append((unsigned char)value);
     }
+
+    this->sonarTime = time;
 
     SonarSwitchCommand cmd;
     cmd.range = 50;

@@ -34,6 +34,7 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim, M
     qRegisterMetaType<SonarReturnData>("SonarReturnData");
     recorder = NULL;
     source = NULL;
+    sonarTime = 0;
     timer.moveToThread(this);
 }
 
@@ -101,6 +102,7 @@ bool Module_ScanningSonar::doNextScan()
         }
 
         const SonarReturnData d = source->getNextPacket();
+        sonarTime = source->sonarTime;
 
         if (d.isPacketValid()) {
             setHealthToOk();
@@ -173,7 +175,7 @@ void Module_ScanningSonar::reset()
         }
 
         logger->debug("Restarting reader.");
-        if(source->isOpen())
+        if(source != NULL && source->isOpen())
         {
            timer.setInterval(0); // timerSlot will block
            timer.start();

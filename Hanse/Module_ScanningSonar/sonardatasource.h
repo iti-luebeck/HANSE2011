@@ -18,6 +18,8 @@ public:
 
     virtual void stop() = 0;
 
+    double sonarTime;
+
 protected:
     Module_ScanningSonar& parent;
 

@@ -112,8 +112,10 @@ void ScanningSonarForm::updateSonarView(const SonarReturnData data)
 
         QLinearGradient g(QPointF(0, 0), endPoint2);
         for (int i = 0; i < n; i++) {
-            char b = data.getEchoData()[i];
-            g.setColorAt(1.0*i/n,QColor(2*b,2*b,2*b));
+            int echo = 2 * data.getEchoData()[i];
+            if (echo < 0) echo = 0;
+            if (echo > 255) echo = 255;
+            g.setColorAt(1.0*i/n,QColor(echo, echo, echo));
         }
         it->setBrush(QBrush(g));
 
