@@ -231,13 +231,13 @@ void Module_Navigation::xsensUpdate( RobotModule * )
             }
 
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
-                float headingError = Angles::deg2deg(xsensHeading - initialXsensHeading);
-                if (fabs(headingError) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
+                float headingError = - Angles::deg2deg(xsensHeading - initialXsensHeading);
+//                if (fabs(headingError) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
                     float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * headingError;
                     emit newANGSpeed(val);
-                } else {
-                    emit newANGSpeed(.0);
-                }
+//                } else {
+//                    emit newANGSpeed(.0);
+//                }
             }
         }
     }
@@ -343,7 +343,7 @@ void Module_Navigation::sonarPositionUpdate()
                     // positive: rotate right (clockwise)
                     float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                     float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
-                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
+                    float val = - getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
                     if (val > maxAngSpeed) val = maxAngSpeed;
                     if (val < -maxAngSpeed) val = -maxAngSpeed;
                     if (val > 0 && val < minAngSpeed) val = minAngSpeed;
@@ -363,8 +363,8 @@ void Module_Navigation::sonarPositionUpdate()
 
                     // Move slower if we are close to the goal.
                     if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
-                        speed -= getSettingsValue( "p_forward", NAV_P_FORWARD ).toDouble() *
-                                 ( 1 - ( distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble() ) );
+                        speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
+                                 (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
                     }
                     addData("FFspeed",speed);
                     emit newFFSpeed(speed);
