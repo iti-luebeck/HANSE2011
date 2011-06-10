@@ -53,6 +53,8 @@ public:
     SonarParticleFilter& particleFilter();
     SonarEchoFilter& sonarEchoFilter();
 
+    Module_ScanningSonar* sonar;
+
 
 public slots:
     void reset();
@@ -72,7 +74,6 @@ signals:
     void lostLocalization();
 
 private:
-    Module_ScanningSonar* sonar;
     Module_XsensMTi *mti;
 
     SonarEchoFilter filter;

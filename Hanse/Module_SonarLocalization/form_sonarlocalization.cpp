@@ -404,7 +404,7 @@ void Form_SonarLocalization::updateSonarViewRaw()
         QByteArray data = sonarEchoDataList[j].getFiltered();
         QLinearGradient gi(0, 0, 0, data.length());
         for (int i = 0; i < data.length(); i++) {
-            int col = 255 - 2 * data[i];
+            int col = 255 - 2 * (int)data[i];
             if (col < 0) col = 0;
             if (col > 255) col = 255;
             gi.setColorAt(1.0 * i / data.length(), QColor(col, col, col));

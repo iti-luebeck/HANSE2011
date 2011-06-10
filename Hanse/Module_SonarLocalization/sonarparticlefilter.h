@@ -99,7 +99,6 @@ private:
 
 //    QSettings& s;
 
-    QQueue< QList<QVector2D> > zList;
     QList<QVector2D> lastZ;
 
     Log4Qt::Logger *logger;
@@ -137,7 +136,8 @@ private:
     QVector2D map2img(const QVector2D& mapPoint);
     QVector2D img2map(const QVector2D& imgPoint);
 
-    double meassureObservation(const QVector<QVector2D>& observations);
+    double meassureObservation(const QVector<QVector2D>& observations, const QList<QVector2D>& obsRelativeToRobot);
+    double meassureMatches(const QVector<QVector2D>& observations);
 
     bool isPositionForbidden(const QVector2D& pos);
 
@@ -145,9 +145,13 @@ private:
     double min(const QVector<double>&);
     double sum(const QVector<double>&);
 
-    void updateParticleFilter(const QList<QVector2D>& observations);
+    void updateParticleFilter(QList<QVector2D> observations);
 
     void addToList(QList<QVector2D>& list, const QVector2D p, double Tdist);
+
+    QFile* file;
+    QTextStream* stream;
+    double lastMatchRatio;
 
 private slots:
     void newImage(QList<QVector2D> observations);

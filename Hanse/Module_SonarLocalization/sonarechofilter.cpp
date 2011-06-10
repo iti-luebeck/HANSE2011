@@ -29,6 +29,7 @@ SonarEchoFilter::SonarEchoFilter(Module_SonarLocalization* parent, Module_XsensM
 
     lastValidDataHeading = 0;
     currentDataHeading = 0;
+    lastObservationTime = 0;
 }
 
 /**
@@ -41,6 +42,8 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 {
     if (!sloc->isEnabled())
         return;
+
+    refTimes.append(sloc->sonar->sonarTime);
 
     SonarEchoData currData = SonarEchoData(data);
 
@@ -124,11 +127,9 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
             for (int j = 0; j < N; j++) {
                 int up = qMax(0, j - k);
                 int down = qMin(j + k, N - 1);
-                float gradient = 0;
+                float gradient = 1;
                 if (up == j - k && down == j + k) {
                     gradient = qMax(0.0f,(2 * integral.at<float>(0,j) - integral.at<float>(0,up) - integral.at<float>(0,down)) / (2*k));
-                } else {
-                    gradient = 1;
                 }
                 echoFiltered.at<float>(0,j) = echoFiltered.at<float>(0,j) * gradient;
             }
@@ -210,7 +211,7 @@ void SonarEchoFilter::applyHeuristic()
     //SinglePoint Method
     if (singlePoint)
     {
-        int kabs = 2;
+        int kabs = 4;
         QList<bool> flags;
         for (int i = 0; i < candidates.size(); i++) {
             int neighborCount = 0;
@@ -320,6 +321,8 @@ void SonarEchoFilter::grouping()
 
         if (cutIndex == 0) {
             qDebug() << "No Darkness. Cutting Candidates at 360 degrees";
+            lastObservationTime = refTimes.last();
+            refTimes.clear();
             this->sendImage();
         } else {
             qDebug() << "cut at " << cutIndex << " of " << candidates.size();
@@ -344,13 +347,14 @@ void SonarEchoFilter::grouping()
                 diff = Angles::deg2deg(diff);
                 temp_area += abs(diff);
 
-                //just keep positiv wallCandidates
-//                if (candidates.last().getClassLabel() == 1)
-                    tmp.append(candidates.takeLast());
-//                else
-//                    candidates.removeLast();
-
+                tmp.append(candidates.takeLast());
             }
+
+            lastObservationTime = refTimes[cutIndex];
+            for (int i = 0; i < cutIndex; i++) {
+                refTimes.takeFirst();
+            }
+
             this->sendImage();
             candidates.clear();
 

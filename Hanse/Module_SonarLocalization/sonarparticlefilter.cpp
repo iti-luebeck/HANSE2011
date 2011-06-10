@@ -72,6 +72,15 @@ void SonarParticleFilter::reset()
     }
 
     lastCompassHeading = -10000;
+
+    file = new QFile("loc.txt");
+    stream = NULL;
+    if (file->open(QIODevice::WriteOnly)) {
+        stream = new QTextStream(file);
+        stream->setRealNumberNotation(QTextStream::FixedNotation);
+    }
+
+    lastMatchRatio = 0;
 }
 
 void SonarParticleFilter::loadMap()
@@ -211,7 +220,7 @@ double SonarParticleFilter::sampleUni(double min, double max)
     return min + (max - min)*r;
 }
 
-double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations)
+double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations, const QList<QVector2D>& obsRelativeToRobot)
 {
     if (!hasMap()) {
         return 0;
@@ -235,19 +244,52 @@ double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observ
     this->mapPointsFlann->knnSearch(zPoints, indices, dists, 1, cv::flann::SearchParams(32));
     double index = 0;
     for (int i = 0; i < N; i++) {
+        double obsDist = obsRelativeToRobot[i].length();
         double diff = dists.at<float>(i,0);
         if (diff > cutoff2) {
-            diff = 1;
-        } else {
-            diff /= cutoff2;
+            diff = cutoff2;
         }
-        index -= diff;
+        index += diff / ((((100 - obsDist) / 100)) * sigma2);
     }
-    double worstPossible = exp(-N);
-    index = exp(index);
-    index = ((index - worstPossible) / (1 - index)) / (1 + ((index - worstPossible) / (1 - index)));
+    index = exp(-0.5 * index);
+//    index = index / (N * cutoff2);
+//    index = 1 - index;
+
+//    double worstPossible = exp(-0.5 * N * cutoff2);
 
     return index;
+}
+
+double SonarParticleFilter::meassureMatches(const QVector<QVector2D>& observations)
+{
+    if (!hasMap()) {
+        return 0;
+    }
+
+    int N = observations.size();
+
+    float cutoff2 = sonar.getSettingsValue("distanceCutoff").toFloat();
+    cutoff2 *= cutoff2;
+
+    // TODO: this data copying can be avoided by doing all math in opencv data structures
+    Mat zPoints(N, 2, CV_32F);
+    for (int i=0; i<N; i++) {
+        zPoints.at<float>(i,0) = observations[i].x();
+        zPoints.at<float>(i,1) = observations[i].y();
+    }
+    Mat indices = Mat::zeros(N, 1, CV_32S);
+    Mat dists = Mat::zeros(N, 1, CV_32F);
+    this->mapPointsFlann->knnSearch(zPoints, indices, dists, 1, cv::flann::SearchParams(32));
+    double index = 0;
+    for (int i=0; i<N; i++) {
+//        QVector2D diff = mapPoints[indices.at<int>(i,0)] - observations[i];
+        double diff = dists.at<float>(i,0);
+        if (diff < cutoff2) {
+            index++;
+        }
+    }
+
+    return index / (double)N;
 }
 
 bool SonarParticleFilter::isPositionForbidden(const QVector2D& pos)
@@ -300,7 +342,7 @@ QVector<SonarParticle> SonarParticleFilter::getParticles()
     return particles;
 }
 
-void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observations)
+void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
 {
     qDebug() << "obs length = " << observations.length();
 //    logger->debug("pressed next button.");
@@ -309,10 +351,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
     QVector<SonarParticle> oldParticles = particles;
     particlesMutex.unlock();
 
-    if (observations.size()<sonar.getSettingsValue("imgMinPixels").toInt()) {
-        logger->warn("not enough points. dropping meassurement.");
-        return;
-    }
+    double refTime = sonar.sonarEchoFilter().lastObservationTime;
 
     // Ignore observation that are close to another.
     QList<QVector2D> filteredObservations;
@@ -341,6 +380,26 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
         }
     }
 
+    if (observations.size() < sonar.getSettingsValue("imgMinPixels").toInt()) {
+        logger->warn("not enough points. dropping meassurement.");
+        return;
+    }
+
+    // Filter observations so that they are somewhat spaced.
+    QList<QVector2D> tmpList = observations;
+    observations.clear();
+    for (int i = 0; i < tmpList.size(); i++) {
+        addToList(observations, tmpList[i], 2.0);
+    }
+
+    particlesMutex.lock();
+    lastZ = observations;
+    particlesMutex.unlock();
+
+//    QVector<double> weights(N);
+
+    logger->debug("Updating the particle filter...");
+
     // update paricles filter
     for (int i = 0; i < N; i++) {
         SonarParticle particle = oldParticles[i];
@@ -354,7 +413,7 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
         particle.setY(sampleGauss(particle.getY(), controlVariance.y()));
         particle.setTheta(sampleGauss(particle.getTheta(), controlVariance.z()));
 
-        QVector<QVector2D> observationsTransformed(observations.size());
+        QVector<QVector2D> observationsTransformed(filteredObservations.size());
 
         // transform observation from local (particle relative) to global system
         QTransform rotM = QTransform().rotate(Angles::pi2deg(particle.getTheta())) * QTransform().translate(particle.getX(), particle.getY());
@@ -367,9 +426,8 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
         if (isPositionForbidden(QVector2D(particle.getX(), particle.getY()))) {
             weights[i] = 0;
         } else {
-            double w = meassureObservation(observationsTransformed);
+            double w = meassureObservation(observationsTransformed, filteredObservations);
             weights[i] = w;
-
         }
         particle.setWeight(weights[i]);
         oldParticles[i] = particle;
@@ -416,6 +474,23 @@ void SonarParticleFilter::updateParticleFilter(const QList<QVector2D>& observati
 
     this->sonar.setSettingsValue("savedPosition", getBestEstimate().toPointF());
     sonar.addData("heading", particles[0].getTheta());
+
+    particlesMutex.lock();
+    QVector3D bestPos = getBestEstimate();
+    QVector<QVector2D> bestObservations(observations.size());
+
+    // transform observation from local (particle relative) to global system
+    QTransform rotM = QTransform().rotate(Angles::pi2deg(bestPos.z())) * QTransform().translate(bestPos.x(), bestPos.y());
+
+    for(int j=0; j<observations.size(); j++) {
+        QPointF p = rotM.map(observations[j].toPointF());
+        bestObservations[j] = QVector2D(p);
+    }
+    lastMatchRatio = meassureMatches(bestObservations);
+    if (stream) {
+        *stream << refTime << " " << bestPos.x() << " " << bestPos.y() << " " << lastMatchRatio << endl;
+    }
+    particlesMutex.unlock();
 
     emit newPosition(getBestEstimate());
 }

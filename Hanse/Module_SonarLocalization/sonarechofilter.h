@@ -41,6 +41,8 @@ public:
     void getNoNoiseFilter(QVector<int> &vec);
     float getLastObservationHeading();
 
+    double lastObservationTime;
+
 signals:
     void newImage(QList<QVector2D> observations);
     void newSonarEchoData(QList<SonarEchoData> data);
@@ -91,6 +93,8 @@ private:
 
     float lastValidDataHeading;
     float currentDataHeading;
+
+    QList<double> refTimes;
 
 };
 
