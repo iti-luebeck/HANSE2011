@@ -38,7 +38,9 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     this->ui->updateView->setChecked(false);
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTimer").toString());
     this->ui->headingInput->setText(wallfollow->getSettingsValue("initHeading").toString());
+    this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());
     this->ui->headingBox->setChecked(false);
+    this->ui->useP->setChecked(false);
 }
 
 WallFollowingForm::~WallFollowingForm()
@@ -69,6 +71,8 @@ void WallFollowingForm::on_startButton_clicked()
     //qDebug("startButton clicked");
     wallfollow->setSettingsValue("initHeading", ui->headingInput->text().toFloat());
     wallfollow->setSettingsValue("useInitHeading", ui->headingBox->isChecked());
+    wallfollow->setSettingsValue("useP", ui->useP->isChecked());
+    wallfollow->setSettingsValue("p", ui->pInput->text().toFloat());
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
     //qDebug("startButton clicked2");
     emit startBehaviour();
@@ -151,5 +155,7 @@ void WallFollowingForm::updateUiView(){
     this->ui->updateView->setChecked(false);
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTime").toString());
     this->ui->headingInput->setText(wallfollow->getSettingsValue("initHeading").toString());
+    this->ui->useP->setChecked(wallfollow->getSettingsValue("useP").toBool());
+    this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());
 }
 

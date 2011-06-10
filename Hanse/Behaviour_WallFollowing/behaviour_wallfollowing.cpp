@@ -22,6 +22,7 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
 
     setDefaultValue("wallTime",2000);
     setDefaultValue("initHeading", 0);
+    setDefaultValue("p", 0.3);
 
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
@@ -146,7 +147,6 @@ void Behaviour_WallFollowing::controlWallFollow()
     }
 
     avgDistance = echo->avgDistance;
-    float temp = 0.0;
 
     /**
       * Wie das mit dem Forward und Angular speed geht:
@@ -165,25 +165,44 @@ void Behaviour_WallFollowing::controlWallFollow()
     addData("Avg distance: ",avgDistance);
     emit dataChanged(this);
     tempAs ="";
+
     if(running==true){
-        if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){          
-            if(wallCase!="Case 1: No turn - only forward"){
+        if(this->getSettingsValue("useP").toBool()){
+            float diff = distanceInput - avgDistance;
+            float ctrAngle = 0.0;
+            if(fabs(diff) < 0.1){
                 wallCase ="Case 1: No turn - only forward";
                 emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(0.0);
-            }
-        } else if(avgDistance > distanceInput ){
-            if(wallCase!="Case 3: Turn left"){
-                wallCase = "Case 3: Turn left";
-                temp =angSpeed*(-1.0);
+                emit angularSpeed(ctrAngle);
+            } else {
+                wallCase ="Case 2: Turn";
+                ctrAngle = this->getSettingsValue("p").toFloat()*diff;
                 emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(temp);
+                emit angularSpeed(ctrAngle);
             }
-        } else if(avgDistance < distanceInput){   
-            if(wallCase!="Case 2: Turn right"){
-                wallCase = "Case 2: Turn right";
-                emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(angSpeed);
+            addData("ctrAngle", ctrAngle);
+            addData("diff", diff);
+        } else {
+            float temp = 1.0;
+            if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
+                if(wallCase!="Case 1: No turn - only forward"){
+                    wallCase ="Case 1: No turn - only forward";
+                    emit forwardSpeed(fwdSpeed);
+                    emit angularSpeed(0.0);
+                }
+            } else if(avgDistance > distanceInput ){
+                if(wallCase!="Case 3: Turn left"){
+                    wallCase = "Case 3: Turn left";
+                    temp =angSpeed*(-1.0);
+                    emit forwardSpeed(fwdSpeed);
+                    emit angularSpeed(temp);
+                }
+            } else if(avgDistance < distanceInput){
+                if(wallCase!="Case 2: Turn right"){
+                    wallCase = "Case 2: Turn right";
+                    emit forwardSpeed(fwdSpeed);
+                    emit angularSpeed(angSpeed);
+                }
             }
         }
     }

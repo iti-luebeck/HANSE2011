@@ -172,6 +172,8 @@ void Module_Navigation::clearGoal()
 {
     navigateToNextWaypoint();
     emit clearedGoal();
+    emit newFFSpeed(.0);
+    emit newANGSpeed(.0);
 }
 
 void Module_Navigation::clearPath()
@@ -371,7 +373,7 @@ void Module_Navigation::sonarPositionUpdate()
 
                     substate = NAV_SUBSTATE_MOVE_FORWARD;
 
-                    initialXsensHeading = mti->getHeading();
+                    initialXsensHeading = mti->getHeading() + diffHeading;
 
                     // Move forward for "forward_time" seconds.
                     QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
