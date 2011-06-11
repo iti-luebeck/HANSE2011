@@ -246,21 +246,27 @@ std::vector<int> Module_Webcams::numOfCams()
 }
 
 int Module_Webcams::numAvailableCams()
-{ 
-    camInd.clear();
-    CvCapture *cap;
-    for(int i = 0; i < 5; i++)
+{
+    this->camInd.clear();
+    QString path = "/sys/class/video4linux/";
+    QDir dir(path);
+    dir.setNameFilters(QStringList("video*"));
+    QStringList entries = dir.entryList();
+    for(int i = 0; i < entries.size(); i++)
     {
-        cap = cvCreateCameraCapture(i);
-        if(cap != NULL)
+        dir.cd(entries.at(i));
+
+        QFile file(dir.path().append("/name"));
+        file.open(QIODevice::ReadOnly);
+        QTextStream stream(&file);
+        QString camName = stream.readLine();
+        if(camName != "WebCam")
         {
-            qDebug() << "Found Webcam at /dev/video" << i;
-            camInd.push_back(i);
-            cvReleaseCapture(&cap);
+            QString id = entries.at(i);
+            this->camInd.push_back(id.remove("video").toInt());
         }
+        dir.cdUp();
     }
-    qDebug() << "Num Available Cams: " << camInd.size();
-    cvReleaseCapture(&cap);
     return camInd.size();
 }
 
