@@ -24,7 +24,8 @@ public:
     bool isActive();
 
     bool echoTest;
-    bool initHeadingReached;
+    bool t90dt90;
+    float diff;
 
     QTimer *echoControlTimer;
     Module_EchoSounder *echo;
@@ -34,7 +35,6 @@ private:
     //QTimer timer;
     void init();
     QString wallCase;
-    QString tempAs;
     void controlWallFollow();
 
 
@@ -52,7 +52,7 @@ private:
     float corridorWidth;
     void timerSlotExecute();
     int wallTime;
-
+    double initialHeading;
 
 public slots:
     void updateFromSettings();
@@ -67,8 +67,10 @@ public slots:
 
     void testEchoModule();
     void controlEnabledChanged(bool);
-    void controlInitHeading();
 
+    void turn90One();
+    void drive();
+    void turn90Two();
 
 signals:
     void timerStart( int msec );
@@ -84,6 +86,8 @@ signals:
     void newWallUiData(const EchoReturnData data, float avgDistance);
     void updateWallCase(QString caseW);
     void updateUi();
+
+
 };
 
 

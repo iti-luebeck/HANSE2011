@@ -21,8 +21,9 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     setDefaultValue("corridorWidth",0.2);
 
     setDefaultValue("wallTime",2000);
-    setDefaultValue("initHeading", 0);
     setDefaultValue("p", 0.3);
+    setDefaultValue("useP", false);
+    setDefaultValue("experimentalMode", false);
 
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
@@ -30,6 +31,8 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     QObject::connect(this,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
 
     running = false;
+    t90dt90 = false;
+    diff = 0.0;
 
 }
 bool Behaviour_WallFollowing::isActive()
@@ -70,17 +73,7 @@ void Behaviour_WallFollowing::startBehaviour()
     this->setEnabled(true);
     emit started(this);
     running = true;
-    if(this->getSettingsValue("useInitHeading").toBool() == false){
-        logger->info("No init heading used");
-        initHeadingReached = true;
-    } else {
-        initHeadingReached = false;
-        wallCase = "Adjust initial heading...";
-        emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
-        emit dataChanged(this);
-        QTimer::singleShot(0, this, SLOT(controlInitHeading()));
-    }
+    t90dt90 = false;
 
     echoControlTimer->start(wallTime);
 }
@@ -94,6 +87,7 @@ void Behaviour_WallFollowing::stop()
     }
 
     running = false;
+    t90dt90 = false;
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
 
@@ -164,44 +158,97 @@ void Behaviour_WallFollowing::controlWallFollow()
     addData("Desired distance: ",distanceInput);
     addData("Avg distance: ",avgDistance);
     emit dataChanged(this);
-    tempAs ="";
 
-    if(running==true){
-        if(this->getSettingsValue("useP").toBool()){
-            float diff = distanceInput - avgDistance;
-            float ctrAngle = 0.0;
-            if(fabs(diff) < 0.1){
-                wallCase ="Case 1: No turn - only forward";
-                emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(ctrAngle);
+    if(running==true){ 
+        if(this->t90dt90 == false){
+            diff = distanceInput - avgDistance;
+
+            if(this->getSettingsValue("experimentalMode").toBool() == false){
+                if(this->getSettingsValue("useP").toBool()){
+                    float ctrAngle = 0.0;
+                    if(fabs(diff) < 0.1){
+                        wallCase ="Case 1: No turn - only forward";
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(ctrAngle);
+                    } else {
+                        wallCase ="Case 2: Turn";
+                        ctrAngle = this->getSettingsValue("p").toFloat()*diff;
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(ctrAngle);
+                    }
+                    addData("ctrAngle", ctrAngle);
+                    addData("diff", diff);
+                } else {
+                    float temp = 1.0;
+                    if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
+                        if(wallCase!="Case 1: No turn - only forward"){
+                            wallCase ="Case 1: No turn - only forward";
+                            emit forwardSpeed(fwdSpeed);
+                            emit angularSpeed(0.0);
+                        }
+                    } else if(avgDistance > distanceInput ){
+                        if(wallCase!="Case 3: Turn left"){
+                            wallCase = "Case 3: Turn left";
+                            temp =angSpeed*(-1.0);
+                            emit forwardSpeed(fwdSpeed);
+                            emit angularSpeed(temp);
+                        }
+                    } else if(avgDistance < distanceInput){
+                        if(wallCase!="Case 2: Turn right"){
+                            wallCase = "Case 2: Turn right";
+                            emit forwardSpeed(fwdSpeed);
+                            emit angularSpeed(angSpeed);
+                        }
+                    }
+                }
             } else {
-                wallCase ="Case 2: Turn";
-                ctrAngle = this->getSettingsValue("p").toFloat()*diff;
-                emit forwardSpeed(fwdSpeed);
-                emit angularSpeed(ctrAngle);
-            }
-            addData("ctrAngle", ctrAngle);
-            addData("diff", diff);
-        } else {
-            float temp = 1.0;
-            if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
-                if(wallCase!="Case 1: No turn - only forward"){
-                    wallCase ="Case 1: No turn - only forward";
-                    emit forwardSpeed(fwdSpeed);
-                    emit angularSpeed(0.0);
-                }
-            } else if(avgDistance > distanceInput ){
-                if(wallCase!="Case 3: Turn left"){
-                    wallCase = "Case 3: Turn left";
-                    temp =angSpeed*(-1.0);
-                    emit forwardSpeed(fwdSpeed);
-                    emit angularSpeed(temp);
-                }
-            } else if(avgDistance < distanceInput){
-                if(wallCase!="Case 2: Turn right"){
-                    wallCase = "Case 2: Turn right";
-                    emit forwardSpeed(fwdSpeed);
-                    emit angularSpeed(angSpeed);
+                // Experimental mode
+                if((fabs(diff) < 1.0)){
+                    if(this->getSettingsValue("useP").toBool()){
+                        float ctrAngle = 0.0;
+                        if(fabs(diff) < 0.1){
+                            wallCase ="Case 1: No turn - only forward";
+                            emit forwardSpeed(fwdSpeed);
+                            emit angularSpeed(ctrAngle);
+                        } else {
+                            wallCase ="Case 2: Turn";
+                            ctrAngle = this->getSettingsValue("p").toFloat()*diff;
+                            emit forwardSpeed(fwdSpeed);
+                            emit angularSpeed(ctrAngle);
+                        }
+                        addData("ctrAngle", ctrAngle);
+                        addData("diff", diff);
+                    } else {
+                        float temp = 1.0;
+                        if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
+                            if(wallCase!="Case 1: No turn - only forward"){
+                                wallCase ="Case 1: No turn - only forward";
+                                emit forwardSpeed(fwdSpeed);
+                                emit angularSpeed(0.0);
+                            }
+                        } else if(avgDistance > distanceInput ){
+                            if(wallCase!="Case 3: Turn left"){
+                                wallCase = "Case 3: Turn left";
+                                temp =angSpeed*(-1.0);
+                                emit forwardSpeed(fwdSpeed);
+                                emit angularSpeed(temp);
+                            }
+                        } else if(avgDistance < distanceInput){
+                            if(wallCase!="Case 2: Turn right"){
+                                wallCase = "Case 2: Turn right";
+                                emit forwardSpeed(fwdSpeed);
+                                emit angularSpeed(angSpeed);
+                            }
+                        }
+                    }
+                } else {
+                    initialHeading = this->xsens->getHeading();
+                    this->t90dt90 = true;
+                    wallCase = "Turn 90, drive, turn 90";
+                    emit updateWallCase(wallCase);
+                    addData("Current Case: ",wallCase);
+                    emit dataChanged(this);
+                    QTimer::singleShot(0, this, SLOT(turn90One()));
                 }
             }
         }
@@ -216,40 +263,34 @@ void Behaviour_WallFollowing::controlWallFollow()
 void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, float avgDistance)
 {
     if(this->isActive() && this->running == true){
-        if(this->initHeadingReached == true){
-            if(echo->isEnabled()){
-                emit newWallUiData(data, avgDistance);
-                this->avgDistance = avgDistance;
-                if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
-                    Behaviour_WallFollowing::controlWallFollow();
-                } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
-                    if(wallCase!="Case 4: No average distance (no wall)?! Only turn right..."){
-                        emit forwardSpeed(0.0);
-                        emit angularSpeed(angSpeed);
-                        wallCase = "Case 4: No average distance (no wall)?! Only turn right...";
-                        emit updateWallCase(wallCase);
-                        addData("Current Case: ",wallCase);
-                        emit dataChanged(this);
-                    }
-                }
-            } else if(!echo->isEnabled()){
-                emit dataError();
-            } else {
-                this->setHealthToSick("Something is really wrong, stop thruster");
-                if(wallCase!="Something is really wrong, stop thruster"){
+        if(echo->isEnabled()){
+            emit newWallUiData(data, avgDistance);
+            this->avgDistance = avgDistance;
+            if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
+                Behaviour_WallFollowing::controlWallFollow();
+            } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
+                if(wallCase!="Case 4: No average distance (no wall)?! Only turn left..."){
                     emit forwardSpeed(0.0);
-                    emit angularSpeed(0.0);
-                    wallCase = "Something is really wrong, stop thruster";
+                    emit angularSpeed(-angSpeed);
+                    wallCase = "Case 4: No average distance (no wall)?! Only turn left...";
                     emit updateWallCase(wallCase);
                     addData("Current Case: ",wallCase);
                     emit dataChanged(this);
                 }
             }
+
+        } else if(!echo->isEnabled()){
+            emit dataError();
         } else {
-            wallCase = "Adjust initial heading...";
-            emit updateWallCase(wallCase);
-            addData("Current Case: ",wallCase);
-            emit dataChanged(this);
+            this->setHealthToSick("Something is really wrong, stop thruster");
+            if(wallCase!="Something is really wrong, stop thruster"){
+                emit forwardSpeed(0.0);
+                emit angularSpeed(0.0);
+                wallCase = "Something is really wrong, stop thruster";
+                emit updateWallCase(wallCase);
+                addData("Current Case: ",wallCase);
+                emit dataChanged(this);
+            }
         }
     } else {
         if(wallCase!="Wallfollowing not activated!"){
@@ -301,34 +342,61 @@ void Behaviour_WallFollowing::controlEnabledChanged(bool b){
     }
 }
 
-void Behaviour_WallFollowing::controlInitHeading(){
-    if(this->isEnabled()){
-        logger->info("Ctrl init heading");
-        if(this->xsens->isEnabled()){
-            double currentHeading = this->xsens->getHeading();
-            double targetHeading = this->getSettingsValue("initHeading").toFloat();
-            double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-            addData("currentHeading", currentHeading);
-            addData("targetHeading", targetHeading);
-            addData("diffHeading", diffHeading);
-            emit dataChanged(this);
+void Behaviour_WallFollowing::turn90One(){
+    double currentHeading = 0.0;
+    currentHeading = this->xsens->getHeading();
+    double targetHeading;
+    if(diff < 0){
+        targetHeading = Angles::deg2deg(initialHeading + 90);
+    } else {
+        targetHeading = Angles::deg2deg(initialHeading - 90);
+    }
+    double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
 
-            double ctrAngleSpeed = 0.0;
+    if (fabs(diffHeading) < 10)
+    {
+        emit angularSpeed(0.0);
+        emit forwardSpeed(0.0);
+        QTimer::singleShot(0, this, SLOT(drive()));
+    }
+    else
+    {
+        double angularSpeedValue = this->getSettingsValue("p").toDouble() * diffHeading;
+        emit angularSpeed(angularSpeedValue);
+        emit forwardSpeed(0.0);
+        QTimer::singleShot(100, this, SLOT(turn90One()));
+    }
+}
 
-            if(fabs(diffHeading) < 20)
-            {
-                logger->info("init heading reached");
-                initHeadingReached = true;
-                ctrAngleSpeed = 0.0;
-            } else {
-                initHeadingReached = false;
-                ctrAngleSpeed = 0.4*diffHeading;
-                emit angularSpeed(ctrAngleSpeed);
-                QTimer::singleShot(100, this, SLOT(controlInitHeading()));
-            }
-        } else {
-            logger->info("Sry, xsens not enabled - start wallfollowing without initial heading");
-            initHeadingReached = true;
-        }
+void Behaviour_WallFollowing::drive(){
+    emit angularSpeed(0.0);
+    emit forwardSpeed(1.0);
+    QTimer::singleShot(1000, this, SLOT(turn90Two()));
+}
+
+void Behaviour_WallFollowing::turn90Two(){
+    double currentHeading = 0.0;
+    currentHeading = this->xsens->getHeading();
+    double targetHeading;
+    if(diff < 0){
+        targetHeading = Angles::deg2deg(initialHeading - 90);
+    } else {
+        targetHeading = Angles::deg2deg(initialHeading + 90);
+    }
+    double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+
+    if (fabs(diffHeading) < 10)
+    {
+        emit angularSpeed(0.0);
+        emit forwardSpeed(0.0);
+        this->t90dt90 = false;
+        qDebug("Turn90DriveTurn90 finished!");
+
+    }
+    else
+    {
+        double angularSpeedValue = this->getSettingsValue("p").toDouble() * diffHeading;
+        emit angularSpeed(angularSpeedValue);
+        QTimer::singleShot(100, this, SLOT(turn90Two()));
     }
 }

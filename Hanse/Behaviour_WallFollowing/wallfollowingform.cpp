@@ -37,10 +37,9 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
     this->ui->updateView->setChecked(false);
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTimer").toString());
-    this->ui->headingInput->setText(wallfollow->getSettingsValue("initHeading").toString());
     this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());
-    this->ui->headingBox->setChecked(false);
-    this->ui->useP->setChecked(false);
+    this->ui->useP->setChecked(wallfollow->getSettingsValue("useP").toBool());
+    this->ui->expMode->setChecked(wallfollow->getSettingsValue("experimentalMode").toBool());
 }
 
 WallFollowingForm::~WallFollowingForm()
@@ -69,10 +68,9 @@ void WallFollowingForm::on_startButton_clicked()
     wallfollow->setSettingsValue("corridorWidth", ui->corridorInput->text());
     wallfollow->setSettingsValue("wallTimer", ui->timerInput->text());
     //qDebug("startButton clicked");
-    wallfollow->setSettingsValue("initHeading", ui->headingInput->text().toFloat());
-    wallfollow->setSettingsValue("useInitHeading", ui->headingBox->isChecked());
     wallfollow->setSettingsValue("useP", ui->useP->isChecked());
     wallfollow->setSettingsValue("p", ui->pInput->text().toFloat());
+    wallfollow->setSettingsValue("experimentalMode", ui->expMode->isChecked());
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
     //qDebug("startButton clicked2");
     emit startBehaviour();
@@ -107,7 +105,7 @@ void WallFollowingForm::updateWallUi(const EchoReturnData data, float dist)
         for(int i = 1; i < range+1; i++)
         {
 
-             scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(255,218,185,255)))->setZValue(10);
+            scene.addLine(0,(i*faktor),ui->graphicsView->width(),(i*faktor),QPen(QColor(255,218,185,255)))->setZValue(10);
         }
 
         QLinearGradient gi(0,0,0,279);
@@ -154,8 +152,8 @@ void WallFollowingForm::updateUiView(){
     this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
     this->ui->updateView->setChecked(false);
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTime").toString());
-    this->ui->headingInput->setText(wallfollow->getSettingsValue("initHeading").toString());
     this->ui->useP->setChecked(wallfollow->getSettingsValue("useP").toBool());
     this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());
+    this->ui->expMode->setChecked(wallfollow->getSettingsValue("experimentalMode").toBool());
 }
 
