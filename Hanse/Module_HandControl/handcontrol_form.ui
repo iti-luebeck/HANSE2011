@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>677</width>
-    <height>336</height>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -188,19 +188,6 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="1">
-        <widget class="QCheckBox" name="enableGamepad">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Enable handcontrol via gamepad</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="5" column="1">
         <widget class="QLineEdit" name="port"/>
        </item>
@@ -218,7 +205,41 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="0" colspan="2">
+       <item row="9" column="1">
+        <widget class="QCheckBox" name="enableGamepad">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Enable handcontrol via gamepad</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Connection status: </string>
+         </property>
+        </widget>
+       </item>
+       <item row="12" column="1">
+        <widget class="QLabel" name="connectionStatus">
+         <property name="text">
+          <string>Unknown</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>max Forwardspeed:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="17" column="0" colspan="2">
         <widget class="QPushButton" name="save">
          <property name="text">
           <string>Apply &amp;&amp; Save</string>
@@ -228,19 +249,28 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="label_2">
+       <item row="14" column="1">
+        <widget class="QLineEdit" name="maxForSpeed"/>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>Connection status: </string>
+          <string>max Angularspeed:</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="1">
-        <widget class="QLabel" name="connectionStatus">
+       <item row="15" column="1">
+        <widget class="QLineEdit" name="maxAngSpeed"/>
+       </item>
+       <item row="16" column="0">
+        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Unknown</string>
+          <string>max Verticalspeed:</string>
          </property>
         </widget>
+       </item>
+       <item row="16" column="1">
+        <widget class="QLineEdit" name="maxVertSpeed"/>
        </item>
       </layout>
      </widget>
