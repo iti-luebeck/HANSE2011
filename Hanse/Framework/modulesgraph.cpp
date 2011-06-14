@@ -9,7 +9,6 @@
 #include <Module_SonarLocalization/module_sonarlocalization.h>
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
-#include <Behaviour_GoalFollowing/behaviour_goalfollowing.h>
 #include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 #include <Module_Webcams/module_webcams.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
@@ -99,10 +98,6 @@ void ModulesGraph::build()
     Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams,sim);
     this->modules.append(behavPipe);
 
-    //    logger->debug("Creating Behaviour_GoalFollowing");
-    //    Behaviour_GoalFollowing* behavGoal = new Behaviour_GoalFollowing("goal",controlLoop, visualLoc);
-    //    this->modules.append(behavGoal);
-
     logger->debug("Creating Behaviour_BallFollowing");
     Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, xsens);
     this->modules.append(behavBall);
@@ -118,7 +113,6 @@ void ModulesGraph::build()
     logger->debug("Creating Behaviour_XsensFollowing");
     Behaviour_XsensFollowing* behavXsens = new Behaviour_XsensFollowing("xsensFollow",controlLoop, xsens);
     this->modules.append(behavXsens);
-
 
     logger->debug("Creating TaskWallNavigation");
     TaskWallNavigation *taskwallnavigation = new TaskWallNavigation("taskWallNavi",sim, behavWall, navi);
