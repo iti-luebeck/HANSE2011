@@ -243,6 +243,7 @@ void Behaviour_WallFollowing::controlWallFollow()
                     }
                 } else {
                     initialHeading = this->xsens->getHeading();
+                    addData("initialHeading",initialHeading);
                     this->t90dt90 = true;
                     wallCase = "Turn 90, drive, turn 90";
                     emit updateWallCase(wallCase);
@@ -266,19 +267,20 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
         if(echo->isEnabled()){
             emit newWallUiData(data, avgDistance);
             this->avgDistance = avgDistance;
-            if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
-                Behaviour_WallFollowing::controlWallFollow();
-            } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
-                if(wallCase!="Case 4: No average distance (no wall)?! Only turn left..."){
-                    emit forwardSpeed(0.0);
-                    emit angularSpeed(-angSpeed);
-                    wallCase = "Case 4: No average distance (no wall)?! Only turn left...";
-                    emit updateWallCase(wallCase);
-                    addData("Current Case: ",wallCase);
-                    emit dataChanged(this);
+            if(t90dt90 == false){
+                if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
+                    Behaviour_WallFollowing::controlWallFollow();
+                } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
+                    if(wallCase!="Case 4: No average distance (no wall)?! Only turn left..."){
+                        emit forwardSpeed(0.0);
+                        emit angularSpeed(-angSpeed);
+                        wallCase = "Case 4: No average distance (no wall)?! Only turn left...";
+                        emit updateWallCase(wallCase);
+                        addData("Current Case: ",wallCase);
+                        emit dataChanged(this);
+                    }
                 }
             }
-
         } else if(!echo->isEnabled()){
             emit dataError();
         } else {
@@ -343,60 +345,83 @@ void Behaviour_WallFollowing::controlEnabledChanged(bool b){
 }
 
 void Behaviour_WallFollowing::turn90One(){
-    double currentHeading = 0.0;
-    currentHeading = this->xsens->getHeading();
-    double targetHeading;
-    if(diff < 0){
-        targetHeading = Angles::deg2deg(initialHeading + 90);
-    } else {
-        targetHeading = Angles::deg2deg(initialHeading - 90);
-    }
-    double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+    if(this->isEnabled()){
 
-    if (fabs(diffHeading) < 10)
-    {
-        emit angularSpeed(0.0);
-        emit forwardSpeed(0.0);
-        QTimer::singleShot(0, this, SLOT(drive()));
-    }
-    else
-    {
-        double angularSpeedValue = this->getSettingsValue("p").toDouble() * diffHeading;
-        emit angularSpeed(angularSpeedValue);
-        emit forwardSpeed(0.0);
-        QTimer::singleShot(100, this, SLOT(turn90One()));
+        double currentHeading = 0.0;
+        currentHeading = this->xsens->getHeading();
+        double targetHeading;
+        if(diff < 0){
+            targetHeading = Angles::deg2deg(initialHeading - 90);
+        } else {
+            targetHeading = Angles::deg2deg(initialHeading + 90);
+        }
+
+
+        double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+        addData("initialHeading",initialHeading);
+        addData("targetHeading",targetHeading);
+        addData("diffHeading",diffHeading);
+        emit dataChanged(this);
+        if (fabs(diffHeading) < 10)
+        {
+            logger->info("Turn90OneÁdjust heading finished");
+            emit angularSpeed(0.0);
+            emit forwardSpeed(0.0);
+            QTimer::singleShot(0, this, SLOT(drive()));
+        }
+        else
+        {
+            logger->info("Turn90OneÁdjust heading");
+            qDebug()<<"diffHeading"<<diffHeading;
+            double angularSpeedValue = 0.2 * diffHeading;
+            emit angularSpeed(angularSpeedValue);
+            emit forwardSpeed(0.0);
+            QTimer::singleShot(100, this, SLOT(turn90One()));
+        }
     }
 }
 
 void Behaviour_WallFollowing::drive(){
-    emit angularSpeed(0.0);
-    emit forwardSpeed(1.0);
-    QTimer::singleShot(1000, this, SLOT(turn90Two()));
+    if(this->isEnabled()){
+        logger->info("Turn90 drive");
+        emit angularSpeed(0.0);
+        emit forwardSpeed(1.0);
+        initialHeading = this->xsens->getHeading();
+        QTimer::singleShot(3000, this, SLOT(turn90Two()));
+    }
 }
 
 void Behaviour_WallFollowing::turn90Two(){
-    double currentHeading = 0.0;
-    currentHeading = this->xsens->getHeading();
-    double targetHeading;
-    if(diff < 0){
-        targetHeading = Angles::deg2deg(initialHeading - 90);
-    } else {
-        targetHeading = Angles::deg2deg(initialHeading + 90);
-    }
-    double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+    if(this->isEnabled()){
+        double currentHeading = 0.0;
+        currentHeading = this->xsens->getHeading();
+        double targetHeading;
+        if(diff < 0){
+            targetHeading = Angles::deg2deg(initialHeading + 90);
+        } else {
+            targetHeading = Angles::deg2deg(initialHeading - 90);
+        }
+        double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+        addData("initialHeading",initialHeading);
+        addData("targetHeading",targetHeading);
+        addData("diffHeading",diffHeading);
+        emit dataChanged(this);
+        if (fabs(diffHeading) < 10)
+        {
+            logger->info("Turn90OneÁdjust heading finished");
+            emit angularSpeed(0.0);
+            emit forwardSpeed(0.0);
+            this->t90dt90 = false;
+            qDebug("Turn90DriveTurn90 finished!");
 
-    if (fabs(diffHeading) < 10)
-    {
-        emit angularSpeed(0.0);
-        emit forwardSpeed(0.0);
-        this->t90dt90 = false;
-        qDebug("Turn90DriveTurn90 finished!");
-
-    }
-    else
-    {
-        double angularSpeedValue = this->getSettingsValue("p").toDouble() * diffHeading;
-        emit angularSpeed(angularSpeedValue);
-        QTimer::singleShot(100, this, SLOT(turn90Two()));
+        }
+        else
+        {
+            logger->info("Turn90OneÁdjust heading");
+            qDebug()<<"diffHeading"<<diffHeading;
+            double angularSpeedValue = 0.2 * diffHeading;
+            emit angularSpeed(angularSpeedValue);
+            QTimer::singleShot(100, this, SLOT(turn90Two()));
+        }
     }
 }
