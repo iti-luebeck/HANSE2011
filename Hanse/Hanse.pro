@@ -60,7 +60,6 @@ include(Module_PressureSensor/Module_PressureSensor.pri)
 
 # behaviours
 include(Behaviour_BallFollowing/Behaviour_BallFollowing.pri)
-include(Behaviour_GoalFollowing/Behaviour_GoalFollowing.pri)
 include(Behaviour_PipeFollowing/Behaviour_PipeFollowing.pri)
 include(Behaviour_TurnOneEighty/Behaviour_TurnOneEighty.pri)
 include(Behaviour_WallFollowing/Behaviour_WallFollowing.pri)
