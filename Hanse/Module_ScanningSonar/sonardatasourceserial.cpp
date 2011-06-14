@@ -25,7 +25,7 @@ const SonarReturnData SonarDataSourceSerial::getNextPacket()
     cmd.pulseLength = parent.getSettingsValue("pulseLength").toInt();
     cmd.dataPoints = parent.getSettingsValue("dataPoints").toInt();
     cmd.switchDelay = parent.getSettingsValue("switchDelay").toInt();
-    cmd.frequency = parent.getSettingsValue("frequency").toInt() ? 0 : 135;
+    cmd.frequency = parent.getSettingsValue("frequency").toInt() ? 135 : 0;
 
 
     QByteArray sendArray = cmd.toSerialCmd();
