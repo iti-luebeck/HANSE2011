@@ -30,6 +30,9 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim, M
     setDefaultValue("readFromFile", false);
     setDefaultValue("recorderFilename", "output.txt");
     setDefaultValue("fileReaderDelay", 100);
+    setDefaultValue("enableRecording", true);
+    setDefaultValue("counter852", 0);
+    setDefaultValue("counterCSV", 0);
 
     qRegisterMetaType<SonarReturnData>("SonarReturnData");
     recorder = NULL;

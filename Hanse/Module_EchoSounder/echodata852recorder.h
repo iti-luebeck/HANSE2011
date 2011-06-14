@@ -19,10 +19,7 @@ private:
     QDataStream* stream;
     QFile* file;
     void store(const EchoReturnData& data);
-
-
-
-
+    QString counter852;
 };
 
 #endif // ECHODATA852RECORDER_H

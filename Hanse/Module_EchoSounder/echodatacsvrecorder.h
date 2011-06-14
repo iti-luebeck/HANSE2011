@@ -19,6 +19,7 @@ private:
     QTextStream* stream;
     QFile* file;
     void store(const EchoReturnData &data);
+    QString counterCSV;
 };
 
 #endif // ECHODATACSVRECORDER_H

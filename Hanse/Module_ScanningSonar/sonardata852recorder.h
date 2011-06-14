@@ -19,7 +19,7 @@ private:
     QDataStream* stream;
     QFile* file;
     void store(const SonarReturnData& data);
-
+    QString counter852;
 };
 
 #endif // SONARDATA852RECORDER_H

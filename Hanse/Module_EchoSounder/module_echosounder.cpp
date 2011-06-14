@@ -34,6 +34,8 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     setDefaultValue("calcFactor",0.3);
     setDefaultValue("formatCSV", false);
     setDefaultValue("enableRecording", true);
+    setDefaultValue("counter852", 0);
+    setDefaultValue("counterCSV", 0);
 
     qRegisterMetaType<EchoReturnData>("EchoReturnData");
 

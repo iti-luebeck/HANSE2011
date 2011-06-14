@@ -16,7 +16,11 @@ void SonarData852Recorder::start()
     if (file != NULL)
         stop();
 
-    file = new QFile(DataLogHelper::getLogDir()+"sonarlog.852");
+    counter852 = sonar.getSettingsValue("counter852").toString();
+    sonar.setSettingsValue("counter852", sonar.getSettingsValue("counter852").toInt()+1);
+    counter852 = "sonarlog"+counter852+".852";
+    file = new QFile(DataLogHelper::getLogDir()+counter852);
+    //file = new QFile(DataLogHelper::getLogDir()+"sonarlog.852");
     if (file->open(QFile::WriteOnly | QFile::Truncate | QFile::Append)) {
         stream = new QDataStream(file);
         stream->setVersion(QDataStream::Qt_4_6);

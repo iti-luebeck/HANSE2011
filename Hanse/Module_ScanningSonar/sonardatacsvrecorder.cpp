@@ -17,7 +17,11 @@ void SonarDataCSVRecorder::start()
     if (file != NULL)
         stop();
 
-    file = new QFile(DataLogHelper::getLogDir()+"sonarlog.csv");
+    counterCSV = sonar.getSettingsValue("counterCSV").toString();
+    sonar.setSettingsValue("counterCSV", sonar.getSettingsValue("counterCSV").toInt()+1);
+    counterCSV = "sonarlog"+counterCSV+".csv";
+    file = new QFile(DataLogHelper::getLogDir()+counterCSV);
+    //file = new QFile(DataLogHelper::getLogDir()+"sonarlog.csv");
     if (file->open(QFile::WriteOnly | QFile::Truncate)) {
         stream = new QTextStream(file);
     } else {

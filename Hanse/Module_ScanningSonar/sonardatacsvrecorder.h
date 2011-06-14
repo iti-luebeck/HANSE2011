@@ -18,7 +18,7 @@ private:
     QTextStream* stream;
     QFile* file;
     void store(const SonarReturnData& data);
-
+    QString counterCSV;
 };
 
 #endif // SONARDATACSVRECORDER_H

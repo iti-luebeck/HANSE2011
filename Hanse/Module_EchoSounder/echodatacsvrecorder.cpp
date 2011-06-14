@@ -16,7 +16,11 @@ void EchoDataCSVRecorder::start(){
     if(file != NULL){
         stop();
     }
-    file = new QFile(DataLogHelper::getLogDir()+"echolog.csv");
+    counterCSV = sounder.getSettingsValue("counterCSV").toString();
+    sounder.setSettingsValue("counterCSV", sounder.getSettingsValue("counterCSV").toInt()+1);
+    counterCSV = "echolog"+counterCSV+".csv";
+    file = new QFile(DataLogHelper::getLogDir()+counterCSV);
+    //file = new QFile(DataLogHelper::getLogDir()+"echolog.csv");
     if (file->open(QFile::WriteOnly | QFile::Truncate)) {
         stream = new QTextStream(file);
     } else {

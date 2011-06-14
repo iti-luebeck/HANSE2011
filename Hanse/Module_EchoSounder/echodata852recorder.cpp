@@ -16,8 +16,11 @@ void EchoData852Recorder::start()
 {
     if (file != NULL)
         stop();
-
-    file = new QFile(DataLogHelper::getLogDir()+"echolog.852");
+    counter852 = sounder.getSettingsValue("counter852").toString();
+    sounder.setSettingsValue("counter852", sounder.getSettingsValue("counter852").toInt()+1);
+    counter852 = "echolog"+counter852+".852";
+    file = new QFile(DataLogHelper::getLogDir()+counter852);
+    //file = new QFile(DataLogHelper::getLogDir()+"echolog.852");
     if (file->open(QFile::WriteOnly | QFile::Truncate | QFile::Append)) {
         stream = new QDataStream(file);
         stream->setVersion(QDataStream::Qt_4_6);
