@@ -31,6 +31,7 @@ Module_ScanningSonar::Module_ScanningSonar(QString id, Module_Simulation *sim, M
     setDefaultValue("recorderFilename", "output.txt");
     setDefaultValue("fileReaderDelay", 100);
     setDefaultValue("enableRecording", true);
+    setDefaultValue("formatCSV", false);
     setDefaultValue("counter852", 0);
     setDefaultValue("counterCSV", 0);
 
