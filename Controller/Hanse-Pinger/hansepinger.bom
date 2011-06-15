@@ -1,0 +1,59 @@
+Stückliste exportiert aus /home/christian/eagle/Hansepinger/hansepinger.sch am 15.06.11 15:05
+
+Bauteil Wert      Device     Package Description                                                                  
+C1      1nF       C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C2      12nF      C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C3      1nF       C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C4      2.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C5      1.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C6      1.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C7      1.8nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C8      2.7nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C9      5.6nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C10     1.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C11     1nF       C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C12     12nF      C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C13     1nF       C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C14     2.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C15     1.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C16     1.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C17     1.8nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C18     2.7nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C19     5.6nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+C20     1.2nF     C-EUC0805  C0805   CAPACITOR, European symbol                                                   
+HP1     LMV358M   LMV358M    SO08    Dual General Purpose, Low Voltage, Rail-to-Rail Output Operational Amplifiers
+HP2     LMV358M   LMV358M    SO08    Dual General Purpose, Low Voltage, Rail-to-Rail Output Operational Amplifiers
+JP1     SignalIN  PINHD-1X2  1X02    PIN HEADER                                                                   
+JP2     VCC/GND   PINHD-1X2  1X02    PIN HEADER                                                                   
+JP3     SignalOUT PINHD-1X2  1X02    PIN HEADER                                                                   
+JP4     VCCJump   PINHD-1X2  1X02    PIN HEADER                                                                   
+JP5     VCCJump   PINHD-1X2  1X02    PIN HEADER                                                                   
+JP6     VCCJump   PINHD-1X2  1X02    PIN HEADER                                                                   
+JP7     VCCJump   PINHD-1X2  1X02    PIN HEADER                                                                   
+R1      10k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R2      10k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R3      6.8k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R4      5.1k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R5      2.4k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R6      5.1k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R7      5.6k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R8      13k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R9      13k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R10     1k        R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R11     10k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R12     10k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R13     6.8k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R14     5.1k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R15     2.4k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R16     5.1k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R17     5.6k      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R18     13k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R19     13k       R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R20     1k        R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R21     Zero      R-EU_R0805 R0805   RESISTOR, European symbol                                                    
+R22               R-EU_R1210 R1210   RESISTOR, European symbol                                                    
+R23               R-EU_R1210 R1210   RESISTOR, European symbol                                                    
+R24               R-EU_R1210 R1210   RESISTOR, European symbol                                                    
+R25               R-EU_R1210 R1210   RESISTOR, European symbol                                                    
+TP1     LMV358M   LMV358M    SO08    Dual General Purpose, Low Voltage, Rail-to-Rail Output Operational Amplifiers
+TP2     LMV358M   LMV358M    SO08    Dual General Purpose, Low Voltage, Rail-to-Rail Output Operational Amplifiers
