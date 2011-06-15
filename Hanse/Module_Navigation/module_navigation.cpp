@@ -514,3 +514,28 @@ double Module_Navigation::getDistance(QString name){
     double currentDistanceToGoal = sqrt( dx*dx + dy*dy );
     return currentDistanceToGoal;
 }
+
+bool Module_Navigation::goalLineReached(QString name1, QString name2){
+    Waypoint goal1 = waypoints[name1];
+    double Ax = goal1.posX;
+    double Ay = goal1.posY;
+
+    Waypoint goal2 = waypoints[name2];
+    double Bx = goal2.posX;
+    double By = goal2.posY;
+
+    Position currentPosition = sonarLoc->getLocalization();
+    double Cx = currentPosition.getX();
+    double Cy = currentPosition.getY();
+
+    // cos a = (v1*v2)/(|v1|*|v2|) umgeschrieben:
+    double result = ((Cx*(Bx-Ax))+(Cy*(By-Ay)))/(sqrt(Cx*Cx+Cy*Cy)*sqrt((Bx-Ax)*(Bx-Ax)+(By-Ay)*(By-Ay)));
+    logger->info("Result goalLineReached", result, "", "");
+
+    // Return?!
+    if(result > 0){
+        return true;
+    } else {
+        return false;
+    }
+}

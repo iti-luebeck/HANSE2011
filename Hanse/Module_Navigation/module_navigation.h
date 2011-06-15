@@ -64,6 +64,8 @@ public:
       */
     double getDistance(QString name);
 
+    bool goalLineReached(QString name1, QString name2);
+
     Position getCurrentPosition();
 
     bool hasGoal();
