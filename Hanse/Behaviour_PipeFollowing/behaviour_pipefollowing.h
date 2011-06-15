@@ -23,13 +23,10 @@ public:
 
     QWidget* createView(QWidget *parent);
 
-
     /** returns true if Behaviour is active
         return false if the Behaviour is not active
     */
     bool isActive();
-    /** Extrahiert die Frames aus einem Videofile und uebergibt sie an findPipe*/
-    void analyzeVideo(QString videoFile);
 
     /**
       * gibt den aktuellen Frame zurueck
@@ -41,42 +38,21 @@ private:
 
     /** Such ein Rohr in einem Frame und berechnet zugehoerige Parameter */
     void findPipe(Mat &frame, Mat &binaryFrame);
-    /** Zeichnet eine Linie aus gegebenen Hough Parametern in ein Bild
-        Mat frame - Das Bild
-        double rho - Parameter der Gerade
-        double theta - Parameter der Gerade
-        Scalar color - Farbe der Linie
-     */
-    void drawLineHough(Mat &frame, double rho, double theta, Scalar color);
 
     /** Berechnet den Schnittpunkt der Ideallinie mit einer gefundenen
         Linie (rho, theta) und ermittelt den Abstand zwischen robCenter
         und der gefundenen Gerade.
       */
-    void compIntersect(double rho, double theta);
     void compIntersect(Point pt1, Point pt2);
+
     /** the p-controller. controls the angle speed of the robot */
     void controlPipeFollow();
 
     /** Update data on data panel */
     void updateData();
-    /** uses Hough Transform to find pipe in binary Image (binaryFrame)
-      Mat &frame - Picture from the Camera. Used for visual debugging
-      Mat &binaryFrame - binary Image for Hough Transform
-     */
-    void computeLineBinary(Mat &frame, Mat &binaryFrame);
-    /** Median Filter
-        Eingabewerte werden gefiltert und mit gefilterten ueberschrieben */
-    void medianFilter(float &rho, float &theta);
-    /** grabs frame from camera device */
-//    void grab(Mat &frame);
+
     /** use cv moments to compute pipe */
     void moments(Mat &frame);
-    /** counts white pixels in frame */
-    void countPixel(Mat &frame, int &sum);
-
-    void initPictureFolder();
-
 
     /**
      * converts frame to selected color space
@@ -92,12 +68,6 @@ private:
     /** computation */
     void timerSlotExecute();
 
-//    double m10;
-//    double m01;
-//    double mu11;
-//    double mu02;
-//    double mu20;
-
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cam;
     Module_Simulation *sim;
@@ -105,7 +75,6 @@ private:
     QStringList files;
     int fileIndex;
 
-//    VideoCapture vc;
     /* konstante parameter */
     int threshSegmentation;
     int debug;
@@ -128,9 +97,6 @@ private:
     float distanceY;
     float curAngle;
     Point intersect;
-    /* fuer den median */
-    float meanRho[5];
-    float meanTheta[5];
     int firstRun;
     /* sonstige */
     int noPipeCnt;
@@ -149,6 +115,9 @@ public slots:
     void simFrame(cv::Mat simFrame);
     void setUpdatePixmapSlot(bool bol);
     void controlEnabledChanged(bool);
+
+    /** Extrahiert die Frames aus einem Videofile und uebergibt sie an findPipe*/
+    void analyzeVideo();
 
 signals:
 //    void printFrameOnUi(cv::Mat &frame);

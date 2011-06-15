@@ -90,17 +90,6 @@ void PipeFollowingForm::on_startPipeFollowingButton_clicked()
 //    }
 }
 
-void PipeFollowingForm::on_startFromVideoFileButton_clicked()
-{
-//    videoFile = QFileDialog::getExistingDirectory( this, "Open dir", "" );
-//    pipefollow->getSettings().setValue( "videoFilePath", videoFile );
-//    ui->curVideofileLabel->setText( videoFile );
-//
-////    pipefollow->setDebug(ui->debugCheckBox->isChecked());
-////    pipefollow->setThresh(ui->thresholdLineEdit->text().toInt());
-//    pipefollow->analyzeVideo(videoFile);
-}
-
 void PipeFollowingForm::on_saveApplyButton_clicked()
 {
     pipefollow->setSettingsValue("threshold",ui->thresholdLineEdit->text().toInt());
@@ -180,4 +169,12 @@ void PipeFollowingForm::setUpdatePixmap(bool setBool){
     }
     else if(!setBool)
         QTimer::singleShot(0,&updateUI,SLOT(stop()));
+}
+
+void PipeFollowingForm::on_testButton_clicked()
+{
+    videoFile = QFileDialog::getExistingDirectory( this, "Open dir", "" );
+    pipefollow->setSettingsValue("video directory", videoFile);
+    QTimer::singleShot(0, pipefollow, SLOT(analyzeVideo()));
+//    pipefollow->analyzeVideo(videoFile);
 }
