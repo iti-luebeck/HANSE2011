@@ -44,6 +44,7 @@ private:
 
     // int timerTime;
     bool running;
+    bool startPhase;
 
     float avgDistance;
     float distanceInput;
@@ -71,6 +72,8 @@ public slots:
     void turn90One();
     void drive();
     void turn90Two();
+
+    void controlWallFollowThruster();
 
 signals:
     void timerStart( int msec );
