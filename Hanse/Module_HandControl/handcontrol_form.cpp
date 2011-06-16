@@ -10,7 +10,9 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
 
     maxForwardSpeed = module->getSettingsValue("maxForSpeed").toFloat();
     maxAngularSpeed = module->getSettingsValue("maxAngSpeed").toFloat();
-    maxUpDownSpeed = module->getSettingsValue("maxVertSpeed").toFloat();
+    stepsize = module->getSettingsValue("maxVertSpeed").toFloat();
+    upDownSpeed = 0.0;
+
 
     ui->port->setText(module->getSettingsValue("port").toString());
     ui->divFw->setText(module->getSettingsValue("divFw").toString());
@@ -26,36 +28,11 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
         ui->controlTCL->setChecked(true);
     }
 
-    ui->sliderFw->setMaximum(ui->divFw->text().toInt());
-    ui->sliderLR->setMaximum(ui->divLR->text().toInt());
-    ui->sliderFw->setMinimum(-ui->divFw->text().toInt());
-    ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
-
 //    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
-    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
+//    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
     connect(this,SIGNAL(updateControls()),module,SLOT(sendNewControls()));
-
-
-    forward = new QAction(this);
-    forward->setShortcut(Qt::Key_W);
-    backward = new QAction(this);
-    backward->setShortcut(Qt::Key_S);
-    left = new QAction(this);
-    left->setShortcut(Qt::Key_A);
-    right = new QAction(this);
-    right->setShortcut(Qt::Key_D);
-    up = new QAction(this);
-    up->setShortcut(Qt::Key_U);
-    down = new QAction(this);
-    down->setShortcut(Qt::Key_J);
-
-    connect(forward,SIGNAL(triggered()),this,SLOT(forwardPressed()));
-    connect(backward, SIGNAL(triggered()),this,SLOT(backwardPressed()));
-    connect(left, SIGNAL(triggered()),this,SLOT(leftPressed()));
-    connect(right, SIGNAL(triggered()),this,SLOT(rightPressed()));
-    connect(up, SIGNAL(triggered()),this,SLOT(upPressed()));
-    connect(down, SIGNAL(triggered()),this,SLOT(downPressed()));
-
+    connect(&forTimer,SIGNAL(timeout()),this,SLOT(resetForSpeeds()));
+    connect(&angTimer,SIGNAL(timeout()),this,SLOT(resetAngSpeeds()));
 }
 
 HandControl_Form::~HandControl_Form()
@@ -87,7 +64,7 @@ void HandControl_Form::on_save_clicked()
 
     maxForwardSpeed = ui->maxForSpeed->text().toFloat();
     maxAngularSpeed = ui->maxAngSpeed->text().toFloat();
-    maxUpDownSpeed = ui->maxVertSpeed->text().toFloat();
+    stepsize = ui->maxVertSpeed->text().toFloat();
 
     if (ui->controlThruster->isChecked())
         module->setSettingsValue("receiver","thruster");
@@ -95,13 +72,6 @@ void HandControl_Form::on_save_clicked()
         module->setSettingsValue("receiver","controlLoop");
 
     module->setSettingsValue("enableGamepad", ui->enableGamepad->isChecked());
-
-    ui->sliderFw->setMaximum(ui->divFw->text().toInt());
-    ui->sliderLR->setMaximum(ui->divLR->text().toInt());
-    ui->sliderUD->setMaximum(127);
-    ui->sliderFw->setMinimum(-ui->divFw->text().toInt());
-    ui->sliderLR->setMinimum(-ui->divLR->text().toInt());
-    ui->sliderUD->setMinimum(-127);
 
     module->reset();
 
@@ -116,72 +86,87 @@ void HandControl_Form::connectionStatusChanged()
 //    }
 }
 
-void HandControl_Form::dataChanged(RobotModule *m)
+//void HandControl_Form::dataChanged(RobotModule *m)
+//{
+
+//    int forwardSpeed = m->getDataValue("forwardSpeed").toInt();
+//    int angularSpeed = m->getDataValue("angularSpeed").toInt();
+//    int speedUpDown = m->getDataValue("speedUpDown").toInt();
+
+//    ui->sliderFw->setValue(forwardSpeed);
+//    ui->sliderLR->setValue(angularSpeed);
+//    ui->sliderUD->setValue(speedUpDown);
+//}
+
+void HandControl_Form::on_forwardButton_clicked()
 {
-
-    int forwardSpeed = m->getDataValue("forwardSpeed").toInt();
-    int angularSpeed = m->getDataValue("angularSpeed").toInt();
-    int speedUpDown = m->getDataValue("speedUpDown").toInt();
-
-    ui->sliderFw->setValue(forwardSpeed);
-    ui->sliderLR->setValue(angularSpeed);
-    ui->sliderUD->setValue(speedUpDown);
-}
-
-void HandControl_Form::on_sliderFw_valueChanged(int value)
-{
-    module->addData("forwardSpeed", value);
-//    module->sendNewControls();
-    emit updateControls();
-}
-
-
-void HandControl_Form::on_sliderLR_valueChanged(int value)
-{
-    module->addData("angularSpeed", value);
-    emit updateControls();
-//    module->sendNewControls();
-}
-
-void HandControl_Form::on_sliderUD_valueChanged(int value)
-{
-    module->addData("speedUpDown", value);
-    emit updateControls();
-//    module->sendNewControls();
-}
-
-void HandControl_Form::forwardPressed(){
+    forTimer.start(1000);
     qDebug()<<"Vorwaerts";
     module->addData("forwardSpeed", maxForwardSpeed);
     emit updateControls();
 }
 
-void HandControl_Form::backwardPressed(){
+void HandControl_Form::on_leftButton_clicked()
+{
+    angTimer.start(1000);
+    qDebug()<<"Links";
+    module->addData("angularSpeed", -maxAngularSpeed);
+    emit updateControls();
+}
+
+void HandControl_Form::on_backwardButton_clicked()
+{
+    forTimer.start(1000);
     qDebug()<<"Rueckwaerts";
     module->addData("forwardSpeed", -maxForwardSpeed);
     emit updateControls();
 }
 
-void HandControl_Form::leftPressed(){
-    qDebug()<<"Links";
+void HandControl_Form::on_rightButton_clicked()
+{
+    angTimer.start(1000);
+    qDebug()<<"Rechts";
     module->addData("angularSpeed", maxAngularSpeed);
     emit updateControls();
 }
 
-void HandControl_Form::rightPressed(){
-    qDebug()<<"Rechts";
-    module->addData("angularSpeed", -maxAngularSpeed);
-    emit updateControls();
-}
-
-void HandControl_Form::upPressed(){
+void HandControl_Form::on_upButton_clicked()
+{
     qDebug()<<"Hoch";
-    module->addData("speedUpDown", maxUpDownSpeed);
+    upDownSpeed = upDownSpeed - stepsize;
+    if(upDownSpeed < 0.0){
+        upDownSpeed = 0.0;
+    }
+    module->addData("speedUpDown", upDownSpeed);
     emit updateControls();
 }
 
-void HandControl_Form::downPressed(){
+void HandControl_Form::on_downButton_clicked()
+{
     qDebug()<<"Runter";
-    module->addData("speedUpDown", -maxUpDownSpeed);
+    upDownSpeed = upDownSpeed + stepsize;
+    module->addData("speedUpDown", upDownSpeed);
+    emit updateControls();
+}
+
+void HandControl_Form::resetForSpeeds(){
+    qDebug() << "reset Forward";
+    module->addData("forwardSpeed", 0);
+    emit updateControls();
+    forTimer.stop();
+}
+
+void HandControl_Form::resetAngSpeeds(){
+    qDebug() << "reset Angular";
+    module->addData("angularSpeed", 0);
+    emit updateControls();
+    angTimer.stop();
+}
+
+void HandControl_Form::on_resetDepthButton_clicked()
+{
+    upDownSpeed = 0.0;
+    qDebug() << "reset Depth";
+    module->addData("speedUpDown", upDownSpeed);
     emit updateControls();
 }

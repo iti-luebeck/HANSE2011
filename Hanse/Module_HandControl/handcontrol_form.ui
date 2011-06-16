@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>677</width>
-    <height>556</height>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,123 +21,76 @@
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Sliders</string>
+       <string>Control</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Forward Speed</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>UpDown Speed/Depth</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="3">
-        <widget class="QSlider" name="sliderUD">
-         <property name="minimum">
-          <number>-127</number>
-         </property>
-         <property name="maximum">
-          <number>127</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksBothSides</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QSlider" name="sliderFw">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksBothSides</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QSlider" name="sliderLR">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="tickPosition">
-          <enum>QSlider::TicksBothSides</enum>
-         </property>
-         <property name="tickInterval">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
+      <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0">
        <item row="0" column="1">
-        <widget class="QLabel" name="label_7">
+        <widget class="QPushButton" name="forwardButton">
          <property name="text">
-          <string>Angular Speed</string>
+          <string>Forward [W]</string>
+         </property>
+         <property name="shortcut">
+          <string>W</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QSpinBox" name="spinBoxFw">
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="leftButton">
+         <property name="text">
+          <string>Left [A]</string>
          </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="minimum">
-          <number>-127</number>
-         </property>
-         <property name="maximum">
-          <number>127</number>
+         <property name="shortcut">
+          <string>A</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="spinBoxLR">
-         <property name="readOnly">
-          <bool>true</bool>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="backwardButton">
+         <property name="text">
+          <string>Backward [S]</string>
          </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
-         </property>
-         <property name="minimum">
-          <number>-127</number>
-         </property>
-         <property name="maximum">
-          <number>127</number>
+         <property name="shortcut">
+          <string>S</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QSpinBox" name="spinBoxUD">
-         <property name="readOnly">
-          <bool>true</bool>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="rightButton">
+         <property name="text">
+          <string>Right [D]</string>
          </property>
-         <property name="buttonSymbols">
-          <enum>QAbstractSpinBox::NoButtons</enum>
+         <property name="shortcut">
+          <string>D</string>
          </property>
-         <property name="minimum">
-          <number>-127</number>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="upButton">
+         <property name="text">
+          <string>Up [U]</string>
          </property>
-         <property name="maximum">
-          <number>127</number>
+         <property name="shortcut">
+          <string>U</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="resetDepthButton">
+         <property name="text">
+          <string>Reset Depth [Z]</string>
+         </property>
+         <property name="shortcut">
+          <string>Z</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="downButton">
+         <property name="text">
+          <string>Down [J]</string>
+         </property>
+         <property name="shortcut">
+          <string>J</string>
          </property>
         </widget>
        </item>
@@ -235,9 +188,32 @@
        <item row="14" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>max Forwardspeed:</string>
+          <string>Forwardspeed:</string>
          </property>
         </widget>
+       </item>
+       <item row="14" column="1">
+        <widget class="QLineEdit" name="maxForSpeed"/>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Angularspeed:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1">
+        <widget class="QLineEdit" name="maxAngSpeed"/>
+       </item>
+       <item row="16" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Dive Stepsize:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="1">
+        <widget class="QLineEdit" name="maxVertSpeed"/>
        </item>
        <item row="17" column="0" colspan="2">
         <widget class="QPushButton" name="save">
@@ -249,29 +225,6 @@
          </property>
         </widget>
        </item>
-       <item row="14" column="1">
-        <widget class="QLineEdit" name="maxForSpeed"/>
-       </item>
-       <item row="15" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>max Angularspeed:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="1">
-        <widget class="QLineEdit" name="maxAngSpeed"/>
-       </item>
-       <item row="16" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>max Verticalspeed:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="16" column="1">
-        <widget class="QLineEdit" name="maxVertSpeed"/>
-       </item>
       </layout>
      </widget>
     </widget>
@@ -279,54 +232,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>sliderFw</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBoxFw</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>128</x>
-     <y>173</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>149</x>
-     <y>303</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderUD</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBoxUD</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>469</x>
-     <y>173</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>506</x>
-     <y>303</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sliderLR</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBoxLR</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>300</x>
-     <y>173</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>319</x>
-     <y>303</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

@@ -22,6 +22,9 @@ private:
     Ui::HandControl_Form *ui;
     Module_HandControl *module;
 
+    QTimer forTimer;
+    QTimer angTimer;
+
     QAction *forward;
     QAction *backward;
     QAction *left;
@@ -31,22 +34,22 @@ private:
 
     float maxForwardSpeed;
     float maxAngularSpeed;
-    float maxUpDownSpeed;
+    float upDownSpeed;
+    float stepsize;
 
 private slots:
-    void on_sliderUD_valueChanged(int value);
-    void on_sliderLR_valueChanged(int value);
-    void on_sliderFw_valueChanged(int value);
+    void on_resetDepthButton_clicked();
+    void on_downButton_clicked();
+    void on_upButton_clicked();
+    void on_rightButton_clicked();
+    void on_backwardButton_clicked();
+    void on_leftButton_clicked();
+    void on_forwardButton_clicked();
     void on_save_clicked();
     void connectionStatusChanged();
-    void dataChanged(RobotModule* m);
-
-    void forwardPressed();
-    void backwardPressed();
-    void leftPressed();
-    void rightPressed();
-    void upPressed();
-    void downPressed();
+//    void dataChanged(RobotModule* m);
+    void resetForSpeeds();
+    void resetAngSpeeds();
 
 signals:
     void updateControls();
