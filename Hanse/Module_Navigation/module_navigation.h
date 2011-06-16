@@ -64,13 +64,15 @@ public:
       */
     double getDistance(QString name);
 
-    bool goalLineReached(QString name1, QString name2);
+    void goalLineReached(QString name1, QString name2, QString name3);
 
     Position getCurrentPosition();
 
     bool hasGoal();
 
     Waypoint getCurrentGoal();
+
+        QTimer *testTimer;
 
 private:
     void init();
@@ -123,6 +125,9 @@ public slots:
     void xsensUpdate(RobotModule *);
     void sonarPositionUpdate();
     void forwardDone();
+
+    void checkGoalLine();
+
 
 signals:
     void healthStatusChanged(HealthStatus data);

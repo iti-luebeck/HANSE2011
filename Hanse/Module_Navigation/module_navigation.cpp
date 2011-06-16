@@ -42,7 +42,9 @@ void Module_Navigation::init()
     connect(this,SIGNAL(newDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(newANGSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
-
+    testTimer = new QTimer(this);
+    connect(testTimer, SIGNAL(timeout()), this, SLOT(checkGoalLine()));
+    testTimer->start(1000);
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
     hasActiveGoal = false;
@@ -515,27 +517,66 @@ double Module_Navigation::getDistance(QString name){
     return currentDistanceToGoal;
 }
 
-bool Module_Navigation::goalLineReached(QString name1, QString name2){
-    Waypoint goal1 = waypoints[name1];
-    double Ax = goal1.posX;
-    double Ay = goal1.posY;
+void Module_Navigation::checkGoalLine(){
+    Module_Navigation::goalLineReached("a1", "a2", "a3");
+    qDebug("CheckGoalLine");
+}
 
-    Waypoint goal2 = waypoints[name2];
-    double Bx = goal2.posX;
-    double By = goal2.posY;
+void Module_Navigation::goalLineReached(QString name1, QString name2, QString name3){
+    // Laeft nicht so richtig....
+//    Waypoint goal1 = waypoints[name1];
+//    double Ax = goal1.posX;
+//    double Ay = goal1.posY;
+//    double Az = 0;
 
-    Position currentPosition = sonarLoc->getLocalization();
-    double Cx = currentPosition.getX();
-    double Cy = currentPosition.getY();
+//    Waypoint goal2 = waypoints[name2];
+//    double Bx = goal2.posX;
+//    double By = goal2.posY;
+//   // double Bz = 0;
 
-    // cos a = (v1*v2)/(|v1|*|v2|) umgeschrieben:
-    double result = ((Cx*(Bx-Ax))+(Cy*(By-Ay)))/(sqrt(Cx*Cx+Cy*Cy)*sqrt((Bx-Ax)*(Bx-Ax)+(By-Ay)*(By-Ay)));
-    logger->info("Result goalLineReached", result, "", "");
 
-    // Return?!
-    if(result > 0){
-        return true;
-    } else {
-        return false;
-    }
+//    Waypoint goal3 = waypoints[name3];
+//    double Cx = goal3.posX;
+//    double Cy = goal3.posY;
+//    double Cz = 0;
+////    Position currentPosition = sonarLoc->getLocalization();
+////    double Cx = currentPosition.getX();
+////    double Cy = currentPosition.getY();
+////    double Cz = 0;
+
+//    // cos a = (v1*v2)/(|v1|*|v2|) umgeschrieben:
+//    Ax = Ax -Bx;
+//    Ay = Ay- By;
+//    Az = 0;
+
+//    Cx = Cx - Bx;
+//    Cy = Cy - By;
+//    Cz = 0;
+
+//    qDebug() << "AB " << Ax << Ay;
+//    qDebug() << "CB" << Cx << Cy;
+
+//    double normAB = (sqrt(Ax*Ax+Ay*Ay+Az*Az));
+//    double normCB = (sqrt(Cx*Cx+Cy*Cy+Cz*Cz));
+//    qDebug() << "norm AB " << normAB;
+//    qDebug() << "norm CB " << normCB;
+
+////    Ax = Ax/normAB;
+////    Ay = Ay/normAB;
+
+////    Cx = Cx/normCB;
+////    Cy = Cy/normCB;
+
+////    qDebug() << "AB " << Ax << Ay;
+////    qDebug() << "CB" << Cx << Cy;
+
+
+//    double result1 =  (Cx*Ax+Cy*Ay)/(normAB * normCB);
+
+//    qDebug()<<"result1" << result1;
+//    double acoss = acos(result1);
+//    qDebug()<<"result1" << acoss;
+
+//    qDebug()<<"result1" << Angles::pi2deg(acoss);
+
 }
