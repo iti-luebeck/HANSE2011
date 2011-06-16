@@ -365,7 +365,7 @@ void Behaviour_WallFollowing::turn90Two(){
         emit dataChanged(this);
         if (fabs(diffHeading) < 10)
         {
-            logger->info("Turn90OneÁdjust heading finished");
+
             emit angularSpeed(0.0);
             emit forwardSpeed(0.0);
             this->t90dt90 = false;
