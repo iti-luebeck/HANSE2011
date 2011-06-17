@@ -518,11 +518,18 @@ double Module_Navigation::getDistance(QString name){
 }
 
 void Module_Navigation::checkGoalLine(){
+    if(!this->isEnabled()){
+        return;
+    }
     Module_Navigation::goalLineReached("a1", "a2", "a3");
     qDebug("CheckGoalLine");
 }
 
 void Module_Navigation::goalLineReached(QString name1, QString name2, QString name3){
+    if(!this->isEnabled()){
+        return;
+    }
+
     // Laeft nicht so richtig....
     Waypoint goal1 = waypoints[name1];
     double Ax = goal1.posX;
