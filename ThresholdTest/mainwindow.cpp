@@ -182,12 +182,17 @@ void MainWindow::refreshThreshold()
 
         QImage rgb((unsigned char*)rgbImage->imageData, rgbImage->width, rgbImage->height, QImage::Format_RGB888);
         ui->originalLabel->setPixmap(QPixmap::fromImage(rgb));
+        cvCvtColor(rgbImage, rgbImage, CV_RGB2BGR);
+        cvSaveImage("threshold_rgb.jpg", rgbImage);
 
         QImage cha((unsigned char*)rgbChannel->imageData, rgbChannel->width, rgbChannel->height, QImage::Format_RGB888);
         ui->channelLabel->setPixmap(QPixmap::fromImage(cha));
+        cvCvtColor(rgbChannel, rgbChannel, CV_RGB2BGR);
+        cvSaveImage("threshold_channel.jpg", rgbChannel);
 
         QImage b((unsigned char*)rgbBinary->imageData, rgbBinary->width, rgbBinary->height, QImage::Format_RGB888);
         ui->label->setPixmap(QPixmap::fromImage(b));
+        cvSaveImage("threshold_binary.jpg", rgbBinary);
 
         cvReleaseImage( &rgbBinary );
         cvReleaseImage( &rgbChannel );
