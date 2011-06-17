@@ -101,7 +101,6 @@ void HandControl_Form::connectionStatusChanged()
 void HandControl_Form::on_forwardButton_clicked()
 {
     forTimer.start(1000);
-    qDebug()<<"Vorwaerts";
     module->addData("forwardSpeed", maxForwardSpeed);
     emit updateControls();
 }
@@ -109,7 +108,6 @@ void HandControl_Form::on_forwardButton_clicked()
 void HandControl_Form::on_leftButton_clicked()
 {
     angTimer.start(1000);
-    qDebug()<<"Links";
     module->addData("angularSpeed", -maxAngularSpeed);
     emit updateControls();
 }
@@ -117,7 +115,6 @@ void HandControl_Form::on_leftButton_clicked()
 void HandControl_Form::on_backwardButton_clicked()
 {
     forTimer.start(1000);
-    qDebug()<<"Rueckwaerts";
     module->addData("forwardSpeed", -maxForwardSpeed);
     emit updateControls();
 }
@@ -125,14 +122,12 @@ void HandControl_Form::on_backwardButton_clicked()
 void HandControl_Form::on_rightButton_clicked()
 {
     angTimer.start(1000);
-    qDebug()<<"Rechts";
-    module->addData("angularSpeed", maxAngularSpeed);
+     module->addData("angularSpeed", maxAngularSpeed);
     emit updateControls();
 }
 
 void HandControl_Form::on_upButton_clicked()
 {
-    qDebug()<<"Hoch";
     upDownSpeed = upDownSpeed - stepsize;
     if(upDownSpeed < 0.0){
         upDownSpeed = 0.0;
@@ -143,21 +138,18 @@ void HandControl_Form::on_upButton_clicked()
 
 void HandControl_Form::on_downButton_clicked()
 {
-    qDebug()<<"Runter";
     upDownSpeed = upDownSpeed + stepsize;
     module->addData("speedUpDown", upDownSpeed);
     emit updateControls();
 }
 
 void HandControl_Form::resetForSpeeds(){
-    qDebug() << "reset Forward";
     module->addData("forwardSpeed", 0);
     emit updateControls();
     forTimer.stop();
 }
 
 void HandControl_Form::resetAngSpeeds(){
-    qDebug() << "reset Angular";
     module->addData("angularSpeed", 0);
     emit updateControls();
     angTimer.stop();
@@ -166,7 +158,6 @@ void HandControl_Form::resetAngSpeeds(){
 void HandControl_Form::on_resetDepthButton_clicked()
 {
     upDownSpeed = 0.0;
-    qDebug() << "reset Depth";
     module->addData("speedUpDown", upDownSpeed);
     emit updateControls();
 }
