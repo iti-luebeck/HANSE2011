@@ -229,20 +229,13 @@ qDebug("Scanning output");
 
         // Prüfen, ob die naechsten X Datenwerte den Schwellwert überschreiten
         for(int x = 0; x < dataLength-averageWindow; x++){
-            qDebug()<<"dataLength"<<dataLength;
-            qDebug()<<"averageWindow"<<averageWindow;
-            qDebug()<<"x"<<x;
-
             for(int y = x; y<x+averageWindow-1; y++){
                 avgFilter = avgFilter+avgSig[y];
-                qDebug()<<"avgFilter berechnung"<<avgFilter;
             }
 
             calcFactor = getSettingsValue("calcFactor").toFloat();
 
             float a = ((calcFactor)*(float)averageWindow * aktMax);
-            qDebug()<<"a"<<a;
-            qDebug()<<"avgFilter"<<avgFilter;
             if(avgFilter>a){
                 avgDistance = (x+3)/einheit;
                 // Berechnung abgeschlossen, also raus hier!
