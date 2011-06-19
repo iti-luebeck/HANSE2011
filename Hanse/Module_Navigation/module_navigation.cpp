@@ -533,27 +533,29 @@ void Module_Navigation::getAlpha(QString name1, QString name2){
     if(!this->isEnabled()){
         return;
     }
+    double angleAlphaResult = -1.0;
+    if( waypoints.contains(name1) &&  waypoints.contains(name2)){
+        Waypoint goal1 = waypoints[name1];
+        double x1 = goal1.posX;
+        double y1 = goal1.posY;
+        // double z1 = goal1.depth;
 
-    Waypoint goal1 = waypoints[name1];
-    double x1 = goal1.posX;
-    double y1 = goal1.posY;
-    // double z1 = goal1.depth;
+        Position currentPosition = sonarLoc->getLocalization();
+        double x2 = currentPosition.getX();
+        double y2 = currentPosition.getY();
+        // double z2 = goal2.depth;
 
-    Position currentPosition = sonarLoc->getLocalization();
-    double x2 = currentPosition.getX();
-    double y2 = currentPosition.getY();
-    // double z2 = goal2.depth;
+        Waypoint goal2 = waypoints[name2];
+        double x3 = goal2.posX;
+        double y3 = goal2.posY;
+        // double z3 = goal3.depth;
 
-    Waypoint goal2 = waypoints[name2];
-    double x3 = goal2.posX;
-    double y3 = goal2.posY;
-    // double z3 = goal3.depth;
+        double zaehler = ((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3));
+        double nenner = 2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
+        double alpha = acos(zaehler/nenner);
 
-    double zaehler= (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3)));
-    double nenner = (2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))));
-    double alpha = acos(zaehler/nenner);
-
-    double angleAlphaResult = Angles::pi2deg(alpha);
+        angleAlphaResult = Angles::pi2deg(alpha);
+    }
     addData("Angle Alpha:", angleAlphaResult);
     emit dataChanged(this);
     emit angleAlpha(angleAlphaResult);
