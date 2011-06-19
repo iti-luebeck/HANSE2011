@@ -31,7 +31,6 @@ private:
     TaskWallNavigation* taskwallnavigation;
 
 signals:
-    void newSchDesSignal(QString taskName, QString newD);
     void updateTaskSettingsSignal();
 
 public slots:

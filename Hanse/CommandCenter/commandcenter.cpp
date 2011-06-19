@@ -18,8 +18,9 @@
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 #include <TaskXsensNavigation/taskxsensnavigation.h>
 #include <Module_Navigation/module_navigation.h>
+#include <TaskPipeFollowing/taskpipefollowing.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation *n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn,TaskXsensNavigation *txn)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation *n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn,TaskXsensNavigation *txn, TaskPipeFollowing *tpf)
     : RobotModule(id)
 {
     this->tcl = tcl;
@@ -36,6 +37,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->taskxsensnavigation = txn;
     this->navi = n;
     //this->goal = goal;
+    this->taskpipefollowing = tpf;
 
     this->behaviour.append(pipe);
     this->behaviour.append(ball);
@@ -52,6 +54,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     // Tasks specific signals
     this->taskList.append(taskwallnavigation);
     this->taskList.append(taskxsensnavigation);
+    this->taskList.append(taskpipefollowing);
 
     foreach (RobotBehaviour* b, taskList)
     {
@@ -68,6 +71,11 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     // Task XsensNavigation
     connect(this,SIGNAL(startTaskXsensNavigation()),taskxsensnavigation,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskXsensNavigation()),taskxsensnavigation,SLOT(stop()));
+
+
+    // Task PipeFollowing
+    connect(this, SIGNAL(startTaskPipeFollowing()), taskpipefollowing, SLOT(startBehaviour()));
+    connect(this, SIGNAL(stopTaskPipeFollowing()), taskpipefollowing, SLOT(stop()));
 
     // Task HandControl
     this->taskList.append(taskhandcontrol);
@@ -219,6 +227,9 @@ void CommandCenter::commandCenterControl(){
             activeTask = tempAkt;
         } else if(tempAkt == "taskXsensNavi"){
             emit startTaskXsensNavigation();
+            activeTask = tempAkt;
+        } else if(tempAkt == "taskPipeFollow"){
+            emit startTaskPipeFollowing();
             activeTask = tempAkt;
         } else  {
             logger->info("Task not found, skip task!");

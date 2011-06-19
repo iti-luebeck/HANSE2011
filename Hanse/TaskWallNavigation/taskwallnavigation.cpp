@@ -9,6 +9,8 @@
 #include "taskwallnavigationform.h"
 #include <QtGui>
 #include <Module_Simulation/module_simulation.h>
+#include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
+#include <Module_Navigation/module_navigation.h>
 
 TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behaviour_WallFollowing *w, Module_Navigation *n)
     : RobotBehaviour(id)
@@ -29,8 +31,6 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     this->setDefaultValue("description", "");
     this->setDefaultValue("taskStopTime",120000);
     this->setDefaultValue("signalTimer",1000);
-    this->setDefaultValue("initHeading", 0);
-    this->setSettingsValue("useInitHeading", false);
 
     this->setDefaultValue("startNavigation", "startN");
     this->setDefaultValue("targetNavigation", "targetN");
@@ -96,7 +96,7 @@ void TaskWallNavigation::startBehaviour(){
     emit updateSettings();
 
     if(this->getSettingsValue("timerActivated").toBool()){
-        logger->debug("Taskwallnavigation with timer stop");
+        logger->debug("TaskWallNavigation with timer stop");
         taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
         taskTimer.start();
     }
@@ -145,8 +145,6 @@ void TaskWallNavigation::doWallFollow(){
 
         this->wall->setSettingsValue("corridorWidth",this->getSettingsValue("corridorWidth").toFloat());
         this->wall->setSettingsValue("desiredDistance",this->getSettingsValue("desiredDistance").toFloat());
-        this->wall->setSettingsValue("initHeading",this->getSettingsValue("initHeading").toFloat());
-        this->wall->setSettingsValue("useInitHeading", this->getSettingsValue("useInitHeading").toBool());
         this->wall->setSettingsValue("loopActivated",this->getSettingsValue("loopActivated").toBool());
         this->wall->setSettingsValue("forwardSpeed", this->getSettingsValue("forwardSpeed").toFloat());
         this->wall->setSettingsValue("angularSpeed", this->getSettingsValue("angularSpeed").toFloat());
@@ -238,7 +236,6 @@ void TaskWallNavigation::stop(){
         if (this->isActive())
         {
             this->taskTimer.stop();
-            this->navi->setEnabled(false);
             this->wall->echo->setEnabled(false);
             QTimer::singleShot(0, wall, SLOT(stop()));
 
@@ -260,7 +257,6 @@ void TaskWallNavigation::timeoutStop(){
         {
             QTimer::singleShot(0, navi, SLOT(clearGoal()));
             this->taskTimer.stop();
-            this->navi->setEnabled(false);
             this->wall->echo->setEnabled(false);
             QTimer::singleShot(0, wall, SLOT(stop()));
 
@@ -282,7 +278,6 @@ void TaskWallNavigation::emergencyStop(){
     {
         QTimer::singleShot(0, navi, SLOT(clearGoal()));
         this->taskTimer.stop();
-        this->navi->setEnabled(false);
         this->wall->echo->setEnabled(false);
         QTimer::singleShot(0, wall, SLOT(stop()));
         this->setEnabled(false);

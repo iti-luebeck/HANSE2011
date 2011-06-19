@@ -19,13 +19,14 @@ class TaskWallNavigation;
 class TaskXsensNavigation;
 class RobotBehaviour;
 class Module_Navigation;
+class TaskPipeFollowing;
 
 
 class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation* n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn, TaskXsensNavigation *txn);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation* n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn, TaskXsensNavigation *txn, TaskPipeFollowing *tpf);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -62,6 +63,7 @@ private:
     TaskHandControl *taskhandcontrol;
     TaskWallNavigation *taskwallnavigation;
     TaskXsensNavigation *taskxsensnavigation;
+    TaskPipeFollowing *taskpipefollowing;
 
     QTimer controlTimer;
 
@@ -129,6 +131,9 @@ signals:
 
     void startTaskXsensNavigation();
     void stopTaskXsensNavigation();
+
+    void startTaskPipeFollowing();
+    void stopTaskPipeFollowing();
 };
 
 #endif // COMMANDCENTER_H

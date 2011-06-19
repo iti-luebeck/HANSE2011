@@ -24,6 +24,7 @@
 //#include <Module_IMU/module_imu.h>
 //#include <Module_ADC/module_adc.h>
 #include <TaskXsensNavigation/taskxsensnavigation.h>
+#include <TaskPipeFollowing/taskpipefollowing.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -126,8 +127,12 @@ void ModulesGraph::build()
     TaskHandControl *taskhandcontrol = new TaskHandControl("taskHand", controlLoop, sim, handControl);
     this->modules.append(taskhandcontrol);
 
+    logger->debug("Creating TaskPipeFollowing");
+    TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipeFollow", behavPipe, sim, navi, behavTurn);
+    this->modules.append(taskpipefollowing);
+
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation, taskxsensnavigation);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation, taskxsensnavigation, taskpipefollowing);
     this->modules.append(commCent);
 
     logger->info("Loading all Modules... Done");

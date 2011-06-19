@@ -74,7 +74,7 @@ void TaskXsensNavigationForm::on_applyButton_clicked(){
     this->taskxsensnavigation->setSettingsValue("taskStopTime", this->ui->taskStopInput->text());
     this->taskxsensnavigation->setSettingsValue("signalTimer", this->ui->signalInput->text());
 
-    // Xsensfollow Settings
+    // Xsensfollow settings
     this->taskxsensnavigation->setSettingsValue("ffSpeed", this->ui->ffSpeed->text());
     this->taskxsensnavigation->setSettingsValue("kp", this->ui->kp->text());
     this->taskxsensnavigation->setSettingsValue("delta", this->ui->delta->text());
@@ -82,7 +82,7 @@ void TaskXsensNavigationForm::on_applyButton_clicked(){
     this->taskxsensnavigation->setSettingsValue("timer", this->ui->timerInput->text());
     this->taskxsensnavigation->setSettingsValue("waitTime", this->ui->waitInput->text());
 
-    // Turn180 Settings
+    // Turn180 settings
     this->taskxsensnavigation->setSettingsValue("hysteresis", this->ui->hysteresisEdit->text());
     this->taskxsensnavigation->setSettingsValue("p", this->ui->pEdit->text());
     this->taskxsensnavigation->setSettingsValue("degree", this->ui->degreeInput->text());

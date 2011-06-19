@@ -1,18 +1,18 @@
-#ifndef TASKXSENSNAVIGATION_H
-#define TASKXSENSNAVIGATION_H
+#ifndef TASKPIPEFOLLOWING_H
+#define TASKPIPEFOLLOWING_H
 
 #include <Framework/robotbehaviour.h>
 
 class Module_Simulation;
 class Module_Navigation;
-class Behaviour_XsensFollowing;
+class Behaviour_PipeFollowing;
 class Behaviour_TurnOneEighty;
 
-class TaskXsensNavigation : public RobotBehaviour
+class TaskPipeFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    TaskXsensNavigation(QString id, Module_Simulation *sim, Behaviour_XsensFollowing *xf, Module_Navigation *n, Behaviour_TurnOneEighty *o180);
+    TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Module_Simulation *sim, Module_Navigation *n, Behaviour_TurnOneEighty *o180);
 
     QWidget* createView(QWidget *parent);
 
@@ -21,12 +21,16 @@ public:
     bool isActive();
 
     QTimer taskTimer;
+    double distanceToPipeEnd;
+    int counter;
 
 private:
+
+    Behaviour_PipeFollowing *pipe;
     Module_Simulation *sim;
-    Behaviour_XsensFollowing *xsensfollow;
     Module_Navigation *navi;
     Behaviour_TurnOneEighty *turn180;
+
 
     void init();
     bool running;
@@ -38,27 +42,29 @@ signals:
     void dataError();
     void stopSignal();
     void updateSettings();
+
     void newState(QString state);
     void newStateOverview(QString state);
+
+    void setUpdatePixmapSignal(bool b);
 
 public slots:
     void startBehaviour();
     void stop();
-
-    void moveToStart();
-    void moveToB();
-    void moveToEnd();
-    void seReached(QString waypoint);
-    void doXsensFollow();
-    void finishXsensFollow();
-    void controlNextState();
-    void doTurn();
-
-    void controlEnabledChanged(bool b);
     void emergencyStop();
     void timeoutStop();
 
+    void moveToStart();
+    void seReached(QString waypoint);
+    void moveToEnd();
+    void doPipeFollow();
+    void doTurn();
+
+    void controlPipeFollowRemainingDistance();
+    void controlNextState();
+
+    void controlEnabledChanged(bool b);
 
 };
 
-#endif // TASKXSENSNAVIGATION_H
+#endif // TASKPIPEFOLLOWING_H

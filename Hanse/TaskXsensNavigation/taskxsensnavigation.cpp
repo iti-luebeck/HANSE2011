@@ -15,6 +15,9 @@
 #include "taskxsensnavigationform.h"
 #include <QtGui>
 #include <Module_Simulation/module_simulation.h>
+#include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
+#include <Module_Navigation/module_navigation.h>
+#include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
 
 TaskXsensNavigation::TaskXsensNavigation(QString id, Module_Simulation *sim, Behaviour_XsensFollowing *xf, Module_Navigation *n, Behaviour_TurnOneEighty *o180)
     : RobotBehaviour(id)

@@ -2,8 +2,6 @@
 #define TASKWALLNAVIGATION_H
 
 #include <Framework/robotbehaviour.h>
-#include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
-#include <Module_Navigation/module_navigation.h>
 
 class Module_Simulation;
 class Module_Navigation;
@@ -22,6 +20,7 @@ public:
     bool isActive();
 
     QTimer taskTimer;
+    double distanceToTarget;
 
 private:
     Module_Simulation *sim;
@@ -31,8 +30,7 @@ private:
     void init();
     bool running;
     void terminate();
-    double distanceToStart;
-    double distanceToTarget;
+
 
 signals:
     void timerStart( int msec );

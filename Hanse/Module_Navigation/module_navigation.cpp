@@ -13,7 +13,7 @@ Module_Navigation::Module_Navigation( QString id,
                                       Module_ThrusterControlLoop *tcl,
                                       Module_PressureSensor *pressure,
                                       Module_XsensMTi *mti ) :
-        RobotModule(id)
+    RobotModule(id)
 {
     this->sonarLoc = sonarLoc;
     this->tcl = tcl;
@@ -236,12 +236,12 @@ void Module_Navigation::xsensUpdate( RobotModule * )
 
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
                 float headingError = - Angles::deg2deg(xsensHeading - initialXsensHeading);
-//                if (fabs(headingError) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
-                    float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * headingError;
-                    emit newANGSpeed(val);
-//                } else {
-//                    emit newANGSpeed(.0);
-//                }
+                //                if (fabs(headingError) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
+                float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * headingError;
+                emit newANGSpeed(val);
+                //                } else {
+                //                    emit newANGSpeed(.0);
+                //                }
             }
         }
     }
@@ -320,7 +320,7 @@ void Module_Navigation::sonarPositionUpdate()
         // Check if we are close enough to the goal.
         if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +
                    ( currentPosition.getY() - currentGoal.posY ) * ( currentPosition.getY() - currentGoal.posY ) )
-            < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
+             < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
             state = NAV_STATE_REACHED_GOAL;
             substate = NAV_SUBSTATE_ADJUST_HEADING;
             addData("ANGspeed", .0);
@@ -368,7 +368,7 @@ void Module_Navigation::sonarPositionUpdate()
                     // Move slower if we are close to the goal.
                     if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
                         speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
-                                 (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
+                                (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
                     }
                     addData("FFspeed",speed);
                     emit newFFSpeed(speed);
@@ -510,11 +510,15 @@ void Module_Navigation::loadFromSettings()
 
 double Module_Navigation::getDistance(QString name){
     Position currentPosition = sonarLoc->getLocalization();
-    Waypoint goal = waypoints[name];
-    double dx = goal.posX - currentPosition.getX();
-    double dy = goal.posY - currentPosition.getY();
-    double currentDistanceToGoal = sqrt( dx*dx + dy*dy );
-    return currentDistanceToGoal;
+    if(this->waypoints.contains(name)== true){
+        Waypoint goal = waypoints[name];
+        double dx = goal.posX - currentPosition.getX();
+        double dy = goal.posY - currentPosition.getY();
+        double currentDistanceToGoal = sqrt( dx*dx + dy*dy );
+        return currentDistanceToGoal;
+    } else {
+        return 666;
+    }
 }
 
 void Module_Navigation::checkGoalLine(){
@@ -532,24 +536,27 @@ void Module_Navigation::goalLineReached(QString name1, QString name2, QString na
 
     // Laeft nicht so richtig....
     Waypoint goal1 = waypoints[name1];
-    double Ax = goal1.posX;
-    double Ay = goal1.posY;
-    double Az = goal1.depth;
+    Q_UNUSED(goal1);
+    //    double Ax = goal1.posX;
+    //    double Ay = goal1.posY;
+    //    double Az = goal1.depth;
 
     Waypoint goal2 = waypoints[name2];
-    double Bx = goal2.posX;
-    double By = goal2.posY;
-    double Bz = goal2.depth;
+    Q_UNUSED(goal2);
+    //    double Bx = goal2.posX;
+    //    double By = goal2.posY;
+    //    double Bz = goal2.depth;
 
 
     Waypoint goal3 = waypoints[name3];
-    double Cx = goal3.posX;
-    double Cy = goal3.posY;
-    double Cz = goal3.depth;
-//    Position currentPosition = sonarLoc->getLocalization();
-//    double Cx = currentPosition.getX();
-//    double Cy = currentPosition.getY();
-//    double Cz = 0;
+    Q_UNUSED(goal3);
+    //    double Cx = goal3.posX;
+    //    double Cy = goal3.posY;
+    //    double Cz = goal3.depth;
+    //    Position currentPosition = sonarLoc->getLocalization();
+    //    double Cx = currentPosition.getX();
+    //    double Cy = currentPosition.getY();
+    //    double Cz = 0;
 
     // cos a = (v1*v2)/(|v1|*|v2|) umgeschrieben:
 
@@ -558,35 +565,35 @@ void Module_Navigation::goalLineReached(QString name1, QString name2, QString na
 
 
     //qDebug() << "Vektor von B nach A" << BAx << BAy;
-   // qDebug() << "Vektor von B nach C" << BCx << BCy;
+    // qDebug() << "Vektor von B nach C" << BCx << BCy;
 
-    double normBA = (sqrt(Bx*Bx+By*By+Bz*Bz)*sqrt(Ax*Ax+Ay*Ay+Az*Az));
-    double normBC = (sqrt(Bx*Bx+By*By+Bz*Bz)*sqrt(Cx*Cx+Cy*Cy+Cz*Cz));
-    qDebug() << "normBA" << normBA;
-    qDebug() << "normBC" << normBC;
+    // double normBA = (sqrt(Bx*Bx+By*By+Bz*Bz)*sqrt(Ax*Ax+Ay*Ay+Az*Az));
+    //double normBC = (sqrt(Bx*Bx+By*By+Bz*Bz)*sqrt(Cx*Cx+Cy*Cy+Cz*Cz));
+    // qDebug() << "normBA" << normBA;
+    // qDebug() << "normBC" << normBC;
 
-//    Ax = Ax/normAB;
-//    Ay = Ay/normAB;
+    //    Ax = Ax/normAB;
+    //    Ay = Ay/normAB;
 
-//    Cx = Cx/normCB;
-//    Cy = Cy/normCB;
+    //    Cx = Cx/normCB;
+    //    Cy = Cy/normCB;
 
-//    qDebug() << "AB " << Ax << Ay;
-//    qDebug() << "CB" << Cx << Cy;
+    //    qDebug() << "AB " << Ax << Ay;
+    //    qDebug() << "CB" << Cx << Cy;
 
 
-    double result1 =  (Bx*Ax+By*Ay+Bz*Az)/(normBA);
+    //double result1 =  (Bx*Ax+By*Ay+Bz*Az)/(normBA);
     //double result2 =  (Bx*Cx+By*Cy+Bz*Cz)/(normBC);
 
-    double acoss1 = acos(result1);
-    qDebug()<<"result1" << Angles::pi2deg(acoss1);
-    double erg1 = Angles::deg2deg(360-Angles::pi2deg(acoss1));
-    qDebug()<<"result1" << erg1;
+    //double acoss1 = acos(result1);
+    //qDebug()<<"result1" << Angles::pi2deg(acoss1);
+    //double erg1 = Angles::deg2deg(360-Angles::pi2deg(acoss1));
+    //qDebug()<<"result1" << erg1;
 
-//    qDebug()<<"result2" << result2;
-//    double acoss2 = acos(result2);
-//    qDebug()<<"result2" << acoss2;
-//    qDebug()<<"result2" << Angles::pi2deg(acoss2);
-//    double erg2 = 360-result2;
-//    qDebug()<<"result2" << erg2;
+    //    qDebug()<<"result2" << result2;
+    //    double acoss2 = acos(result2);
+    //    qDebug()<<"result2" << acoss2;
+    //    qDebug()<<"result2" << Angles::pi2deg(acoss2);
+    //    double erg2 = 360-result2;
+    //    qDebug()<<"result2" << erg2;
 }
