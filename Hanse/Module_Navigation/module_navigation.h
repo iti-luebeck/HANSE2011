@@ -64,7 +64,10 @@ public:
       */
     double getDistance(QString name);
 
-    void goalLineReached(QString name1, QString name2, QString name3);
+    /**
+      * Returns
+      */
+    void getAlpha(QString name1, QString name2);
 
     Position getCurrentPosition();
 
@@ -72,7 +75,7 @@ public:
 
     Waypoint getCurrentGoal();
 
-        QTimer *testTimer;
+    QTimer *testTimer;
 
 private:
     void init();
@@ -126,7 +129,7 @@ public slots:
     void sonarPositionUpdate();
     void forwardDone();
 
-    void checkGoalLine();
+    void calcAlpha();
 
 
 signals:
@@ -141,6 +144,8 @@ signals:
     void newDepth(float depth);
     void newFFSpeed(float speed);
     void newANGSpeed(float speed);
+
+    void angleAlpha(double aA);
 
 protected:
     virtual void doHealthCheck();

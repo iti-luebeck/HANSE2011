@@ -43,7 +43,7 @@ void Module_Navigation::init()
     connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(newANGSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     testTimer = new QTimer(this);
-    connect(testTimer, SIGNAL(timeout()), this, SLOT(checkGoalLine()));
+    connect(testTimer, SIGNAL(timeout()), this, SLOT(calcAlpha()));
     testTimer->start(1000);
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
@@ -521,79 +521,40 @@ double Module_Navigation::getDistance(QString name){
     }
 }
 
-void Module_Navigation::checkGoalLine(){
+void Module_Navigation::calcAlpha(){
     if(!this->isEnabled()){
         return;
     }
-    Module_Navigation::goalLineReached("a1", "a2", "a3");
-    qDebug("CheckGoalLine");
+
+    Module_Navigation::getAlpha("a1", "a2");
 }
 
-void Module_Navigation::goalLineReached(QString name1, QString name2, QString name3){
+void Module_Navigation::getAlpha(QString name1, QString name2){
     if(!this->isEnabled()){
         return;
     }
 
-    // Laeft nicht so richtig....
     Waypoint goal1 = waypoints[name1];
-    Q_UNUSED(goal1);
-    //    double Ax = goal1.posX;
-    //    double Ay = goal1.posY;
-    //    double Az = goal1.depth;
+    double x1 = goal1.posX;
+    double y1 = goal1.posY;
+    // double z1 = goal1.depth;
+
+    Position currentPosition = sonarLoc->getLocalization();
+    double x2 = currentPosition.getX();
+    double y2 = currentPosition.getY();
+    // double z2 = goal2.depth;
 
     Waypoint goal2 = waypoints[name2];
-    Q_UNUSED(goal2);
-    //    double Bx = goal2.posX;
-    //    double By = goal2.posY;
-    //    double Bz = goal2.depth;
+    double x3 = goal2.posX;
+    double y3 = goal2.posY;
+    // double z3 = goal3.depth;
 
+    double zaehler= (((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3)));
+    double nenner = (2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))));
+    double alpha = acos(zaehler/nenner);
 
-    Waypoint goal3 = waypoints[name3];
-    Q_UNUSED(goal3);
-    //    double Cx = goal3.posX;
-    //    double Cy = goal3.posY;
-    //    double Cz = goal3.depth;
-    //    Position currentPosition = sonarLoc->getLocalization();
-    //    double Cx = currentPosition.getX();
-    //    double Cy = currentPosition.getY();
-    //    double Cz = 0;
-
-    // cos a = (v1*v2)/(|v1|*|v2|) umgeschrieben:
-
-
-    // Vekt D->E:= Ex-Dx ; Ey-Dy; Ez-Dz;
-
-
-    //qDebug() << "Vektor von B nach A" << BAx << BAy;
-    // qDebug() << "Vektor von B nach C" << BCx << BCy;
-
-    // double normBA = (sqrt(Bx*Bx+By*By+Bz*Bz)*sqrt(Ax*Ax+Ay*Ay+Az*Az));
-    //double normBC = (sqrt(Bx*Bx+By*By+Bz*Bz)*sqrt(Cx*Cx+Cy*Cy+Cz*Cz));
-    // qDebug() << "normBA" << normBA;
-    // qDebug() << "normBC" << normBC;
-
-    //    Ax = Ax/normAB;
-    //    Ay = Ay/normAB;
-
-    //    Cx = Cx/normCB;
-    //    Cy = Cy/normCB;
-
-    //    qDebug() << "AB " << Ax << Ay;
-    //    qDebug() << "CB" << Cx << Cy;
-
-
-    //double result1 =  (Bx*Ax+By*Ay+Bz*Az)/(normBA);
-    //double result2 =  (Bx*Cx+By*Cy+Bz*Cz)/(normBC);
-
-    //double acoss1 = acos(result1);
-    //qDebug()<<"result1" << Angles::pi2deg(acoss1);
-    //double erg1 = Angles::deg2deg(360-Angles::pi2deg(acoss1));
-    //qDebug()<<"result1" << erg1;
-
-    //    qDebug()<<"result2" << result2;
-    //    double acoss2 = acos(result2);
-    //    qDebug()<<"result2" << acoss2;
-    //    qDebug()<<"result2" << Angles::pi2deg(acoss2);
-    //    double erg2 = 360-result2;
-    //    qDebug()<<"result2" << erg2;
+    double angleAlphaResult = Angles::pi2deg(alpha);
+    addData("Angle Alpha:", angleAlphaResult);
+    emit dataChanged(this);
+    emit angleAlpha(angleAlphaResult);
 }
