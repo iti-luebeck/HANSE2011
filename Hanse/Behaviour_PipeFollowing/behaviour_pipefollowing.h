@@ -7,6 +7,7 @@
 #include <opencv/highgui.h>
 #include <Module_Webcams/module_webcams.h>
 #include <Behaviour_PipeFollowing/pipefollowingform.h>
+#include <Behaviour_PipeFollowing/pipetracker.h>
 
 using namespace cv;
 
@@ -36,34 +37,11 @@ public:
 private:
     void init();
 
-    /** Such ein Rohr in einem Frame und berechnet zugehoerige Parameter */
-    void findPipe(Mat &frame, Mat &binaryFrame);
-
-    /** Berechnet den Schnittpunkt der Ideallinie mit einer gefundenen
-        Linie (rho, theta) und ermittelt den Abstand zwischen robCenter
-        und der gefundenen Gerade.
-      */
-    void compIntersect(Point pt1, Point pt2);
-
     /** the p-controller. controls the angle speed of the robot */
     void controlPipeFollow();
 
-    /** Update data on data panel */
-    void updateData();
-
     /** use cv moments to compute pipe */
     void moments(Mat &frame);
-
-    /**
-     * converts frame to selected color space
-      0 for hsv
-      1 for h
-      2 for s
-      3 for v
-      4 for gray
-      as selected in settings pane
-    */
-    void convertColor(Mat &frame, Mat &convFrame);
 
     /** computation */
     void timerSlotExecute();
@@ -72,6 +50,7 @@ private:
     Module_Webcams* cam;
     Module_Simulation *sim;
     QTimer timer;
+    QTimer lostPipeTimer;
     QStringList files;
     int fileIndex;
 
@@ -90,20 +69,13 @@ private:
     cv::Mat displayFrame;
     cv::Mat segmentationFrame;
 
-
-    /* dynamische parameter */
-    float potentialVec;
-    float potentialY;
-    float distanceY;
-    float curAngle;
-    Point intersect;
-    int firstRun;
-    /* sonstige */
     int noPipeCnt;
-    int toSlowCnt;
+
+    PipeTracker tracker;
 
 private slots:
     void timerSlot();
+    void failed();
 
 public slots:
     /** updates local variables */

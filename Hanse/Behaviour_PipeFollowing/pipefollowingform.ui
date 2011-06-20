@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
@@ -403,7 +403,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>hsv</string>
+      <string>blue</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="hRadioButton">
