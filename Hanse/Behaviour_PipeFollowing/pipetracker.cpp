@@ -78,7 +78,8 @@ void PipeTracker::update(Mat frame)
                 theta -= CV_PI;
             }
 
-            if (abs(theta) < CV_PI / 6.0 && meanY > 0.75 * gray.rows) {
+            if (abs(theta) < CV_PI / 6.0 && meanY > 0.75 * gray.rows &&
+                meanX > 0.2 * gray.cols && meanX < 0.8 * gray.cols) {
                 pipeState = PIPE_STATE_PASSED;
             }
 
@@ -105,9 +106,9 @@ void PipeTracker::update(Mat frame)
             } else if (lastMeanX > 0.75 * gray.cols) {
                 pipeState = PIPE_STATE_LOST_RIGHT;
             } else if (lastMeanY < 0.25 * gray.rows) {
-                pipeState = PIPE_STATE_LOST_BOTTOM;
-            } else if (lastMeanY > 0.75 * gray.rows) {
                 pipeState = PIPE_STATE_LOST_TOP;
+            } else if (lastMeanY > 0.75 * gray.rows) {
+                pipeState = PIPE_STATE_LOST_BOTTOM;
             } else {
                 pipeState = PIPE_STATE_LOST;
             }
@@ -121,7 +122,7 @@ Mat PipeTracker::getThresholdChannel(Mat frame)
     vector<Mat> colors;
     Mat gray(frame.rows, frame.cols, CV_8UC1);
 
-    if (colorSpace == 0) {
+    if (colorSpace == 0 || colorSpace >= 4) {
         split(frame, colors);
         colors[2].copyTo(gray);
     } else {
