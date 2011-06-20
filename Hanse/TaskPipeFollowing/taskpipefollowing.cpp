@@ -80,7 +80,7 @@ void TaskPipeFollowing::init(){
 
 
 void TaskPipeFollowing::startBehaviour(){
-    if (this->isEnabled() == true){
+    if (this->isEnabled()){
         logger->info("Already enabled/started!");
         return;
     }
@@ -149,7 +149,7 @@ void TaskPipeFollowing::moveToStart(){
 
 
 void TaskPipeFollowing::seReached(QString waypoint){
-    if(this->isEnabled() == true){
+    if(this->isEnabled()){
         if(waypoint == this->getSettingsValue("pipeNavStart").toString()){
             // Start reached, do pipefollowing
             logger->info("Start reached");
@@ -188,7 +188,7 @@ void TaskPipeFollowing::doPipeFollow(){
         this->pipe->setSettingsValue("maxDistance",this->getSettingsValue("maxDistance"));
         this->pipe->setSettingsValue("badFrames",this->getSettingsValue("badFrames"));
 
-        if(this->pipe->isEnabled() == false){
+        if(!this->pipe->isEnabled()){
             logger->debug("enable pipefollow");
             QTimer::singleShot(0, pipe, SLOT(startBehaviour()));
         } else {
@@ -349,7 +349,7 @@ void TaskPipeFollowing::timeoutStop(){
 
 
 void TaskPipeFollowing::emergencyStop(){
-    if (this->isEnabled() == false){
+    if (!this->isEnabled()){
         logger->info("Emergency stop: Not enabled!");
         return;
     }
