@@ -13,7 +13,7 @@ Module_Navigation::Module_Navigation( QString id,
                                       Module_ThrusterControlLoop *tcl,
                                       Module_PressureSensor *pressure,
                                       Module_XsensMTi *mti ) :
-    RobotModule(id)
+RobotModule(id)
 {
     this->sonarLoc = sonarLoc;
     this->tcl = tcl;
@@ -42,9 +42,7 @@ void Module_Navigation::init()
     connect(this,SIGNAL(newDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(newANGSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
-    testTimer = new QTimer(this);
-    connect(testTimer, SIGNAL(timeout()), this, SLOT(calcAlpha()));
-    testTimer->start(1000);
+
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
     hasActiveGoal = false;
@@ -320,7 +318,7 @@ void Module_Navigation::sonarPositionUpdate()
         // Check if we are close enough to the goal.
         if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +
                    ( currentPosition.getY() - currentGoal.posY ) * ( currentPosition.getY() - currentGoal.posY ) )
-             < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
+            < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
             state = NAV_STATE_REACHED_GOAL;
             substate = NAV_SUBSTATE_ADJUST_HEADING;
             addData("ANGspeed", .0);
@@ -368,7 +366,7 @@ void Module_Navigation::sonarPositionUpdate()
                     // Move slower if we are close to the goal.
                     if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
                         speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
-                                (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
+                                 (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
                     }
                     addData("FFspeed",speed);
                     emit newFFSpeed(speed);
@@ -517,46 +515,39 @@ double Module_Navigation::getDistance(QString name){
         double currentDistanceToGoal = sqrt( dx*dx + dy*dy );
         return currentDistanceToGoal;
     } else {
-        return 666;
+        return -1.0;
     }
 }
 
-void Module_Navigation::calcAlpha(){
-    if(!this->isEnabled()){
-        return;
-    }
 
-    Module_Navigation::getAlpha("a1", "a2");
-}
-
-void Module_Navigation::getAlpha(QString name1, QString name2){
-    if(!this->isEnabled()){
-        return;
-    }
+double Module_Navigation::getAlpha(QString name1, QString name2){
     double angleAlphaResult = -1.0;
-    if( waypoints.contains(name1) &&  waypoints.contains(name2)){
-        Waypoint goal1 = waypoints[name1];
-        double x1 = goal1.posX;
-        double y1 = goal1.posY;
-        // double z1 = goal1.depth;
+    if(this->isEnabled() == true){
+        if( waypoints.contains(name1) &&  waypoints.contains(name2)){
+            Waypoint goal1 = waypoints[name1];
+            double x1 = goal1.posX;
+            double y1 = goal1.posY;
+            // double z1 = goal1.depth;
 
-        Position currentPosition = sonarLoc->getLocalization();
-        double x2 = currentPosition.getX();
-        double y2 = currentPosition.getY();
-        // double z2 = goal2.depth;
+            Position currentPosition = sonarLoc->getLocalization();
+            double x2 = currentPosition.getX();
+            double y2 = currentPosition.getY();
+            // double z2 = goal2.depth;
 
-        Waypoint goal2 = waypoints[name2];
-        double x3 = goal2.posX;
-        double y3 = goal2.posY;
-        // double z3 = goal3.depth;
+            Waypoint goal2 = waypoints[name2];
+            double x3 = goal2.posX;
+            double y3 = goal2.posY;
+            // double z3 = goal3.depth;
 
-        double zaehler = ((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3));
-        double nenner = 2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
-        double alpha = acos(zaehler/nenner);
+            double zaehler = ((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3));
+            double nenner = 2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
+            double alpha = acos(zaehler/nenner);
 
-        angleAlphaResult = Angles::pi2deg(alpha);
+            angleAlphaResult = Angles::pi2deg(alpha);
+        }
+        addData("Angle Alpha:", angleAlphaResult);
+        emit dataChanged(this);
+
     }
-    addData("Angle Alpha:", angleAlphaResult);
-    emit dataChanged(this);
-    emit angleAlpha(angleAlphaResult);
+    return angleAlphaResult;
 }

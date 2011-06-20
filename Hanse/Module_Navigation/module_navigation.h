@@ -65,17 +65,15 @@ public:
     double getDistance(QString name);
 
     /**
-      * Returns
+      * Returns the current angle from hanse to two waypoints
       */
-    void getAlpha(QString name1, QString name2);
+    double getAlpha(QString name1, QString name2);
 
     Position getCurrentPosition();
 
     bool hasGoal();
 
     Waypoint getCurrentGoal();
-
-    QTimer *testTimer;
 
 private:
     void init();
@@ -129,9 +127,6 @@ public slots:
     void sonarPositionUpdate();
     void forwardDone();
 
-    void calcAlpha();
-
-
 signals:
     void healthStatusChanged(HealthStatus data);
 
@@ -144,8 +139,6 @@ signals:
     void newDepth(float depth);
     void newFFSpeed(float speed);
     void newANGSpeed(float speed);
-
-    void angleAlpha(double aA);
 
 protected:
     virtual void doHealthCheck();
