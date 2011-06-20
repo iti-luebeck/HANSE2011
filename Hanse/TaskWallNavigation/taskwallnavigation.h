@@ -20,7 +20,8 @@ public:
     bool isActive();
 
     QTimer taskTimer;
-    double distanceToTarget;
+    double distanceToWaypoint;
+
 
 private:
     Module_Simulation *sim;

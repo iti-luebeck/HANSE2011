@@ -43,7 +43,7 @@ TaskWallNavigation::TaskWallNavigation(QString id, Module_Simulation *sim, Behav
     taskTimer.setSingleShot(true);
     taskTimer.moveToThread(this);
 
-    distanceToTarget = 0;
+    distanceToWaypoint = 0;
 
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
     connect(navi, SIGNAL(reachedWaypoint(QString)), this, SLOT(seReached(QString)));
@@ -62,7 +62,7 @@ void TaskWallNavigation::init(){
 
 
 void TaskWallNavigation::startBehaviour(){
-    if (this->isEnabled() == true){
+    if (this->isEnabled()){
         logger->info("Already enabled/started!");
         return;
     }
@@ -117,7 +117,7 @@ void TaskWallNavigation::moveToStart(){
 }
 
 void TaskWallNavigation::seReached(QString waypoint){
-    if(this->isEnabled() == true){
+    if(this->isEnabled()){
         if(waypoint == this->getSettingsValue("startNavigation").toString()){
             // Start reached, do wallfollowing
             qDebug("Start reached");
@@ -167,11 +167,11 @@ void TaskWallNavigation::doWallFollow(){
 
 void TaskWallNavigation::controlWallFollowRemainingDistance(){
     if(this->isEnabled()){
-        distanceToTarget = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
-        logger->debug("remaining distance "+QString::number(distanceToTarget) );
-        addData("remaining distance",distanceToTarget);
+        distanceToWaypoint = this->navi->getDistance(this->getSettingsValue("targetNavigation").toString());
+        logger->debug("remaining distance "+QString::number(distanceToWaypoint) );
+        addData("remaining distance",distanceToWaypoint);
         emit dataChanged(this);
-        if(this->distanceToTarget > this->getSettingsValue("targetTolerance").toDouble()){
+        if(this->distanceToWaypoint > this->getSettingsValue("targetTolerance").toDouble()){
             QTimer::singleShot(1000, this, SLOT(controlWallFollowRemainingDistance()));
         } else {
             addData("remaining distance", "-");
@@ -267,7 +267,7 @@ void TaskWallNavigation::timeoutStop(){
 }
 
 void TaskWallNavigation::emergencyStop(){
-    if (this->isEnabled() == false){
+    if (!this->isEnabled()){
         logger->info("Emergency stop: Not enabled!");
         return;
     }
