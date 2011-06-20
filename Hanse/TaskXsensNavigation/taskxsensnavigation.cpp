@@ -78,7 +78,7 @@ void TaskXsensNavigation::init(){
 }
 
 void TaskXsensNavigation::startBehaviour(){
-    if (this->isEnabled() == true){
+    if (this->isEnabled()){
         logger->info("Already enabled/started!");
         return;
     }
@@ -140,7 +140,7 @@ void TaskXsensNavigation::moveToStart(){
 
 
 void TaskXsensNavigation::seReached(QString waypoint){
-    if(this->isEnabled() == true){
+    if(this->isEnabled()){
         if(waypoint == this->getSettingsValue("startNavigation").toString()){
             // Start reached, do xsensfollowing
             QTimer::singleShot(0, navi, SLOT(clearGoal()));
@@ -315,7 +315,7 @@ void TaskXsensNavigation::timeoutStop(){
 }
 
 void TaskXsensNavigation::emergencyStop(){
-    if (this->isEnabled() == false){
+    if (!this->isEnabled()){
         logger->info("Not enabled!");
         return;
     }
