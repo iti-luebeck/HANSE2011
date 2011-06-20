@@ -79,7 +79,7 @@ void PipeTracker::update(Mat frame)
             }
 
             if (abs(theta) < CV_PI / 6.0 && meanY > 0.75 * gray.rows &&
-                meanX > 0.2 * gray.cols && meanX < 0.8 * gray.cols) {
+                    meanX > 0.2 * gray.cols && meanX < 0.8 * gray.cols) {
                 pipeState = PIPE_STATE_PASSED;
             }
 

@@ -101,6 +101,8 @@ signals:
     void requestBottomFrame();
     void setUpdatePixmapSignal(bool bol);
 
+    void newPipeState(QString state);
+
 };
 
 

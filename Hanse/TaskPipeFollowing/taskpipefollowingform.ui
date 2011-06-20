@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1229</width>
+    <width>1072</width>
     <height>496</height>
    </rect>
   </property>
@@ -16,10 +16,10 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>0</y>
-     <width>1061</width>
-     <height>381</height>
+     <x>10</x>
+     <y>10</y>
+     <width>1041</width>
+     <height>441</height>
     </rect>
    </property>
    <property name="title">
@@ -93,8 +93,8 @@
    <widget class="QRadioButton" name="hRadioButton">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>280</y>
+      <x>350</x>
+      <y>70</y>
       <width>82</width>
       <height>17</height>
      </rect>
@@ -106,8 +106,8 @@
    <widget class="QRadioButton" name="vRadioButton">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>320</y>
+      <x>350</x>
+      <y>110</y>
       <width>82</width>
       <height>17</height>
      </rect>
@@ -132,8 +132,8 @@
    <widget class="QRadioButton" name="sRadioButton">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>300</y>
+      <x>350</x>
+      <y>90</y>
       <width>82</width>
       <height>17</height>
      </rect>
@@ -265,8 +265,8 @@
    <widget class="QRadioButton" name="grayRadioButton">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>240</y>
+      <x>350</x>
+      <y>30</y>
       <width>82</width>
       <height>17</height>
      </rect>
@@ -317,8 +317,8 @@
    <widget class="QRadioButton" name="hsvRadioButton">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>260</y>
+      <x>350</x>
+      <y>50</y>
       <width>82</width>
       <height>17</height>
      </rect>
@@ -434,8 +434,8 @@
    <widget class="QCheckBox" name="checkBox">
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>270</y>
+      <x>340</x>
+      <y>160</y>
       <width>71</width>
       <height>18</height>
      </rect>
@@ -447,8 +447,8 @@
    <widget class="QCheckBox" name="frameColorCB">
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>290</y>
+      <x>340</x>
+      <y>180</y>
       <width>98</width>
       <height>22</height>
      </rect>
@@ -460,9 +460,9 @@
    <widget class="QPushButton" name="applyButton">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>350</y>
-      <width>1051</width>
+      <x>30</x>
+      <y>380</y>
+      <width>901</width>
       <height>23</height>
      </rect>
     </property>
@@ -470,48 +470,12 @@
      <string>APPLY SETTINGS</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>400</x>
-      <y>30</y>
-      <width>131</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Navigation to pipe start</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="navPipeStartInput">
-    <property name="geometry">
-     <rect>
-      <x>540</x>
-      <y>30</y>
-      <width>113</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="useNavigation">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>60</y>
-      <width>161</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Use Navigation to pipe start</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>130</y>
-      <width>131</width>
+      <x>430</x>
+      <y>40</y>
+      <width>101</width>
       <height>20</height>
      </rect>
     </property>
@@ -522,8 +486,8 @@
    <widget class="QLineEdit" name="taskStopInput">
     <property name="geometry">
      <rect>
-      <x>600</x>
-      <y>160</y>
+      <x>560</x>
+      <y>70</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -532,8 +496,8 @@
    <widget class="QLineEdit" name="signalInput">
     <property name="geometry">
      <rect>
-      <x>600</x>
-      <y>130</y>
+      <x>560</x>
+      <y>40</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -542,8 +506,8 @@
    <widget class="QCheckBox" name="enableLoopBox">
     <property name="geometry">
      <rect>
-      <x>500</x>
-      <y>220</y>
+      <x>460</x>
+      <y>140</y>
       <width>141</width>
       <height>22</height>
      </rect>
@@ -555,9 +519,9 @@
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>430</x>
-      <y>160</y>
-      <width>161</width>
+      <x>420</x>
+      <y>70</y>
+      <width>121</width>
       <height>20</height>
      </rect>
     </property>
@@ -568,8 +532,8 @@
    <widget class="QCheckBox" name="enableTimerBox">
     <property name="geometry">
      <rect>
-      <x>500</x>
-      <y>200</y>
+      <x>460</x>
+      <y>120</y>
       <width>201</width>
       <height>22</height>
      </rect>
@@ -578,60 +542,11 @@
      <string>Enable task stop timer</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="navPipeEnd1Input">
-    <property name="geometry">
-     <rect>
-      <x>530</x>
-      <y>80</y>
-      <width>113</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>80</y>
-      <width>121</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pipe End One Waypoint:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="navPipeEnd2Input">
-    <property name="geometry">
-     <rect>
-      <x>530</x>
-      <y>100</y>
-      <width>113</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>100</y>
-      <width>121</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pipe End Two Waypoint:</string>
-    </property>
-   </widget>
    <widget class="QGroupBox" name="groupBox_3">
     <property name="geometry">
      <rect>
-      <x>790</x>
-      <y>110</y>
+      <x>410</x>
+      <y>180</y>
       <width>221</width>
       <height>131</height>
      </rect>
@@ -706,6 +621,244 @@
      </property>
      <property name="text">
       <string>Degree</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>40</y>
+      <width>311</width>
+      <height>311</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Waypoints</string>
+    </property>
+    <widget class="QLineEdit" name="goal1point2">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>170</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>150</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pipe Goal 1: Point 1:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="goal1point1">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>150</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>170</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pipe Goal 1: Point 1:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="goal2point2">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>220</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>200</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pipe Goal 2: Point 1:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="goal2point1">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>200</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>220</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pipe Goal 2: Point 2:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>250</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pipe Goal 3: Point 1:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_12">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>270</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pipe Goal 3: Point 2:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="goal3point1">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>250</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="goal3point2">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>270</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>70</y>
+       <width>111</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Task Start Waypoint:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="navPipeStartInput">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>70</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_13">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>90</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Gate 1 Waypoint</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_14">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>110</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Gate 2 Waypoint</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="gate2point">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>110</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="gate1point">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>90</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </widget>

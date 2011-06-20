@@ -39,11 +39,6 @@ void Module_Navigation::init()
     QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( xsensUpdate(RobotModule*) ) );
 
-    // nur zum testen!
-    QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
-                      this, SLOT( angleTest(RobotModule*) ) );
-
-
     connect(this,SIGNAL(newDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(newANGSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -525,18 +520,10 @@ double Module_Navigation::getDistance(QString name){
 }
 
 
-void Module_Navigation::angleTest( RobotModule *){
-    Module_Navigation::getAlpha("p2", "p3");
-}
-
-
-
-void Module_Navigation::getAlpha(QString name1, QString name2) {
-    if (this->isEnabled()) {
-//        double angleAlphaResult = -1.0;
-//        double angleBetaResult = -1.0;
-
-        if (waypoints.contains(name1) &&  waypoints.contains(name2)) {
+double Module_Navigation::getAlpha(QString name1, QString name2) {
+     double alpha = 0.0;
+     if (this->isEnabled()) {
+            if (waypoints.contains(name1) &&  waypoints.contains(name2)) {
 
             Position currentPosition = sonarLoc->getLocalization();
             double px = currentPosition.getX();
@@ -561,23 +548,11 @@ void Module_Navigation::getAlpha(QString name1, QString name2) {
             double theta1 = atan2(v1x, v1y);
             double theta2 = atan2(v2x, v2y);
 
-            double alpha = Angles::pi2deg(theta2 - theta1);
-
-
-//            double zaehlerA = ((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3));
-//            double nennerA = 2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
-//            double alpha = acos(zaehlerA/nennerA);
-
-//            angleAlphaResult = Angles::pi2deg(alpha);
-
-//            double zaehlerB =((x2-x1)*(x3-x2)+(y2-y1)*(y3-y2));
-//            double nennerB = sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
-//            double beta = acos(zaehlerB/nennerB);
-//            angleBetaResult = Angles::pi2deg(beta);
+            alpha = Angles::pi2deg(theta2 - theta1);
 
             addData("Alpha:", alpha);
-    //        addData("Beta:", angleBetaResult);
             emit dataChanged(this);
         }
     }
+    return alpha;
 }

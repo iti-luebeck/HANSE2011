@@ -183,7 +183,12 @@ void Behaviour_PipeFollowing::controlPipeFollow()
     QString pipeState = tracker.getPipeState();
     addData("pipe state", pipeState);
     if (pipeState == PIPE_STATE_NOT_SEEN_YET) {
-        // Do search.
+        // Assumption: Pipe is just ahead
+        ctrAngleSpeed = 0.0;
+        emit angularSpeed(ctrAngleSpeed);
+        emit forwardSpeed(constFWSpeed);
+        addData("angular_speed", ctrAngleSpeed);
+        addData("forward_speed", constFWSpeed);
     } else if (pipeState == PIPE_STATE_PASSED) {
         // Emit succeeded signal.
     } else if (pipeState == PIPE_STATE_IS_SEEN) {
@@ -196,9 +201,9 @@ void Behaviour_PipeFollowing::controlPipeFollow()
         }
 
         emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(this->constFWSpeed);
-        addData("angular_speed",ctrAngleSpeed);
-        addData("forward_speed",this->constFWSpeed);
+        emit forwardSpeed(constFWSpeed);
+        addData("angular_speed", ctrAngleSpeed);
+        addData("forward_speed", constFWSpeed);
     } else if (pipeState == PIPE_STATE_LOST_LEFT) {
         ctrAngleSpeed = -0.2;
         emit angularSpeed(ctrAngleSpeed);
@@ -225,8 +230,13 @@ void Behaviour_PipeFollowing::controlPipeFollow()
         addData("forward_speed", constFWSpeed);
     } else if (pipeState == PIPE_STATE_LOST) {
         // PANIC
+        ctrAngleSpeed = 0.0;
+        emit angularSpeed(ctrAngleSpeed);
+        emit forwardSpeed(0);
+        addData("angular_speed", ctrAngleSpeed);
+        addData("forward_speed", 0);
     }
-
+    emit newPipeState(pipeState);
     emit dataChanged( this );
 }
 
