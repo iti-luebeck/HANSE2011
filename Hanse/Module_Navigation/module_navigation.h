@@ -67,7 +67,7 @@ public:
     /**
       * Returns the current angle from hanse to two waypoints
       */
-    double getAlpha(QString name1, QString name2);
+    void getAlpha(QString name1, QString name2);
 
     Position getCurrentPosition();
 
@@ -126,6 +126,8 @@ public slots:
     void xsensUpdate(RobotModule *);
     void sonarPositionUpdate();
     void forwardDone();
+
+    void angleTest( RobotModule *);
 
 signals:
     void healthStatusChanged(HealthStatus data);

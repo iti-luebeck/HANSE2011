@@ -39,6 +39,11 @@ void Module_Navigation::init()
     QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( xsensUpdate(RobotModule*) ) );
 
+    // nur zum testen!
+    QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
+                      this, SLOT( angleTest(RobotModule*) ) );
+
+
     connect(this,SIGNAL(newDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(newANGSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -520,34 +525,59 @@ double Module_Navigation::getDistance(QString name){
 }
 
 
-double Module_Navigation::getAlpha(QString name1, QString name2){
-    double angleAlphaResult = -1.0;
-    if(this->isEnabled() == true){
-        if( waypoints.contains(name1) &&  waypoints.contains(name2)){
-            Waypoint goal1 = waypoints[name1];
-            double x1 = goal1.posX;
-            double y1 = goal1.posY;
-            // double z1 = goal1.depth;
+void Module_Navigation::angleTest( RobotModule *){
+    Module_Navigation::getAlpha("p2", "p3");
+}
+
+
+
+void Module_Navigation::getAlpha(QString name1, QString name2) {
+    if (this->isEnabled()) {
+//        double angleAlphaResult = -1.0;
+//        double angleBetaResult = -1.0;
+
+        if (waypoints.contains(name1) &&  waypoints.contains(name2)) {
 
             Position currentPosition = sonarLoc->getLocalization();
-            double x2 = currentPosition.getX();
-            double y2 = currentPosition.getY();
-            // double z2 = goal2.depth;
+            double px = currentPosition.getX();
+            double py = currentPosition.getY();
+
+
+            Waypoint goal1 = waypoints[name1];
+            double g1x = goal1.posX;
+            double g1y = goal1.posY;
+
 
             Waypoint goal2 = waypoints[name2];
-            double x3 = goal2.posX;
-            double y3 = goal2.posY;
-            // double z3 = goal3.depth;
+            double g2x = goal2.posX;
+            double g2y = goal2.posY;
 
-            double zaehler = ((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3));
-            double nenner = 2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
-            double alpha = acos(zaehler/nenner);
+            double v1x = g1x - g2x;
+            double v1y = g1y - g2y;
 
-            angleAlphaResult = Angles::pi2deg(alpha);
+            double v2x = px - g2x;
+            double v2y = py - g2y;
+
+            double theta1 = atan2(v1x, v1y);
+            double theta2 = atan2(v2x, v2y);
+
+            double alpha = Angles::pi2deg(theta2 - theta1);
+
+
+//            double zaehlerA = ((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2))+((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2))-((x1-x3)*(x1-x3))-((y1-y3)*(y1-y3));
+//            double nennerA = 2*sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
+//            double alpha = acos(zaehlerA/nennerA);
+
+//            angleAlphaResult = Angles::pi2deg(alpha);
+
+//            double zaehlerB =((x2-x1)*(x3-x2)+(y2-y1)*(y3-y2));
+//            double nennerB = sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)))*sqrt(((x3-x2)*(x3-x2))+((y3-y2)*(y3-y2)));
+//            double beta = acos(zaehlerB/nennerB);
+//            angleBetaResult = Angles::pi2deg(beta);
+
+            addData("Alpha:", alpha);
+    //        addData("Beta:", angleBetaResult);
+            emit dataChanged(this);
         }
-        addData("Angle Alpha:", angleAlphaResult);
-        emit dataChanged(this);
-
     }
-    return angleAlphaResult;
 }
