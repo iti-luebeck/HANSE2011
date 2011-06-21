@@ -100,14 +100,14 @@ void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
         waypointsItem = NULL;
     }
 
+    double width = 1;
     QBrush brush( Qt::green );
-    QPen pen(QBrush(Qt::white), 0.5);
+    QPen pen(QBrush(Qt::white), width * 0.2);
     QGraphicsScene *scene = ui->graphicsView->scene();
     waypointsItem = scene->addEllipse( 0, 0, 0, 0, pen, brush );
     waypointsItem->setZValue( 1200 );
 
     QList<QString> waypointNames = waypoints.keys();
-    double width = 3;
     for ( int i = 0; i < waypointNames.size(); i++ )
     {
         Waypoint pos = waypoints[waypointNames[i]];
@@ -120,8 +120,8 @@ void MapWidget::updateWaypoints( QMap<QString, Waypoint> waypoints )
 
         if (pos.useExitAngle) {
             QGraphicsItem *line =
-                    scene->addLine(pos.posX, pos.posY, pos.posX - 5 * sin(pos.exitAngle * M_PI / 180),
-                                   pos.posY + 5 * cos(pos.exitAngle * M_PI / 180), pen);
+                    scene->addLine(pos.posX, pos.posY, pos.posX - 2 * width * sin(pos.exitAngle * M_PI / 180),
+                                   pos.posY + 2 * width * cos(pos.exitAngle * M_PI / 180), pen);
             line->setParentItem( waypointsItem );
             line->setZValue( 1221 );
         }
@@ -253,6 +253,7 @@ void MapWidget::createMap()
     satImage->setPos(0,0);
     satImage->setZValue(-1);
     satImage->setScale(0.2);// 5 px == 1m
+    satImage->setVisible(nav->getSettingsValue("showSatImg", false).toBool());
 
     masterObsPoint = scene->addLine(0,0,0,0);
 
