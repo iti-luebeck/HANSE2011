@@ -61,6 +61,8 @@ private:
     bool flag_PF_Part_2_Finished;
     bool flag_GoalLine_2_reached;
 
+    void reset();
+
 signals:
     void timerStart( int msec );
     void timerStop();
