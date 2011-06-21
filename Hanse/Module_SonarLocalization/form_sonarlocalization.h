@@ -57,7 +57,7 @@ private:
     void updateSonarViewList(QList<SonarEchoData> list);
 
 private slots:
-    void on_sltraining_clicked();
+    // void on_sltraining_clicked();
     void on_selSVM_clicked();
     void on_selSat_clicked();
     void on_selMap_clicked();

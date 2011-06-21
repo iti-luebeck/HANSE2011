@@ -25,6 +25,7 @@
 //#include <Module_ADC/module_adc.h>
 #include <TaskXsensNavigation/taskxsensnavigation.h>
 #include <TaskPipeFollowing/taskpipefollowing.h>
+#include <TaskMidwaterTarget/taskmidwatertarget.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -131,8 +132,13 @@ void ModulesGraph::build()
     TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipeFollow", behavPipe, sim, navi, behavTurn);
     this->modules.append(taskpipefollowing);
 
+    logger->debug("Creating TaskMidwaterTarget");
+    TaskMidwaterTarget *taskmidwatertarget = new TaskMidwaterTarget("taskMidwater", sim, navi);
+    this->modules.append(taskmidwatertarget);
+
+
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallfollowing, taskxsensnavigation, taskpipefollowing);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallfollowing, taskxsensnavigation, taskpipefollowing, taskmidwatertarget);
     this->modules.append(commCent);
 
     logger->info("Loading all Modules... Done");

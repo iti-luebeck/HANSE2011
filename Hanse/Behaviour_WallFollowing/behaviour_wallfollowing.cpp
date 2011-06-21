@@ -61,7 +61,7 @@ void Behaviour_WallFollowing::init()
 
 void Behaviour_WallFollowing::startBehaviour()
 {
-    if (this->isEnabled() == true){
+    if (!this->isEnabled()){
         logger->info("Already enabled/started!");
         return;
     }
@@ -83,7 +83,7 @@ void Behaviour_WallFollowing::startBehaviour()
 
 void Behaviour_WallFollowing::stop()
 {
-    if (this->isEnabled() == false){
+    if (!this->isEnabled()){
         logger->info("Not enabled!");
         return;
     }
@@ -141,7 +141,7 @@ QWidget* Behaviour_WallFollowing::createView(QWidget* parent)
 
 void Behaviour_WallFollowing::controlWallFollow()
 {
-    if (this->isEnabled() == false){
+    if (!this->isEnabled()){
         logger->info("Not enabled!");
         return;
     }
@@ -152,16 +152,16 @@ void Behaviour_WallFollowing::controlWallFollow()
     addData("Avg distance: ",avgDistance);
     emit dataChanged(this);
 
-    if(running==true){ 
-        if(this->t90dt90 == false){
+    if(running){
+        if(!this->t90dt90){
             diff = distanceInput - avgDistance;
-            if(this->getSettingsValue("experimentalMode").toBool() == false){
+            if(this->getSettingsValue("experimentalMode").toBool()){
                 QTimer::singleShot(0, this, SLOT(controlWallFollowThruster()));
             } else {
                 // Experimental mode
                 if((fabs(diff) < 0.8)){
                     QTimer::singleShot(0, this, SLOT(controlWallFollowThruster()));
-                } else if(startPhase == false){
+                } else if(!startPhase){
                     QTimer::singleShot(0, this, SLOT(controlWallFollowThruster()));
                 } else {
                     initialHeading = this->xsens->getHeading();
@@ -220,11 +220,11 @@ void Behaviour_WallFollowing::controlWallFollowThruster(){
 
 void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, float avgDistance)
 {
-    if(this->isActive() && this->running == true){
+    if(this->isActive() && this->running){
         if(echo->isEnabled()){
             emit newWallUiData(data, avgDistance);
             this->avgDistance = avgDistance;
-            if(t90dt90 == false){
+            if(!t90dt90){
                 if((avgDistance > 0.0) && (this->getHealthStatus().isHealthOk())){
                     Behaviour_WallFollowing::controlWallFollow();
                 } else if((avgDistance == 0.0) && (this->getHealthStatus().isHealthOk())){
@@ -273,7 +273,7 @@ void Behaviour_WallFollowing::updateFromSettings()
 }
 
 void Behaviour_WallFollowing::stopOnEchoError(){
-    if (this->isEnabled() == false){
+    if (!this->isEnabled()){
         logger->info("Not enabled!");
         return;
     }
