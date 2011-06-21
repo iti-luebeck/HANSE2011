@@ -21,6 +21,7 @@ class PipeTracker
 {
 public:
     PipeTracker(Behaviour_PipeFollowing *behave);
+    void reset();
     void update(Mat frame);
     double getPipeAngle();
     double getPipeDistance();

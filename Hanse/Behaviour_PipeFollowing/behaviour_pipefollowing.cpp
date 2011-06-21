@@ -90,6 +90,7 @@ void Behaviour_PipeFollowing::terminate()
 
 void Behaviour_PipeFollowing::reset()
 {
+    tracker.reset();
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
 }
@@ -190,7 +191,11 @@ void Behaviour_PipeFollowing::controlPipeFollow()
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", constFWSpeed);
     } else if (pipeState == PIPE_STATE_PASSED) {
-        // Emit succeeded signal.
+        ctrAngleSpeed = 0.0;
+        emit angularSpeed(ctrAngleSpeed);
+        emit forwardSpeed(0);
+        addData("angular_speed", ctrAngleSpeed);
+        addData("forward_speed", 0);
     } else if (pipeState == PIPE_STATE_IS_SEEN) {
         if (fabs(curAngle) > Behaviour_PipeFollowing::deltaAngPipe) {
             ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * curAngle / 90.0;

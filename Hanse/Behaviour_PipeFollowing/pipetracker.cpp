@@ -4,6 +4,11 @@
 PipeTracker::PipeTracker(Behaviour_PipeFollowing *behave)
 {
     this->behave = behave;
+    reset();
+}
+
+void PipeTracker::reset()
+{
 
     pipeState = PIPE_STATE_NOT_SEEN_YET;
 
@@ -85,16 +90,16 @@ void PipeTracker::update(Mat frame)
 
             distanceFromCenter = computeIntersection(meanX, meanY, theta);
         } else {
-            if (meanX < 0.25 * gray.cols) {
-                pipeState = PIPE_STATE_LOST_LEFT;
-            } else if (meanX > 0.75 * gray.cols) {
-                pipeState = PIPE_STATE_LOST_RIGHT;
-            } else if (meanY < 0.25 * gray.rows) {
-                pipeState = PIPE_STATE_LOST_TOP;
-            } else if (meanY > 0.75 * gray.rows) {
-                pipeState = PIPE_STATE_LOST_BOTTOM;
-            } else {
-                if (pipeState == PIPE_STATE_IS_SEEN) {
+            if (pipeState == PIPE_STATE_IS_SEEN) {
+                if (meanX < 0.25 * gray.cols) {
+                    pipeState = PIPE_STATE_LOST_LEFT;
+                } else if (meanX > 0.75 * gray.cols) {
+                    pipeState = PIPE_STATE_LOST_RIGHT;
+                } else if (meanY < 0.25 * gray.rows) {
+                    pipeState = PIPE_STATE_LOST_TOP;
+                } else if (meanY > 0.75 * gray.rows) {
+                    pipeState = PIPE_STATE_LOST_BOTTOM;
+                } else {
                     pipeState = PIPE_STATE_LOST;
                 }
             }

@@ -124,7 +124,7 @@ void PipeFollowingForm::updatePixmap(RobotModule*)
         pipefollow->grabFrame(frame);
         if(!frame.empty()) {
             QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
-            ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1));
+            ui->curPipeFrameLabel->setPixmap(QPixmap::fromImage(image1.rgbSwapped()));
         } else {
             ui->curPipeFrameLabel->setText("Empty Frame");
         }
