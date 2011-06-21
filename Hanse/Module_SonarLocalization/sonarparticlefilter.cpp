@@ -347,7 +347,7 @@ QVector<SonarParticle> SonarParticleFilter::getParticles()
 
 void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
 {
-    qDebug() << "obs length = " << observations.length();
+    //qDebug() << "obs length = " << observations.length();
 //    logger->debug("pressed next button.");
 
     particlesMutex.lock();

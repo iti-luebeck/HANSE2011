@@ -325,7 +325,7 @@ void SonarEchoFilter::grouping()
             refTimes.clear();
             this->sendImage();
         } else {
-            qDebug() << "cut at " << cutIndex << " of " << candidates.size();
+           // qDebug() << "cut at " << cutIndex << " of " << candidates.size();
             QList<SonarEchoData> tmp;
 
             temp_area = 0;
