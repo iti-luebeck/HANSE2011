@@ -104,7 +104,7 @@ void SonarEchoFilter::gradientFilter(SonarEchoData &data)
             }
         }
 
-        if (maxVal > 5) {
+        if (maxVal > 20) {
             data.setWallCandidate(maxIdx);
         } else {
             data.setWallCandidate(-1);

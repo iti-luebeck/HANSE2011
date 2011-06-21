@@ -32,6 +32,15 @@ void Module_SonarLocalization::init()
     connect(&pf, SIGNAL(newPosition(QVector3D)), this, SIGNAL(newLocalizationEstimate()));
     connect(&filter,SIGNAL(newSonarEchoData(QList<SonarEchoData>)),this,SLOT(retrieveSonarEchoData(QList<SonarEchoData>)));
     connect(&filter,SIGNAL(newSonarPlotData(QList<SonarEchoData>)),this,SLOT(retrieveSonarPlotData(QList<SonarEchoData>)));
+
+    if(this->sonar->isEnabled() == false){
+        this->sonar->setEnabled(true);
+    }
+
+    if(this->mti->isEnabled() == false){
+        this->mti->setEnabled(true);
+    }
+
 }
 
 void Module_SonarLocalization::reset()

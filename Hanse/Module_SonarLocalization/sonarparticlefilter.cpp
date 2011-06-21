@@ -138,8 +138,8 @@ void SonarParticleFilter::loadMap()
     // the flann data structure keeps referencing the original Mat object!!!
     mapPointsMat = Mat(Mat::zeros(mapPoints.size(),2,CV_32F));
     for(int i=0;i<mapPoints.size();i++) {
-        mapPointsMat.at<float>(i,0) = mapPoints[i].x() - 1;
-        mapPointsMat.at<float>(i,1) = mapPoints[i].y() - 1;
+        mapPointsMat.at<float>(i,0) = mapPoints[i].x();
+        mapPointsMat.at<float>(i,1) = mapPoints[i].y();
         logger->trace("Adding point x="+QString::number(mapPointsMat.at<float>(i,0))
                       +" y="+QString::number(mapPointsMat.at<float>(i,1)));
     }
@@ -177,8 +177,11 @@ QVector2D SonarParticleFilter::map2img(const QVector2D& mapPoint)
 
 QVector2D SonarParticleFilter::img2map(const QVector2D& imgPoint)
 {
+    QVector2D ret = imgPoint;
+    ret.setX(ret.x() - 1);
+    ret.setY(ret.y() - 1);
     qreal r = sonar.getSettingsValue("scaleMap").toReal();
-    return imgPoint*r;
+    return ret*r;
 }
 
 QVector3D SonarParticleFilter::getBestEstimate()
