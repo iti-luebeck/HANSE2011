@@ -90,9 +90,9 @@ void PipeTracker::update(Mat frame)
             } else if (meanX > 0.75 * gray.cols) {
                 pipeState = PIPE_STATE_LOST_RIGHT;
             } else if (meanY < 0.25 * gray.rows) {
-                pipeState = PIPE_STATE_LOST_BOTTOM;
-            } else if (meanY > 0.75 * gray.rows) {
                 pipeState = PIPE_STATE_LOST_TOP;
+            } else if (meanY > 0.75 * gray.rows) {
+                pipeState = PIPE_STATE_LOST_BOTTOM;
             } else {
                 if (pipeState == PIPE_STATE_IS_SEEN) {
                     pipeState = PIPE_STATE_LOST;
