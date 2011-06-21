@@ -20,7 +20,8 @@ OBJECTS_DIR = tmp/obj
 
 # so they show up the the project tree, for convenience
 OTHER_FILES += bin/log4qt.properties \
-    TaskPipeFollowing/TaskPipeFollowing.pri
+    TaskPipeFollowing/TaskPipeFollowing.pri \
+    TaskWallFollowing/TaskWallFollowing.pri
 
 # do more code optimizations
 # (-O2 would improve speed further, but would also make using the debugger harder)
@@ -68,6 +69,7 @@ include(Behaviour_XsensFollowing/Behaviour_XsensFollowing.pri)
 
 # tasks
 include(TaskHandControl/TaskHandControl.pri)
-include(TaskWallNavigation/TaskWallNavigation.pri)
 include(TaskXsensNavigation/TaskXsensNavigation.pri)
 include(TaskPipeFollowing/TaskPipeFollowing.pri)
+include(TaskWallFollowing/TaskWallFollowing.pri)
+include(TaskMidwaterTarget/TaskMidwaterTarget.pri)

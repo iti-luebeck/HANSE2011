@@ -13,7 +13,6 @@ TaskPipeFollowingForm::TaskPipeFollowingForm(TaskPipeFollowing *tpf, QWidget *pa
     // Task settings
     this->ui->enableTimerBox->setChecked(this->taskpipefollowing->getSettingsValue("timerActivated").toBool());
     this->ui->taskStopInput->setText(this->taskpipefollowing->getSettingsValue("taskStopTime").toString());
-    this->ui->signalInput->setText(this->taskpipefollowing->getSettingsValue("signalTimer").toString());
 
     // Navigation settings
     this->ui->navTaskStartInput->setText(this->taskpipefollowing->getSettingsValue("taskStartPoint").toString());
@@ -55,7 +54,6 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     // Task Settings
     this->taskpipefollowing->setSettingsValue("timerActivated", this->ui->enableTimerBox->isChecked());
     this->taskpipefollowing->setSettingsValue("taskStopTime", this->ui->taskStopInput->text());
-    this->taskpipefollowing->setSettingsValue("signalTimer", this->ui->signalInput->text());
 
     // Navigation settings
     this->taskpipefollowing->setSettingsValue("taskStartPoint", this->ui->navTaskStartInput->text());

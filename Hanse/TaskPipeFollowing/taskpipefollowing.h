@@ -17,6 +17,7 @@ class Behaviour_TurnOneEighty;
 #define TASK_STATE_PIPEFOLLOW_PART2         "pipefollowing part 2"
 #define TASK_STATE_MOVE_TO_GATEWAYPOINT2    "move to gatewaypoint 1"
 #define TASK_STATE_END                      "task finished"
+#define TASK_STATE_END_FAILED               "task finished - unsuccessful"
 
 class TaskPipeFollowing : public RobotBehaviour
 {
@@ -64,10 +65,6 @@ private:
     void reset();
 
 signals:
-    void timerStart( int msec );
-    void timerStop();
-    void dataError();
-    void stopSignal();
     void updateSettings();
 
     void newState(QString state);

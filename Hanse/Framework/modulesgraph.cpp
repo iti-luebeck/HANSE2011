@@ -19,7 +19,7 @@
 #include <CommandCenter/commandcenter.h>
 #include "SoToSleep.h"
 #include <TaskHandControl/taskhandcontrol.h>
-#include <TaskWallNavigation/taskwallnavigation.h>
+#include <TaskWallFollowing/taskwallfollowing.h>
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 //#include <Module_IMU/module_imu.h>
 //#include <Module_ADC/module_adc.h>
@@ -115,9 +115,9 @@ void ModulesGraph::build()
     Behaviour_XsensFollowing* behavXsens = new Behaviour_XsensFollowing("xsensFollow",controlLoop, xsens);
     this->modules.append(behavXsens);
 
-    logger->debug("Creating TaskWallNavigation");
-    TaskWallNavigation *taskwallnavigation = new TaskWallNavigation("taskWallNavi",sim, behavWall, navi);
-    this->modules.append(taskwallnavigation);
+    logger->debug("Creating TaskWallFollowing");
+    TaskWallFollowing *taskwallfollowing = new TaskWallFollowing("taskWallFollow" ,behavWall, sim, navi, behavTurn);
+    this->modules.append(taskwallfollowing);
 
     logger->debug("Creating TaskXsensNavigation");
     TaskXsensNavigation *taskxsensnavigation = new TaskXsensNavigation("taskXsensNavi",sim, behavXsens, navi, behavTurn);
@@ -132,7 +132,7 @@ void ModulesGraph::build()
     this->modules.append(taskpipefollowing);
 
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallnavigation, taskxsensnavigation, taskpipefollowing);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallfollowing, taskxsensnavigation, taskpipefollowing);
     this->modules.append(commCent);
 
     logger->info("Loading all Modules... Done");

@@ -8,7 +8,7 @@
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <Module_HandControl/module_handcontrol.h>
 #include <TaskHandControl/taskhandcontrol.h>
-#include <TaskWallNavigation/taskwallnavigation.h>
+#include <TaskWallFollowing/taskwallfollowing.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_WallFollowing/behaviour_wallfollowing.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
@@ -20,7 +20,7 @@
 #include <Module_Navigation/module_navigation.h>
 #include <TaskPipeFollowing/taskpipefollowing.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation *n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallNavigation *twn,TaskXsensNavigation *txn, TaskPipeFollowing *tpf)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation *n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallFollowing *twf,TaskXsensNavigation *txn, TaskPipeFollowing *tpf)
     : RobotModule(id)
 {
     this->tcl = tcl;
@@ -28,7 +28,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->pressure = pressure;
     this->sim = sim;
     this->taskhandcontrol = thc;
-    this->taskwallnavigation = twn;
+    this->taskwallfollowing = twf;
     this->pipe = pipe;
     this->ball = ball;
     this->o80 = o80;
@@ -52,7 +52,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     }
 
     // Tasks specific signals
-    this->taskList.append(taskwallnavigation);
+    this->taskList.append(taskwallfollowing);
     this->taskList.append(taskxsensnavigation);
     this->taskList.append(taskpipefollowing);
 
@@ -65,8 +65,8 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     }
 
     // Task WallNavigation
-    connect(this,SIGNAL(startTaskWallNavigation()),taskwallnavigation,SLOT(startBehaviour()));
-    connect(this,SIGNAL(stopTaskWallNavigation()),taskwallnavigation,SLOT(stop()));
+    connect(this,SIGNAL(startTaskWallFollowing()),taskwallfollowing,SLOT(startBehaviour()));
+    connect(this,SIGNAL(stopTaskWallFollowing()),taskwallfollowing,SLOT(stop()));
 
     // Task XsensNavigation
     connect(this,SIGNAL(startTaskXsensNavigation()),taskxsensnavigation,SLOT(startBehaviour()));
@@ -222,8 +222,8 @@ void CommandCenter::commandCenterControl(){
         if(tempAkt == "taskHand"){
             emit startTaskHandControl();
             activeTask = tempAkt;
-        } else if(tempAkt == "taskWallNavi"){
-            emit startTaskWallNavigation();
+        } else if(tempAkt == "taskWallFollow"){
+            emit startTaskWallFollowing();
             activeTask = tempAkt;
         } else if(tempAkt == "taskXsensNavi"){
             emit startTaskXsensNavigation();

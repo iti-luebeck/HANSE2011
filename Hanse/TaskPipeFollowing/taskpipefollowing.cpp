@@ -15,7 +15,6 @@ TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Mod
     this->navi = n;
 
     connect(this,SIGNAL(setUpdatePixmapSignal(bool)),pipe,SLOT(setUpdatePixmapSlot(bool)));
-    connect(this, SIGNAL(setRunDataSignal(int)), this, SLOT(setRunData(int)));
 
     setEnabled(false);
     running = false;
@@ -23,13 +22,11 @@ TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Mod
 
     // Default task settings
     this->setDefaultValue("taskStopTime",120000);
-    this->setDefaultValue("signalTimer",1000);
     this->setDefaultValue("timerActivated", true);
-    this->setDefaultValue("loopActivated", true);
 
     // Default navigation settings
-    this->setDefaultValue("taskStartPoint", "ts");
-    this->setDefaultValue("pipeStartPoint", "ps");
+    this->setDefaultValue("taskStartPoint", "tSP");
+    this->setDefaultValue("pipeStartPoint", "pSP");
     this->setDefaultValue("goal1point1", "go1p1");
     this->setDefaultValue("goal1point2", "go1p2");
     this->setDefaultValue("goal2point1", "go2p1");
@@ -38,9 +35,6 @@ TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Mod
     this->setDefaultValue("goal3point2", "go3p2");
     this->setDefaultValue("gate1point", "ga1p");
     this->setDefaultValue("gate2point", "ga2p");
-
-
-    this->setDefaultValue("targetTolerance", 10);
 
     // Default turn180 settings
     this->setDefaultValue("hysteresis", 10);
@@ -118,7 +112,6 @@ void TaskPipeFollowing::startBehaviour(){
         this->navi->setEnabled(true);
     }
 
-    addData("loop", this->getSettingsValue("loopActivated").toBool());
     addData("stoptimer", this->getSettingsValue("timerActivated").toBool());
     emit dataChanged(this);
 
@@ -331,20 +324,21 @@ void TaskPipeFollowing::controlAngleCalculation(){
 }
 
 void TaskPipeFollowing::stop(){
-    taskState = TASK_STATE_END;
-    logger->info(taskState);
-    addData("taskState", taskState);
-    emit newState(taskState);
-    emit dataChanged(this);
     if(this->isEnabled()){
+        taskState = TASK_STATE_END;
+        logger->info(taskState);
+        addData("taskState", taskState);
+        emit newState(taskState);
+        emit dataChanged(this);
+
         running = false;
         logger->info("Taskpipefollowing stopped");
 
         if (this->isActive())
         {
+            QTimer::singleShot(0, navi, SLOT(clearGoal()));
             this->taskTimer.stop();
             QTimer::singleShot(0, pipe, SLOT(stop()));
-
             this->setEnabled(false);
             emit finished(this,true);
         }
@@ -356,6 +350,12 @@ void TaskPipeFollowing::stop(){
 
 void TaskPipeFollowing::timeoutStop(){
     if(this->isEnabled()){
+        taskState = TASK_STATE_END_FAILED;
+        logger->info(taskState);
+        addData("taskState", taskState);
+        emit newState(taskState);
+        emit dataChanged(this);
+
         running = false;
         logger->info("Taskpipefollowing timeout stopped");
 
@@ -376,6 +376,12 @@ void TaskPipeFollowing::emergencyStop(){
         logger->info("Emergency stop: Not enabled!");
         return;
     }
+
+    taskState = TASK_STATE_END_FAILED;
+    logger->info(taskState);
+    addData("taskState", taskState);
+    emit newState(taskState);
+    emit dataChanged(this);
 
     running = false;
     logger->info( "Task pipefollowing emergency stopped" );
@@ -406,6 +412,7 @@ QList<RobotModule*> TaskPipeFollowing::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append(pipe);
+    ret.append(navi);
     ret.append(sim);
     return ret;
 }
