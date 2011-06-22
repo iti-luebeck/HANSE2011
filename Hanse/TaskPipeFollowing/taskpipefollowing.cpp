@@ -94,7 +94,6 @@ void TaskPipeFollowing::startBehaviour(){
     emit dataChanged(this);
 
     if(!this->isEnabled()){
-        emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
         emit newStateOverview(TASK_STATE_MOVE_TO_PIPE_INIT);
         emit newStateOverview(TASK_STATE_PIPEFOLLOW_PART1);
         emit newStateOverview(TASK_STATE_MOVE_TO_GATEWAYPOINT1);
