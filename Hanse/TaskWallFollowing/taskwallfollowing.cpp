@@ -29,7 +29,7 @@ TaskWallFollowing::TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Mod
     this->setDefaultValue("useAdjustPoint", true);
     this->setDefaultValue("goal1point1", "go1p2");
     this->setDefaultValue("goal1point2", "go2p1");
-
+    this->setDefaultValue("apDist" , 1.5);
 
     // Default turn180 settings
     this->setDefaultValue("hysteresis", 10);
@@ -59,6 +59,10 @@ void TaskWallFollowing::init(){
 void TaskWallFollowing::reset() {
     RobotModule::reset();
 
+    flag_WF_Wall_Seen_Start = false;
+    flag_GoalLine_reached = false;
+    flag_AdjustHeading = false;
+    taskState = TASK_STATE_START;
 }
 
 
@@ -81,8 +85,10 @@ void TaskWallFollowing::startBehaviour(){
     if(!this->isEnabled()){
         emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
         emit newStateOverview(TASK_STATE_WALLFOLLOW_PART1);
-        emit newStateOverview(TASK_STATE_ADJUST_HEADING);
-        emit newStateOverview(TASK_STATE_WALLFOLLOW_PART2);
+        if(this->getSettingsValue("useAdjustPoint").toBool()){
+            emit newStateOverview(TASK_STATE_ADJUST_HEADING);
+            emit newStateOverview(TASK_STATE_WALLFOLLOW_PART2);
+        }
     }
 
     setEnabled(true);
@@ -224,7 +230,7 @@ void TaskWallFollowing::controlAngleCalculation(){
         if(this->getSettingsValue("useAdjustPoint").toBool()){
             if(currentState == TASK_STATE_WALLFOLLOW_PART1){
                 dist = this->navi->getDistance(this->getSettingsValue("wallAdjustPoint").toString());
-                if(dist < 3){
+                if(dist < this->getSettingsValue("apDist").toDouble()){
                     flag_AdjustHeading = true;
                     logger->info("flag_AdjustHeading = true");
                 }

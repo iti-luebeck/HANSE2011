@@ -20,7 +20,7 @@ TaskWallFollowingForm::TaskWallFollowingForm(TaskWallFollowing *twf, QWidget *pa
     this->ui->useAdjustPoint->setChecked(this->taskwallfollowing->getSettingsValue("useAdjustPoint").toBool());
     this->ui->goal1point1->setText(this->taskwallfollowing->getSettingsValue("goal1point1").toString());
     this->ui->goal1point2->setText(this->taskwallfollowing->getSettingsValue("goal1point2").toString());
-
+    this->ui->apDistInput->setText(this->taskwallfollowing->getSettingsValue("apDist").toString());
     // Turn180 settings
     this->ui->hysteresisEdit->setText(this->taskwallfollowing->getSettingsValue("hysteresis").toString());
     this->ui->pEdit->setText(this->taskwallfollowing->getSettingsValue("p").toString());
@@ -56,7 +56,7 @@ void TaskWallFollowingForm::on_applyButton_clicked(){
     this->taskwallfollowing->setSettingsValue("useAdjustPoint", this->ui->useAdjustPoint->isChecked());
     this->taskwallfollowing->setSettingsValue("goal1point1", this->ui->goal1point1->text());
     this->taskwallfollowing->setSettingsValue("goal1point2", this->ui->goal1point2->text());
-
+    this->taskwallfollowing->setSettingsValue("apDist", this->ui->apDistInput->text());
     // Turn180 Settings
     this->taskwallfollowing->setSettingsValue("hysteresis", this->ui->hysteresisEdit->text());
     this->taskwallfollowing->setSettingsValue("p", this->ui->pEdit->text());
