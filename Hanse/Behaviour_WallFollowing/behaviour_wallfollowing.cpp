@@ -24,6 +24,7 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     setDefaultValue("p", 0.3);
     setDefaultValue("useP", false);
     setDefaultValue("experimentalMode", false);
+    setDefaultValue("expInput", 0.8);
 
     setEnabled(false);
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newWallBehaviourData(const EchoReturnData, float)));
@@ -120,8 +121,9 @@ void Behaviour_WallFollowing::reset()
     if(this->isEnabled()){
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);
-        stop();
-        startBehaviour();
+        running = true;
+        t90dt90 = false;
+        startPhase = true;
     }
 }
 
@@ -159,7 +161,7 @@ void Behaviour_WallFollowing::controlWallFollow()
                 QTimer::singleShot(0, this, SLOT(controlWallFollowThruster()));
             } else {
                 // Experimental mode
-                if((fabs(diff) < 0.8)){
+                if((fabs(diff) < this->getSettingsValue("expInput").toDouble())){
                     QTimer::singleShot(0, this, SLOT(controlWallFollowThruster()));
                 } else if(startPhase == false){
                     QTimer::singleShot(0, this, SLOT(controlWallFollowThruster()));
@@ -328,8 +330,8 @@ void Behaviour_WallFollowing::turn90One(){
         }
         else
         {
-            logger->info("Turn90OneÁdjust heading");
-            qDebug()<<"diffHeading"<<diffHeading;
+            //logger->info("Turn90OneÁdjust heading");
+            //qDebug()<<"diffHeading"<<diffHeading;
             double angularSpeedValue = 0.2 * diffHeading;
             emit angularSpeed(angularSpeedValue);
             emit forwardSpeed(0.0);
@@ -374,10 +376,11 @@ void Behaviour_WallFollowing::turn90Two(){
         }
         else
         {
-            logger->info("Turn90OneÁdjust heading");
-            qDebug()<<"diffHeading"<<diffHeading;
+            //logger->info("Turn90OneÁdjust heading");
+            //qDebug()<<"diffHeading"<<diffHeading;
             double angularSpeedValue = 0.2 * diffHeading;
             emit angularSpeed(angularSpeedValue);
+            emit forwardSpeed(0.0);
             QTimer::singleShot(100, this, SLOT(turn90Two()));
         }
     }

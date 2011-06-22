@@ -40,6 +40,7 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());
     this->ui->useP->setChecked(wallfollow->getSettingsValue("useP").toBool());
     this->ui->expMode->setChecked(wallfollow->getSettingsValue("experimentalMode").toBool());
+    this->ui->expInput->setText(wallfollow->getSettingsValue("expInput").toString());
 }
 
 WallFollowingForm::~WallFollowingForm()
@@ -62,7 +63,6 @@ void WallFollowingForm::changeEvent(QEvent *e)
 void WallFollowingForm::on_startButton_clicked()
 {
     wallfollow->setSettingsValue("desiredDistance", ui->distanceInput->text());
-
     wallfollow->setSettingsValue("forwardSpeed", ui->forwardInput->text());
     wallfollow->setSettingsValue("angularSpeed", ui->angularInput->text());
     wallfollow->setSettingsValue("corridorWidth", ui->corridorInput->text());
@@ -71,10 +71,23 @@ void WallFollowingForm::on_startButton_clicked()
     wallfollow->setSettingsValue("useP", ui->useP->isChecked());
     wallfollow->setSettingsValue("p", ui->pInput->text().toFloat());
     wallfollow->setSettingsValue("experimentalMode", ui->expMode->isChecked());
+    wallfollow->setSettingsValue("expInput", ui->expInput->text());
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
     //qDebug("startButton clicked2");
     emit startBehaviour();
 
+}
+
+void WallFollowingForm::on_applyButton_clicked(){
+    wallfollow->setSettingsValue("desiredDistance", ui->distanceInput->text());
+    wallfollow->setSettingsValue("forwardSpeed", ui->forwardInput->text());
+    wallfollow->setSettingsValue("angularSpeed", ui->angularInput->text());
+    wallfollow->setSettingsValue("corridorWidth", ui->corridorInput->text());
+    wallfollow->setSettingsValue("wallTimer", ui->timerInput->text());
+    wallfollow->setSettingsValue("useP", ui->useP->isChecked());
+    wallfollow->setSettingsValue("p", ui->pInput->text().toFloat());
+    wallfollow->setSettingsValue("experimentalMode", ui->expMode->isChecked());
+    wallfollow->setSettingsValue("expInput", ui->expInput->text());
 }
 
 void WallFollowingForm::on_stopButton_clicked()
