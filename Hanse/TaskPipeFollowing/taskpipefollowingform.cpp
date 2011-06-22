@@ -25,6 +25,7 @@ TaskPipeFollowingForm::TaskPipeFollowingForm(TaskPipeFollowing *tpf, QWidget *pa
     this->ui->goal3point2->setText(this->taskpipefollowing->getSettingsValue("goal3point2").toString());
     this->ui->gate1point->setText(this->taskpipefollowing->getSettingsValue("gate1point").toString());
     this->ui->gate2point->setText(this->taskpipefollowing->getSettingsValue("gate2point").toString());
+    this->ui->angleInput->setText(this->taskpipefollowing->getSettingsValue("angle").toString());
 
     // Turn180 settings
     this->ui->hysteresisEdit->setText(this->taskpipefollowing->getSettingsValue("hysteresis").toString());
@@ -66,6 +67,7 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     this->taskpipefollowing->setSettingsValue("goal3point2", this->ui->goal3point2->text());
     this->taskpipefollowing->setSettingsValue("gate1point", this->ui->gate1point->text());
     this->taskpipefollowing->setSettingsValue("gate2point", this->ui->gate2point->text());
+    this->taskpipefollowing->setSettingsValue("angle", this->ui->angleInput->text());
 
     // Turn180 Settings
     this->taskpipefollowing->setSettingsValue("hysteresis", this->ui->hysteresisEdit->text());

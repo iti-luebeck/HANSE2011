@@ -35,6 +35,7 @@ TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Mod
     this->setDefaultValue("goal3point2", "go3p2");
     this->setDefaultValue("gate1point", "ga1p");
     this->setDefaultValue("gate2point", "ga2p");
+    this->setDefaultValue("angle", 15);
 
     // Default turn180 settings
     this->setDefaultValue("hysteresis", 10);
@@ -71,6 +72,7 @@ void TaskPipeFollowing::reset() {
     flag_PF_Pipe_Seen = false;
     flag_PF_Part_2_Finished = false;
     flag_GoalLine_2_reached = false;
+    taskState = TASK_STATE_START;
 
 }
 
@@ -305,14 +307,14 @@ void TaskPipeFollowing::controlAngleCalculation(){
         if(currentState == TASK_STATE_PIPEFOLLOW_PART1){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
-            if(fabs(alpha) < 5 && dist < 2){
+            if(fabs(alpha) <  this->getSettingsValue("angle").toDouble() && dist < 2){
                 flag_GoalLine_1_reached = true;
                 logger->info("flag_GoalLine_1_reached = true... through angle");
             }
         } else if(currentState == TASK_STATE_PIPEFOLLOW_PART2){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal2point1").toString(), this->getSettingsValue("goal2point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal2point2").toString());
-            if(fabs(alpha) < 5 && dist < 2){
+            if(fabs(alpha) < this->getSettingsValue("angle").toDouble() && dist < 2){
                 flag_GoalLine_2_reached = true;
                 logger->info("flag_GoalLine_2_reached = true... through angle");
             }
