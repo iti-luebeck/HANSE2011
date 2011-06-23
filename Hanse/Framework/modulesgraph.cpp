@@ -97,11 +97,11 @@ void ModulesGraph::build()
     this->modules.append(navi);
 
     logger->debug("Creating Behaviour_PipeFollowing");
-    Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe",controlLoop,cams,sim);
+    Behaviour_PipeFollowing* behavPipe = new Behaviour_PipeFollowing("pipe", controlLoop, cams, sim);
     this->modules.append(behavPipe);
 
     logger->debug("Creating Behaviour_BallFollowing");
-    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, xsens);
+    Behaviour_BallFollowing* behavBall = new Behaviour_BallFollowing("ball",controlLoop, cams, xsens, sim);
     this->modules.append(behavBall);
 
     logger->debug("Creating Behaviour_TurnOneEighty");
