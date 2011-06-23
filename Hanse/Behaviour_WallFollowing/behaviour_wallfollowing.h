@@ -6,6 +6,8 @@
 #include <Behaviour_WallFollowing/wallfollowingform.h>
 #include <Module_EchoSounder/module_echosounder.h>
 
+#define FLAG_SOUNDER_RIGHT true
+
 class WallFollowingForm;
 class Module_ThrusterControlLoop;
 class Module_Simulation;

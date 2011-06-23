@@ -35,7 +35,7 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     this->ui->angularInput->setText(wallfollow->getSettingsValue("angularSpeed").toString());
     this->ui->distanceInput->setText(wallfollow->getSettingsValue("desiredDistance").toString());
     this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
-    this->ui->updateView->setChecked(false);
+    this->ui->updateView->setChecked(wallfollow->getSettingsValue("updateView").toBool());
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTimer").toString());
     this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());
     this->ui->useP->setChecked(wallfollow->getSettingsValue("useP").toBool());
@@ -67,13 +67,13 @@ void WallFollowingForm::on_startButton_clicked()
     wallfollow->setSettingsValue("angularSpeed", ui->angularInput->text());
     wallfollow->setSettingsValue("corridorWidth", ui->corridorInput->text());
     wallfollow->setSettingsValue("wallTimer", ui->timerInput->text());
-    //qDebug("startButton clicked");
     wallfollow->setSettingsValue("useP", ui->useP->isChecked());
     wallfollow->setSettingsValue("p", ui->pInput->text().toFloat());
     wallfollow->setSettingsValue("experimentalMode", ui->expMode->isChecked());
     wallfollow->setSettingsValue("expInput", ui->expInput->text());
+    wallfollow->setSettingsValue("updateView", this->ui->updateView->isChecked());
     QTimer::singleShot(0,wallfollow,SLOT(reset()));
-    //qDebug("startButton clicked2");
+
     emit startBehaviour();
 
 }
@@ -88,6 +88,7 @@ void WallFollowingForm::on_applyButton_clicked(){
     wallfollow->setSettingsValue("p", ui->pInput->text().toFloat());
     wallfollow->setSettingsValue("experimentalMode", ui->expMode->isChecked());
     wallfollow->setSettingsValue("expInput", ui->expInput->text());
+    wallfollow->setSettingsValue("updateView", this->ui->updateView->isChecked());
 }
 
 void WallFollowingForm::on_stopButton_clicked()
@@ -163,7 +164,7 @@ void WallFollowingForm::updateUiView(){
     this->ui->angularInput->setText(wallfollow->getSettingsValue("angularSpeed").toString());
     this->ui->distanceInput->setText(wallfollow->getSettingsValue("desiredDistance").toString());
     this->ui->corridorInput->setText(wallfollow->getSettingsValue("corridorWidth").toString());
-    this->ui->updateView->setChecked(false);
+    this->ui->updateView->setChecked(wallfollow->getSettingsValue("updateView").toBool());
     this->ui->timerInput->setText(wallfollow->getSettingsValue("wallTime").toString());
     this->ui->useP->setChecked(wallfollow->getSettingsValue("useP").toBool());
     this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());

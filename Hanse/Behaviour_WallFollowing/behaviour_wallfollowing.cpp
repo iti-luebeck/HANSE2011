@@ -1,4 +1,4 @@
-﻿#include "behaviour_wallfollowing.h"
+#include "behaviour_wallfollowing.h"
 #include <QtGui>
 #include <Behaviour_WallFollowing/wallfollowingform.h>
 #include <Module_Simulation/module_simulation.h>
@@ -187,32 +187,65 @@ void Behaviour_WallFollowing::controlWallFollowThruster(){
     if(this->isEnabled()){
         // Now the disired distance is reached, start phase finished.
         startPhase = false;
-        if(this->getSettingsValue("useP").toBool()){
-            float ctrAngle = 0.0;
-            wallCase ="P Control: Turn";
-            ctrAngle = this->getSettingsValue("p").toFloat()*diff;
-            emit forwardSpeed(fwdSpeed);
-            emit angularSpeed(ctrAngle);
+        if(FLAG_SOUNDER_RIGHT == false){
+            if(this->getSettingsValue("useP").toBool()){
+                float ctrAngle = 0.0;
+                wallCase ="P Control: Turn";
+                ctrAngle = this->getSettingsValue("p").toFloat()*diff;
+                emit forwardSpeed(fwdSpeed);
+                emit angularSpeed(ctrAngle);
+            } else {
+                float temp = 1.0;
+                if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
+                    if(wallCase!="Case 1: No turn - only forward"){
+                        wallCase ="Case 1: No turn - only forward";
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(0.0);
+                    }
+                } else if(avgDistance > distanceInput ){
+                    if(wallCase!="Case 3: Turn left"){
+                        wallCase = "Case 3: Turn left";
+                        temp =angSpeed*(-1.0);
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(temp);
+                    }
+                } else if(avgDistance < distanceInput){
+                    if(wallCase!="Case 2: Turn right"){
+                        wallCase = "Case 2: Turn right";
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(angSpeed);
+                    }
+                }
+            }
         } else {
-            float temp = 1.0;
-            if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
-                if(wallCase!="Case 1: No turn - only forward"){
-                    wallCase ="Case 1: No turn - only forward";
-                    emit forwardSpeed(fwdSpeed);
-                    emit angularSpeed(0.0);
-                }
-            } else if(avgDistance > distanceInput ){
-                if(wallCase!="Case 3: Turn left"){
-                    wallCase = "Case 3: Turn left";
-                    temp =angSpeed*(-1.0);
-                    emit forwardSpeed(fwdSpeed);
-                    emit angularSpeed(temp);
-                }
-            } else if(avgDistance < distanceInput){
-                if(wallCase!="Case 2: Turn right"){
-                    wallCase = "Case 2: Turn right";
-                    emit forwardSpeed(fwdSpeed);
-                    emit angularSpeed(angSpeed);
+            // Sonar right
+            if(this->getSettingsValue("useP").toBool()){
+                float ctrAngle = 0.0;
+                wallCase ="P Control: Turn";
+                ctrAngle = this->getSettingsValue("p").toFloat()*diff*(-1);
+                emit forwardSpeed(fwdSpeed);
+                emit angularSpeed(ctrAngle);
+            } else {
+                float temp = 1.0;
+                if(((avgDistance-corridorWidth) < distanceInput) && (distanceInput < (avgDistance+corridorWidth))){
+                    if(wallCase!="Case 1: No turn - only forward"){
+                        wallCase ="Case 1: No turn - only forward";
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(0.0);
+                    }
+                } else if(avgDistance < distanceInput ){
+                    if(wallCase!="Case 3: Turn left"){
+                        wallCase = "Case 3: Turn left";
+                        temp =angSpeed*(-1.0);
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(temp);
+                    }
+                } else if(avgDistance > distanceInput){
+                    if(wallCase!="Case 2: Turn right"){
+                        wallCase = "Case 2: Turn right";
+                        emit forwardSpeed(fwdSpeed);
+                        emit angularSpeed(angSpeed);
+                    }
                 }
             }
         }
@@ -309,12 +342,19 @@ void Behaviour_WallFollowing::turn90One(){
         double currentHeading = 0.0;
         currentHeading = this->xsens->getHeading();
         double targetHeading;
-        if(diff < 0){
-            targetHeading = Angles::deg2deg(initialHeading - 90);
+        if(FLAG_SOUNDER_RIGHT == false){
+            if(diff < 0){
+                targetHeading = Angles::deg2deg(initialHeading - 90);
+            } else {
+                targetHeading = Angles::deg2deg(initialHeading + 90);
+            }
         } else {
-            targetHeading = Angles::deg2deg(initialHeading + 90);
+            if(diff < 0){
+                targetHeading = Angles::deg2deg(initialHeading + 90);
+            } else {
+                targetHeading = Angles::deg2deg(initialHeading - 90);
+            }
         }
-
 
         double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
         addData("initialHeading",initialHeading);
@@ -346,7 +386,7 @@ void Behaviour_WallFollowing::drive(){
         emit angularSpeed(0.0);
         emit forwardSpeed(1.0);
         initialHeading = this->xsens->getHeading();
-        QTimer::singleShot(3000, this, SLOT(turn90Two()));
+        QTimer::singleShot(10000, this, SLOT(turn90Two()));
     }
 }
 
@@ -355,10 +395,19 @@ void Behaviour_WallFollowing::turn90Two(){
         double currentHeading = 0.0;
         currentHeading = this->xsens->getHeading();
         double targetHeading;
-        if(diff < 0){
-            targetHeading = Angles::deg2deg(initialHeading + 90);
+
+        if(FLAG_SOUNDER_RIGHT == false){
+            if(diff < 0){
+                targetHeading = Angles::deg2deg(initialHeading + 90);
+            } else {
+                targetHeading = Angles::deg2deg(initialHeading - 90);
+            }
         } else {
-            targetHeading = Angles::deg2deg(initialHeading - 90);
+            if(diff < 0){
+                targetHeading = Angles::deg2deg(initialHeading - 90);
+            } else {
+                targetHeading = Angles::deg2deg(initialHeading + 90);
+            }
         }
         double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
         addData("initialHeading",initialHeading);
