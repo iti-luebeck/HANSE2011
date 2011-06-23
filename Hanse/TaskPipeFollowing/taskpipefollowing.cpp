@@ -306,14 +306,14 @@ void TaskPipeFollowing::controlAngleCalculation(){
         if(currentState == TASK_STATE_PIPEFOLLOW_PART1){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
-            if(fabs(alpha) <  this->getSettingsValue("angle").toDouble() && dist < 2){
+            if(alpha <  0 && dist < 2){
                 flag_GoalLine_1_reached = true;
                 logger->info("flag_GoalLine_1_reached = true... through angle");
             }
         } else if(currentState == TASK_STATE_PIPEFOLLOW_PART2){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal2point1").toString(), this->getSettingsValue("goal2point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal2point2").toString());
-            if(fabs(alpha) < this->getSettingsValue("angle").toDouble() && dist < 2){
+            if(alpha <  0 && dist < 2){
                 flag_GoalLine_2_reached = true;
                 logger->info("flag_GoalLine_2_reached = true... through angle");
             }

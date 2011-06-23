@@ -178,7 +178,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Wall Goal 1: Point 1:</string>
+      <string>Wall Goal 1: Point 2:</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_2">
@@ -264,32 +264,6 @@
      </property>
      <property name="text">
       <string>Dist:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_17">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>190</y>
-       <width>51</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Angle</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="angleInput">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>190</y>
-       <width>71</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
      </property>
     </widget>
    </widget>
