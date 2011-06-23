@@ -25,6 +25,8 @@ private:
     QTimer forTimer;
     QTimer angTimer;
 
+    QTimer testTimer;
+
     QAction *forward;
     QAction *backward;
     QAction *left;
@@ -36,6 +38,10 @@ private:
     float maxAngularSpeed;
     float upDownSpeed;
     float stepsize;
+
+    float fwd;
+    float ang;
+    float dep;
 
 private slots:
     void on_resetDepthButton_clicked();
@@ -51,8 +57,10 @@ private slots:
     void resetForSpeeds();
     void resetAngSpeeds();
 
+    void setSpeeds();
+
 signals:
-    void updateControls();
+    void updateControls(int forwardSpeed, int angularSpeed, int speedUpDown);
 };
 
 #endif // HANDCONTROL_FORM_H

@@ -30,9 +30,12 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
 
 //    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
 //    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
-    connect(this,SIGNAL(updateControls()),module,SLOT(sendNewControls()));
+    connect(this,SIGNAL(updateControls(int, int, int)),module,SLOT(newMessage(int, int, int)));
     connect(&forTimer,SIGNAL(timeout()),this,SLOT(resetForSpeeds()));
     connect(&angTimer,SIGNAL(timeout()),this,SLOT(resetAngSpeeds()));
+
+    connect(&testTimer, SIGNAL(timeout()), this, SLOT(setSpeeds()));
+    testTimer.start(500);
 }
 
 HandControl_Form::~HandControl_Form()
@@ -100,30 +103,22 @@ void HandControl_Form::connectionStatusChanged()
 
 void HandControl_Form::on_forwardButton_clicked()
 {
-    forTimer.start(1000);
-    module->addData("forwardSpeed", maxForwardSpeed);
-    emit updateControls();
+    fwd =  maxForwardSpeed;
 }
 
 void HandControl_Form::on_leftButton_clicked()
 {
-    angTimer.start(1000);
-    module->addData("angularSpeed", -maxAngularSpeed);
-    emit updateControls();
+    ang = -maxAngularSpeed;
 }
 
 void HandControl_Form::on_backwardButton_clicked()
 {
-    forTimer.start(1000);
-    module->addData("forwardSpeed", -maxForwardSpeed);
-    emit updateControls();
+    fwd =  -maxForwardSpeed;
 }
 
 void HandControl_Form::on_rightButton_clicked()
 {
-    angTimer.start(1000);
-     module->addData("angularSpeed", maxAngularSpeed);
-    emit updateControls();
+    ang = maxAngularSpeed;
 }
 
 void HandControl_Form::on_upButton_clicked()
@@ -132,32 +127,35 @@ void HandControl_Form::on_upButton_clicked()
     if(upDownSpeed < 0.0){
         upDownSpeed = 0.0;
     }
-    module->addData("speedUpDown", upDownSpeed);
-    emit updateControls();
+    dep = upDownSpeed;
 }
 
 void HandControl_Form::on_downButton_clicked()
 {
     upDownSpeed = upDownSpeed + stepsize;
-    module->addData("speedUpDown", upDownSpeed);
-    emit updateControls();
+    dep = upDownSpeed;
 }
 
 void HandControl_Form::resetForSpeeds(){
     module->addData("forwardSpeed", 0);
-    emit updateControls();
-    forTimer.stop();
+    fwd = 0;
 }
 
 void HandControl_Form::resetAngSpeeds(){
     module->addData("angularSpeed", 0);
-    emit updateControls();
-    angTimer.stop();
+    ang = 0;
 }
 
 void HandControl_Form::on_resetDepthButton_clicked()
 {
     upDownSpeed = 0.0;
     module->addData("speedUpDown", upDownSpeed);
-    emit updateControls();
+    dep = upDownSpeed;
+}
+
+void HandControl_Form::setSpeeds(){
+    updateControls(fwd, ang, dep);
+    fwd = 0;
+    ang = 0;
+    dep = 0;
 }

@@ -109,7 +109,7 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
 
     logger->trace("Received new message");
 
-    sendNewControls();
+    QTimer::singleShot(0, this, SLOT(sendNewControls()));
 
     // seems to be working..
     setHealthToOk();
@@ -131,7 +131,7 @@ void Module_HandControl::sendNewControls()
     float divUD = getSettingsValue("divUD").toFloat();
 
     dataLockerMutex.lock();
-    
+
 //    if (getSettingsValue("receiver").toString()=="thruster") {
 //        controlLoop->setEnabled(false);
 
@@ -155,7 +155,7 @@ void Module_HandControl::sendNewControls()
             speedUpDown = 0;
         emit setDepth(speedUpDown/divUD);
 //    }
-    
+
     dataLockerMutex.unlock();
 
 }
