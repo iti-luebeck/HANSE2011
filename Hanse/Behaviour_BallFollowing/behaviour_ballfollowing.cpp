@@ -1,28 +1,33 @@
 #include "behaviour_ballfollowing.h"
 
-#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 #include <QtGui>
-#include <Behaviour_BallFollowing/ballfollowingform.h>
-#include <Behaviour_BallFollowing/blobs/blob.h>
-#include <Behaviour_BallFollowing/blobs/BlobResult.h>
-#include <opencv/highgui.h>
+
+#include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
+#include <Module_Webcams/module_webcams.h>
 #include <Module_XsensMTi/module_xsensmti.h>
+#include <Module_Simulation/module_simulation.h>
+
+#include <Behaviour_BallFollowing/ballfollowingform.h>
+#include <opencv/highgui.h>
 #include <Framework/Angles.h>
 
+using namespace cv;
+
 Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop *tcl,
-                                                 Module_Webcams *cams, Module_XsensMTi *xsens)
-                                                     : RobotBehaviour(id)
+                                                 Module_Webcams *cams, Module_XsensMTi *xsens, Module_Simulation *sim)
+    : RobotBehaviour(id)
 {
     this->tcl = tcl;
     this->cams = cams;
     this->xsens = xsens;
+    this->sim = sim;
 
-    setEnabled(false);
+//    setEnabled(false);
     state = BALL_STATE_IDLE;
     updateTimer.moveToThread(this);
     timerNoBall.moveToThread(this);
-    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 }
 
 void Behaviour_BallFollowing::init()
@@ -39,6 +44,11 @@ void Behaviour_BallFollowing::init()
 
     QObject::connect( xsens, SIGNAL(dataChanged(RobotModule*)),
                       this, SLOT(xsensUpdate(RobotModule*)) );
+
+    connect(this, SIGNAL(requestFrame()), sim, SLOT(requestFrontImageSlot()));
+    connect(sim, SIGNAL(newFrontImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
+
+    tracker.init();
 }
 
 bool Behaviour_BallFollowing::isActive()
@@ -54,9 +64,10 @@ void Behaviour_BallFollowing::startBehaviour()
     }
     logger->debug( "Behaviour started" );
     this->setEnabled( true );
+    tracker.reset();
+
     state = BALL_STATE_TURN_45;
-    targetHeading = xsens->getHeading() - 45;
-    targetHeading = Angles::deg2deg(targetHeading);
+    targetHeading = Angles::deg2deg(xsens->getHeading() - 45);
 
     emit setAngularSpeed(-0.4);
 
@@ -72,10 +83,67 @@ void Behaviour_BallFollowing::terminate()
 
 void Behaviour_BallFollowing::newData()
 {
-    if( this->isEnabled() && state == BALL_STATE_TRACK_BALL )
-    {
-        Behaviour_BallFollowing::ctrBallFollowing();
+    if (this->isEnabled()) {
+
+        if(sim->isEnabled()) {
+            emit requestFrame();
+        } else {
+            cams->grabLeft(frame);
+            update();
+        }
     }
+}
+
+
+void Behaviour_BallFollowing::simFrame(cv::Mat simFrame)
+{
+    if (this->isEnabled() == false){
+        logger->info("Not enabled!");
+        return;
+    }
+
+    this->dataLockerMutex.lock();
+    simFrame.copyTo(frame);
+    this->dataLockerMutex.unlock();
+
+    update();
+}
+
+void Behaviour_BallFollowing::update()
+{
+    if (!this->isEnabled()){
+        logger->info("Not enabled!");
+        return;
+    }
+
+    tracker.update(frame);
+
+    QString ballState = tracker.getState();
+    double x = tracker.getMeanX();
+
+    if (ballState == STATE_IS_SEEN) {
+        double robCenterX = this->getSettingsValue("robCenterX").toDouble();
+        double diffX = robCenterX - x;
+        float angleSpeed = 0.0;
+
+        if (fabs(diffX) > this->getSettingsValue("deltaBall").toFloat()) {
+            angleSpeed = this->getSettingsValue("kpBall").toFloat() * (diffX / this->getSettingsValue("maxDistance").toFloat());
+        }
+
+        emit setAngularSpeed(angleSpeed);
+        emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+    } else if (ballState == STATE_PASSED) {
+        emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+        // Do xsens follow...
+    } else {
+        // Do search for ball...
+    }
+
+    ellipse(frame, RotatedRect(Point(x, tracker.getMeanY()), Size(std::sqrt(tracker.getArea()), std::sqrt(tracker.getArea())), 0.0f), Scalar(255,0,0), 5);
+    addData("state", ballState);
+    addData("x", x);
+
+    emit dataChanged(this);
 }
 
 void Behaviour_BallFollowing::xsensUpdate( RobotModule * )
@@ -118,8 +186,9 @@ QList<RobotModule*> Behaviour_BallFollowing::getDependencies()
 {
     QList<RobotModule*> ret;
     ret.append(tcl);
-    ret.append( cams );
-    ret.append( xsens );
+    ret.append(cams);
+    ret.append(xsens);
+    ret.append(sim);
     return ret;
 }
 
@@ -128,155 +197,28 @@ QWidget* Behaviour_BallFollowing::createView(QWidget* parent)
     return new BallFollowingForm(parent, this);
 }
 
-void Behaviour_BallFollowing::testBehaviour( QString path )
+void Behaviour_BallFollowing::testBehaviour(QString path)
 {
-    if (!this->isEnabled()){
-        logger->info("Not enabled!");
-        return;
-    }
-
     QDir dir( path );
     dir.setFilter( QDir::Files );
     QStringList filters;
-    filters << "*.jpg";
+    filters << "*.jpg" << "*.png" << "*.bmp";
     dir.setNameFilters( filters );
     QStringList files = dir.entryList();
 
-    cvNamedWindow("Dummy");
+    namedWindow("Ball");
     for ( int i = 0; i < files.count(); i++ )
     {
-        IplImage *gray = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
-        IplImage *thresh = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
-        IplImage *disp = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-        IplImage *hsv = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-        cvMerge( thresh, thresh, thresh, NULL, disp );
-
         QString filePath = path;
         filePath.append( "/" );
         filePath.append( files[i] );
-        IplImage *left = cvLoadImage( filePath.toStdString().c_str(), 1 );
+        frame = imread( filePath.toStdString() );
 
-        // Apply threshold.
-        cvCvtColor( left, gray, CV_RGB2GRAY );
-        cvCvtColor( left, hsv, CV_RGB2HSV );
-        cvSplit( hsv, NULL, gray, NULL, NULL );
-        cvThreshold( gray, thresh, getSettingsValue( "threshold", 100 ).toDouble(), 255, CV_THRESH_BINARY );
-        cvMerge( thresh, thresh, thresh, NULL, disp );
-
-        // Do blob filtering.
-        CBlobResult blobs( thresh, NULL, 255 );
-        blobs.Filter( blobs, B_EXCLUDE, CBlobGetArea(), B_LESS, 500 );
-
-        // Get largest blobs x position.
-        float x = -1;
-        int maxArea = 0;
-        int maxBlob = -1;
-        for ( int j = 0; j < blobs.GetNumBlobs(); j++ )
-        {
-            CBlob *blob = blobs.GetBlob( j );
-            if ( blob->Area() > maxArea )
-            {
-                maxArea = blob->Area();
-                maxBlob = j;
-            }
-        }
-        if ( maxBlob >= 0 )
-        {
-            x = blobs.GetBlob( maxBlob )->Moment( 1, 0 ) / blobs.GetBlob( maxBlob )->Moment( 0, 0 );
-            blobs.GetBlob( maxBlob )->FillBlob( left, cvScalar( 0, 0, 255 ), 0, 0 );
-        }
-
-        emit printFrame( left );
-
-        cvReleaseImage( &left );
-        cvReleaseImage( &gray );
-        cvReleaseImage( &thresh );
-        cvReleaseImage( &disp );
-        cvReleaseImage( &hsv );
+        update();
+        imshow("Ball", tracker.getGray());
 
         cvWaitKey( 200 );
     }
-}
-
-void Behaviour_BallFollowing::ctrBallFollowing()
-{
-    if (!this->isEnabled()){
-        logger->info("Not enabled!");
-        return;
-    }
-    IplImage *gray = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
-    IplImage *thresh = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 1 );
-    IplImage *disp = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    IplImage *hsv = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    cvMerge( thresh, thresh, thresh, NULL, disp );
-    IplImage *left = cvCreateImage( cvSize(WEBCAM_WIDTH,WEBCAM_HEIGHT), IPL_DEPTH_8U, 3 );
-    cams->grabLeft( left );
-
-    // Apply threshold.
-    cvCvtColor( left, gray, CV_RGB2GRAY );
-    cvCvtColor( left, hsv, CV_RGB2HSV );
-    cvSplit( hsv, NULL, gray, NULL, NULL );
-    cvThreshold( gray, thresh, getSettingsValue( "threshold", 100 ).toDouble(), 255, CV_THRESH_BINARY );
-    cvMerge( thresh, thresh, thresh, NULL, disp );
-
-    // Do blob filtering.
-    CBlobResult blobs( thresh, NULL, 255 );
-    blobs.Filter( blobs, B_EXCLUDE, CBlobGetArea(), B_LESS, 500 );
-
-    // Get largest blobs x position.
-    float x = -1;
-    int maxArea = 0;
-    int maxBlob = -1;
-    for ( int j = 0; j < blobs.GetNumBlobs(); j++ )
-    {
-        CBlob *blob = blobs.GetBlob( j );
-        if ( blob->Area() > maxArea )
-        {
-            maxArea = blob->Area();
-            maxBlob = j;
-        }
-    }
-    if ( maxBlob >= 0 )
-    {
-        x = blobs.GetBlob( maxBlob )->Moment( 1, 0 ) / blobs.GetBlob( maxBlob )->Moment( 0, 0 );
-        blobs.GetBlob( maxBlob )->FillBlob( left, cvScalar( 0, 0, 255 ), 0, 0 );
-    }
-
-    emit printFrame( left );
-
-    if ( x > 0 )
-    {
-        timerNoBall.stop();
-        float robCenterX = this->getSettingsValue("robCenterX").toFloat();
-        float diff = robCenterX - x;
-        float angleSpeed = 0.0;
-        diff < 0.0 ? diff *= (-1) : diff;
-        if(diff > this->getSettingsValue("deltaBall").toFloat())
-        {
-            angleSpeed = this->getSettingsValue("kpBall").toFloat() * ((robCenterX - x)/this->getSettingsValue("maxDistance").toFloat());
-        }
-        emit setAngularSpeed(angleSpeed);
-        emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
-
-        addData("ball_area", maxArea);
-        addData("ball_x", x);
-        addData("position_difference", diff);
-        addData("angular_speed", angleSpeed);
-        addData("forward_speed", this->getSettingsValue("fwSpeed").toFloat());
-        dataChanged( this );
-        timerNoBall.start( 60000 );
-    }
-    else
-    {
-        emit setAngularSpeed(0.0);
-        emit setForwardSpeed(0.6);
-    }
-
-    cvReleaseImage( &left );
-    cvReleaseImage( &gray );
-    cvReleaseImage( &thresh );
-    cvReleaseImage( &hsv );
-    cvReleaseImage( &left );
 }
 
 void Behaviour_BallFollowing::timerSlot()

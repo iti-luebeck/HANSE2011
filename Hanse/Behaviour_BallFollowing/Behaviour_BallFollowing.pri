@@ -6,7 +6,8 @@ HEADERS += Behaviour_BallFollowing/ballfollowingform.h \
     Behaviour_BallFollowing/blobs/BlobOperators.h \
     Behaviour_BallFollowing/blobs/BlobLibraryConfiguration.h \
     Behaviour_BallFollowing/blobs/BlobContour.h \
-    Behaviour_BallFollowing/blobs/blob.h
+    Behaviour_BallFollowing/blobs/blob.h \
+    Behaviour_BallFollowing/balltracker.h
 
 
 SOURCES += Behaviour_BallFollowing/ballfollowingform.cpp \
@@ -15,7 +16,7 @@ SOURCES += Behaviour_BallFollowing/ballfollowingform.cpp \
     Behaviour_BallFollowing/blobs/BlobResult.cpp \
     Behaviour_BallFollowing/blobs/BlobOperators.cpp \
     Behaviour_BallFollowing/blobs/BlobContour.cpp \
-    Behaviour_BallFollowing/blobs/blob.cpp
+    Behaviour_BallFollowing/blobs/blob.cpp \
+    Behaviour_BallFollowing/balltracker.cpp
 
 FORMS += Behaviour_BallFollowing/ballfollowingform.ui
-

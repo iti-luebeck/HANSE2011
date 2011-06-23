@@ -2,24 +2,23 @@
 #define BallBEHAVIOUR_H
 
 #include <Framework/robotbehaviour.h>
-
-#include <Behaviour_BallFollowing/ballfollowingform.h>
-#include <Module_Webcams/module_webcams.h>
-#include <Framework/robotmodule.h>
+#include <Behaviour_BallFollowing/balltracker.h>
 
 #define BALL_STATE_TURN_45       100
 #define BALL_STATE_TRACK_BALL    101
 #define BALL_STATE_IDLE          102
 
 class Module_ThrusterControlLoop;
+class Module_Webcams;
 class GoalFollowingForm;
 class Module_XsensMTi;
+class Module_Simulation;
 
 class Behaviour_BallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
-    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cams, Module_XsensMTi *xsens);
+    Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_Webcams* cams, Module_XsensMTi *xsens, Module_Simulation *sim);
 
     QList<RobotModule*> getDependencies();
 
@@ -30,12 +29,19 @@ public:
     */
     bool isActive();
 
+private:
+    void update();
+
 
 private:
-
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cams;
     Module_XsensMTi *xsens;
+    Module_Simulation *sim;
+
+    BallTracker tracker;
+    cv::Mat frame;
+
     QDateTime last;
     QTimer timerNoBall;
     QTimer updateTimer;
@@ -53,6 +59,7 @@ public slots:
     void reset();
     void terminate();
     void controlEnabledChanged(bool);
+    void simFrame(cv::Mat simFrame);
 
 private slots:
     void newData();
@@ -60,9 +67,9 @@ private slots:
 
 
 signals:
-    void printFrame(IplImage *frame);
     void setForwardSpeed(float forwardSpeed);
     void setAngularSpeed(float angularSpeed);
+    void requestFrame();
 };
 
 
