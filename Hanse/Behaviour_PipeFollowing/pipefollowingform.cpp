@@ -37,8 +37,6 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
 
     ui->maxDistLineEdti->setText(pipefollow->getSettingsValue("maxDistance").toString());
     ui->speedFwLineEdit->setText(pipefollow->getSettingsValue("fwSpeed").toString());
-    ui->camHeightLineEdit->setText(pipefollow->getSettingsValue("camHeight").toString());
-    ui->camWidthLineEdit->setText(pipefollow->getSettingsValue("camWidth").toString());
     ui->badFramesLineEdit->setText(pipefollow->getSettingsValue("badFrames").toString());
     ui->hRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 1);
     ui->sRadioButton->setChecked(pipefollow->getSettingsValue("convColor").toInt() == 2);
@@ -99,8 +97,6 @@ void PipeFollowingForm::on_saveApplyButton_clicked()
     pipefollow->setSettingsValue("robCenterY",ui->robCenterYLineEdit->text().toDouble());
     pipefollow->setSettingsValue("maxDistance",ui->maxDistLineEdti->text().toFloat());
     pipefollow->setSettingsValue("fwSpeed",ui->speedFwLineEdit->text().toFloat());
-    pipefollow->setSettingsValue("camHeight",ui->camHeightLineEdit->text().toInt());
-    pipefollow->setSettingsValue("camWidth",ui->camWidthLineEdit->text().toInt());
     pipefollow->setSettingsValue("badFrames",ui->badFramesLineEdit->text().toInt());
     pipefollow->setSettingsValue("frameOutput",ui->frameColorCB->isChecked());
     if(ui->hRadioButton->isChecked())

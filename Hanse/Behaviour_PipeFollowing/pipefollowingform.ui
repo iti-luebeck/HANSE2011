@@ -302,58 +302,6 @@
       <string>0.3</string>
      </property>
     </widget>
-    <widget class="QLabel" name="camWidthLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>280</y>
-       <width>91</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Canny low</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="camWidthLineEdit">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>280</y>
-       <width>113</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>640</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="camHieghtLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>300</y>
-       <width>91</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Canny high</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="camHeightLineEdit">
-     <property name="geometry">
-      <rect>
-       <x>120</x>
-       <y>300</y>
-       <width>113</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>480</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="badFramesLabel">
      <property name="geometry">
       <rect>

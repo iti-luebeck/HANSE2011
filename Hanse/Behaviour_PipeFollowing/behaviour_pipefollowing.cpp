@@ -15,7 +15,6 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->sim = sim;
     setEnabled(false);
     timer.moveToThread(this);
-
 }
 
 bool Behaviour_PipeFollowing::isActive()
@@ -158,8 +157,8 @@ void Behaviour_PipeFollowing::timerSlotExecute()
         line(frame, Point(frame.cols / 2, 0.0), Point(frame.cols / 2, frame.rows), Scalar(255,0,0), 3, 8);
         circle(frame, robCenter, 3, Scalar(255,0,255), 3, 8);
         // Draw pipe.
-        line(frame, Point(tracker.getMeanX(), tracker.getMeanY()), Point(tracker.getMeanX() + 200 * sin(tracker.getPipeAngle()),
-                                                                         tracker.getMeanY() - 200 * cos(tracker.getPipeAngle())), Scalar(255,0,0), 4, CV_FILLED);
+        line(frame, Point(tracker.getMeanX(), tracker.getMeanY()), Point(tracker.getMeanX() + 200 * sin(tracker.getOrientation()),
+                                                                         tracker.getMeanY() - 200 * cos(tracker.getOrientation())), Scalar(255,0,0), 4, CV_FILLED);
         frame.copyTo(displayFrame);
 
         controlPipeFollow();
@@ -176,27 +175,27 @@ void Behaviour_PipeFollowing::controlPipeFollow()
     }
 
     float ctrAngleSpeed = 0.0;
-    float curAngle = Angles::pi2deg(tracker.getPipeAngle());
-    float distanceY = tracker.getPipeDistance();
+    float curAngle = Angles::pi2deg(tracker.getOrientation());
+    float distanceY = tracker.getDistanceToCenter();
     addData("pipe angle", curAngle);
     addData("pipe distance", distanceY);
 
-    QString pipeState = tracker.getPipeState();
+    QString pipeState = tracker.getState();
     addData("pipe state", pipeState);
-    if (pipeState == PIPE_STATE_NOT_SEEN_YET) {
+    if (pipeState == STATE_NOT_SEEN_YET) {
         // Assumption: Pipe is just ahead
         ctrAngleSpeed = 0.0;
         emit angularSpeed(ctrAngleSpeed);
         emit forwardSpeed(constFWSpeed);
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", constFWSpeed);
-    } else if (pipeState == PIPE_STATE_PASSED) {
+    } else if (pipeState == STATE_PASSED) {
         ctrAngleSpeed = 0.0;
         emit angularSpeed(ctrAngleSpeed);
         emit forwardSpeed(0);
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", 0);
-    } else if (pipeState == PIPE_STATE_IS_SEEN) {
+    } else if (pipeState == STATE_IS_SEEN) {
         if (fabs(curAngle) > Behaviour_PipeFollowing::deltaAngPipe) {
             ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * curAngle / 90.0;
         }
@@ -209,31 +208,31 @@ void Behaviour_PipeFollowing::controlPipeFollow()
         emit forwardSpeed(constFWSpeed);
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", constFWSpeed);
-    } else if (pipeState == PIPE_STATE_LOST_LEFT) {
+    } else if (pipeState == STATE_LOST_LEFT) {
         ctrAngleSpeed = -0.2;
         emit angularSpeed(ctrAngleSpeed);
         emit forwardSpeed(constFWSpeed);
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", constFWSpeed);
-    } else if (pipeState == PIPE_STATE_LOST_RIGHT) {
+    } else if (pipeState == STATE_LOST_RIGHT) {
         ctrAngleSpeed = 0.2;
         emit angularSpeed(ctrAngleSpeed);
         emit forwardSpeed(constFWSpeed);
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", constFWSpeed);
-    } else if (pipeState == PIPE_STATE_LOST_BOTTOM) {
+    } else if (pipeState == STATE_LOST_BOTTOM) {
         ctrAngleSpeed = 0.2;
         emit angularSpeed(ctrAngleSpeed);
         emit forwardSpeed(0);
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", 0);
-    } else if (pipeState == PIPE_STATE_LOST_TOP) {
+    } else if (pipeState == STATE_LOST_TOP) {
         ctrAngleSpeed = 0.0;
         emit angularSpeed(ctrAngleSpeed);
         emit forwardSpeed(constFWSpeed);
         addData("angular_speed", ctrAngleSpeed);
         addData("forward_speed", constFWSpeed);
-    } else if (pipeState == PIPE_STATE_LOST) {
+    } else if (pipeState == STATE_LOST) {
         // PANIC
         ctrAngleSpeed = 0.0;
         emit angularSpeed(ctrAngleSpeed);
@@ -247,11 +246,6 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 
 void Behaviour_PipeFollowing::analyzeVideo()
 {
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
-        return;
-    }
-
     QString videoFile = getSettingsValue("video directory").toString();
 
     QDir dir( videoFile );
