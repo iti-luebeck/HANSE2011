@@ -253,16 +253,16 @@ void TaskPipeFollowing::moveToGatewaypoint2(){
 
 void TaskPipeFollowing::controlPipeState(QString newState){
     QString currentState = this->getTaskState();
-    if(newState == PIPE_STATE_IS_SEEN && currentState == TASK_STATE_MOVE_TO_PIPE_INIT){
+    if(newState == STATE_IS_SEEN && currentState == TASK_STATE_MOVE_TO_PIPE_INIT){
         flag_PF_Pipe_Seen_Start = true;
         logger->info("flag_PF_Pipe_Seen = true... through PIPE_STATE");
-    } else if(newState == PIPE_STATE_PASSED && currentState == TASK_STATE_PIPEFOLLOW_PART1){
+    } else if(newState == STATE_PASSED && currentState == TASK_STATE_PIPEFOLLOW_PART1){
         flag_PF_Part_1_Finished = true;
         logger->info("flag_PF_Part_1_Finished = true... through PIPE_STATE");
-    } else if(newState == PIPE_STATE_IS_SEEN && currentState == TASK_STATE_MOVE_TO_PIPE){
+    } else if(newState == STATE_IS_SEEN && currentState == TASK_STATE_MOVE_TO_PIPE){
         flag_PF_Pipe_Seen = true;
         logger->info("flag_PF_Pipe_Seen = true... through PIPE_STATE");
-    } else if(newState == PIPE_STATE_PASSED && currentState == TASK_STATE_PIPEFOLLOW_PART2){
+    } else if(newState == STATE_PASSED && currentState == TASK_STATE_PIPEFOLLOW_PART2){
         flag_PF_Part_2_Finished = true;
         logger->info("flag_PF_Part_2_Finished = true... through PIPE_STATE");
     }
