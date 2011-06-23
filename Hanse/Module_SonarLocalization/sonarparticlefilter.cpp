@@ -223,7 +223,7 @@ double SonarParticleFilter::sampleUni(double min, double max)
     return min + (max - min)*r;
 }
 
-double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations, const QList<QVector2D>& obsRelativeToRobot)
+double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observations, const QList<QVector2D>& obsRelativeToRobot, double &matchRatio)
 {
     if (!hasMap()) {
         return 0;
@@ -246,11 +246,14 @@ double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observ
     Mat dists = Mat::zeros(N, 1, CV_32F);
     this->mapPointsFlann->knnSearch(zPoints, indices, dists, 1, cv::flann::SearchParams(32));
     double index = 0;
+    float numMatches = 0;
     for (int i = 0; i < N; i++) {
         double obsDist = obsRelativeToRobot[i].length();
         double diff = dists.at<float>(i,0);
         if (diff > cutoff2) {
             diff = cutoff2;
+        } else {
+            numMatches++;
         }
         index += diff / ((((100 - obsDist) / 100)) * sigma2);
     }
@@ -259,6 +262,8 @@ double SonarParticleFilter::meassureObservation(const QVector<QVector2D>& observ
 //    index = 1 - index;
 
 //    double worstPossible = exp(-0.5 * N * cutoff2);
+
+    matchRatio = numMatches / N;
 
     return index;
 }
@@ -428,13 +433,15 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
 
         if (isPositionForbidden(QVector2D(particle.getX(), particle.getY()))) {
             weights[i] = 0;
+            particle.setMatchRatio(0);
         } else {
-            double w = meassureObservation(observationsTransformed, filteredObservations);
+            double matchRatio = 0;
+            double w = meassureObservation(observationsTransformed, filteredObservations, matchRatio);
+            particle.setMatchRatio(matchRatio);
             weights[i] = w;
         }
         particle.setWeight(weights[i]);
         oldParticles[i] = particle;
-        //logger->trace("Particle "+QString::number(i)+" has weight "+QString::number(weights[i]));
     }
 
     double sumW = sum(weights);
@@ -453,7 +460,7 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
 
     // resample
     QVector<SonarParticle> resampledParticles(N);
-    for (int i=0; i<N; i++) {
+    for (int i = 0; i < N; i++) {
         double r = 1.0*qrand()/((double)RAND_MAX + 1.0);
         int particle = 0;
         while (cumsum[particle] < r)
@@ -494,6 +501,12 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
         *stream << refTime << " " << bestPos.x() << " " << bestPos.y() << " " << lastMatchRatio << endl;
     }
     particlesMutex.unlock();
+
+    sonar.addData("x", bestPos.x());
+    sonar.addData("y", bestPos.y());
+    sonar.addData("theta", bestPos.z());
+    sonar.addData("weight", particles[0].getWeight());
+    sonar.addData("match ratio", particles[0].getMatchRatio());
 
     emit newPosition(getBestEstimate());
 }

@@ -26,6 +26,7 @@ public:
         this->y = .0f;
         this->theta = .0f;
         this->weight = .0f;
+        this->matchRatio = .0f;
     }
     SonarParticle(float x, float y, float theta)
     {
@@ -33,6 +34,7 @@ public:
         this->y = y;
         this->theta = theta;
         this->weight = .0f;
+        this->matchRatio = .0f;
     }
     SonarParticle(const SonarParticle &copy)
     {
@@ -40,6 +42,7 @@ public:
         this->y = copy.y;
         this->theta = copy.theta;
         this->weight = copy.weight;
+        this->matchRatio = copy.matchRatio;
     }
 
     SonarParticle& operator=(const SonarParticle& copy)
@@ -48,6 +51,7 @@ public:
         this->y = copy.y;
         this->theta = copy.theta;
         this->weight = copy.weight;
+        this->matchRatio = copy.matchRatio;
         return *this;
     }
 
@@ -63,11 +67,15 @@ public:
     float getWeight() const { return weight; }
     void setWeight(float weight) { this->weight = weight; }
 
+    float getMatchRatio() const { return matchRatio; }
+    void setMatchRatio(float ratio) { this->matchRatio = ratio; }
+
 private:
     float x;
     float y;
     float theta;
     float weight;
+    float matchRatio;
 };
 
 class SonarParticleFilter : public QObject
@@ -96,9 +104,6 @@ signals:
     void working(bool);
 
 private:
-
-//    QSettings& s;
-
     QList<QVector2D> lastZ;
 
     Log4Qt::Logger *logger;
@@ -136,7 +141,7 @@ private:
     QVector2D map2img(const QVector2D& mapPoint);
     QVector2D img2map(const QVector2D& imgPoint);
 
-    double meassureObservation(const QVector<QVector2D>& observations, const QList<QVector2D>& obsRelativeToRobot);
+    double meassureObservation(const QVector<QVector2D>& observations, const QList<QVector2D>& obsRelativeToRobot, double &matchRatio);
     double meassureMatches(const QVector<QVector2D>& observations);
 
     bool isPositionForbidden(const QVector2D& pos);
