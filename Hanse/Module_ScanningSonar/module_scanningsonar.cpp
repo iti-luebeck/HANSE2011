@@ -124,7 +124,10 @@ bool Module_ScanningSonar::doNextScan()
 
 
 void Module_ScanningSonar::reset()
-{
+{    
+    if (!isEnabled())
+        return;
+
     RobotModule::reset();
 
     logger->debug("Destroying and sonar data source.");
@@ -139,9 +142,6 @@ void Module_ScanningSonar::reset()
         delete recorder;
         recorder = NULL;
     }
-
-    if (!isEnabled())
-        return;
 
 
     if (getSettingsValue("enableRecording").toBool()) {
@@ -184,9 +184,7 @@ void Module_ScanningSonar::reset()
            timer.setInterval(0); // timerSlot will block
            timer.start();
        }
-
     }
-
 }
 
 QList<RobotModule*> Module_ScanningSonar::getDependencies()
