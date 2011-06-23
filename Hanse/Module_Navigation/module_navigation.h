@@ -176,5 +176,7 @@ private:
 
     Position currentPosition;
 
+    bool trustingCurrentPosition;
+
 };
 #endif // MODULE_NAVIGATION_H

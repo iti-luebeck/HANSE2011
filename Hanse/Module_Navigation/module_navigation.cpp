@@ -29,6 +29,8 @@ RobotModule(id)
     // For not turning too much.
     adjustHeadingInitialXsens = 0;
     diffHeading = 0;
+
+    trustingCurrentPosition = false;
 }
 
 void Module_Navigation::init()
@@ -46,11 +48,13 @@ void Module_Navigation::init()
     state = NAV_STATE_IDLE;
     substate = NAV_SUBSTATE_ADJUST_DEPTH;
     hasActiveGoal = false;
+    trustingCurrentPosition = false;
 }
 
 void Module_Navigation::reset()
 {
     RobotModule::reset();
+    trustingCurrentPosition = false;
 }
 
 void Module_Navigation::terminate()
@@ -197,8 +201,13 @@ void Module_Navigation::clearPath()
 
 void Module_Navigation::xsensUpdate( RobotModule * )
 {
-    if (!getSettingsValue("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool()) {
         return;
+    }
+
+    if (!trustingCurrentPosition) {
+        return;
+    }
 
     //--------------------------------------------------------------------
     //  XSENS IN NAVIGATION
@@ -262,8 +271,9 @@ Waypoint Module_Navigation::getCurrentGoal()
 
 void Module_Navigation::sonarPositionUpdate()
 {
-    if (!getSettingsValue("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool()) {
         return;
+    }
 
     // Update all important values.
     float currentDepth = pressure->getDepth();
@@ -281,10 +291,21 @@ void Module_Navigation::sonarPositionUpdate()
     headingToGoal = -atan2(dx, dy) * 180 / CV_PI;
     distanceToGoal = sqrt(dx*dx + dy*dy);
 
-    addData("currentHeading", currentHeading);
-    addData("dx", dx);
-    addData("dy", dy);
+//    addData("currentHeading", currentHeading);
+//    addData("dx", dx);
+//    addData("dy", dy);
     addData("dtheta", headingToGoal);
+
+    // Check whether there were enough matches to trust the localization estimate.
+    if (sonarLoc->getLocalizationConfidence() < 0.7f) {
+        // Set speed to 0 to help the localization.
+        trustingCurrentPosition = false;
+        emit newFFSpeed(.0);
+        emit newANGSpeed(.0);
+        return;
+    } else {
+        trustingCurrentPosition = true;
+    }
 
     //--------------------------------------------------------------------
     //  STATE_IDLE
