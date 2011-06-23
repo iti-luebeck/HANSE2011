@@ -38,6 +38,8 @@ void Module_Navigation::init()
                       this, SLOT( sonarPositionUpdate() ) );
     QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( xsensUpdate(RobotModule*) ) );
+    QObject::connect( mti, SIGNAL( dataChanged(RobotModule*) ),
+                      this, SLOT( calcAlpha(RobotModule*) ) );
 
     connect(this,SIGNAL(newDepth(float)),tcl,SLOT(setDepth(float)));
     connect(this,SIGNAL(newFFSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
@@ -519,6 +521,10 @@ double Module_Navigation::getDistance(QString name){
     }
 }
 
+void Module_Navigation::calcAlpha(RobotModule *){
+    double temp = this->getAlpha("a", "b");
+    qDebug()<<temp;
+}
 
 double Module_Navigation::getAlpha(QString name1, QString name2) {
      double alpha = 0.0;

@@ -75,6 +75,8 @@ public:
 
     Waypoint getCurrentGoal();
 
+    void calcAlpha(RobotModule *);
+
 private:
     void init();
 
