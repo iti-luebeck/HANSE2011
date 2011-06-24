@@ -152,7 +152,7 @@ void TaskXsensNavigation::stateChanged()
 
             // Finish state after drivetime msec and a little bit time to finish turn
             int tempWait = this->getSettingsValue("driveTime").toInt() + this->getSettingsValue("waitTime").toInt();
-            QTimer::singleShot(tempWait, this, SLOT(finishXsensFollow()));
+            QTimer::singleShot(tempWait, this, SLOT(xsensFollowFinished()));
         } else {
             logger->info("xsens following not possible!");
             state = XSENS_NAV_STATE_MOVE_B;
@@ -253,12 +253,14 @@ void TaskXsensNavigation::reachedWaypoint(QString)
 
 void TaskXsensNavigation::xsensFollowFinished()
 {
+    QTimer::singleShot(0, xsensfollow, SLOT(stop()));
     state = XSENS_NAV_STATE_MOVE_B;
     taskTimer.singleShot(0, this, SLOT(stateChanged()));
 }
 
 void TaskXsensNavigation::turn180Finished()
 {
+    QTimer::singleShot(0, turn180, SLOT(stop()));
     state = XSENS_NAV_STATE_MOVE_END;
     taskTimer.singleShot(0, this, SLOT(stateChanged()));
 }
