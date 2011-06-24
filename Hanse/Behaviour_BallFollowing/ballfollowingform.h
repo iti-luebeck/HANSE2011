@@ -32,7 +32,7 @@ private slots:
     void on_startBallFollwoingButton_clicked();
 
 public slots:
-    void printFrame(IplImage *frame);
+    void printFrame(RobotModule *module);
 
 signals:
     void doTest( QString path );

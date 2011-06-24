@@ -48,6 +48,14 @@ void Behaviour_BallFollowing::init()
     connect(this, SIGNAL(requestFrame()), sim, SLOT(requestFrontImageSlot()));
     connect(sim, SIGNAL(newFrontImageData(cv::Mat)),this,SLOT(simFrame(cv::Mat)));
 
+
+    setDefaultValue("kpBall", 0.6);
+    setDefaultValue("deltaBall", 10);
+    setDefaultValue("robCenterX", 320);
+    setDefaultValue("robCenterY", 240);
+    setDefaultValue("fwSpeed", 0.7);
+    setDefaultValue("maxDistance", 240);
+    setDefaultValue("threshold", 0);
     tracker.init();
 }
 
@@ -71,7 +79,11 @@ void Behaviour_BallFollowing::startBehaviour()
 
     emit setAngularSpeed(-0.4);
 
-    updateTimer.start( 100 );
+    if (sim->isEnabled()) {
+        updateTimer.start(250);
+    } else {
+        updateTimer.start(100);
+    }
     emit started(this);
 }
 
@@ -147,6 +159,7 @@ void Behaviour_BallFollowing::update()
     addData("x", x);
     addData("distance", approxDistance);
 
+    emit printFrame(new IplImage(frame));
     emit dataChanged(this);
 }
 
@@ -240,4 +253,15 @@ void Behaviour_BallFollowing::controlEnabledChanged(bool b){
         logger->info("No longer enabled!");
         QTimer::singleShot(0, this, SLOT(stop()));
     }
+}
+
+void Behaviour_BallFollowing::grabFrame(cv::Mat &image)
+{
+    if (!this->isEnabled()){
+        logger->info("Not enabled!");
+        return;
+    }
+
+    this->frame.copyTo(image);
+    cvtColor(image, image, CV_HSV2RGB);
 }

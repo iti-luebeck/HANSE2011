@@ -28,6 +28,7 @@ public:
         return false if the Behaviour is not active
     */
     bool isActive();
+    void grabFrame(cv::Mat &frame);
 
 private:
     void update();
@@ -70,6 +71,7 @@ signals:
     void setForwardSpeed(float forwardSpeed);
     void setAngularSpeed(float angularSpeed);
     void requestFrame();
+    void printFrame(IplImage *image);
 };
 
 

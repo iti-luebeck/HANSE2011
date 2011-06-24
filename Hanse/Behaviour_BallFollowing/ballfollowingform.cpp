@@ -17,9 +17,8 @@ BallFollowingForm::BallFollowingForm(QWidget *parent, Behaviour_BallFollowing *b
     ui->maxDistanceLineEdit->setText(ballfollow->getSettingsValue("maxDistance").toString());
     ui->thresholdEdit->setText( ballfollow->getSettingsValue( "threshold", 100 ).toString() );
 
-    QObject::connect( ballfollowing, SIGNAL(printFrame(IplImage*)),
-                      this, SLOT(printFrame(IplImage*)),
-                      Qt::DirectConnection );
+    QObject::connect( ballfollowing, SIGNAL(dataChanged(RobotModule*)),
+                      this, SLOT(printFrame(RobotModule*)) );
     QObject::connect( this, SIGNAL(doTest(QString)),
                       ballfollowing, SLOT(testBehaviour(QString)) );
  }
@@ -65,11 +64,12 @@ void BallFollowingForm::on_saveAndApplyButton_clicked()
     ballfollow->setSettingsValue("threshold",ui->thresholdEdit->text().toInt());
 }
 
-void BallFollowingForm::printFrame(IplImage *frame)
+void BallFollowingForm::printFrame(RobotModule*)
 {
-    QImage image1((unsigned char*)frame->imageData, frame->width, frame->height, QImage::Format_RGB888);
-    image1 = image1.rgbSwapped();
-    ui->outputLabel->setPixmap(QPixmap::fromImage(image1));
+    cv::Mat frame;
+    ballfollow->grabFrame(frame);
+    QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
+    ui->outputLabel->setPixmap(QPixmap::fromImage(image1.rgbSwapped()));
 }
 
 void BallFollowingForm::on_testVideoButton_clicked()
