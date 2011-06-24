@@ -142,7 +142,6 @@ void Behaviour_XsensFollowing::turnNinety()
         return;
     }
     logger->info("Turn 90");
-    qDebug()<< "oldTargetHeading" << targetHeading;
     if(getSettingsValue("enableTurn").toBool() == true){
         if(getSettingsValue("turnClockwise").toBool() == true){
             targetHeading = Angles::deg2deg(targetHeading+90);
@@ -150,11 +149,11 @@ void Behaviour_XsensFollowing::turnNinety()
             targetHeading = Angles::deg2deg(targetHeading-90);
         }
     }
-    qDebug()<< "newTargetHeading" << targetHeading;
 }
 
 void Behaviour_XsensFollowing::refreshHeading()
 {
+
     //logger->debug("Xsens follow refresh heading");
     if (this->isEnabled() == false){
         logger->info("Not enabled!");
