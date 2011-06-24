@@ -57,7 +57,11 @@ void Behaviour_PipeFollowing::startBehaviour()
     Behaviour_PipeFollowing::updateFromSettings();
     this->setHealthToOk();
     setEnabled(true);
-    timer.start(timerTime);
+    if (sim->isEnabled()) {
+        timer.start(timerTime);
+    } else {
+        timer.start(2 * timerTime);
+    }
     emit started(this);
 }
 
