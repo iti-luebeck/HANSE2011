@@ -120,6 +120,9 @@ void Behaviour_BallFollowing::update()
 
     QString ballState = tracker.getState();
     double x = tracker.getMeanX();
+    double area = tracker.getArea();
+    double radius = std::sqrt(area / M_PI);
+    double approxDistance = 0.15 * 326.7 / radius; // d = R * F / r (in m)
 
     if (ballState == STATE_IS_SEEN) {
         double robCenterX = this->getSettingsValue("robCenterX").toDouble();
@@ -142,6 +145,7 @@ void Behaviour_BallFollowing::update()
     ellipse(frame, RotatedRect(Point(x, tracker.getMeanY()), Size(std::sqrt(tracker.getArea()), std::sqrt(tracker.getArea())), 0.0f), Scalar(255,0,0), 5);
     addData("state", ballState);
     addData("x", x);
+    addData("distance", approxDistance);
 
     emit dataChanged(this);
 }

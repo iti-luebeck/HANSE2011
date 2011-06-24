@@ -383,7 +383,7 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
             lastCompassHeading = compassHeading;
         } else {
             diffHeading = Angles::deg2pi(compassHeading - lastCompassHeading);
-            sonar.addData("particle diff heading", Angles::pi2pi(diffHeading));
+            sonar.addData("xsens heading difference", Angles::pi2pi(diffHeading));
             lastCompassHeading = compassHeading;
         }
     }
@@ -483,7 +483,6 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
     logger->debug("Updating the particle filter... DONE");
 
     this->sonar.setSettingsValue("savedPosition", getBestEstimate().toPointF());
-    sonar.addData("heading", particles[0].getTheta());
 
     particlesMutex.lock();
     QVector3D bestPos = getBestEstimate();

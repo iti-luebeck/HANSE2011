@@ -52,7 +52,6 @@ void Behaviour_TurnOneEighty::stop()
     {
         logger->debug( "Behaviour stopped" );
         emit setAngularSpeed(0.0);
-        //       tcl->setAngularSpeed(0.0);
         setEnabled( false );
         emit finished( this, true );
     }
@@ -85,18 +84,15 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 
             double targetHeading = Angles::deg2deg(initialHeading + this->getSettingsValue("degree").toDouble());
             double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-            qDebug()<<"currentHeading" <<currentHeading;
-            addData("current_heading", currentHeading);
-            qDebug()<<"targetHeading" <<targetHeading;
-            addData("targetHeading", targetHeading);
-            qDebug()<<"diffHeading" <<diffHeading;
-            addData("difference_heading", diffHeading);
+            addData("heading current", currentHeading);
+            addData("heading target", targetHeading);
+            addData("heading difference", diffHeading);
 
 
             if ( fabs( diffHeading ) < getSettingsValue( "hysteresis", TURN_DEFAULT_HYSTERESIS ).toDouble() )
             {
                 emit setAngularSpeed(0.0);
-                emit turn180finished("turn180");
+                emit turn180finished();
                 QTimer::singleShot(0, this, SLOT(stop()));
             }
             else
@@ -126,8 +122,7 @@ void Behaviour_TurnOneEighty::initialHeadingUpdate()
 
     initialHeading = this->xsens->getHeading();
 
-    qDebug()<< "initial heading set to" << initialHeading;
-    addData("initial_heading", initialHeading);
+    addData("heading initial", initialHeading);
     dataChanged( this );
     this->dataLockerMutex.unlock();
 }

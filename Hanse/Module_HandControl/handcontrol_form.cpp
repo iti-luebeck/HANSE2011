@@ -137,19 +137,19 @@ void HandControl_Form::on_downButton_clicked()
 }
 
 void HandControl_Form::resetForSpeeds(){
-    module->addData("forwardSpeed", 0);
+    module->addData("speed forward", 0);
     fwd = 0;
 }
 
 void HandControl_Form::resetAngSpeeds(){
-    module->addData("angularSpeed", 0);
+    module->addData("speed angular", 0);
     ang = 0;
 }
 
 void HandControl_Form::on_resetDepthButton_clicked()
 {
     upDownSpeed = 0.0;
-    module->addData("speedUpDown", upDownSpeed);
+    module->addData("speed up down", upDownSpeed);
     dep = upDownSpeed;
 }
 

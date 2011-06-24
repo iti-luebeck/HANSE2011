@@ -151,7 +151,7 @@ void Behaviour_PipeFollowing::timerSlotExecute()
     if (!frame.empty()) {
         this->setHealthToOk();
         tracker.update(frame);
-        addData("time image processing", run.elapsed());
+        addData("time (msec)", run.elapsed());
 
         // Draw ideal line and robot center.
         line(frame, Point(frame.cols / 2, 0.0), Point(frame.cols / 2, frame.rows), Scalar(255,0,0), 3, 8);
@@ -175,6 +175,7 @@ void Behaviour_PipeFollowing::controlPipeFollow()
     }
 
     float ctrAngleSpeed = 0.0;
+    float ctrForwardSpeed = 0.0;
     float curAngle = Angles::pi2deg(tracker.getOrientation());
     float distanceY = tracker.getDistanceToCenter();
     addData("pipe angle", curAngle);
@@ -182,19 +183,14 @@ void Behaviour_PipeFollowing::controlPipeFollow()
 
     QString pipeState = tracker.getState();
     addData("pipe state", pipeState);
+
     if (pipeState == STATE_NOT_SEEN_YET) {
         // Assumption: Pipe is just ahead
         ctrAngleSpeed = 0.0;
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(constFWSpeed);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", constFWSpeed);
+        ctrForwardSpeed = constFWSpeed;
     } else if (pipeState == STATE_PASSED) {
         ctrAngleSpeed = 0.0;
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(0);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", 0);
+        ctrForwardSpeed = 0.0f;
     } else if (pipeState == STATE_IS_SEEN) {
         if (fabs(curAngle) > Behaviour_PipeFollowing::deltaAngPipe) {
             ctrAngleSpeed = Behaviour_PipeFollowing::kpAngle * curAngle / 90.0;
@@ -204,42 +200,30 @@ void Behaviour_PipeFollowing::controlPipeFollow()
             ctrAngleSpeed += Behaviour_PipeFollowing::kpDist * distanceY / Behaviour_PipeFollowing::maxDistance;
         }
 
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(constFWSpeed);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", constFWSpeed);
+        ctrForwardSpeed = constFWSpeed;
     } else if (pipeState == STATE_LOST_LEFT) {
         ctrAngleSpeed = -0.2;
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(constFWSpeed);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", constFWSpeed);
+        ctrForwardSpeed = constFWSpeed;
     } else if (pipeState == STATE_LOST_RIGHT) {
         ctrAngleSpeed = 0.2;
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(constFWSpeed);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", constFWSpeed);
+        ctrForwardSpeed = constFWSpeed;
     } else if (pipeState == STATE_LOST_BOTTOM) {
         ctrAngleSpeed = 0.2;
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(0);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", 0);
+        ctrForwardSpeed = 0.0f;
     } else if (pipeState == STATE_LOST_TOP) {
         ctrAngleSpeed = 0.0;
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(constFWSpeed);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", constFWSpeed);
+        ctrForwardSpeed = constFWSpeed;
     } else if (pipeState == STATE_LOST) {
         // PANIC
         ctrAngleSpeed = 0.0;
-        emit angularSpeed(ctrAngleSpeed);
-        emit forwardSpeed(0);
-        addData("angular_speed", ctrAngleSpeed);
-        addData("forward_speed", 0);
+        ctrForwardSpeed = 0.0f;
     }
+
+    emit angularSpeed(ctrAngleSpeed);
+    emit forwardSpeed(ctrForwardSpeed);
+    addData("speed angular", ctrAngleSpeed);
+    addData("speed forward", ctrForwardSpeed);
+
     emit newPipeState(pipeState);
     emit dataChanged( this );
 }

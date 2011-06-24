@@ -108,6 +108,8 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
     if (!getSettingsValue("enabled").toBool())
         return;
 
+    addData("depth actual", depth);
+
     if (control_loop_enabled) {
         // Speed of the UpDownThruster:
         // TODO: PRESUMPTION: speed>0.0 means UP
@@ -128,6 +130,7 @@ void Module_ThrusterControlLoop::newDepthData(float depth)
             if (speed < minSpeed) speed = minSpeed;
             if (speed > maxSpeed) speed = maxSpeed;
         }
+        addData("depth speed", speed);
 
         //// Health-Check ////
         // Can we believe the pressure sensor?
@@ -206,7 +209,7 @@ void Module_ThrusterControlLoop::setAngularSpeed(float angularSpeed)
     if (angularSpeed> 1.0) { angularSpeed= 1.0; }
     if (angularSpeed<-1.0) { angularSpeed=-1.0; }
     actualAngularSpeed=angularSpeed;    
-    addData("actualAngularSpeed", actualAngularSpeed);
+    addData("speed angular", actualAngularSpeed);
 
     updateHorizontalThrustersNow();
     emit dataChanged(this);
@@ -224,7 +227,7 @@ void Module_ThrusterControlLoop::setForwardSpeed(float speed)
     if (speed> 1.0) { speed= 1.0; }
     if (speed<-1.0) { speed=-1.0; }
     actualForwardSpeed=speed;
-    addData("actualForwardSpeed", actualForwardSpeed);  // for logging
+    addData("speed forward", actualForwardSpeed);  // for logging
 
     updateHorizontalThrustersNow();
     emit dataChanged(this);
@@ -244,7 +247,7 @@ void Module_ThrusterControlLoop::setDepth(float depth)
     if (depth > 5)
         depth = 5;
 
-    addData("depthSoll", depth);
+    addData("depth target", depth);
     emit dataChanged(this);
     setvalueDepth=depth;
 }

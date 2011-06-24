@@ -126,9 +126,9 @@ void Behaviour_XsensFollowing::controlLoop()
     }
 
 
-    addData("current heading",currentHeading);
-    addData("targetHeading", targetHeading);
-    addData("diffHeading", diffHeading);
+    addData("heading current",currentHeading);
+    addData("heading target", targetHeading);
+    addData("heading difference", diffHeading);
     emit dataChanged(this);
     emit newAngularSpeed(ctrAngleSpeed);
     emit newForwardSpeed(getSettingsValue("ffSpeed").toFloat());
@@ -165,7 +165,7 @@ void Behaviour_XsensFollowing::refreshHeading()
         this->dataLockerMutex.lock();
 
         targetHeading = this->xsens->getHeading();
-        addData("targetHeading", targetHeading);
+        addData("heading target", targetHeading);
         dataChanged( this );
         this->dataLockerMutex.unlock();
 

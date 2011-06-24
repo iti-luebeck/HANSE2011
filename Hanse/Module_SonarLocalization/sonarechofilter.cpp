@@ -295,7 +295,7 @@ void SonarEchoFilter::grouping()
 
     // Add heading difference to total sonar head movement.
     temp_area += fabs(diff);
-    mti->addData("area", temp_area);
+    mti->addData("degrees covered", temp_area);
 //    qDebug("%f", temp_area);
 
     // Do grouping, if enough data was collected.
@@ -317,7 +317,7 @@ void SonarEchoFilter::grouping()
         }
 
         currentDataHeading = candidates.last().getCompassHeading();
-        sloc->addData("heading at current sonar reading", currentDataHeading);
+        sloc->addData("heading current", currentDataHeading);
 
         if (cutIndex == 0) {
             qDebug() << "No Darkness. Cutting Candidates at 360 degrees";
@@ -425,7 +425,7 @@ void SonarEchoFilter::sendImage()
 
     if (wallFeatures.size() > 0) {
         lastValidDataHeading = wallFeatures.last().getCompassHeading();
-        sloc->addData("heading at last observation", lastValidDataHeading);
+        sloc->addData("heading last observation", lastValidDataHeading);
     }
 
     // Calculate maximum value in the current frame.

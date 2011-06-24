@@ -44,7 +44,7 @@ void TaskMidwaterTarget::startBehaviour(){
 
     taskState = TASK_STATE_START;
     logger->info(taskState);
-    addData("taskState", taskState);
+    addData("state", taskState);
     emit newState(taskState);
     emit dataChanged(this);
 
@@ -78,7 +78,7 @@ void TaskMidwaterTarget::stop(){
     if(this->isEnabled()){
         taskState = TASK_STATE_END;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         emit dataChanged(this);
 
@@ -102,7 +102,7 @@ void TaskMidwaterTarget::timeoutStop(){
     if(this->isEnabled()){
         taskState = TASK_STATE_END_FAILED;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         emit dataChanged(this);
 
@@ -128,7 +128,7 @@ void TaskMidwaterTarget::emergencyStop(){
 
     taskState = TASK_STATE_END_FAILED;
     logger->info(taskState);
-    addData("taskState", taskState);
+    addData("state", taskState);
     emit newState(taskState);
     emit dataChanged(this);
 

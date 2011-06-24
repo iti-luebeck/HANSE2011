@@ -100,7 +100,7 @@ void Behaviour_WallFollowing::stop()
         logger->info( "Behaviour stopped" );
         wallCase = "Wallfollowing stopped, stop thruster";
         emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
+        addData("state",wallCase);
         emit dataChanged(this);
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);
@@ -150,8 +150,8 @@ void Behaviour_WallFollowing::controlWallFollow()
 
     avgDistance = echo->avgDistance;
 
-    addData("Desired distance: ",distanceInput);
-    addData("Avg distance: ",avgDistance);
+    addData("distance target",distanceInput);
+    addData("distance average",avgDistance);
     emit dataChanged(this);
 
     if(running==true){ 
@@ -174,7 +174,7 @@ void Behaviour_WallFollowing::controlWallFollow()
             }
         }
         emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
+        addData("state",wallCase);
         emit dataChanged(this);
     }
 }
@@ -273,7 +273,7 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
                         emit angularSpeed(-angSpeed);
                         wallCase = "No average distance (no wall)?! Only turn left...";
                         emit updateWallCase(wallCase);
-                        addData("Current Case: ",wallCase);
+                        addData("state",wallCase);
                         emit dataChanged(this);
                     }
                 }
@@ -287,7 +287,7 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
                 emit angularSpeed(0.0);
                 wallCase = "Something is really wrong, stop thruster";
                 emit updateWallCase(wallCase);
-                addData("Current Case: ",wallCase);
+                addData("state",wallCase);
                 emit dataChanged(this);
             }
         }
@@ -295,7 +295,7 @@ void Behaviour_WallFollowing::newWallBehaviourData(const EchoReturnData data, fl
         if(wallCase!="Wallfollowing not activated!"){
             wallCase = "Wallfollowing not activated!";
             emit updateWallCase(wallCase);
-            addData("Current Case: ",wallCase);
+            addData("state",wallCase);
             emit dataChanged(this);
         }
     }
@@ -321,7 +321,7 @@ void Behaviour_WallFollowing::stopOnEchoError(){
     emit angularSpeed(0.0);
     wallCase = "No echosignal, stop thruster!";
     emit updateWallCase(wallCase);
-    addData("Current Case: ",wallCase);
+    addData("state",wallCase);
     emit dataChanged(this);
 }
 
@@ -345,7 +345,7 @@ void Behaviour_WallFollowing::turn90One(){
     if(this->isEnabled()){
         wallCase = "Turn 90";
         emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
+        addData("state", wallCase);
         emit dataChanged(this);
         double currentHeading = 0.0;
         currentHeading = this->xsens->getHeading();
@@ -365,13 +365,13 @@ void Behaviour_WallFollowing::turn90One(){
         }
 
         double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-        addData("initialHeading",initialHeading);
-        addData("targetHeading",targetHeading);
-        addData("diffHeading",diffHeading);
+        addData("heading initial", initialHeading);
+        addData("heading target", targetHeading);
+        addData("heading difference", diffHeading);
         emit dataChanged(this);
         if (fabs(diffHeading) < 10)
         {
-            logger->info("Turn90One: Adjust heading finished");
+            logger->info("Turn90One: Adjust heading finished");
             emit angularSpeed(0.0);
             emit forwardSpeed(0.0);
             QTimer::singleShot(0, this, SLOT(drive()));
@@ -390,7 +390,7 @@ void Behaviour_WallFollowing::drive(){
     if(this->isEnabled()){
         wallCase = "Drive";
         emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
+        addData("state",wallCase);
         emit dataChanged(this);
         logger->info("Turn90 drive");
         emit angularSpeed(0.0);
@@ -404,7 +404,7 @@ void Behaviour_WallFollowing::turn90Two(){
     if(this->isEnabled()){
         wallCase = "Turn 90 back";
         emit updateWallCase(wallCase);
-        addData("Current Case: ",wallCase);
+        addData("state",wallCase);
         emit dataChanged(this);
         double currentHeading = 0.0;
         currentHeading = this->xsens->getHeading();
@@ -424,9 +424,9 @@ void Behaviour_WallFollowing::turn90Two(){
             }
         }
         double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-        addData("initialHeading",initialHeading);
-        addData("targetHeading",targetHeading);
-        addData("diffHeading",diffHeading);
+        addData("heading initial", initialHeading);
+        addData("heading target", targetHeading);
+        addData("heading difference", diffHeading);
         emit dataChanged(this);
         if (fabs(diffHeading) < 10)
         {

@@ -77,7 +77,7 @@ void Module_ScanningSonar::terminate()
 
 void Module_ScanningSonar::refreshSimData(SonarReturnData data)
 {
-    addData("currentHeading",data.getHeadPosition());
+    addData("heading",data.getHeadPosition());
     addData("range",data.getRange());
     emit newSonarData(data);
     emit dataChanged(this);
@@ -110,7 +110,7 @@ bool Module_ScanningSonar::doNextScan()
 
         if (d.isPacketValid()) {
             setHealthToOk();
-            addData("currentHeading", d.getHeadPosition());
+            addData("heading", d.getHeadPosition());
             addData("range", d.getRange());
             emit newSonarData(d);
             emit dataChanged(this);

@@ -11,8 +11,6 @@ PipeFollowingForm::PipeFollowingForm(QWidget *parent, Behaviour_PipeFollowing *p
 
     qRegisterMetaType<QVariant>("QVariant");
 
-
-//    QObject::connect(this,SIGNAL(newDataPipeFollow(QString,QVariant)),pipefollow,SLOT(addData(QString,QVariant)));
 //    QObject::connect(this,SIGNAL(newSettingsPipeFollow(QString,QVariant)),pipefollow,SLOT(setSettingsValue(QString,QVariant)),Qt::BlockingQueuedConnection);
     QObject::connect(this,SIGNAL(settingsChanged()),pipefollow,SLOT(updateFromSettings()));
 

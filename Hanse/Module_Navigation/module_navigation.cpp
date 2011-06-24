@@ -106,7 +106,7 @@ void Module_Navigation::navigateToNextWaypoint()
 
         addData("state", state);
         addData("substate", substate);
-        addData("position to goal angle", .0);
+        addData("heading absolute position to goal", .0);
         addData("current goal", "");
         emit dataChanged(this);
     } else {
@@ -140,7 +140,7 @@ void Module_Navigation::navigateToCurrentWaypoint()
 
     addData("state", state);
     addData("substate", substate);
-    addData("position to goal angle", headingToGoal);
+    addData("heading absolute position to goal", headingToGoal);
     dataChanged(this);
 }
 
@@ -193,7 +193,7 @@ void Module_Navigation::clearPath()
 
     addData("state", state);
     addData("substate", substate);
-    addData("position to goal angle", .0);
+    addData("heading absolute position to goal", .0);
     addData("current goal", "");
     dataChanged( this );
     emit clearedGoal();
@@ -224,10 +224,11 @@ void Module_Navigation::xsensUpdate( RobotModule * )
 
             if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
                 double diffXsens = Angles::deg2deg(xsensHeading - adjustHeadingInitialXsens);
-                addData("xsens heading to last localization", diffXsens);
+                addData("heading xsens to position", diffXsens);
 
                 if (fabs(Angles::deg2deg(diffHeading - diffXsens)) < 5) {
-                    emit newANGSpeed(.0);
+                    emit newANGSpeed(0.0f);
+                    addData("speed angular", 0.0f);
                 } else {
                     float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                     float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
@@ -238,17 +239,15 @@ void Module_Navigation::xsensUpdate( RobotModule * )
                     if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
 
                     emit newANGSpeed(val);
+                    addData("speed angular", val);
                 }
             }
 
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
                 float headingError = - Angles::deg2deg(xsensHeading - initialXsensHeading);
-                //                if (fabs(headingError) > getSettingsValue(QString("hysteresis_heading"), NAV_HYSTERESIS_HEADING).toFloat()) {
                 float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * headingError;
                 emit newANGSpeed(val);
-                //                } else {
-                //                    emit newANGSpeed(.0);
-                //                }
+                addData("speed angular", val);
             }
         }
     }
@@ -291,169 +290,159 @@ void Module_Navigation::sonarPositionUpdate()
     headingToGoal = -atan2(dx, dy) * 180 / CV_PI;
     distanceToGoal = sqrt(dx*dx + dy*dy);
 
-//    addData("currentHeading", currentHeading);
-//    addData("dx", dx);
-//    addData("dy", dy);
-    addData("dtheta", headingToGoal);
+    addData("heading position to goal", headingToGoal);
+
+    float forwardSpeed = .0;
+    float angularSpeed = .0;
 
     // Check whether there were enough matches to trust the localization estimate.
     if (sonarLoc->getLocalizationConfidence() < 0.7f) {
         // Set speed to 0 to help the localization.
         trustingCurrentPosition = false;
-        emit newFFSpeed(.0);
-        emit newANGSpeed(.0);
-        return;
     } else {
         trustingCurrentPosition = true;
-    }
 
-    //--------------------------------------------------------------------
-    //  STATE_IDLE
-    //
-    // Do nothing if we are idle.
-    //--------------------------------------------------------------------
-    if (state == NAV_STATE_IDLE) { }
-
-
-    //--------------------------------------------------------------------
-    //  STATE_PAUSED
-    //
-    // Do nothing if we are paused.
-    //--------------------------------------------------------------------
-    if (state == NAV_STATE_PAUSED) { }
+        //--------------------------------------------------------------------
+        //  STATE_IDLE
+        //
+        // Do nothing if we are idle.
+        //--------------------------------------------------------------------
+        if (state == NAV_STATE_IDLE) { }
 
 
-    //--------------------------------------------------------------------
-    //  STATE_GO_TO_GOAL
-    //
-    // Navigates to a goal:
-    //  1. adjust depth
-    //  2. adjust heading to goal
-    //  3. move forward for some time
-    //  4. start over
-    //--------------------------------------------------------------------
-    if (state == NAV_STATE_GO_TO_GOAL) {
-        diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
-        addData("heading difference to goal", diffHeading);
+        //--------------------------------------------------------------------
+        //  STATE_PAUSED
+        //
+        // Do nothing if we are paused.
+        //--------------------------------------------------------------------
+        if (state == NAV_STATE_PAUSED) { }
 
-        // Check if we are close enough to the goal.
-        if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +
-                   ( currentPosition.getY() - currentGoal.posY ) * ( currentPosition.getY() - currentGoal.posY ) )
-            < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
-            state = NAV_STATE_REACHED_GOAL;
-            substate = NAV_SUBSTATE_ADJUST_HEADING;
-            addData("ANGspeed", .0);
-            addData("FFspeed",.0);
-            emit newFFSpeed(.0);
-            emit newANGSpeed(.0);
-        } else {
 
-            // First adjust the depth.
-            if (substate == NAV_SUBSTATE_ADJUST_DEPTH) {
-                if ( fabs( currentDepth - currentGoal.depth ) <
-                     getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() ) {
-                    substate = NAV_SUBSTATE_ADJUST_HEADING;
+        //--------------------------------------------------------------------
+        //  STATE_GO_TO_GOAL
+        //
+        // Navigates to a goal:
+        //  1. adjust depth
+        //  2. adjust heading to goal
+        //  3. move forward for some time
+        //  4. start over
+        //--------------------------------------------------------------------
+        if (state == NAV_STATE_GO_TO_GOAL) {
+            diffHeading = Angles::deg2deg(headingToGoal - currentHeading);
+            addData("heading relative position to goal", diffHeading);
+
+            // Check if we are close enough to the goal.
+            if ( sqrt( ( currentPosition.getX() - currentGoal.posX ) * ( currentPosition.getX() - currentGoal.posX ) +
+                       ( currentPosition.getY() - currentGoal.posY ) * ( currentPosition.getY() - currentGoal.posY ) )
+                < getSettingsValue( QString( "hysteresis_goal" ), NAV_HYSTERESIS_GOAL ).toDouble() ) {
+                state = NAV_STATE_REACHED_GOAL;
+                substate = NAV_SUBSTATE_ADJUST_HEADING;
+            } else {
+
+                // First adjust the depth.
+                if (substate == NAV_SUBSTATE_ADJUST_DEPTH) {
+                    if ( fabs( currentDepth - currentGoal.depth ) <
+                         getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() ) {
+                        substate = NAV_SUBSTATE_ADJUST_HEADING;
+                    }
+                }
+
+                // Then adjust the heading towards the goal.
+                if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
+                    adjustHeadingInitialXsens = mti->getHeading();
+
+                    // Check whether the heading needs to be corrected.
+                    if ( fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
+
+                        // positive: rotate right (clockwise)
+                        float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
+                        float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
+                        float val = - getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
+                        if (val > maxAngSpeed) val = maxAngSpeed;
+                        if (val < -maxAngSpeed) val = -maxAngSpeed;
+                        if (val > 0 && val < minAngSpeed) val = minAngSpeed;
+                        if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
+
+                        angularSpeed = val;
+                        forwardSpeed = 0.0f;
+
+                    } else {
+
+                        // If heading does not need to be adjusted, move forward.
+                        float speed = getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat();
+
+                        // Move slower if we are close to the goal.
+                        if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
+                            speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
+                                     (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
+                        }
+
+                        angularSpeed = 0.0f;
+                        forwardSpeed = speed;
+
+                        substate = NAV_SUBSTATE_MOVE_FORWARD;
+
+                        initialXsensHeading = mti->getHeading() + diffHeading;
+
+                        // Move forward for "forward_time" seconds.
+                        QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
+                                            this, SLOT( forwardDone() ) );
+
+                    }
                 }
             }
+        }
 
-            // Then adjust the heading towards the goal.
-            if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
+        //--------------------------------------------------------------------
+        //  STATE_REACHED_GOAL
+        //
+        // We reached the current goal position:
+        //  1. if needed, adjust the robot heading to match the desired exit
+        //     angle
+        //  2. stop all motors and navigate to next waypoint
+        //--------------------------------------------------------------------
+        if (state == NAV_STATE_REACHED_GOAL) {
+
+            if (currentGoal.useExitAngle) {
                 adjustHeadingInitialXsens = mti->getHeading();
-
-                // Check whether the heading needs to be corrected.
-                if ( fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
-
+                float exitAngle = currentGoal.exitAngle;
+                diffHeading = Angles::deg2deg(exitAngle - currentHeading);
+                if (fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
                     // positive: rotate right (clockwise)
                     float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
                     float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
-                    float val = - getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
+                    float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
                     if (val > maxAngSpeed) val = maxAngSpeed;
                     if (val < -maxAngSpeed) val = -maxAngSpeed;
                     if (val > 0 && val < minAngSpeed) val = minAngSpeed;
                     if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
-                    addData("ANGspeed", val);
-                    addData("FFspeed",.0);
-                    emit newFFSpeed(.0);
-                    emit newANGSpeed(val);
 
+                    angularSpeed = val;
+                    forwardSpeed = 0.0f;
                 } else {
+                    angularSpeed = 0.0f;
+                    forwardSpeed = 0.0f;
+                    emit reachedWaypoint( currentGoalName );
 
-                    // If heading does not need to be adjusted, move forward.
-                    addData("ANGspeed", .0);
-
-                    emit newANGSpeed(.0);
-                    float speed = getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat();
-
-                    // Move slower if we are close to the goal.
-                    if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
-                        speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
-                                 (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
-                    }
-                    addData("FFspeed",speed);
-                    emit newFFSpeed(speed);
-
-                    substate = NAV_SUBSTATE_MOVE_FORWARD;
-
-                    initialXsensHeading = mti->getHeading() + diffHeading;
-
-                    // Move forward for "forward_time" seconds.
-                    QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
-                                        this, SLOT( forwardDone() ) );
-
+                    navigateToNextWaypoint();
                 }
-            }
-        }
-    }
-
-    //--------------------------------------------------------------------
-    //  STATE_REACHED_GOAL
-    //
-    // We reached the current goal position:
-    //  1. if needed, adjust the robot heading to match the desired exit
-    //     angle
-    //  2. stop all motors and navigate to next waypoint
-    //--------------------------------------------------------------------
-    if (state == NAV_STATE_REACHED_GOAL) {
-
-        if (currentGoal.useExitAngle) {
-            adjustHeadingInitialXsens = mti->getHeading();
-            float exitAngle = currentGoal.exitAngle;
-            diffHeading = Angles::deg2deg(exitAngle - currentHeading);
-            if (fabs(diffHeading) > getSettingsValue("hysteresis_heading", NAV_HYSTERESIS_HEADING).toDouble()) {
-                // positive: rotate right (clockwise)
-                float maxAngSpeed = getSettingsValue("angular_max_speed").toFloat();
-                float minAngSpeed = getSettingsValue("angular_min_speed").toFloat();
-                float val = getSettingsValue( "p_heading", NAV_P_HEADING ).toFloat() * diffHeading;
-                if (val > maxAngSpeed) val = maxAngSpeed;
-                if (val < -maxAngSpeed) val = -maxAngSpeed;
-                if (val > 0 && val < minAngSpeed) val = minAngSpeed;
-                if (val < 0 && val > -minAngSpeed) val = -minAngSpeed;
-
-                emit newFFSpeed(.0);
-                emit newANGSpeed(val);
             } else {
-                emit newFFSpeed(.0);
-                emit newANGSpeed(.0);
+                angularSpeed = 0.0f;
+                forwardSpeed = 0.0f;
                 emit reachedWaypoint( currentGoalName );
 
                 navigateToNextWaypoint();
             }
-        } else {
-            emit newFFSpeed(.0);
-            emit newANGSpeed(.0);
-            emit reachedWaypoint( currentGoalName );
-
-            navigateToNextWaypoint();
         }
-
-
-        addData("ANGspeed",.0);
-        addData("FFspeed",.0);
-
     }
+
+    emit newANGSpeed(angularSpeed);
+    emit newFFSpeed(forwardSpeed);
 
     addData("state", state);
     addData("substate", substate);
+    addData("speed angular", angularSpeed);
+    addData("speed forward", forwardSpeed);
     dataChanged( this );
 }
 

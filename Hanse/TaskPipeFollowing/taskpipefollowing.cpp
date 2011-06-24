@@ -89,7 +89,7 @@ void TaskPipeFollowing::startBehaviour(){
 
     taskState = TASK_STATE_START;
     logger->info(taskState);
-    addData("taskState", taskState);
+    addData("state", taskState);
     emit newState(taskState);
     emit dataChanged(this);
 
@@ -133,7 +133,7 @@ void TaskPipeFollowing::moveToTaskStart(){
     if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
         taskState = TASK_STATE_MOVE_TO_TASK_START;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         emit dataChanged(this);
         this->navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
@@ -147,7 +147,7 @@ void TaskPipeFollowing::moveToPipeStart(){
     if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
         taskState = TASK_STATE_MOVE_TO_PIPE_INIT;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         emit dataChanged(this);
         this->navi->gotoWayPoint(this->getSettingsValue("pipeStartPoint").toString());
@@ -163,7 +163,7 @@ void TaskPipeFollowing::pipefollowPart1(){
         if(taskState != TASK_STATE_PIPEFOLLOW_PART1){
             taskState = TASK_STATE_PIPEFOLLOW_PART1;
             logger->info(taskState);
-            addData("taskState", taskState);
+            addData("state", taskState);
             emit newState(taskState);
             emit dataChanged(this);
 
@@ -187,7 +187,7 @@ void TaskPipeFollowing::moveToGatewaypoint1(){
     if(this->isEnabled()){
         taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         this->navi->gotoWayPoint(this->getSettingsValue("gate1point").toString());
     }
@@ -198,7 +198,7 @@ void TaskPipeFollowing::moveToPipe(){
         if(taskState != TASK_STATE_MOVE_TO_PIPE){
             taskState = TASK_STATE_MOVE_TO_PIPE;
             logger->info(taskState);
-            addData("taskState", taskState);
+            addData("state", taskState);
             emit newState(taskState);
             emit dataChanged(this);
 
@@ -223,7 +223,7 @@ void TaskPipeFollowing::pipefollowPart2(){
         if(taskState != TASK_STATE_PIPEFOLLOW_PART2){
             taskState = TASK_STATE_PIPEFOLLOW_PART2;
             logger->info(taskState);
-            addData("taskState", taskState);
+            addData("state", taskState);
             emit newState(taskState);
             emit dataChanged(this);
         }
@@ -245,7 +245,7 @@ void TaskPipeFollowing::moveToGatewaypoint2(){
     if(this->isEnabled()){
         taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT2;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         this->navi->gotoWayPoint(this->getSettingsValue("gate2point").toString());
     }
@@ -318,8 +318,8 @@ void TaskPipeFollowing::controlAngleCalculation(){
                 logger->info("flag_GoalLine_2_reached = true... through angle");
             }
         }
-        addData("Alpha", alpha);
-        addData("Dist", dist);
+        addData("angle relative to pipe end", alpha);
+        addData("distance to pipe end", dist);
         emit dataChanged(this);
     }
 }
@@ -328,7 +328,7 @@ void TaskPipeFollowing::stop(){
     if(this->isEnabled()){
         taskState = TASK_STATE_END;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         emit dataChanged(this);
 
@@ -353,7 +353,7 @@ void TaskPipeFollowing::timeoutStop(){
     if(this->isEnabled()){
         taskState = TASK_STATE_END_FAILED;
         logger->info(taskState);
-        addData("taskState", taskState);
+        addData("state", taskState);
         emit newState(taskState);
         emit dataChanged(this);
 
@@ -380,7 +380,7 @@ void TaskPipeFollowing::emergencyStop(){
 
     taskState = TASK_STATE_END_FAILED;
     logger->info(taskState);
-    addData("taskState", taskState);
+    addData("state", taskState);
     emit newState(taskState);
     emit dataChanged(this);
 
