@@ -104,10 +104,10 @@ void EchoSwitchCommand::extractHeader(const QByteArray &a)
         logger->error("read bad value as head ID. correct file?");
     }
 
-    logger->trace("totalBytes=" + QString::number(totalBytes));
-    logger->trace("nToRead=" + QString::number(nToRead));
-    logger->trace("startGain=" + QString::number(startGain));
-    logger->trace("DateTime=" + this->time.toString("ddd MMM d yyyy HH:mm:ss.zzz"));
+    // logger->trace("totalBytes=" + QString::number(totalBytes));
+    // logger->trace("nToRead=" + QString::number(nToRead));
+    // logger->trace("startGain=" + QString::number(startGain));
+    // logger->trace("DateTime=" + this->time.toString("ddd MMM d yyyy HH:mm:ss.zzz"));
 
     origFileHeader = a;
 }

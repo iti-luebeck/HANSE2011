@@ -2,16 +2,37 @@
 #define WALLFOLLOWINGBEHAVIOUR_H
 
 #include <Framework/robotbehaviour.h>
-
-#include <Behaviour_WallFollowing/wallfollowingform.h>
 #include <Module_EchoSounder/module_echosounder.h>
-
-#define FLAG_SOUNDER_RIGHT true
 
 class WallFollowingForm;
 class Module_ThrusterControlLoop;
 class Module_Simulation;
 class Module_XsensMTi;
+
+// Follow wall right to hanse
+#define FLAG_SOUNDER_RIGHT      true
+
+// Behaviour states
+#define BEHAV_BEHAVIOUR_START   "Behaviour start"
+#define BEHAV_WALLFOLLOWING     "Control distance"
+#define BEHAV_BEHAVIOUR_END     "Behaviour stopped"
+
+// Wall states
+#define WALL_NO_WALL                 "No average distance"
+#define WALL_ADJUST_START            "Adjust startdistance"
+#define WALL_CONTROL_WALLFOLLOW      "Average distance existing"
+#define WALL_TURN_LEFT              "Turn left"
+#define WALL_TURN_RIGHT             "Turn right"
+#define WALL_NO_TURN             "Only forward"
+#define WALL_ERROR               "Echosignal error"
+#define WALL_STOP               " - Stopped -"
+
+// Adjust distance states
+#define ADJUST_IDLE             "Adjust idle"
+#define ADJUST_TURN90_START     "First adjust turn 90"
+#define ADJUST_DRIVE            "Adjust drive"
+#define ADJUST_TURN90_END       "Second adjust turn 90"
+#define ADJUST_FINISHED         "Adjust distance finished"
 
 class Behaviour_WallFollowing : public RobotBehaviour
 {
@@ -25,37 +46,40 @@ public:
 
     bool isActive();
 
-    bool echoTest;
-    bool t90dt90;
-    float diff;
-
-    QTimer *echoControlTimer;
-    Module_EchoSounder *echo;
-    Module_XsensMTi* xsens;
+    QString behavState;
+    QString wallState;
+    QString adjustState;
+    QString guiShow;
 
 private:
-    //QTimer timer;
     void init();
-    QString wallCase;
-    void controlWallFollow();
+    bool active;
 
-
-    // void timerSlotExecute();
-
+    Module_EchoSounder *echo;
+    Module_XsensMTi* xsens;
     Module_ThrusterControlLoop * tcl;
 
-    // int timerTime;
-    bool running;
-    bool startPhase;
-
+    void controlWallFollow();
     float avgDistance;
     float distanceInput;
     float angSpeed;
     float fwdSpeed;
     float corridorWidth;
-    void timerSlotExecute();
-    int wallTime;
-    double initialHeading;
+    float initialHeading;
+    float targetHeading;
+    float diff;
+
+
+signals:
+    void timerStart( int msec );
+    void timerStop();
+    void dataError();
+    void forwardSpeed(float fwSpeed);
+    void angularSpeed(float anSpeed);
+    void startControlTimer();
+    void newWallUiData(const EchoReturnData data, float avgDistance);
+    void updateGUI(QString caseW);
+    void updateUi();
 
 public slots:
     void updateFromSettings();
@@ -64,35 +88,16 @@ public slots:
     void reset();
     void terminate();
     void stopOnEchoError();
-
-    // Module_EchoSounder -> Behaviour_WallFollowing
-    void newWallBehaviourData(const EchoReturnData data, float avgDistance);
-
-    void testEchoModule();
+    void newData(const EchoReturnData data, float avgDistance);
     void controlEnabledChanged(bool);
 
-    void turn90One();
-    void drive();
-    void turn90Two();
+    void adjustTurnOne();
+    void adjustDrive();
+    void adjustTurnTwo();
 
-    void controlWallFollowThruster();
-
-signals:
-    void timerStart( int msec );
-    void timerStop();
-    void dataError();
-
-    void forwardSpeed(float fwSpeed);
-    void angularSpeed(float anSpeed);
-
-    void startControlTimer();
-
-    // Behaviour_WallFollowing -> WallFollowingForm
-    void newWallUiData(const EchoReturnData data, float avgDistance);
-    void updateWallCase(QString caseW);
-    void updateUi();
-
-
+    void controlThrusterEchoLeft();
+    void controlThrusterEchoRight();
+    void updateStates();
 };
 
 

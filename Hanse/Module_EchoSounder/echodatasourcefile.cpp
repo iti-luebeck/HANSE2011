@@ -62,7 +62,7 @@ EchoReturnData EchoDataSourceFile::readPacket(){
     // chop of trailing zero fill
     remainingDataArray.chop(totalBytes - 100 - cmd.nToRead);
 
-    logger->trace("Read packet with content " + (QString)remainingDataArray.toHex());
+    // logger->trace("Read packet with content " + (QString)remainingDataArray.toHex());
 
     EchoReturnData d(cmd, remainingDataArray);
     return d;
