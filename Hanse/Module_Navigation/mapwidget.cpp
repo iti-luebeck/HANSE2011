@@ -193,7 +193,7 @@ void MapWidget::newSonarLocEstimate()
 
         if (weight < 0) {
             weight = 0;
-            qDebug() << "neg weight";
+            //qDebug() << "neg weight";
         }
         if (weight > 255) {
             weight = 255;

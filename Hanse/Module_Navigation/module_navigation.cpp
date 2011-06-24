@@ -367,28 +367,29 @@ void Module_Navigation::sonarPositionUpdate()
                         forwardSpeed = 0.0f;
 
                     } else {
-
-                        // If heading does not need to be adjusted, move forward.
-                        float speed = getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat();
-
-                        // Move slower if we are close to the goal.
-                        if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
-                            speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
-                                     (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
-                        }
-
-                        angularSpeed = 0.0f;
-                        forwardSpeed = speed;
-
                         substate = NAV_SUBSTATE_MOVE_FORWARD;
-
-                        initialXsensHeading = mti->getHeading() + diffHeading;
-
-                        // Move forward for "forward_time" seconds.
-                        QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
-                                            this, SLOT( forwardDone() ) );
-
                     }
+                }
+
+                if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
+
+                    // If heading does not need to be adjusted, move forward.
+                    float speed = getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat();
+
+                    // Move slower if we are close to the goal.
+                    if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
+                        speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
+                                 (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
+                    }
+
+                    angularSpeed = 0.0f;
+                    forwardSpeed = speed;
+
+                    initialXsensHeading = mti->getHeading() + diffHeading;
+
+                    // Move forward for "forward_time" seconds.
+                    QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
+                                        this, SLOT( forwardDone() ) );
                 }
             }
         }
