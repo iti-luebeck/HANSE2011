@@ -373,7 +373,7 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
 
     QVector<double> weights(N);
 
-    logger->debug("Updating the particle filter...");
+    //logger->debug("Updating the particle filter...");
 
     // Update orientation with information from Xsens MTi.
     float diffHeading = 0;
@@ -406,7 +406,7 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
 
 //    QVector<double> weights(N);
 
-    logger->debug("Updating the particle filter...");
+   // logger->debug("Updating the particle filter...");
 
     // update paricles filter
     for (int i = 0; i < N; i++) {
@@ -480,7 +480,7 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
     // sort particles
     this->sortParticles();
 
-    logger->debug("Updating the particle filter... DONE");
+   // logger->debug("Updating the particle filter... DONE");
 
     this->sonar.setSettingsValue("savedPosition", getBestEstimate().toPointF());
 

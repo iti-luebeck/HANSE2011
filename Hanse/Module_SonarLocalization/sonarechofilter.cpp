@@ -456,7 +456,7 @@ void SonarEchoFilter::sendImage()
     }
     lastMaxValue = maxi;
 
-    logger->debug("New Image");
+    //logger->debug("New Image");
     emit newImage(posArray);
     emit newSonarEchoData(wallFeatures);
     emit newSonarPlotData(candidates);
