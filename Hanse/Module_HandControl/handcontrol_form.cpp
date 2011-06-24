@@ -157,5 +157,5 @@ void HandControl_Form::setSpeeds(){
     updateControls(fwd, ang, dep);
     fwd = 0;
     ang = 0;
-    dep = 0;
+    //dep = 0;
 }
