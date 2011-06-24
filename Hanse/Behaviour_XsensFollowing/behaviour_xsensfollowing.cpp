@@ -20,11 +20,12 @@ Behaviour_XsensFollowing::Behaviour_XsensFollowing(QString id, Module_ThrusterCo
 
 bool Behaviour_XsensFollowing::isActive()
 {
-    return isEnabled();
+    return active;
 }
 
 void Behaviour_XsensFollowing::init()
 {
+    active = false;
     logger->info("Xsens Following init");
     setEnabled(false);
     connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -36,13 +37,18 @@ void Behaviour_XsensFollowing::init()
 
 void Behaviour_XsensFollowing::startBehaviour()
 {
-    if (this->isEnabled() == true){
-        logger->info("Already enabled/started!");
+    if (!isActive()) {
+        logger->info("Already active!");
         return;
     }
-    logger->info("Starting Xsens Following");
-    this->setEnabled(true);
 
+    active = true;
+    if(!isEnabled()){
+        setEnabled(true);
+    }
+
+
+    logger->info("Starting Xsens Following");
     targetHeading = xsens->getHeading();
 
     emit dataChanged(this);
@@ -60,10 +66,11 @@ void Behaviour_XsensFollowing::stop()
         turnTimer.stop();
     }
 
-    if (!isEnabled()) {
+    if (!isActive()) {
+        logger->info("Not active!");
         return;
     }
-
+    active = false;
     logger->info("Xsens follow stop");
     this->setEnabled(false);
     setEnabled(false);
@@ -75,11 +82,11 @@ void Behaviour_XsensFollowing::stop()
 
 void Behaviour_XsensFollowing::reset()
 {
-    logger->info("Xsens follow reset");
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()) {
         return;
     }
+    logger->info("Xsens follow reset");
+
     timer.stop();
     turnTimer.stop();
     emit newAngularSpeed(0.0);
@@ -102,9 +109,7 @@ void Behaviour_XsensFollowing::reset()
 
 void Behaviour_XsensFollowing::controlLoop()
 {
-    if (this->isEnabled() == false){
-        logger->info("not enabled - controlloop");
-        this->stop();
+    if (!isActive()) {
         return;
     }
 
@@ -136,11 +141,11 @@ void Behaviour_XsensFollowing::controlLoop()
 
 void Behaviour_XsensFollowing::turnNinety()
 {
-    if (this->isEnabled() == false){
-        logger->info("not enabled - 90");
+    if (!isActive()) {
         this->stop();
         return;
     }
+
     logger->info("Turn 90");
     if(getSettingsValue("enableTurn").toBool() == true){
         if(getSettingsValue("turnClockwise").toBool() == true){
@@ -154,9 +159,7 @@ void Behaviour_XsensFollowing::turnNinety()
 void Behaviour_XsensFollowing::refreshHeading()
 {
 
-    //logger->debug("Xsens follow refresh heading");
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()) {
         return;
     }
     if(xsens->isEnabled()){
@@ -173,12 +176,13 @@ void Behaviour_XsensFollowing::refreshHeading()
 
 void Behaviour_XsensFollowing::stopOnXsensError()
 {
-    if (!isEnabled()) {
+    if (!isActive()) {
         return;
     }
 
     logger->info("Xsens follow stop error");
-    this->setEnabled(false);
+    active = false;
+    setEnabled(false);
     timer.stop();
     turnTimer.stop();
     setHealthToSick("xsens error");
@@ -202,8 +206,15 @@ QWidget* Behaviour_XsensFollowing::createView(QWidget* parent)
 }
 
 void Behaviour_XsensFollowing::controlEnabledChanged(bool b){
-    if(b == false){
-        logger->info("No longer enabled!");
-        QTimer::singleShot(0, this, SLOT(stop()));
+    if(!b && isActive()){
+        logger->info("Disable and deactivate XsensFollowing");
+        stop();
+    } else if(!b && !isActive()){
+        logger->info("Still deactivated");
+    } else if(b && !isActive()){
+        logger->info("Enable and activate XsensFollowing");
+        startBehaviour();
+    } else {
+        logger->info("Still activated");
     }
 }

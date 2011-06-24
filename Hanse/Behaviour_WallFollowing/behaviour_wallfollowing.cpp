@@ -35,6 +35,7 @@ bool Behaviour_WallFollowing::isActive()
 
 void Behaviour_WallFollowing::init()
 {
+    active = false;
     logger->debug("wall init");
     QObject::connect(echo,SIGNAL(newData(const EchoReturnData, float)),this,SLOT(newData(const EchoReturnData, float)));
     QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
@@ -44,7 +45,6 @@ void Behaviour_WallFollowing::init()
 
     avgDistance = 0.0;
     distanceInput = 0.0;
-    active = false;
     diff = 0.0;
 
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
@@ -74,10 +74,9 @@ void Behaviour_WallFollowing::startBehaviour()
 
     if(!echo->isEnabled()){
         emit dataError();
-    } else {
-        active = true;
     }
 
+    active = true;
     if(!isEnabled()){
         setEnabled(true);
     }
@@ -93,6 +92,7 @@ void Behaviour_WallFollowing::stop()
     }
 
     active = false;
+    setEnabled(false);
 
     behavState = BEHAV_BEHAVIOUR_END;
     wallState = WALL_STOP;
@@ -103,7 +103,7 @@ void Behaviour_WallFollowing::stop()
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
 
-    setEnabled(false);
+
     emit finished(this,false);
 
 }
@@ -415,6 +415,10 @@ void Behaviour_WallFollowing::stopOnEchoError(){
 }
 
 void Behaviour_WallFollowing::updateStates(){
+    if(isActive()){
+        return;
+    }
+
     addData("wallState",wallState);
     addData("behavState",behavState);
     addData("adjustState",adjustState);
@@ -426,12 +430,12 @@ void Behaviour_WallFollowing::updateStates(){
 }
 
 void Behaviour_WallFollowing::controlEnabledChanged(bool b){
-    if(!b && active){
+    if(!b && isActive()){
         logger->info("Disable and deactivate WallFollowing");
         stop();
-    } else if(!b && !active){
+    } else if(!b && !isActive()){
         logger->info("Still deactivated");
-    } else if(b && !active){
+    } else if(b && !isActive()){
         logger->info("Enable and activate WallFollowing");
         startBehaviour();
     } else {

@@ -28,6 +28,7 @@ public slots:
     void controlEnabledChanged(bool);
 
 private:
+    bool active;
     Module_ThrusterControlLoop* tcl;
     double initialHeading;
     void init();

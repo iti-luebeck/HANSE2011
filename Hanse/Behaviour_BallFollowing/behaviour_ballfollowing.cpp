@@ -22,7 +22,7 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     this->xsens = xsens;
     this->sim = sim;
 
-//    setEnabled(false);
+    //    setEnabled(false);
     state = BALL_STATE_IDLE;
     updateTimer.moveToThread(this);
     timerNoBall.moveToThread(this);
@@ -32,6 +32,7 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
 
 void Behaviour_BallFollowing::init()
 {
+    active = false;
     connect(&updateTimer,SIGNAL(timeout()),this,SLOT(newData()));
     connect(&timerNoBall,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
@@ -61,21 +62,27 @@ void Behaviour_BallFollowing::init()
 
 bool Behaviour_BallFollowing::isActive()
 {
-    return isEnabled();
+    return active;
 }
 
 void Behaviour_BallFollowing::startBehaviour()
 {
-    if (this->isEnabled() == true){
-        logger->info("Already enabled/started!");
+    if (isActive()){
+        logger->info("Already active!");
         return;
     }
+
     logger->debug( "Behaviour started" );
-    this->setEnabled( true );
+
     tracker.reset();
 
     state = BALL_STATE_TURN_45;
     targetHeading = Angles::deg2deg(xsens->getHeading() - 45);
+
+    active = true;
+    if(!isEnabled()){
+        setEnabled(true);
+    }
 
     emit setAngularSpeed(-0.4);
 
@@ -95,22 +102,23 @@ void Behaviour_BallFollowing::terminate()
 
 void Behaviour_BallFollowing::newData()
 {
-    if (this->isEnabled()) {
-
-        if(sim->isEnabled()) {
-            emit requestFrame();
-        } else {
-            cams->grabLeft(frame);
-            update();
-        }
+    if (!isActive()){
+        return;
     }
+
+    if(sim->isEnabled()) {
+        emit requestFrame();
+    } else {
+        cams->grabLeft(frame);
+        update();
+    }
+
 }
 
 
 void Behaviour_BallFollowing::simFrame(cv::Mat simFrame)
 {
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
         return;
     }
 
@@ -123,8 +131,7 @@ void Behaviour_BallFollowing::simFrame(cv::Mat simFrame)
 
 void Behaviour_BallFollowing::update()
 {
-    if (!this->isEnabled()){
-        logger->info("Not enabled!");
+    if (!isActive()){
         return;
     }
 
@@ -165,7 +172,10 @@ void Behaviour_BallFollowing::update()
 
 void Behaviour_BallFollowing::xsensUpdate( RobotModule * )
 {
-    if ( isEnabled() && state == BALL_STATE_TURN_45 )
+    if (!isActive()){
+        return;
+    }
+    if (state == BALL_STATE_TURN_45 )
     {
         double currentHeading = xsens->getHeading();
         double diffHeading = fabs( targetHeading - currentHeading );
@@ -180,15 +190,20 @@ void Behaviour_BallFollowing::xsensUpdate( RobotModule * )
 
 void Behaviour_BallFollowing::stop()
 {
-    logger->debug( "Behaviour stopped" );
-    if (isEnabled()) {
-        state = BALL_STATE_IDLE;
-        updateTimer.stop();
-        emit setForwardSpeed(0.0);
-        emit setAngularSpeed(0.0);
-        setEnabled(false);
-        emit finished(this,false);
+    if(!isActive()){
+        logger->info("Not active!");
+        return;
     }
+    logger->debug( "Behaviour stopped" );
+    active = false;
+    setEnabled(false);
+
+    state = BALL_STATE_IDLE;
+    updateTimer.stop();
+    emit setForwardSpeed(0.0);
+    emit setAngularSpeed(0.0);
+    emit finished(this,false);
+
 }
 
 void Behaviour_BallFollowing::reset()
@@ -240,25 +255,31 @@ void Behaviour_BallFollowing::testBehaviour(QString path)
 
 void Behaviour_BallFollowing::timerSlot()
 {
-    if (!this->isEnabled()){
-        logger->info("Not enabled!");
+    if (!isActive()){
         return;
     }
+
     timerNoBall.stop();
     stop();
 }
 
 void Behaviour_BallFollowing::controlEnabledChanged(bool b){
-    if(b == false){
-        logger->info("No longer enabled!");
-        QTimer::singleShot(0, this, SLOT(stop()));
+    if(!b && isActive()){
+        logger->info("Disable and deactivate BallFollowing");
+        stop();
+    } else if(!b && !isActive()){
+        logger->info("Still deactivated");
+    } else if(b && !isActive()){
+        logger->info("Enable and activate BallFollowing");
+        startBehaviour();
+    } else {
+        logger->info("Still activated");
     }
 }
 
 void Behaviour_BallFollowing::grabFrame(cv::Mat &image)
 {
-    if (!this->isEnabled()){
-        logger->info("Not enabled!");
+    if (!isActive()){
         return;
     }
 

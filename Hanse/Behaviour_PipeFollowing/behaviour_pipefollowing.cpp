@@ -19,11 +19,12 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
 
 bool Behaviour_PipeFollowing::isActive()
 {
-    return isEnabled();
+    return active;
 }
 
 void Behaviour_PipeFollowing::init()
 {
+    active = false;
     logger->debug("pipe init");
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -47,8 +48,8 @@ void Behaviour_PipeFollowing::init()
 
 void Behaviour_PipeFollowing::startBehaviour()
 {
-    if (this->isEnabled() == true){
-        logger->info("Already enabled/started!");
+    if (isActive()){
+        logger->info("Already active!");
         return;
     }
 
@@ -56,7 +57,12 @@ void Behaviour_PipeFollowing::startBehaviour()
     logger->info("Behaviour started" );
     Behaviour_PipeFollowing::updateFromSettings();
     this->setHealthToOk();
-    setEnabled(true);
+
+    active = true;
+    if(!isEnabled()){
+        setEnabled(true);
+    }
+
     if (sim->isEnabled()) {
         timer.start(timerTime);
     } else {
@@ -67,21 +73,24 @@ void Behaviour_PipeFollowing::startBehaviour()
 
 void Behaviour_PipeFollowing::stop()
 {
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if(!isActive()){
+        logger->info("Not active!");
         return;
     }
+
+    active = false;
+    setEnabled(false);
+
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
     timer.stop();
-    if (this->isActive())
-    {
+
         logger->info( "Behaviour stopped" );
         emit forwardSpeed(0.0);
         emit angularSpeed(0.0);
-        setEnabled(false);
+
         emit finished(this,false);
-    }
+
 }
 
 void Behaviour_PipeFollowing::terminate()
@@ -115,8 +124,7 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
 void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 {
   //  logger->debug(" simu data");
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if(!isActive()){
         return;
     }
     //  QMutexLocker l(&this->dataLockerMutex);
@@ -129,8 +137,7 @@ void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
 
 void Behaviour_PipeFollowing::timerSlot()
 {
-    if (this->isEnabled() == false) {
-        logger->info("Not enabled!");
+    if(!isActive()){
         return;
     }
 
@@ -144,8 +151,7 @@ void Behaviour_PipeFollowing::timerSlot()
 
 void Behaviour_PipeFollowing::timerSlotExecute()
 {
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if(!isActive()){
         return;
     }
 
@@ -173,8 +179,7 @@ void Behaviour_PipeFollowing::timerSlotExecute()
 
 void Behaviour_PipeFollowing::controlPipeFollow()
 {
-    if (this->isEnabled() == false) {
-        logger->info("Not enabled!");
+    if(!isActive()){
         return;
     }
 
@@ -276,8 +281,7 @@ void Behaviour_PipeFollowing::updateFromSettings()
 
 void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
 {
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if(!isActive()){
         return;
     }
 
@@ -297,9 +301,16 @@ void Behaviour_PipeFollowing::setUpdatePixmapSlot(bool bol){
 }
 
 void Behaviour_PipeFollowing::controlEnabledChanged(bool b){
-    if (b == false){
-        logger->info("No longer enabled!");
-        QTimer::singleShot(0, this, SLOT(stop()));
+    if(!b && isActive()){
+        logger->info("Disable and deactivate PipeFollowing");
+        stop();
+    } else if(!b && !isActive()){
+        logger->info("Still deactivated");
+    } else if(b && !isActive()){
+        logger->info("Enable and activate PipeFollowing");
+        startBehaviour();
+    } else {
+        logger->info("Still activated");
     }
 }
 

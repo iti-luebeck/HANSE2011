@@ -35,6 +35,8 @@ private:
 
 
 private:
+    bool active;
+
     Module_ThrusterControlLoop* tcl;
     Module_Webcams* cams;
     Module_XsensMTi *xsens;

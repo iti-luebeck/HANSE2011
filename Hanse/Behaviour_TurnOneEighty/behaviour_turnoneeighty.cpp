@@ -5,7 +5,7 @@
 #include <Framework/Angles.h>
 
 Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterControlLoop* tcl, Module_XsensMTi *x) :
-        RobotBehaviour( id )
+    RobotBehaviour( id )
 {
     this->tcl = tcl;
     this->xsens = x;   
@@ -13,6 +13,7 @@ Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterCon
 
 void Behaviour_TurnOneEighty::init()
 {
+    active = false;
     QObject::connect( xsens, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( xsensUpdate(RobotModule*) ) );
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -36,45 +37,52 @@ QWidget* Behaviour_TurnOneEighty::createView(QWidget *parent)
 
 void Behaviour_TurnOneEighty::startBehaviour()
 {
-    if( !isEnabled() )
-    {
-        logger->debug( "Behaviour started" );
-        this->setHealthToOk();
-        setEnabled( true );
-        emit started(this);
-        initialHeadingUpdate();
+    active = true;
+    if(!isEnabled()){
+        setEnabled(true);
     }
+
+    logger->debug( "Behaviour started" );
+    this->setHealthToOk();
+    setEnabled( true );
+    emit started(this);
+    initialHeadingUpdate();
+
 }
 
 void Behaviour_TurnOneEighty::stop()
 {
-    if ( isActive() )
-    {
-        logger->debug( "Behaviour stopped" );
-        emit setAngularSpeed(0.0);
-        setEnabled( false );
-        emit finished( this, true );
+    if(!isActive()){
+        logger->info("Not active!");
+        return;
     }
+
+    active = false;
+    setEnabled( false );
+    logger->debug( "Behaviour stopped" );
+    emit setAngularSpeed(0.0);
+
+    emit finished( this, true );
+
 }
 
 void Behaviour_TurnOneEighty::terminate()
 {
-    //    QTimer::singleShot(0,this,SLOT(stop()));
-    this->stop();
+    stop();
     RobotModule::terminate();
 }
 
 bool Behaviour_TurnOneEighty::isActive()
 {
-    return isEnabled();
+    return active;
 }
 
 void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 {
-    if (this->isEnabled() == false){
+    if(isActive()){
         return;
     }
-    //    qDebug() << QThread::currentThreadId();
+
     if(this->xsens->isEnabled() == true){
         if(this->xsens->getHealthStatus().isHealthOk()){
             this->dataLockerMutex.lock();
@@ -114,10 +122,10 @@ void Behaviour_TurnOneEighty::xsensUpdate( RobotModule * )
 
 void Behaviour_TurnOneEighty::initialHeadingUpdate()
 {
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if(isActive()){
         return;
     }
+
     this->dataLockerMutex.lock();
 
     initialHeading = this->xsens->getHeading();
@@ -129,16 +137,28 @@ void Behaviour_TurnOneEighty::initialHeadingUpdate()
 
 void Behaviour_TurnOneEighty::stopOnXsensError()
 {
+    if(isActive()){
+        return;
+    }
+
     logger->info("Xsens error. Stop!");
-    this->setEnabled(false);
+    active = false;
+    setEnabled( false );
     setHealthToSick("xsens error");
     emit setAngularSpeed(0.0);
     emit finished( this, false );
 }
 
 void Behaviour_TurnOneEighty::controlEnabledChanged(bool b){
-    if(b == false){
-        logger->info("No longer enabled!");
-        QTimer::singleShot(0, this, SLOT(stop()));
+    if(!b && isActive()){
+        logger->info("Disable and deactivate TurnOneEighty");
+        stop();
+    } else if(!b && !isActive()){
+        logger->info("Still deactivated");
+    } else if(b && !isActive()){
+        logger->info("Enable and activate TurnOneEighty");
+        startBehaviour();
+    } else {
+        logger->info("Still activated");
     }
 }

@@ -11,7 +11,6 @@ public:
 
     virtual bool isActive() = 0;
 
-
 public slots:
 
     /**

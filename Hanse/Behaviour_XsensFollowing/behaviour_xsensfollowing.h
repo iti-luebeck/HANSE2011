@@ -31,6 +31,7 @@ private:
         void stopOnXsensError();
 
         float targetHeading;
+        bool active;
 
 public slots:
         void startBehaviour();

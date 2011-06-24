@@ -36,6 +36,7 @@ public:
 
 private:
     void init();
+    bool active;
 
     /** the p-controller. controls the angle speed of the robot */
     void controlPipeFollow();
