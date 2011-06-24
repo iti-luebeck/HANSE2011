@@ -124,7 +124,11 @@ void Module_Navigation::navigateToNextWaypoint()
 }
 
 void Module_Navigation::navigateToCurrentWaypoint()
-{
+{    
+    if (!getSettingsValue("enabled").toBool()) {
+        return;
+    }
+
     state = NAV_STATE_GO_TO_GOAL;
     substate = NAV_SUBSTATE_ADJUST_HEADING;
 
