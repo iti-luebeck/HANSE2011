@@ -10,12 +10,6 @@ Behaviour_XsensFollowing::Behaviour_XsensFollowing(QString id, Module_ThrusterCo
     this->tcl = tcl;
     turnTimer.moveToThread(this);
     timer.moveToThread(this);
-
-    this->setDefaultValue("timer",30);
-    this->setDefaultValue("driveTime",10000);
-    this->setDefaultValue("ffSpeed",0.5);
-    this->setDefaultValue("kp",0.3);
-    this->setDefaultValue("delta",10);
 }
 
 bool Behaviour_XsensFollowing::isActive()
@@ -26,8 +20,15 @@ bool Behaviour_XsensFollowing::isActive()
 void Behaviour_XsensFollowing::init()
 {
     active = false;
-    logger->info("Xsens Following init");
     setEnabled(false);
+    logger->info("Xsens Following init");
+
+    this->setDefaultValue("timer",30);
+    this->setDefaultValue("driveTime",10000);
+    this->setDefaultValue("ffSpeed",0.5);
+    this->setDefaultValue("kp",0.3);
+    this->setDefaultValue("delta",10);
+
     connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(newForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
@@ -205,13 +206,13 @@ QWidget* Behaviour_XsensFollowing::createView(QWidget* parent)
     return new XsensFollowingForm(parent, this);
 }
 
-void Behaviour_XsensFollowing::controlEnabledChanged(bool b){
-    if(!b && isActive()){
+void Behaviour_XsensFollowing::controlEnabledChanged(bool enabled){
+    if(!enabled && isActive()){
         logger->info("Disable and deactivate XsensFollowing");
         stop();
-    } else if(!b && !isActive()){
+    } else if(!enabled && !isActive()){
         logger->info("Still deactivated");
-    } else if(b && !isActive()){
+    } else if(enabled && !isActive()){
         logger->info("Enable and activate XsensFollowing");
         startBehaviour();
     } else {

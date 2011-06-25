@@ -133,7 +133,7 @@ void ModulesGraph::build()
     this->modules.append(taskpipefollowing);
 
     logger->debug("Creating TaskMidwaterTarget");
-    TaskMidwaterTarget *taskmidwatertarget = new TaskMidwaterTarget("taskMidwater", sim, navi);
+    TaskMidwaterTarget *taskmidwatertarget = new TaskMidwaterTarget("taskMidwater", sim, navi, behavBall, behavXsens);
     this->modules.append(taskmidwatertarget);
 
 

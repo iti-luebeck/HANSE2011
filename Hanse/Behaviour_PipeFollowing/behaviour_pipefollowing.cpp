@@ -13,7 +13,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->tcl = tcl;
     this->cam = cam;
     this->sim = sim;
-    setEnabled(false);
+
     timer.moveToThread(this);
 }
 
@@ -25,7 +25,9 @@ bool Behaviour_PipeFollowing::isActive()
 void Behaviour_PipeFollowing::init()
 {
     active = false;
+    setEnabled(false);
     logger->debug("pipe init");
+
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 
@@ -300,13 +302,13 @@ void Behaviour_PipeFollowing::setUpdatePixmapSlot(bool bol){
     emit setUpdatePixmapSignal(bol);
 }
 
-void Behaviour_PipeFollowing::controlEnabledChanged(bool b){
-    if(!b && isActive()){
+void Behaviour_PipeFollowing::controlEnabledChanged(bool enabled){
+    if(!enabled && isActive()){
         logger->info("Disable and deactivate PipeFollowing");
         stop();
-    } else if(!b && !isActive()){
+    } else if(!enabled && !isActive()){
         logger->info("Still deactivated");
-    } else if(b && !isActive()){
+    } else if(enabled && !isActive()){
         logger->info("Enable and activate PipeFollowing");
         startBehaviour();
     } else {

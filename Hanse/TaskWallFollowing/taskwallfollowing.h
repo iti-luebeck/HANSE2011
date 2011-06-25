@@ -20,66 +20,52 @@ class TaskWallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
+    // Methods
     TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Module_Simulation *sim, Module_Navigation *n, Behaviour_TurnOneEighty *o180);
-
     QWidget* createView(QWidget *parent);
-
     QList<RobotModule*> getDependencies();
-
     bool isActive();
-
     QString getTaskState();
 
-
-
 private:
+    void init();
+    void terminate();
+    void reset();
+    void showTaskState();
 
+    // Controls all task states
+    void controlTaskStates();
+
+    // Parameters
+    bool active;
     Behaviour_WallFollowing *wall;
     Module_Simulation *sim;
     Module_Navigation *navi;
     Behaviour_TurnOneEighty *turn180;
 
-    void init();
-    bool running;
-    void terminate();
-
-    QTimer taskTimer;
-    QTimer angleTimer;
-
-    int counter;
-
+    QTimer taskStopTimer;
+    QTimer calcTimer;
     QString taskState;
 
-
-    bool flag_WF_Wall_Seen_Start;
-    bool flag_GoalLine_reached;
-    bool flag_AdjustHeading;
-
-    void reset();
-
 signals:
-    void stopSignal();
+    // Update GUI input
     void updateSettings();
-
+    // Show current state at command center
     void newState(QString state);
+    // Overview of all task states at command center
     void newStateOverview(QString state);
 
-
 public slots:
+    // Task standard slots
     void startBehaviour();
     void stop();
     void emergencyStop();
     void timeoutStop();
-
-    void moveToTaskStart();
-    void wallfollowPart1();
-    void adjustHeading();
-    void wallfollowPart2();
-
-    void controlAngleCalculation();
-    void controlFinishedWaypoints(QString waypoint);
-
     void controlEnabledChanged(bool b);
+
+    // Task specific state transitions
+    void controlAngleDistance();
+    void controlFinishedWaypoints(QString waypoint);
 
 };
 

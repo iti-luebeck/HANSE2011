@@ -13,6 +13,18 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     this->echo = echo;
     this->xsens = x;
 
+}
+bool Behaviour_WallFollowing::isActive()
+{
+    return active;
+}
+
+void Behaviour_WallFollowing::init()
+{
+    active = false;
+    setEnabled(false);
+    logger->debug("wall init");
+
     setDefaultValue("serialPort", "COM9");
     setDefaultValue("range", 5);
     setDefaultValue("forwardSpeed",0.5);
@@ -26,17 +38,7 @@ Behaviour_WallFollowing::Behaviour_WallFollowing(QString id, Module_ThrusterCont
     setDefaultValue("experimentalMode", false);
     setDefaultValue("expInput", 0.8);
 
-    setEnabled(false);
-}
-bool Behaviour_WallFollowing::isActive()
-{
-    return active;
-}
 
-void Behaviour_WallFollowing::init()
-{
-    active = false;
-    logger->debug("wall init");
     QObject::connect(echo,SIGNAL(newData(const EchoReturnData, float)),this,SLOT(newData(const EchoReturnData, float)));
     QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
     QObject::connect(this,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
@@ -429,13 +431,13 @@ void Behaviour_WallFollowing::updateStates(){
     logger->info(adjustState);
 }
 
-void Behaviour_WallFollowing::controlEnabledChanged(bool b){
-    if(!b && isActive()){
+void Behaviour_WallFollowing::controlEnabledChanged(bool enabled){
+    if(!enabled && isActive()){
         logger->info("Disable and deactivate WallFollowing");
         stop();
-    } else if(!b && !isActive()){
+    } else if(!enabled && !isActive()){
         logger->info("Still deactivated");
-    } else if(b && !isActive()){
+    } else if(enabled && !isActive()){
         logger->info("Enable and activate WallFollowing");
         startBehaviour();
     } else {

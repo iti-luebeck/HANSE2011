@@ -38,28 +38,25 @@ class Behaviour_WallFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
+    // Methods
     Behaviour_WallFollowing(QString id, Module_ThrusterControlLoop* tcl, Module_EchoSounder *echo, Module_XsensMTi* x);
-
     QList<RobotModule*> getDependencies();
-
     QWidget* createView(QWidget *parent);
-
     bool isActive();
 
-    QString behavState;
-    QString wallState;
-    QString adjustState;
-    QString guiShow;
 
 private:
     void init();
-    bool active;
+    void controlWallFollow();
+    void controlThrusterEchoLeft();
+    void controlThrusterEchoRight();
+    void updateStates();
 
+    // Parameters
+    bool active;
     Module_EchoSounder *echo;
     Module_XsensMTi* xsens;
     Module_ThrusterControlLoop * tcl;
-
-    void controlWallFollow();
     float avgDistance;
     float distanceInput;
     float angSpeed;
@@ -68,6 +65,10 @@ private:
     float initialHeading;
     float targetHeading;
     float diff;
+    QString wallState;
+    QString behavState;
+    QString adjustState;
+    QString guiShow;
 
 
 signals:
@@ -90,14 +91,9 @@ public slots:
     void stopOnEchoError();
     void newData(const EchoReturnData data, float avgDistance);
     void controlEnabledChanged(bool);
-
     void adjustTurnOne();
     void adjustDrive();
     void adjustTurnTwo();
-
-    void controlThrusterEchoLeft();
-    void controlThrusterEchoRight();
-    void updateStates();
 };
 
 

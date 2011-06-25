@@ -14,6 +14,7 @@ Behaviour_TurnOneEighty::Behaviour_TurnOneEighty( QString id, Module_ThrusterCon
 void Behaviour_TurnOneEighty::init()
 {
     active = false;
+    setEnabled(false);
     QObject::connect( xsens, SIGNAL( dataChanged(RobotModule*) ),
                       this, SLOT( xsensUpdate(RobotModule*) ) );
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
@@ -149,13 +150,13 @@ void Behaviour_TurnOneEighty::stopOnXsensError()
     emit finished( this, false );
 }
 
-void Behaviour_TurnOneEighty::controlEnabledChanged(bool b){
-    if(!b && isActive()){
+void Behaviour_TurnOneEighty::controlEnabledChanged(bool enabled){
+    if(!enabled && isActive()){
         logger->info("Disable and deactivate TurnOneEighty");
         stop();
-    } else if(!b && !isActive()){
+    } else if(!enabled && !isActive()){
         logger->info("Still deactivated");
-    } else if(b && !isActive()){
+    } else if(enabled && !isActive()){
         logger->info("Enable and activate TurnOneEighty");
         startBehaviour();
     } else {

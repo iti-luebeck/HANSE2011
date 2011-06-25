@@ -14,10 +14,18 @@ TaskWallFollowing::TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Mod
     this->turn180 = o180;
     this->navi = n;
 
-    setEnabled(false);
-    running = false;
-    counter = 1;
 
+}
+
+bool TaskWallFollowing::isActive(){
+    return active;
+}
+
+
+void TaskWallFollowing::init(){
+    logger->debug("taskwallfollowing init");
+    active = false;
+    setEnabled(false);
     // Default task settings
     this->setDefaultValue("taskStopTime",120000);
     this->setDefaultValue("signalTimer",1000);
@@ -36,301 +44,281 @@ TaskWallFollowing::TaskWallFollowing(QString id, Behaviour_WallFollowing *w, Mod
     this->setDefaultValue("p", 0.4);
     this->setDefaultValue("degree", 180);
 
-    taskTimer.setSingleShot(true);
-    taskTimer.moveToThread(this);
-
-    angleTimer.moveToThread(this);
+    taskStopTimer.setSingleShot(true);
+    taskStopTimer.moveToThread(this);
+    calcTimer.moveToThread(this);
 
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
     connect(navi, SIGNAL(reachedWaypoint(QString)), this, SLOT(controlFinishedWaypoints(QString)));
     connect(turn180, SIGNAL(turn180finished(QString)), this, SLOT(controlFinishedWaypoints(QString)));
-    connect(&angleTimer,SIGNAL(timeout()),this,SLOT(controlAngleCalculation()));
-}
-
-bool TaskWallFollowing::isActive(){
-    return isEnabled();
-}
-
-
-void TaskWallFollowing::init(){
-    logger->debug("taskwallfollowing init");
+    connect(&calcTimer,SIGNAL(timeout()),this,SLOT(controlAngleDistance()));
 }
 
 void TaskWallFollowing::reset() {
     RobotModule::reset();
 
-    flag_WF_Wall_Seen_Start = false;
-    flag_GoalLine_reached = false;
-    flag_AdjustHeading = false;
     taskState = TASK_STATE_START;
 }
 
 
 void TaskWallFollowing::startBehaviour(){
-    if (this->isEnabled()){
-        logger->info("Already enabled/started!");
+    if (isActive()){
+        logger->info("Already active!");
         return;
     }
-    this->reset();
 
-    running = true;
+    reset();
     setHealthToOk();
 
-    taskState = TASK_STATE_START;
+    emit updateSettings();
+    calcTimer.start(100);
+
+    active = true;
+    if(!isEnabled()){
+        setEnabled(true);
+    }
+    emit started(this);
+
+    if(!this->navi->isEnabled()){
+        logger->info("Activate navigation");
+        this->navi->setEnabled(true);
+    }
+
     logger->info(taskState);
     addData("taskState", taskState);
     emit newState(taskState);
     emit dataChanged(this);
 
-    if(!this->isEnabled()){
-        emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
-        emit newStateOverview(TASK_STATE_WALLFOLLOW_PART1);
-        if(this->getSettingsValue("useAdjustPoint").toBool()){
-            emit newStateOverview(TASK_STATE_ADJUST_HEADING);
-            emit newStateOverview(TASK_STATE_WALLFOLLOW_PART2);
-        }
+
+    emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
+    emit newStateOverview(TASK_STATE_WALLFOLLOW_PART1);
+    if(this->getSettingsValue("useAdjustPoint").toBool()){
+        emit newStateOverview(TASK_STATE_ADJUST_HEADING);
+        emit newStateOverview(TASK_STATE_WALLFOLLOW_PART2);
     }
-
-    setEnabled(true);
-    emit started(this);
-    running = true;
-
-    angleTimer.start(100);
-
-    // Enable all components
-    if(!this->navi->isEnabled()){
-        this->navi->setEnabled(true);
-    }
-
-    addData("stoptimer", this->getSettingsValue("timerActivated").toBool());
-    emit dataChanged(this);
-
-
-    emit updateSettings();
 
     if(this->getSettingsValue("timerActivated").toBool()){
         logger->info("TaskWallFollowing with timer stop");
-        taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
-        taskTimer.start();
+        taskStopTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
+        taskStopTimer.start();
     }
 
-    QTimer::singleShot(0, this, SLOT(moveToTaskStart()));
+
+    taskState = TASK_STATE_MOVE_TO_TASK_START;
+    controlTaskStates();
 }
 
 
-void TaskWallFollowing::moveToTaskStart(){
-    if(this->isEnabled() && this->navi->getHealthStatus().isHealthOk()){
-        taskState = TASK_STATE_MOVE_TO_TASK_START;
-        logger->info(taskState);
-        addData("taskState", taskState);
-        emit newState(taskState);
-        emit dataChanged(this);
+void TaskWallFollowing::controlTaskStates(){
+    if(!isActive()){
+        return;
+    }
+
+    if(taskState == TASK_STATE_MOVE_TO_TASK_START){
+        showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
-    } else {
-        logger->info("Something is wrong with navigation/task, abort...");
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
-    }
-}
 
-
-void TaskWallFollowing::wallfollowPart1(){
-    if(this->isEnabled()){
-        if(taskState != TASK_STATE_WALLFOLLOW_PART1){
-            taskState = TASK_STATE_WALLFOLLOW_PART1;
-            logger->info(taskState);
-            addData("taskState", taskState);
-            emit newState(taskState);
-            emit dataChanged(this);
-
-            logger->info("Enable wallfollow");
-            QTimer::singleShot(0, wall, SLOT(startBehaviour()));
-
-            QTimer::singleShot(100, this, SLOT(wallfollowPart1()));
-        } else {
-            if(this->getSettingsValue("useAdjustPoint").toBool()){
-                if(flag_AdjustHeading){
-                    // State finished, change state
-                    QTimer::singleShot(0, wall, SLOT(stop()));
-                    QTimer::singleShot(0, this, SLOT(adjustHeading()));
-                } else {
-                    // State not finished, stay at this state
-                    QTimer::singleShot(100, this, SLOT(wallfollowPart1()));
-                }
+    } else if(taskState == TASK_STATE_WALLFOLLOW_PART1){
+        showTaskState();
+        if(this->wall->getHealthStatus().isHealthOk()){
+            if (!this->wall->isActive()) {
+                logger->info("Activate wallfollowing");
+                QTimer::singleShot(0, wall, SLOT(startBehaviour()));
             } else {
-                if(flag_GoalLine_reached){
-                    QTimer::singleShot(0, wall, SLOT(stop()));
-                    QTimer::singleShot(0, this, SLOT(stop()));
-                } else {
-                    QTimer::singleShot(100, this, SLOT(wallfollowPart1()));
-                }
+                QTimer::singleShot(0, wall, SLOT(reset()));
             }
+        } else {
+            logger->info("Wallfollowing not possible");
+            taskState = TASK_STATE_ADJUST_HEADING;
+            controlTaskStates();
         }
-    }
-}
 
-void TaskWallFollowing::adjustHeading(){
-    if(this->isEnabled()){
-        taskState = TASK_STATE_ADJUST_HEADING;
-        logger->info(taskState);
-        addData("taskState", taskState);
-        emit newState(taskState);
+    } else if(taskState == TASK_STATE_ADJUST_HEADING){
+        showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("wallAdjustPoint").toString());
-    }
-}
 
-void TaskWallFollowing::wallfollowPart2(){
-    if(this->isEnabled()){
-        if(taskState != TASK_STATE_WALLFOLLOW_PART2){
-            taskState = TASK_STATE_WALLFOLLOW_PART2;
-            logger->info(taskState);
-            addData("taskState", taskState);
-            emit newState(taskState);
-            emit dataChanged(this);
+    } else if(taskState == TASK_STATE_WALLFOLLOW_PART2){
+        showTaskState();
 
-            logger->info("Enable wallfollow");
-            QTimer::singleShot(0, wall, SLOT(startBehaviour()));
 
-            QTimer::singleShot(100, this, SLOT(wallfollowPart2()));
-        } else {
-            if(flag_GoalLine_reached){
-                QTimer::singleShot(0, wall, SLOT(stop()));
-                QTimer::singleShot(0, this, SLOT(stop()));
-            } else {
-                QTimer::singleShot(100, this, SLOT(wallfollowPart2()));
-            }
+    } else if(taskState == TASK_STATE_END){
+        showTaskState();
+        if(wall->isActive()){
+            QTimer::singleShot(0, wall, SLOT(stop()));
         }
+        stop();
     }
 }
+
+void TaskWallFollowing::showTaskState(){
+    logger->info(taskState);
+    emit newState(taskState);
+    addData("taskState", taskState);
+    emit dataChanged(this);
+}
+
 
 void TaskWallFollowing::controlFinishedWaypoints(QString waypoint){
-    if(this->isEnabled()){
-        if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
-            // Task startwaypoint reached, start wallfollow
-            logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-            QTimer::singleShot(0, navi, SLOT(clearGoal()));
-            QTimer::singleShot(0, this, SLOT(wallfollowPart1()));
-        } else if(waypoint ==  this->getSettingsValue("wallAdjustPoint").toString()){
-            // Adjust waypoint reached, start wallfollow again
-            logger->info(this->getSettingsValue("wallAdjustPoint").toString() +" reached");
-            QTimer::singleShot(0, navi, SLOT(clearGoal()));
-            QTimer::singleShot(0, this, SLOT(wallfollowPart2()));
-        } else {
-            // Error!
-            logger->info("Something is wrong with navigation waypoints, abort...");
-            QTimer::singleShot(0, this, SLOT(emergencyStop()));
-        }
+    if(!isActive()){
+        return;
+    }
+
+    if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
+        logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
+        QTimer::singleShot(0, navi, SLOT(clearGoal()));
+        taskState = TASK_STATE_WALLFOLLOW_PART1;
+        controlTaskStates();
+
+    } else if(waypoint ==  this->getSettingsValue("wallAdjustPoint").toString()){
+        logger->info(this->getSettingsValue("wallAdjustPoint").toString() +" reached");
+        QTimer::singleShot(0, navi, SLOT(clearGoal()));
+        taskState = TASK_STATE_WALLFOLLOW_PART2;
+        controlTaskStates();
+
+    } else {
+        // None of current task waypoints reached oO
+        logger->info("Something is wrong with navigation waypoints, abort...");
+        emergencyStop();
     }
 }
 
-void TaskWallFollowing::controlAngleCalculation(){
-    if(this->isEnabled()){
-        QString currentState = this->getTaskState();
-        double alpha = 0.0;
-        double dist = 0.0;
-        if(this->getSettingsValue("useAdjustPoint").toBool()){
-            if(currentState == TASK_STATE_WALLFOLLOW_PART1){
-                dist = this->navi->getDistance(this->getSettingsValue("wallAdjustPoint").toString());
-                if(dist < this->getSettingsValue("apDist").toDouble()){
-                    flag_AdjustHeading = true;
-                    logger->info("flag_AdjustHeading = true");
-                }
-            } else if(currentState == TASK_STATE_WALLFOLLOW_PART2){
-                alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
-                dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
-                if(alpha < 0 && dist < 2){
-                    flag_GoalLine_reached = true;
-                    logger->info("flag_GoalLine_reached = true");
-                }
+
+
+void TaskWallFollowing::controlAngleDistance(){
+    if(!isActive()){
+        return;
+    }
+
+    double alpha = 0.0;
+    double dist = 0.0;
+
+    if(this->getSettingsValue("useAdjustPoint").toBool()){
+
+        if(taskState == TASK_STATE_WALLFOLLOW_PART1){
+            dist = this->navi->getDistance(this->getSettingsValue("wallAdjustPoint").toString());
+            if(dist < this->getSettingsValue("apDist").toDouble()){
+                taskState = TASK_STATE_WALLFOLLOW_PART2;
+                controlTaskStates();
             }
-        } else {
-            if(currentState == TASK_STATE_WALLFOLLOW_PART1){
-                alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
-                dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
-                if(alpha < 0 && dist < 2){
-                    flag_GoalLine_reached = true;
-                    logger->info("flag_GoalLine_reached = true");
-                }
+        } else if(taskState == TASK_STATE_WALLFOLLOW_PART2){
+            alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
+            dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
+            if(alpha < 0 && dist < 3){
+                taskState = TASK_STATE_END;
+                controlTaskStates();
             }
         }
-        addData("Alpha", alpha);
-        addData("Dist", dist);
-        emit dataChanged(this);
+
+    } else {
+
+        if(taskState == TASK_STATE_WALLFOLLOW_PART1){
+            alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
+            dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
+            if(alpha < 0 && dist < 3){
+                taskState = TASK_STATE_END;
+                controlTaskStates();
+            }
+        }
+
     }
+    addData("Alpha", alpha);
+    addData("Dist", dist);
+    emit dataChanged(this);
+
 }
+
 
 void TaskWallFollowing::stop(){
-    if(this->isEnabled()){
-        taskState = TASK_STATE_END;
-        logger->info(taskState);
-        addData("taskState", taskState);
-        emit newState(taskState);
-        emit dataChanged(this);
-
-        running = false;
-        logger->info("Taskwallfollowing stopped");
-
-        if (this->isActive())
-        {
-            QTimer::singleShot(0, navi, SLOT(clearGoal()));
-            this->taskTimer.stop();
-            QTimer::singleShot(0, wall, SLOT(stop()));
-            this->setEnabled(false);
-            emit finished(this,true);
-        }
-    } else {
-        logger->info("Something is really wrong...");
-        emit finished(this,false);
+    if(!isActive()){
+        logger->info("Not active!");
+        return;
     }
+
+    taskStopTimer.stop();
+    taskState = TASK_STATE_END;
+    showTaskState();
+
+    calcTimer.stop();
+
+    logger->info("Taskwallfollowing stopped");
+    if(navi->hasGoal()){
+        QTimer::singleShot(0, navi, SLOT(clearGoal()));
+    }
+
+    if(wall->isActive()){
+        QTimer::singleShot(0, wall, SLOT(stop()));
+    }
+
+    active = false;
+    setEnabled(false);
+    emit finished(this,true);
 }
 
 void TaskWallFollowing::timeoutStop(){
-    if(this->isEnabled()){
-        taskState = TASK_STATE_END_FAILED;
-        logger->info(taskState);
-        addData("taskState", taskState);
-        emit newState(taskState);
-        emit dataChanged(this);
-
-        running = false;
-        logger->info("Taskwallfollowing timeout stopped");
-
-        if (this->isActive())
-        {
-            QTimer::singleShot(0, navi, SLOT(clearGoal()));
-            this->taskTimer.stop();
-            QTimer::singleShot(0, wall, SLOT(stop()));
-            this->setEnabled(false);
-            emit finished(this,false);
-        }
+    if(!isActive()){
+        return;
     }
+
+    taskStopTimer.stop();
+    taskState = TASK_STATE_END_FAILED;
+    showTaskState();
+
+    calcTimer.stop();
+
+    logger->info("Taskwallfollowing timeout stopped");
+    if(navi->hasGoal()){
+        QTimer::singleShot(0, navi, SLOT(clearGoal()));
+    }
+
+    if(wall->isActive()){
+        QTimer::singleShot(0, wall, SLOT(stop()));
+    }
+
+    active = false;
+    setEnabled(false);
+    emit finished(this,false);
 }
 
 
 void TaskWallFollowing::emergencyStop(){
-    if (!this->isEnabled()){
-        logger->info("Emergency stop: Not enabled!");
+    if (!isActive()){
+        logger->info("Not active, no emergency stop needed");
         return;
     }
 
+    taskStopTimer.stop();
     taskState = TASK_STATE_END_FAILED;
-    logger->info(taskState);
-    addData("taskState", taskState);
-    emit newState(taskState);
-    emit dataChanged(this);
+    showTaskState();
 
-    running = false;
-    logger->info( "Task wallfollowing emergency stopped" );
+    calcTimer.stop();
 
-    if (this->isActive())
-    {
+    logger->info("Taskwallfollowing emergency stopped");
+    if(navi->hasGoal()){
         QTimer::singleShot(0, navi, SLOT(clearGoal()));
-        this->taskTimer.stop();
-        QTimer::singleShot(0, wall, SLOT(stop()));
-        this->setEnabled(false);
-        emit finished(this,false);
     }
+
+    if(wall->isActive()){
+        QTimer::singleShot(0, wall, SLOT(stop()));
+    }
+
+    active = false;
+    setEnabled(false);
+    emit finished(this,false);
 }
 
+void TaskWallFollowing::controlEnabledChanged(bool enabled){
+    if(!enabled && isActive()){
+        logger->info("Disable and deactivate TaskWallFollowing");
+        stop();
+    } else if(!enabled && !isActive()){
+        //logger->info("Still deactivated");
+    } else if(enabled && !isActive()){
+        //logger->info("Enable and activate TaskWallFollowing");
+        //startBehaviour();
+    } else {
+        //logger->info("Still activated");
+    }
+}
 
 void TaskWallFollowing::terminate()
 {
@@ -352,12 +340,6 @@ QList<RobotModule*> TaskWallFollowing::getDependencies()
     return ret;
 }
 
-void TaskWallFollowing::controlEnabledChanged(bool b){
-    if(b == false){
-        logger->info("No longer enabled!");
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
-    }
-}
 
 QString TaskWallFollowing::getTaskState(){
     return taskState;

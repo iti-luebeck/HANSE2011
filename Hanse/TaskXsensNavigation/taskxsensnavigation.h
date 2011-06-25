@@ -37,6 +37,7 @@ private:
     // PARAMETERS
     //-----------------------------------------
 private:
+    bool active;
     Module_Simulation *sim;
     Behaviour_XsensFollowing *xsensfollow;
     Module_Navigation *navi;

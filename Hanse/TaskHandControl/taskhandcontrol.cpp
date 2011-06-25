@@ -10,8 +10,17 @@ TaskHandControl::TaskHandControl(QString id, Module_ThrusterControlLoop *tcl, Mo
     this->thrustercontrolloop = tcl;
     this->handcontrol = hc;
 
-    setEnabled(false);
-    running = false;
+}
+
+bool TaskHandControl::isActive(){
+    return active;
+}
+
+
+void TaskHandControl::init(){
+    logger->debug("taskthrustercontrol init");
+
+    active = false;
 
     // Default settings
     this->setDefaultValue("forwardSpeed1",0.5);
@@ -32,29 +41,23 @@ TaskHandControl::TaskHandControl(QString id, Module_ThrusterControlLoop *tcl, Mo
     connect(this,SIGNAL(setDepth(float)),thrustercontrolloop,SLOT(setDepth(float)));
 }
 
-bool TaskHandControl::isActive(){
-    return isEnabled();
-}
-
-
-void TaskHandControl::init(){
-    logger->debug("taskthrustercontrol init");
-}
-
-
-
 void TaskHandControl::startBehaviour(){
-    if (this->isEnabled() == true){
-        logger->info("Already enabled/started!");
+    if (isActive()){
+        logger->info("Already active!");
         return;
     }
-    this->reset();
+
     logger->info("TaskHandControl started" );
-    running = true;
+
+    active = true;
+    if(!isEnabled()){
+        setEnabled(true);
+    }
+    this->reset();
+
     setHealthToOk();
-    setEnabled(true);
+
     emit started(this);
-    running = true;
 
     emit newStateOverview("Handcontrol");
 
@@ -69,45 +72,43 @@ void TaskHandControl::startBehaviour(){
 }
 
 void TaskHandControl::stop(){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if(!isActive()){
+        logger->info("Not active!");
         return;
     }
-    running = false;
+
     logger->info( "Task handcontrol stopped" );
 
-    if (this->isActive())
-    {
+    active = false;
+    setEnabled(false);
 
+    emit forwardSpeed(0.0);
+    emit angularSpeed(0.0);
 
-        emit forwardSpeed(0.0);
-        emit angularSpeed(0.0);
+    this->handcontrol->setEnabled(false);
+    emit finished(this,true);
 
-        this->setEnabled(false);
-        this->handcontrol->setEnabled(false);
-        emit finished(this,true);
-    }
 }
 
 
 void TaskHandControl::emergencyStop()
 {
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active, no emergency stop needed");
         return;
     }
-    running = false;
+
     logger->info( "Task handcontrol emergency stopped" );
 
-    if (this->isActive())
-    {
-        this->handcontrol->setEnabled(false);
-        emit forwardSpeed(0.0);
-        emit angularSpeed(0.0);
-        emit setDepth(0.0);
-        this->setEnabled(false);
-        emit finished(this,false);
-    }
+    active = false;
+    setEnabled(false);
+
+    this->handcontrol->setEnabled(false);
+    emit forwardSpeed(0.0);
+    emit angularSpeed(0.0);
+    emit setDepth(0.0);
+    emit finished(this,false);
+
 }
 
 
@@ -131,13 +132,29 @@ QList<RobotModule*> TaskHandControl::getDependencies()
 }
 
 void TaskHandControl::handControlFinishedSlot(){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if(!isActive()){
         return;
     }
+
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
     this->handcontrol->setEnabled(false);
-    this->setEnabled(false);
+    active = false;
+    setEnabled(false);
     emit finished(this, true);
+}
+
+
+void TaskHandControl::controlEnabledChanged(bool enabled){
+    if(!enabled && isActive()){
+        logger->info("Disable and deactivate TaskHandControl");
+        stop();
+    } else if(!enabled && !isActive()){
+        //logger->info("Still deactivated");
+    } else if(enabled && !isActive()){
+        //logger->info("Enable and activate TaskHandControl");
+        //startBehaviour();
+    } else {
+        //logger->info("Still activated");
+    }
 }

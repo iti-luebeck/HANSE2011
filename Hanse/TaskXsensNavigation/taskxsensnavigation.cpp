@@ -26,9 +26,17 @@ TaskXsensNavigation::TaskXsensNavigation(QString id, Module_Simulation *sim, Beh
     this->xsensfollow = xf;
     this->navi = n;
     this->turn180 = o180;
+}
 
+bool TaskXsensNavigation::isActive(){
+    return active;
+}
+
+
+void TaskXsensNavigation::init(){
+    logger->debug("taskxsensnavigation init");
+    active = false;
     setEnabled(false);
-
     // Default task settings
     this->setDefaultValue("description", "");
     this->setDefaultValue("taskStopTime",120000);
@@ -67,18 +75,9 @@ TaskXsensNavigation::TaskXsensNavigation(QString id, Module_Simulation *sim, Beh
     connect(this, SIGNAL(setNewWaypoint(QString)), navi, SLOT(gotoWayPoint(QString)));
 }
 
-bool TaskXsensNavigation::isActive(){
-    return isEnabled();
-}
-
-
-void TaskXsensNavigation::init(){
-    logger->debug("taskxsensnavigation init");
-}
-
 void TaskXsensNavigation::startBehaviour(){
-    if (this->isEnabled()) {
-        logger->info("Already enabled/started!");
+    if (isActive()){
+        logger->info("Already active!");
         return;
     }
 
@@ -96,7 +95,10 @@ void TaskXsensNavigation::startBehaviour(){
         emit newStateOverview("...in a loop");
     }
 
-    setEnabled(true);
+    active = true;
+    if(!isEnabled()){
+        setEnabled(true);
+    }
     emit started(this);
 
     // Enable all components
@@ -123,7 +125,7 @@ void TaskXsensNavigation::startBehaviour(){
 
 void TaskXsensNavigation::stateChanged()
 {
-    if (!this->isEnabled()) {
+    if(!isActive()){
         return;
     }
 
@@ -266,55 +268,58 @@ void TaskXsensNavigation::turn180Finished()
 }
 
 void TaskXsensNavigation::stop(){
-    if (this->isEnabled()) {
-        logger->info("Taskxsensnavigation stopped");
-
-        if (this->isActive())
-        {
-            this->taskTimer.stop();
-            this->navi->setEnabled(false);
-            this->xsensfollow->setEnabled(false);
-            QTimer::singleShot(0, xsensfollow, SLOT(stop()));
-            this->setEnabled(false);
-            emit finished(this,true);
-        }
-    }
-}
-
-void TaskXsensNavigation::timeoutStop(){
-    if (this->isEnabled()) {
-        logger->info("Taskxsensnavigation timeout stopped");
-
-        if (this->isActive()) {
-            QTimer::singleShot(0, navi, SLOT(clearGoal()));
-            this->taskTimer.stop();
-            this->navi->setEnabled(false);
-            this->xsensfollow->setEnabled(false);
-            QTimer::singleShot(0, xsensfollow, SLOT(stop()));
-
-            this->setEnabled(false);
-            emit finished(this,false);
-        }
-    }
-}
-
-void TaskXsensNavigation::emergencyStop(){
-    if (!this->isEnabled()) {
-        logger->info("Not enabled!");
+    if(!isActive()){
+        logger->info("Not active!");
         return;
     }
 
-    logger->info( "Taskxsensnavigation emergency stopped" );
+    logger->info("Taskxsensnavigation stopped");
+    active = false;
+    setEnabled(false);
 
-    if (this->isActive()) {
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
-        this->taskTimer.stop();
-        this->navi->setEnabled(false);
-        this->xsensfollow->setEnabled(false);
-        QTimer::singleShot(0, xsensfollow, SLOT(stop()));
-        this->setEnabled(false);
-        emit finished(this,false);
+    this->taskTimer.stop();
+    this->navi->setEnabled(false);
+    this->xsensfollow->setEnabled(false);
+    QTimer::singleShot(0, xsensfollow, SLOT(stop()));
+
+    emit finished(this,true);
+}
+
+void TaskXsensNavigation::timeoutStop(){
+    if(!isActive()){
+        return;
     }
+
+    logger->info("Taskxsensnavigation timeout stopped");
+    active = false;
+    setEnabled(false);
+
+    this->taskTimer.stop();
+    this->navi->setEnabled(false);
+    this->xsensfollow->setEnabled(false);
+    QTimer::singleShot(0, xsensfollow, SLOT(stop()));
+
+    emit finished(this,false);
+
+}
+
+void TaskXsensNavigation::emergencyStop(){
+    if (!isActive()){
+        logger->info("Not active, no emergency stop needed");
+        return;
+    }
+
+    logger->info("Taskxsensnavigation emergency stopped");
+    active = false;
+    setEnabled(false);
+
+    this->taskTimer.stop();
+    this->navi->setEnabled(false);
+    this->xsensfollow->setEnabled(false);
+    QTimer::singleShot(0, xsensfollow, SLOT(stop()));
+
+    emit finished(this,false);
+
 }
 
 
@@ -338,9 +343,16 @@ QList<RobotModule*> TaskXsensNavigation::getDependencies()
 }
 
 void TaskXsensNavigation::controlEnabledChanged(bool enabled){
-    if (!enabled) {
-        logger->info("No longer enabled!");
-        QTimer::singleShot(0, this, SLOT(emergencyStop()));
+    if(!enabled && isActive()){
+        logger->info("Disable and deactivate TaskXsensNavigation");
+        stop();
+    } else if(!enabled && !isActive()){
+        //logger->info("Still deactivated");
+    } else if(enabled && !isActive()){
+        //logger->info("Enable and activate TaskXsensNavigation");
+        //startBehaviour();
+    } else {
+        //logger->info("Still activated");
     }
 }
 

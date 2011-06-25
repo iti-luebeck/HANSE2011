@@ -118,23 +118,21 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     controlTimer.moveToThread(this);
     timer.moveToThread(this);
 
-    setEnabled(false);
-    running = false;
+    active = true;
+    setEnabled(true);
 }
 
 
 bool CommandCenter::isActive(){
-    return isEnabled();
+    return active;
 }
 
 void CommandCenter::init(){
     logger->debug("Commandcenter init");
-    this->setEnabled(true);
 }
 
 void CommandCenter::startCommandCenter(){
     RobotModule::reset();
-    running = true;
 
     emit newMessage("CommandCenter started!");
 
@@ -170,16 +168,14 @@ void CommandCenter::startCommandCenter(){
 }
 
 void CommandCenter::stopCommandCenter(){
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
+    if (!isActive()){
+        logger->info("CommandCenter not active - stop!");
         return;
     }
-    running = false;
+
 
     RobotModule::reset();
     logger->info("CommandCenter stoped");
-    //this->setHealthToSick("Commandcenter stoped, everything stop/disable");
-    //this->setEnabled(false);
 
     scheduleList.clear();
     emit stopAllTasks();
@@ -199,8 +195,8 @@ void CommandCenter::stopCommandCenter(){
 }
 
 void CommandCenter::commandCenterControl(){
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
+    if (!isActive()){
+        logger->info("CommandCenter not active - control!");
         return;
     }
 
@@ -249,7 +245,7 @@ void CommandCenter::commandCenterControl(){
             commandCenterControl();
         }
     } else {
-        if(!this->isEnabled()){
+        if(!isActive()){
             emit newError("Commandcenter not enabled!");
         } else {
             logger->info("Schedule error, no existing tasks!");
@@ -268,8 +264,8 @@ void CommandCenter::commandCenterControl(){
 
 void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
     // Evaluate task success
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
+    if (!isActive()){
+        logger->info("CommandCenter not active - finished control!");
         return;
     }
 
@@ -281,13 +277,13 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
     emit newState("");
     emit setAngularSpeed(0.0);
     emit setForwardSpeed(0.0);
-    if(this->isEnabled()){
+
         if(this->getSettingsValue("subEx").toBool() == true){
             emit setDepth(this->getSettingsValue("targetDepth").toFloat());
         } else {
             emit setDepth(0.0);
         }
-    }
+
 
     if(success==true){
         logger->info("One task has finished successfully");
@@ -298,12 +294,13 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
         this->abortedList.append(name->getTabName());
         activeTask = "";
     }
-    if(this->isEnabled()){
+
+
         // Stop thruster, then make next task...
-        if(this->taskhandcontrol->isEnabled()  == false && running == true){
+        if(this->taskhandcontrol->isEnabled()  == false &&  active){
             controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
         }
-    }
+
     // Update finished/aborted list
     emit updateGUI();
     emit newStateOverview("CLEAR");
@@ -311,34 +308,16 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
 
 
 void CommandCenter::doNextTask(){
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
+    if (!isActive()){
+        logger->info("CommandCenter not active - do next task!");
         return;
     }
     // After a wait time, the next task will be executed
     commandCenterControl();
 }
 
-// Not used....
-void CommandCenter::timeout(){
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
-        return;
-    }
-    // Timeout, stop everything
-    logger->info("Commandcenter timeout!");
-    emit setDepth(0);
-    emit setForwardSpeed(0);
-    emit setAngularSpeed(0);
-    stopCommandCenter();
-    running = false;
-}
 
 void CommandCenter::submergedExecute(){
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
-        return;
-    }
     // Set submerged depth
     logger->debug("Commandcenter submerged execute!");
     addData("Sub.exec.depth", this->getSettingsValue("targetDepth").toFloat());
@@ -368,8 +347,7 @@ void CommandCenter::reset(){
 }
 
 void CommandCenter::setNewMessage(QString s){
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
+    if (!isActive()){
         return;
     }
     emit newMessage(s);
@@ -387,11 +365,11 @@ QWidget* CommandCenter::createView(QWidget *parent){
 }
 
 void CommandCenter::emergencyStopCommandCenter(){
-    if (this->isEnabled() == false){
-        logger->info("CC not enabled!");
+    if (!isActive()){
+        logger->info("CommandCenter not active - emergency stop!");
         return;
     }
-    running = false;
+
     logger ->info("Emergency stop, stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
     emit resetTCL();
@@ -405,10 +383,11 @@ void CommandCenter::emergencyStopCommandCenter(){
 
 
 void CommandCenter::addTask(QString listName, QString taskName){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
+
     if(listName == "scheduleList"){
         this->scheduleList.append(taskName);
     } else if(listName == "abortedList"){
@@ -422,10 +401,11 @@ void CommandCenter::addTask(QString listName, QString taskName){
 }
 
 void CommandCenter::clearList(QString listName){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
+
     if(listName == "scheduleList"){
         this->scheduleList.clear();
     } else if(listName == "abortedList"){
@@ -439,10 +419,11 @@ void CommandCenter::clearList(QString listName){
 }
 
 void CommandCenter::removeTask(){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
+
     if(!this->scheduleList.isEmpty()){
         this->scheduleList.removeLast();
     }
@@ -450,6 +431,11 @@ void CommandCenter::removeTask(){
 }
 
 void CommandCenter::skipTask(){
+    if (!isActive()){
+        logger->info("Not active!");
+        return;
+    }
+
     if(!this->scheduleList.isEmpty()){
         this->abortedList.append(this->scheduleList.takeFirst());
     }
@@ -457,24 +443,25 @@ void CommandCenter::skipTask(){
 }
 
 void CommandCenter::updateState(QString state){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
+
     emit newState(state);
 }
 
 void CommandCenter::updateStateOverview(QString state){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
     emit newStateOverview(state);
 }
 
 void CommandCenter::controlTaskHandControl(bool b){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
     this->wait(100);
@@ -496,8 +483,8 @@ void CommandCenter::controlTaskHandControl(bool b){
 }
 
 void CommandCenter::startTaskHandControlCC(){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
 
@@ -540,8 +527,8 @@ void CommandCenter::startTaskHandControlCC(){
 }
 
 void CommandCenter::handControlFinishedCC(RobotBehaviour *name, bool success){
-    if (this->isEnabled() == false){
-        logger->info("Not enabled!");
+    if (!isActive()){
+        logger->info("Not active!");
         return;
     }
 

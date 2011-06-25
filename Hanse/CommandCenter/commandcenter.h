@@ -69,7 +69,7 @@ private:
 
     QTimer controlTimer;
 
-    bool running;
+    bool active;
 
     void commandCenterControl();
     void submergedExecute();
@@ -90,7 +90,6 @@ public slots:
     void terminate();
 
     void finishedControl(RobotBehaviour* name, bool success);
-    void timeout();
 
     void setNewMessage(QString s);
 

@@ -7,6 +7,8 @@
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
+#define STATE_FINISHED "Finished"
+
 class XsensFollwingForm;
 
 class Behaviour_XsensFollowing : public RobotBehaviour

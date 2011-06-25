@@ -27,17 +27,21 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     updateTimer.moveToThread(this);
     timerNoBall.moveToThread(this);
 
-    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
+
 }
 
 void Behaviour_BallFollowing::init()
 {
     active = false;
+    setEnabled(false);
+    logger->debug("ball init");
+
     connect(&updateTimer,SIGNAL(timeout()),this,SLOT(newData()));
     connect(&timerNoBall,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
+    connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 
     // Wieso in der init -45 und im Behav.start nochmal?
     targetHeading = xsens->getHeading() - 45;
@@ -263,13 +267,13 @@ void Behaviour_BallFollowing::timerSlot()
     stop();
 }
 
-void Behaviour_BallFollowing::controlEnabledChanged(bool b){
-    if(!b && isActive()){
+void Behaviour_BallFollowing::controlEnabledChanged(bool enabled){
+    if(!enabled && isActive()){
         logger->info("Disable and deactivate BallFollowing");
         stop();
-    } else if(!b && !isActive()){
+    } else if(!enabled && !isActive()){
         logger->info("Still deactivated");
-    } else if(b && !isActive()){
+    } else if(enabled && !isActive()){
         logger->info("Enable and activate BallFollowing");
         startBehaviour();
     } else {

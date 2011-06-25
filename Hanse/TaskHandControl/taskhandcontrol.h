@@ -32,7 +32,7 @@ private:
     Module_Simulation *sim;
     Module_HandControl *handcontrol;
 
-    bool running;
+    bool active;
     void terminate();
 
 signals:
@@ -56,6 +56,7 @@ public slots:
     void stop();
     void emergencyStop();
     void handControlFinishedSlot();
+    void controlEnabledChanged(bool b);
 };
 
 #endif // TASKHANDCONTROL_H

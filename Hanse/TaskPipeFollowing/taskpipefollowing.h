@@ -23,74 +23,57 @@ class TaskPipeFollowing : public RobotBehaviour
 {
     Q_OBJECT
 public:
+    // Methods
     TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Module_Simulation *sim, Module_Navigation *n, Behaviour_TurnOneEighty *o180);
-
     QWidget* createView(QWidget *parent);
-
     QList<RobotModule*> getDependencies();
-
     bool isActive();
-
     QString getTaskState();
 
-
-
 private:
+    void init();
+    void terminate();
+    void reset();
+    void showTaskState();
 
+    // Controls all task states
+    void controlTaskStates();
+
+    // Parameters
+    bool active;
     Behaviour_PipeFollowing *pipe;
     Module_Simulation *sim;
     Module_Navigation *navi;
     Behaviour_TurnOneEighty *turn180;
 
-    void init();
-    bool running;
-    void terminate();
-
     QTimer taskTimer;
-    QTimer angleTimer;
-
-    int counter;
-
+    QTimer calcTimer;
     QString taskState;
-    QString pipeState;
 
-
-    bool flag_PF_Pipe_Seen_Start;
-    bool flag_PF_Part_1_Finished;
-    bool flag_GoalLine_1_reached;
-    bool flag_PF_Pipe_Seen;
-    bool flag_PF_Part_2_Finished;
-    bool flag_GoalLine_2_reached;
-
-    void reset();
 
 signals:
+    // Update GUI input
     void updateSettings();
 
+    // Show current state at command center
     void newState(QString state);
+    // Overview of all task states at command center
     void newStateOverview(QString state);
 
     void setUpdatePixmapSignal(bool b);
 
 public slots:
+    // Task standard slots
     void startBehaviour();
     void stop();
     void emergencyStop();
     void timeoutStop();
+    void controlEnabledChanged(bool b);
 
-    void moveToTaskStart();
-    void moveToPipeStart();
-    void pipefollowPart1();
-    void moveToGatewaypoint1();
-    void moveToPipe();
-    void pipefollowPart2();
-    void moveToGatewaypoint2();
-
-    void controlAngleCalculation();
+    // Task specific state transitions
+    void controlAngleDistance();
     void controlFinishedWaypoints(QString waypoint);
     void controlPipeState(QString newState);
-
-    void controlEnabledChanged(bool b);
 
 };
 
