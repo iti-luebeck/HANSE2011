@@ -2,8 +2,8 @@
 #include "ui_handcontrol_form.h"
 
 HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::HandControl_Form)
+        QWidget(parent),
+        ui(new Ui::HandControl_Form)
 {
     ui->setupUi(this);
     this->module = module;
@@ -21,6 +21,7 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
     ui->maxForSpeed->setText(module->getSettingsValue("maxForSpeed").toString());
     ui->maxAngSpeed->setText(module->getSettingsValue("maxAngSpeed").toString());
     ui->maxVertSpeed->setText(module->getSettingsValue("maxVertSpeed").toString());
+    ui->resetTime->setText(module->getSettingsValue("resetTime").toString());
 
     if (module->getSettingsValue("receiver").toString()=="thruster") {
         ui->controlThruster->setChecked(true);
@@ -28,14 +29,14 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
         ui->controlTCL->setChecked(true);
     }
 
-//    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
-//    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
+    //    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
+    //    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
     connect(this,SIGNAL(updateControls(int, int, int)),module,SLOT(newMessage(int, int, int)));
     connect(&forTimer,SIGNAL(timeout()),this,SLOT(resetForSpeeds()));
     connect(&angTimer,SIGNAL(timeout()),this,SLOT(resetAngSpeeds()));
 
     connect(&testTimer, SIGNAL(timeout()), this, SLOT(setSpeeds()));
-    testTimer.start(500);
+    testTimer.start(resetTime);
 }
 
 HandControl_Form::~HandControl_Form()
@@ -64,7 +65,9 @@ void HandControl_Form::on_save_clicked()
     module->setSettingsValue("maxForSpeed",ui->maxForSpeed->text().toFloat());
     module->setSettingsValue("maxAngSpeed", ui->maxAngSpeed->text().toFloat());
     module->setSettingsValue("maxVertSpeed", ui->maxVertSpeed->text().toFloat());
+    module->setSettingsValue("resetTime", ui->resetTime->text().toInt());
 
+    resetTime = module->getSettingsValue("resetTime").toInt();
     maxForwardSpeed = ui->maxForSpeed->text().toFloat();
     maxAngularSpeed = ui->maxAngSpeed->text().toFloat();
     stepsize = ui->maxVertSpeed->text().toFloat();
@@ -82,11 +85,11 @@ void HandControl_Form::on_save_clicked()
 
 void HandControl_Form::connectionStatusChanged()
 {
-//    if (module->server->isConnected()) {
-//        ui->connectionStatus->setText("Connected.");
-//    } else {
-//        ui->connectionStatus->setText("Not connected.");
-//    }
+    //    if (module->server->isConnected()) {
+    //        ui->connectionStatus->setText("Connected.");
+    //    } else {
+    //        ui->connectionStatus->setText("Not connected.");
+    //    }
 }
 
 //void HandControl_Form::dataChanged(RobotModule *m)
@@ -157,5 +160,4 @@ void HandControl_Form::setSpeeds(){
     updateControls(fwd, ang, dep);
     fwd = 0;
     ang = 0;
-    //dep = 0;
 }
