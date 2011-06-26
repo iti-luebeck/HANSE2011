@@ -148,8 +148,7 @@ void TaskMidwaterTarget::controlFinishedWaypoints(QString waypoint){
     if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
         logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
         QTimer::singleShot(0, navi, SLOT(clearGoal()));
-        //taskState = TASK_STATE_BALLFOLLOWING;
-        taskState = TASK_STATE_XSENSFOLLOW;
+        taskState = TASK_STATE_BALLFOLLOWING;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("adjustPoint").toString()){
