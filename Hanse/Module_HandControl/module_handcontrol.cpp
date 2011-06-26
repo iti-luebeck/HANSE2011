@@ -23,6 +23,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     setDefaultValue("maxForSpeed", 100);
     setDefaultValue("maxAngSpeed", 100);
     setDefaultValue("maxVertSpeed", 10);
+    setDefaultValue("resetTime", 500);
 
 
 }
@@ -100,7 +101,7 @@ void Module_HandControl::emergencyStopReceived()
 
 void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int speedUpDown)
 {
-    if (!getSettingsValue("enabled").toBool())
+    if (!getSettingsValue("enabled").toBool() || !getSettingsValue("enableGamepad").toBool())
         return;
 
     addData("forwardSpeed", forwardSpeed);
