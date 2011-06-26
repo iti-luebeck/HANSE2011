@@ -38,6 +38,7 @@ private:
     float maxAngularSpeed;
     float upDownSpeed;
     float stepsize;
+    int resetTime;
 
     float fwd;
     float ang;

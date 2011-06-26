@@ -23,7 +23,7 @@
       <attribute name="title">
        <string>Control</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0">
+      <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0">
        <item row="0" column="1">
         <widget class="QPushButton" name="forwardButton">
          <property name="text">
@@ -161,10 +161,13 @@
        <item row="9" column="1">
         <widget class="QCheckBox" name="enableGamepad">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="text">
           <string>Enable handcontrol via gamepad</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -215,7 +218,14 @@
        <item row="16" column="1">
         <widget class="QLineEdit" name="maxVertSpeed"/>
        </item>
-       <item row="17" column="0" colspan="2">
+       <item row="17" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Time to reset Speeds (msec):</string>
+         </property>
+        </widget>
+       </item>
+       <item row="18" column="0" colspan="2">
         <widget class="QPushButton" name="save">
          <property name="text">
           <string>Apply &amp;&amp; Save</string>
@@ -224,6 +234,9 @@
           <string>Return</string>
          </property>
         </widget>
+       </item>
+       <item row="17" column="1">
+        <widget class="QLineEdit" name="resetTime"/>
        </item>
       </layout>
      </widget>
