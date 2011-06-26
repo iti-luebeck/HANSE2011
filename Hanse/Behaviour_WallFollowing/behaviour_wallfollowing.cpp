@@ -35,11 +35,11 @@ void Behaviour_WallFollowing::init()
     setDefaultValue("wallTime",2000);
     setDefaultValue("p", 0.3);
     setDefaultValue("useP", false);
-    setDefaultValue("experimentalMode", false);
-    setDefaultValue("expInput", 0.8);
+
+    setDefaultValue("allowedDist", 0.8);
 
 
-    QObject::connect(echo,SIGNAL(newData(const EchoReturnData, float)),this,SLOT(newData(const EchoReturnData, float)));
+    QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newData(const EchoReturnData, float)));
     QObject::connect(echo,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
     QObject::connect(this,SIGNAL(dataError()),this,SLOT(stopOnEchoError()));
     connect(this,SIGNAL(forwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
@@ -62,11 +62,9 @@ void Behaviour_WallFollowing::startBehaviour()
     reset();
 
     logger->info(" - Behaviour started -");
-    behavState = BEHAV_BEHAVIOUR_START;
     wallState = WALL_ADJUST_START;
     adjustState = ADJUST_IDLE;
-    guiShow = behavState;
-    updateStates();
+    updateOutput();
 
     updateFromSettings();
     echo->setEnabled(true);
@@ -96,11 +94,10 @@ void Behaviour_WallFollowing::stop()
     active = false;
     setEnabled(false);
 
-    behavState = BEHAV_BEHAVIOUR_END;
+
     wallState = WALL_STOP;
     adjustState = ADJUST_IDLE;
-    guiShow = behavState;
-    updateStates();
+    updateOutput();
 
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
@@ -120,10 +117,10 @@ void Behaviour_WallFollowing::reset()
 {
     emit forwardSpeed(0.0);
     emit angularSpeed(0.0);
+    avgDistance = 0.0;
     diff = 0.0;
-    behavState = "";
-    wallState = "";
-    adjustState = "";
+    wallState = WALL_ADJUST_START;
+    adjustState = ADJUST_IDLE;
 }
 
 
@@ -136,13 +133,21 @@ void Behaviour_WallFollowing::newData(const EchoReturnData data, float avgDist)
 
     emit newWallUiData(data, avgDist);
     avgDistance = avgDist;
+    addData("Distance average",avgDistance);
+    emit dataChanged(this);
 
     if(avgDistance > 0.0){
-        controlWallFollow();
-        behavState = BEHAV_WALLFOLLOWING;
-    } else {
+        controlWallFollow(); 
+    } else if(adjustState == ADJUST_IDLE){
         emit forwardSpeed(0.0);
-        emit angularSpeed(-angSpeed);
+        if(FLAG_SOUNDER_RIGHT){
+            // Turn right
+            emit angularSpeed(angSpeed);
+        } else {
+            // Turn left
+            emit angularSpeed(-angSpeed);
+        }
+        wallState = WALL_NO_WALL;
         emit updateGUI(WALL_NO_WALL);
         addData("wall",WALL_NO_WALL);
         emit dataChanged(this);
@@ -157,8 +162,6 @@ void Behaviour_WallFollowing::controlWallFollow()
         return;
     }
 
-    behavState = BEHAV_WALLFOLLOWING;
-
     addData("Distance target",distanceInput);
     addData("Distance average",avgDistance);
     emit dataChanged(this);
@@ -166,36 +169,32 @@ void Behaviour_WallFollowing::controlWallFollow()
     diff = distanceInput - avgDistance;
 
     if(wallState == WALL_ADJUST_START){
-        if((fabs(diff) < this->getSettingsValue("expInput").toDouble())){
-            adjustState = ADJUST_FINISHED;
-            wallState = WALL_CONTROL_WALLFOLLOW;
-            guiShow = adjustState;
-            updateStates();
-        } else if(adjustState == ADJUST_IDLE){
-            initialHeading = this->xsens->getHeading();
-            adjustTurnOne();
+        if(adjustState == ADJUST_IDLE){
+            if((fabs(diff) < allowedDist)){
+                wallState = WALL_CONTROL_WALLFOLLOW;
+                updateOutput();
+            } else if(adjustState == ADJUST_IDLE){
+                initialHeading = this->xsens->getHeading();
+                adjustTurnOne();
+            }
         }
     } else {
         // WALL_CONTROL_WALLFOLLOW
+        wallState = WALL_CONTROL_WALLFOLLOW;
         if(FLAG_SOUNDER_RIGHT){
-            controlThrusterEchoLeft();
-        } else {
             controlThrusterEchoRight();
+        } else {
+            controlThrusterEchoLeft();
         }
 
     }
 }
 
 
-
-
-
 void Behaviour_WallFollowing::controlThrusterEchoRight(){
     if(!isActive()){
         return;
     }
-
-    guiShow = "controlThrusterEchoRight";
 
     if(this->getSettingsValue("useP").toBool()){
 
@@ -223,7 +222,7 @@ void Behaviour_WallFollowing::controlThrusterEchoRight(){
 
         } else if(avgDistance < distanceInput ){
 
-            wallState = WALL_TURN_RIGHT;
+            wallState = WALL_TURN_LEFT;
             emit updateGUI(wallState);
             temp =angSpeed*(-1.0);
             emit forwardSpeed(fwdSpeed);
@@ -231,7 +230,7 @@ void Behaviour_WallFollowing::controlThrusterEchoRight(){
 
         } else if(avgDistance > distanceInput){
 
-            wallState = WALL_TURN_LEFT;
+            wallState = WALL_TURN_RIGHT ;
             emit updateGUI(wallState);
             emit forwardSpeed(fwdSpeed);
             emit angularSpeed(angSpeed);
@@ -246,8 +245,6 @@ void Behaviour_WallFollowing::controlThrusterEchoLeft(){
     if(!isActive()){
         return;
     }
-
-    guiShow = "controlThrusterEchoLeft";
 
     if(this->getSettingsValue("useP").toBool()){
 
@@ -300,7 +297,8 @@ void Behaviour_WallFollowing::adjustTurnOne(){
 
     if(adjustState != ADJUST_TURN90_START){
         adjustState = ADJUST_TURN90_START;
-        updateStates();
+        guiShow = adjustState;
+        updateOutput();
 
         if(FLAG_SOUNDER_RIGHT == false){
             if(diff < 0){
@@ -324,7 +322,7 @@ void Behaviour_WallFollowing::adjustTurnOne(){
     addData("heading difference", diffHeading);
     emit dataChanged(this);
 
-    if (fabs(diffHeading) < 5){
+    if (fabs(diffHeading) < 10){
 
         emit angularSpeed(0.0);
         emit forwardSpeed(0.0);
@@ -347,7 +345,8 @@ void Behaviour_WallFollowing::adjustDrive(){
     }
 
     adjustState = ADJUST_DRIVE;
-    updateStates();
+    guiShow = adjustState;
+    updateOutput();
 
     emit angularSpeed(0.0);
     emit forwardSpeed(1.0);
@@ -363,7 +362,8 @@ void Behaviour_WallFollowing::adjustTurnTwo(){
 
     if(adjustState != ADJUST_TURN90_END){
         adjustState = ADJUST_TURN90_END;
-        updateStates();
+        guiShow = adjustState;
+        updateOutput();
 
         targetHeading = initialHeading;
     }
@@ -374,13 +374,13 @@ void Behaviour_WallFollowing::adjustTurnTwo(){
     addData("heading difference", diffHeading);
     emit dataChanged(this);
 
-    if (fabs(diffHeading) < 5){
+    if (fabs(diffHeading) < 10){
 
         emit angularSpeed(0.0);
         emit forwardSpeed(0.0);
-        adjustState = ADJUST_FINISHED;
-        updateStates();
-
+        adjustState = ADJUST_IDLE;
+        guiShow = "";
+        updateOutput();
     } else {
 
         double angularSpeedValue = 0.2 * diffHeading;
@@ -396,6 +396,7 @@ void Behaviour_WallFollowing::adjustTurnTwo(){
 void Behaviour_WallFollowing::updateFromSettings()
 {
     updateUi();
+    this->allowedDist = this->getSettingsValue("allowedDist").toFloat();
     this->distanceInput = this->getSettingsValue("desiredDistance").toFloat();
     this->fwdSpeed = this->getSettingsValue("forwardSpeed").toFloat();
     this->angSpeed = this->getSettingsValue("angularSpeed").toFloat();
@@ -404,7 +405,7 @@ void Behaviour_WallFollowing::updateFromSettings()
 }
 
 void Behaviour_WallFollowing::stopOnEchoError(){
-    if(isActive()){
+    if(!isActive()){
         return;
     }
 
@@ -416,19 +417,19 @@ void Behaviour_WallFollowing::stopOnEchoError(){
     emit dataChanged(this);
 }
 
-void Behaviour_WallFollowing::updateStates(){
-    if(isActive()){
-        return;
-    }
+void Behaviour_WallFollowing::updateOutput(){
 
     addData("wallState",wallState);
-    addData("behavState",behavState);
-    addData("adjustState",adjustState);
+    addData("adjustState", adjustState);
     emit dataChanged(this);
-    emit updateGUI(guiShow);
-    logger->info(wallState);
-    logger->info(behavState);
-    logger->info(adjustState);
+    if(guiShow != ""){
+        emit updateGUI(guiShow);
+        logger->info(guiShow);
+    } else {
+        emit updateGUI(wallState);
+        logger->info(wallState);
+    }
+
 }
 
 void Behaviour_WallFollowing::controlEnabledChanged(bool enabled){

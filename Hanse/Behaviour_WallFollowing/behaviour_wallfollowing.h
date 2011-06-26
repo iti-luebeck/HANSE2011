@@ -12,14 +12,10 @@ class Module_XsensMTi;
 // Follow wall right to hanse
 #define FLAG_SOUNDER_RIGHT      true
 
-// Behaviour states
-#define BEHAV_BEHAVIOUR_START   "Behaviour start"
-#define BEHAV_WALLFOLLOWING     "Control distance"
-#define BEHAV_BEHAVIOUR_END     "Behaviour stopped"
-
 // Wall states
-#define WALL_NO_WALL                 "No average distance"
+#define WALL_NO_WALL                 "No average distance, turn..."
 #define WALL_ADJUST_START            "Adjust startdistance"
+
 #define WALL_CONTROL_WALLFOLLOW      "Average distance existing"
 #define WALL_TURN_LEFT              "Turn left"
 #define WALL_TURN_RIGHT             "Turn right"
@@ -27,12 +23,11 @@ class Module_XsensMTi;
 #define WALL_ERROR               "Echosignal error"
 #define WALL_STOP               " - Stopped -"
 
-// Adjust distance states
-#define ADJUST_IDLE             "Adjust idle"
-#define ADJUST_TURN90_START     "First adjust turn 90"
+
+#define ADJUST_IDLE              "Adjust distance idle"
+#define ADJUST_TURN90_START      "First adjust turn 90"
 #define ADJUST_DRIVE            "Adjust drive"
-#define ADJUST_TURN90_END       "Second adjust turn 90"
-#define ADJUST_FINISHED         "Adjust distance finished"
+#define ADJUST_TURN90_END      "Second adjust turn 90"
 
 class Behaviour_WallFollowing : public RobotBehaviour
 {
@@ -50,7 +45,7 @@ private:
     void controlWallFollow();
     void controlThrusterEchoLeft();
     void controlThrusterEchoRight();
-    void updateStates();
+    void updateOutput();
 
     // Parameters
     bool active;
@@ -65,11 +60,10 @@ private:
     float initialHeading;
     float targetHeading;
     float diff;
+    float allowedDist;
     QString wallState;
-    QString behavState;
     QString adjustState;
     QString guiShow;
-
 
 signals:
     void timerStart( int msec );

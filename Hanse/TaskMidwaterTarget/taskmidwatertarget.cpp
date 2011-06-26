@@ -25,17 +25,18 @@ bool TaskMidwaterTarget::isActive(){
 void TaskMidwaterTarget::init(){
     logger->debug("taskmidwatertarget init");
 
+    this->setDefaultValue("taskStopTime",120000);
+    this->setDefaultValue("timerActivated", true);
+
     this->setDefaultValue("taskStartPoint", "SP");
-    this->setDefaultValue("finishPoint", "FP");
+    this->setDefaultValue("finishPoint", "tmtF");
 
     active = false;
     setEnabled(false);
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
-
-
-    // TODO
-    //connect(xsensfollow, SIGNAL(newPipeState(QString)), this, SLOT(controlPipeState(QString)));
-    //connect(ballfollow, SIGNAL(newPipeState(QString)), this, SLOT(controlPipeState(QString)));
+    connect(navi, SIGNAL(reachedWaypoint(QString)), this, SLOT(controlFinishedWaypoints(QString)));
+    connect(xsensfollow, SIGNAL(newXsensState(QString)), this, SLOT(controlXsensState(QString)));
+    connect(ballfollow, SIGNAL(newBallState(QString)), this, SLOT(controlBallState(QString)));
 
 
 }
@@ -53,11 +54,9 @@ void TaskMidwaterTarget::startBehaviour(){
     }
 
     this->reset();
-
     setHealthToOk();
 
-    taskState = TASK_STATE_START;
-    showTaskState();
+
 
     active = true;
     if(!isEnabled()){
@@ -71,18 +70,25 @@ void TaskMidwaterTarget::startBehaviour(){
         this->navi->setEnabled(true);
     }
 
-    //addData("stoptimer", this->getSettingsValue("timerActivated").toBool());
-    //emit dataChanged(this);
+    emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
+    emit newStateOverview(TASK_STATE_BALLFOLLOWING);
+    emit newStateOverview(TASK_STATE_XSENSFOLLOW);
+    emit newStateOverview(TASK_STATE_FINISH_INSPECTION);
 
+
+    taskState = TASK_STATE_START;
+    showTaskState();
 
     emit updateSettings();
 
-//    if(this->getSettingsValue("timerActivated").toBool()){
-//        logger->info("TaskMidwaterTarget with timer stop");
-//        taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
-//        taskTimer.start();
-//    }
+    if(this->getSettingsValue("timerActivated").toBool()){
+        logger->info("TaskMidwaterTarget with timer stop");
+        taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
+        taskTimer.start();
+    }
 
+    taskState = TASK_STATE_MOVE_TO_TASK_START;
+    controlTaskStates();
 }
 
 
@@ -107,8 +113,10 @@ void TaskMidwaterTarget::controlTaskStates(){
         }
 
     } else if(taskState == TASK_STATE_XSENSFOLLOW){
+        this->navi->addCurrentPositionWaypoint(this->getSettingsValue("finishPoint").toString());
+        initBehaviourParameters();
+        showTaskState();
         if(this->xsensfollow->getHealthStatus().isHealthOk()){
-            // TODO anzahl turns , drivedauer
             if (!this->xsensfollow->isActive()) {
                 logger->info("Activate xsensfollowing");
                 QTimer::singleShot(0, xsensfollow, SLOT(startBehaviour()));
@@ -117,7 +125,7 @@ void TaskMidwaterTarget::controlTaskStates(){
             }
         } else {
             logger->info("Xsensfollowing not possible");
-            taskState = TASK_STATE_XSENSFOLLOW;
+            taskState = TASK_STATE_FINISH_INSPECTION;
             controlTaskStates();
         }
 
@@ -127,12 +135,6 @@ void TaskMidwaterTarget::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_END){
         showTaskState();
-        if(ballfollow->isActive()){
-            QTimer::singleShot(0, ballfollow, SLOT(stop()));
-        }
-        if(xsensfollow->isActive()){
-            QTimer::singleShot(0, xsensfollow, SLOT(stop()));
-        }
         stop();
     }
 }
@@ -146,7 +148,8 @@ void TaskMidwaterTarget::controlFinishedWaypoints(QString waypoint){
     if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
         logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
         QTimer::singleShot(0, navi, SLOT(clearGoal()));
-        taskState = TASK_STATE_BALLFOLLOWING;
+        //taskState = TASK_STATE_BALLFOLLOWING;
+        taskState = TASK_STATE_XSENSFOLLOW;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("adjustPoint").toString()){
@@ -170,6 +173,7 @@ void TaskMidwaterTarget::controlBallState(QString newState){
 
     if(newState == STATE_PASSED && taskState == TASK_STATE_BALLFOLLOWING){
         taskState = TASK_STATE_XSENSFOLLOW;
+        QTimer::singleShot(0, ballfollow, SLOT(stop()));
         controlTaskStates();
     }
 }
@@ -182,15 +186,21 @@ void TaskMidwaterTarget::controlXsensState(QString newState){
 
     if(newState == STATE_FINISHED && taskState == TASK_STATE_XSENSFOLLOW){
         taskState = TASK_STATE_FINISH_INSPECTION;
+        QTimer::singleShot(0, xsensfollow, SLOT(stop()));
         controlTaskStates();
     }
 }
 
 void TaskMidwaterTarget::initBehaviourParameters(){
-    // TODO
-
+    if(taskState == TASK_STATE_XSENSFOLLOW){
+        this->xsensfollow->setSettingsValue("driveTime", 10000);
+        this->xsensfollow->setSettingsValue("turnClockwise", false);
+        this->xsensfollow->setSettingsValue("nuberTurns", 3);
+        this->xsensfollow->setSettingsValue("enableTurn", true);
+    } else if(taskState == TASK_STATE_BALLFOLLOWING){
+        // Nothing
+    }
 }
-
 
 void TaskMidwaterTarget::showTaskState(){
     logger->info(taskState);

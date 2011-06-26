@@ -35,6 +35,7 @@ private:
     void terminate();
     void reset();
     void showTaskState();
+    void initBehaviourParameters();
 
     // Controls all task states
     void controlTaskStates();

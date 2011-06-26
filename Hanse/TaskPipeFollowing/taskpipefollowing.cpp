@@ -267,6 +267,9 @@ void TaskPipeFollowing::controlAngleDistance(){
     emit dataChanged(this);
 }
 
+void TaskPipeFollowing::initBehaviourParameters(){
+    // Maybe TODO
+}
 
 void TaskPipeFollowing::showTaskState(){
     logger->info(taskState);

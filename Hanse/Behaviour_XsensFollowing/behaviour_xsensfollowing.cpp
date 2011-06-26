@@ -28,6 +28,8 @@ void Behaviour_XsensFollowing::init()
     this->setDefaultValue("ffSpeed",0.5);
     this->setDefaultValue("kp",0.3);
     this->setDefaultValue("delta",10);
+    this->setDefaultValue("nuberTurns", 3);
+    this->setDefaultValue("turnClockwise", false);
 
     connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(newForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
@@ -38,24 +40,26 @@ void Behaviour_XsensFollowing::init()
 
 void Behaviour_XsensFollowing::startBehaviour()
 {
-    if (!isActive()) {
+    if (isActive()) {
         logger->info("Already active!");
         return;
     }
+
+    behavState = STATE_RUNNING;
+    logger->info("Starting Xsens Following");
+    targetHeading = xsens->getHeading();
+
+    emit dataChanged(this);
+    turnCounter = this->getSettingsValue("nuberTurns").toInt();
+
+    timer.start(getSettingsValue("timer").toInt());
+    turnTimer.start(getSettingsValue("driveTime").toInt());
 
     active = true;
     if(!isEnabled()){
         setEnabled(true);
     }
 
-
-    logger->info("Starting Xsens Following");
-    targetHeading = xsens->getHeading();
-
-    emit dataChanged(this);
-
-    timer.start(getSettingsValue("timer").toInt());
-    turnTimer.start(getSettingsValue("driveTime").toInt());
 }
 
 void Behaviour_XsensFollowing::stop()
@@ -75,6 +79,7 @@ void Behaviour_XsensFollowing::stop()
     logger->info("Xsens follow stop");
     this->setEnabled(false);
     setEnabled(false);
+    emit newXsensState(behavState);
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
     logger->info("Stop Xsens Following");
@@ -87,9 +92,10 @@ void Behaviour_XsensFollowing::reset()
         return;
     }
     logger->info("Xsens follow reset");
-
     timer.stop();
     turnTimer.stop();
+    turnCounter = this->getSettingsValue("nuberTurns").toInt();
+    behavState = STATE_RUNNING;
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
     RobotModule::reset();
@@ -120,40 +126,49 @@ void Behaviour_XsensFollowing::controlLoop()
         return;
     }
 
-    double currentHeading = xsens->getHeading();
-    double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-    double ctrAngleSpeed = 0.0;
 
-    if(fabs(diffHeading) < getSettingsValue("delta").toDouble())
-    {
-        ctrAngleSpeed = 0.0;
-    } else {
-        ctrAngleSpeed = getSettingsValue("kp").toFloat()*diffHeading;
-    }
+        double currentHeading = xsens->getHeading();
+        double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+        double ctrAngleSpeed = 0.0;
+
+        if(fabs(diffHeading) < getSettingsValue("delta").toDouble())
+        {
+            ctrAngleSpeed = 0.0;
+        } else {
+            ctrAngleSpeed = getSettingsValue("kp").toFloat()*diffHeading;
+        }
 
 
-    addData("heading current",currentHeading);
-    addData("heading target", targetHeading);
-    addData("heading difference", diffHeading);
-    emit dataChanged(this);
-    emit newAngularSpeed(ctrAngleSpeed);
-    emit newForwardSpeed(getSettingsValue("ffSpeed").toFloat());
+        addData("heading current",currentHeading);
+        addData("heading target", targetHeading);
+        addData("heading difference", diffHeading);
+        emit dataChanged(this);
+        emit newAngularSpeed(ctrAngleSpeed);
+        emit newForwardSpeed(getSettingsValue("ffSpeed").toFloat());
+
 }
 
 void Behaviour_XsensFollowing::turnNinety()
 {
     if (!isActive()) {
-        this->stop();
         return;
     }
 
     logger->info("Turn 90");
-    if(getSettingsValue("enableTurn").toBool() == true){
-        if(getSettingsValue("turnClockwise").toBool() == true){
+    if(getSettingsValue("enableTurn").toBool()){
+        if(getSettingsValue("turnClockwise").toBool()){
             targetHeading = Angles::deg2deg(targetHeading+90);
         } else {
             targetHeading = Angles::deg2deg(targetHeading-90);
         }
+    }
+
+    turnCounter = turnCounter - 1;
+    if(turnCounter == 0){
+        behavState = STATE_FINISHED;
+        logger->info("Finished all turns");
+        turnTimer.stop();
+        QTimer::singleShot(2000, this, SLOT(stop()));
     }
 }
 

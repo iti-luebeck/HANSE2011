@@ -7,6 +7,7 @@
 #include <Module_XsensMTi/module_xsensmti.h>
 #include <Module_ThrusterControlLoop/module_thrustercontrolloop.h>
 
+#define STATE_RUNNING  "Running"
 #define STATE_FINISHED "Finished"
 
 class XsensFollwingForm;
@@ -30,10 +31,12 @@ private:
         Module_ThrusterControlLoop* tcl;
         QTimer timer;
         QTimer turnTimer;
+        QString behavState;
         void stopOnXsensError();
 
         float targetHeading;
         bool active;
+        int turnCounter;
 
 public slots:
         void startBehaviour();
@@ -50,8 +53,7 @@ private slots:
 signals:
         void newAngularSpeed(float angspeed);
         void newForwardSpeed(float ffspeed);
-        void startControlTimer();
-        void startTurnTimer();
+        void newXsensState(QString state);
 };
 
 

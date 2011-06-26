@@ -74,6 +74,7 @@ signals:
     void setAngularSpeed(float angularSpeed);
     void requestFrame();
     void printFrame(IplImage *image);
+    void newBallState(QString state);
 };
 
 

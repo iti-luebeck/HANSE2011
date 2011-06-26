@@ -534,6 +534,20 @@ double Module_Navigation::getDistance(QString name){
     }
 }
 
+void  Module_Navigation::addCurrentPositionWaypoint(QString name){
+    Position currentPosition = sonarLoc->getLocalization();
+    Waypoint newWP;
+    newWP.posX = currentPosition.getX();
+    newWP.posY = currentPosition.getY();
+    newWP.depth = currentPosition.getZ();
+    newWP.startAngle = 0.0;
+    newWP.useStartAngle = false;
+    newWP.exitAngle = currentPosition.getYaw();
+    newWP.useExitAngle = true;
+    waypoints[name] = newWP;
+    updatedWaypoints( waypoints );
+}
+
 double Module_Navigation::getAlpha(QString name1, QString name2) {
      double alpha = 0.0;
      if (this->isEnabled()) {

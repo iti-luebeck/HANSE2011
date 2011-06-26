@@ -158,7 +158,7 @@ void TaskXsensNavigation::stateChanged()
         } else {
             logger->info("xsens following not possible!");
             state = XSENS_NAV_STATE_MOVE_B;
-            taskTimer.singleShot(0, this, SLOT(stateChanged()));
+            QTimer::singleShot(0, this, SLOT(stateChanged()));
         }
 
     } else if (state == XSENS_NAV_STATE_MOVE_B) {
@@ -186,7 +186,7 @@ void TaskXsensNavigation::stateChanged()
         } else {
             logger->info("turn 180 degrees not possible!");
             state = XSENS_NAV_STATE_MOVE_END;
-            taskTimer.singleShot(0, this, SLOT(stateChanged()));
+            QTimer::singleShot(0, this, SLOT(stateChanged()));
         }
 
     } else if (state == XSENS_NAV_STATE_MOVE_END) {
@@ -206,7 +206,7 @@ void TaskXsensNavigation::stateChanged()
         if(this->getSettingsValue("loopActivated").toBool()){
             logger->debug("start again");
             state = XSENS_NAV_STATE_MOVE_START;
-            taskTimer.singleShot(0, this, SLOT(stateChanged()));
+            QTimer::singleShot(0, this, SLOT(stateChanged()));
         } else {
             // Task finished, stop
             stop();

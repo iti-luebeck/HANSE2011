@@ -14,6 +14,7 @@ XsensFollowingForm::XsensFollowingForm(QWidget *parent, Behaviour_XsensFollowing
     this->ui->kp->setText(xsens->getSettingsValue("kp").toString());
     this->ui->delta->setText(xsens->getSettingsValue("delta").toString());
     this->ui->timerInput->setText(xsens->getSettingsValue("timer").toString());
+    this->ui->turnInput->setText(xsens->getSettingsValue("nuberTurns").toString());
 
     QObject::connect(this,SIGNAL(startBehaviour()),xsens,SLOT(startBehaviour()));
     QObject::connect(this,SIGNAL(stopBehaviour()),xsens,SLOT(stop()));
@@ -48,6 +49,7 @@ void XsensFollowingForm::on_startButton_clicked()
     xsens->setSettingsValue("delta",ui->delta->text().toFloat());
     xsens->setSettingsValue("timer", ui->timerInput->text().toFloat());
     xsens->setSettingsValue("enableTurn",this->ui->enableTurn->isChecked());
+    xsens->setSettingsValue("nuberTurns", ui->turnInput->text().toInt());
     emit startBehaviour();
 }
 
@@ -65,6 +67,7 @@ void XsensFollowingForm::on_apply_clicked()
     xsens->setSettingsValue("delta",ui->delta->text().toFloat());
     xsens->setSettingsValue("timer", ui->timerInput->text().toFloat());
     xsens->setSettingsValue("enableTurn",this->ui->enableTurn->isChecked());
+    xsens->setSettingsValue("nuberTurns", ui->turnInput->text().toInt());
 
 }
 

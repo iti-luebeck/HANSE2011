@@ -85,6 +85,7 @@ void WallFollowingForm::on_applyButton_clicked(){
     wallfollow->setSettingsValue("allowedDist", ui->allowedInput->text());
     wallfollow->setSettingsValue("driveTime", ui->driveInput->text());
     wallfollow->setSettingsValue("updateView", this->ui->updateView->isChecked());
+    QTimer::singleShot(0, wallfollow, SLOT(updateFromSettings()));
 }
 
 void WallFollowingForm::on_stopButton_clicked()

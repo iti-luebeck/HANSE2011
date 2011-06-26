@@ -70,7 +70,11 @@ void TaskWallFollowing::startBehaviour(){
     reset();
     setHealthToOk();
 
+    taskState = TASK_STATE_START;
+    showTaskState();
+
     emit updateSettings();
+
     calcTimer.start(100);
 
     active = true;
@@ -84,10 +88,8 @@ void TaskWallFollowing::startBehaviour(){
         this->navi->setEnabled(true);
     }
 
-    logger->info(taskState);
-    addData("taskState", taskState);
-    emit newState(taskState);
-    emit dataChanged(this);
+
+
 
 
     emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);

@@ -160,10 +160,11 @@ void Behaviour_BallFollowing::update()
         emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
     } else if (ballState == STATE_PASSED) {
         emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
-        // Do xsens follow...
+
     } else {
         // Do search for ball...
     }
+    emit newBallState(ballState);
 
     ellipse(frame, RotatedRect(Point(x, tracker.getMeanY()), Size(std::sqrt(tracker.getArea()), std::sqrt(tracker.getArea())), 0.0f), Scalar(255,0,0), 5);
     addData("state", ballState);
