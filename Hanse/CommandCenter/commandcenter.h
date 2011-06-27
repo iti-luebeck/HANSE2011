@@ -117,8 +117,6 @@ signals:
     void stopAllTasks();
     void resetTCL();
 
-    void taskTimeout();
-
     void cStop();
 
     void updateGUI();
