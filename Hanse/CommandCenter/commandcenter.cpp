@@ -50,7 +50,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     // Emergency stop all behaviours
     foreach (RobotBehaviour* b, behaviour)
     {
-        connect(handControl, SIGNAL(emergencyStop()), b, SLOT(stop()));
+        connect(this, SIGNAL(stopAllTasks()), b, SLOT(stop()));
     }
 
     // Tasks specific signals
