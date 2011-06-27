@@ -22,7 +22,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     setDefaultValue("divUD",50);
     setDefaultValue("maxForSpeed", 100);
     setDefaultValue("maxAngSpeed", 100);
-    setDefaultValue("maxVertSpeed", 10);
+    setDefaultValue("diveStepsize", 10); // ursprünglich 10 => schrittweite soll 10cm sein.
     setDefaultValue("resetTime", 500);
     setDefaultValue("enableGamepad", true);
 

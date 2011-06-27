@@ -53,14 +53,11 @@ private slots:
     void on_forwardButton_clicked();
     void on_save_clicked();
     void connectionStatusChanged();
-//    void dataChanged(RobotModule* m);
-    void resetForSpeeds();
-    void resetAngSpeeds();
-    //void setSpeeds();
+    //void dataChanged(RobotModule* m);
+    void setSpeeds();
 
 signals:
-void updateControls();
-    //    void updateControls(int forwardSpeed, int angularSpeed, int speedUpDown);
+    void updateControls();
 };
 
 #endif // HANDCONTROL_FORM_H
