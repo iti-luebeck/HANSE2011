@@ -30,16 +30,13 @@ private:
     QTimer captureTimer;
 
     cv::Mat leftFrame;
-    cv::Mat rightFrame;
     cv::Mat bottomFrame;
     int count;
 
 private slots:
     void on_bottomFrameRateSlider_sliderMoved(int position);
-    void on_rightFrameRateSlider_sliderMoved(int position);
     void on_leftFrameRateSlider_sliderMoved(int position);
     void on_bottomConnectCheckBox_clicked();
-    void on_rightConnectCheckBox_clicked();
     void on_leftConnectCheckBox_clicked();
     void on_checkBox_clicked();
     void on_updateListButton_clicked();
