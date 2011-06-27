@@ -50,7 +50,7 @@ void TaskWallFollowing::init(){
 
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
     connect(navi, SIGNAL(reachedWaypoint(QString)), this, SLOT(controlFinishedWaypoints(QString)));
-    connect(turn180, SIGNAL(turn180finished(QString)), this, SLOT(controlFinishedWaypoints(QString)));
+    //connect(turn180, SIGNAL(turn180finished(QString)), this, SLOT(controlFinishedWaypoints(QString)));
     connect(&calcTimer,SIGNAL(timeout()),this,SLOT(controlAngleDistance()));
 }
 

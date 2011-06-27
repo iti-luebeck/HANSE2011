@@ -50,7 +50,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     // Emergency stop all behaviours
     foreach (RobotBehaviour* b, behaviour)
     {
-        connect(handControl, SIGNAL(stopAllTasks()), b, SLOT(stop()));
+        connect(handControl, SIGNAL(emergencyStop()), b, SLOT(stop()));
     }
 
     // Tasks specific signals
@@ -107,13 +107,12 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(handControl, SIGNAL(startHandControl()), this, SLOT(startTaskHandControlCC()));
     connect(handControl, SIGNAL(enabled(bool)), this, SLOT(controlTaskHandControl(bool)));
 
-    connect(this, SIGNAL(taskTimeout()), this, SLOT(timeout()));
     connect(this, SIGNAL(cStop()), this, SLOT(stopCommandCenter()));
 
     // Default values
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
-    setDefaultValue("waitTime",2000);
+    setDefaultValue("waitTime",500);
 
     controlTimer.moveToThread(this);
     timer.moveToThread(this);
