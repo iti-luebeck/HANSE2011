@@ -69,11 +69,6 @@ public:
       */
     double getAlpha(QString name1, QString name2);
 
-    /**
-      * Add new waypoint with desired name at the current position
-      */
-    void addCurrentPositionWaypoint(QString name);
-
 
     Position getCurrentPosition();
 
