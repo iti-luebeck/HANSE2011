@@ -56,7 +56,6 @@ void TaskPipeFollowing::init(){
 
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
     connect(navi, SIGNAL(reachedWaypoint(QString)), this, SLOT(controlFinishedWaypoints(QString)));
-    connect(turn180, SIGNAL(turn180finished(QString)), this, SLOT(controlFinishedWaypoints(QString)));
     connect(pipe, SIGNAL(newPipeState(QString)), this, SLOT(controlPipeState(QString)));
     connect(&calcTimer,SIGNAL(timeout()),this,SLOT(controlAngleDistance()));
 }
@@ -110,6 +109,7 @@ void TaskPipeFollowing::startBehaviour(){
     }
 
     taskState = TASK_STATE_MOVE_TO_TASK_START;
+    controlTaskStates();
 }
 
 void TaskPipeFollowing::controlTaskStates(){
@@ -119,14 +119,18 @@ void TaskPipeFollowing::controlTaskStates(){
 
     if(taskState == TASK_STATE_MOVE_TO_TASK_START){
         showTaskState();
+        qDebug("State 1");
         this->navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
 
     } else if(taskState == TASK_STATE_MOVE_TO_PIPE_INIT){
         showTaskState();
+         qDebug("State 2");
         this->navi->gotoWayPoint(this->getSettingsValue("pipeStartPoint").toString());
 
     } else if(taskState == TASK_STATE_PIPEFOLLOW_PART1){
         showTaskState();
+
+         qDebug("State 3");
         if(this->pipe->getHealthStatus().isHealthOk()){
             if (!this->pipe->isActive()) {
                 logger->info("Activate pipefollowing");
@@ -142,6 +146,7 @@ void TaskPipeFollowing::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_MOVE_TO_GATEWAYPOINT1){
         showTaskState();
+         qDebug("State 4");
         if(pipe->isActive()){
             QTimer::singleShot(0, pipe, SLOT(stop()));
         }
@@ -165,16 +170,11 @@ void TaskPipeFollowing::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_MOVE_TO_GATEWAYPOINT2){
         showTaskState();
-        if(pipe->isActive()){
-            QTimer::singleShot(0, pipe, SLOT(stop()));
-        }
+        QTimer::singleShot(0, pipe, SLOT(stop()));
         this->navi->gotoWayPoint(this->getSettingsValue("gate2point").toString());
 
     } else if(taskState == TASK_STATE_END){
         showTaskState();
-        if(pipe->isActive()){
-            QTimer::singleShot(0, pipe, SLOT(stop()));
-        }
         stop();
     }
 }
@@ -186,25 +186,21 @@ void TaskPipeFollowing::controlFinishedWaypoints(QString waypoint){
 
     if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
         logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         taskState = TASK_STATE_MOVE_TO_PIPE_INIT;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("pipeStartPoint").toString()){
         logger->info(this->getSettingsValue("pipeStartPoint").toString() +" reached");
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         taskState = TASK_STATE_PIPEFOLLOW_PART1;
         controlTaskStates();
 
     }else if(waypoint ==  this->getSettingsValue("gate1point").toString()){
         logger->info(this->getSettingsValue("gate1point").toString() +" reached");
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         taskState = TASK_STATE_MOVE_TO_PIPE;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("gate2point").toString()){
         logger->info(this->getSettingsValue("gate2point").toString() +" reached");
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         taskState = TASK_STATE_END;
         controlTaskStates();
 
