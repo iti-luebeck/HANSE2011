@@ -113,7 +113,19 @@ void TaskMidwaterTarget::controlTaskStates(){
         }
 
     } else if(taskState == TASK_STATE_XSENSFOLLOW){
-        this->navi->addCurrentPositionWaypoint(this->getSettingsValue("finishPoint").toString());
+
+        Position currentPosition = this->navi->getCurrentPosition();
+        Waypoint newWP;
+        newWP.name = this->getSettingsValue("finishPoint").toString();
+        newWP.posX = currentPosition.getX();
+        newWP.posY = currentPosition.getY();
+        newWP.depth = currentPosition.getZ();
+        newWP.startAngle = 0.0;
+        newWP.useStartAngle = false;
+        newWP.exitAngle = currentPosition.getYaw();
+        newWP.useExitAngle = true;
+        this->navi->addWaypoint(this->getSettingsValue("finishPoint").toString(), newWP);
+
         initBehaviourParameters();
         showTaskState();
         if(this->xsensfollow->getHealthStatus().isHealthOk()){
@@ -146,14 +158,12 @@ void TaskMidwaterTarget::controlFinishedWaypoints(QString waypoint){
     }
 
     if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
-        logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
+        logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");       
         taskState = TASK_STATE_BALLFOLLOWING;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("adjustPoint").toString()){
         logger->info(this->getSettingsValue("adjustPoint").toString() +" reached");
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         taskState = TASK_STATE_END;
         controlTaskStates();
 
