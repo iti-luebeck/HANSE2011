@@ -167,7 +167,6 @@ void TaskWallFollowing::controlFinishedWaypoints(QString waypoint){
 
     if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
         logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-        QTimer::singleShot(0, navi, SLOT(clearGoal()));
         taskState = TASK_STATE_WALLFOLLOW_PART1;
         controlTaskStates();
 
