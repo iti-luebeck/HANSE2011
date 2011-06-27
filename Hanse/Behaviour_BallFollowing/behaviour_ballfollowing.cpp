@@ -23,11 +23,9 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     this->sim = sim;
 
     //    setEnabled(false);
-    state = BALL_STATE_IDLE;
+    state = BALL_STATE_SEARCH_BALL;
     updateTimer.moveToThread(this);
-    timerNoBall.moveToThread(this);
-
-
+    cutTimer.moveToThread(this);
 }
 
 void Behaviour_BallFollowing::init()
@@ -37,15 +35,10 @@ void Behaviour_BallFollowing::init()
     logger->debug("ball init");
 
     connect(&updateTimer,SIGNAL(timeout()),this,SLOT(newData()));
-    connect(&timerNoBall,SIGNAL(timeout()),this,SLOT(timerSlot()));
 
     connect(this,SIGNAL(setAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(setForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
-
-    // Wieso in der init -45 und im Behav.start nochmal?
-    targetHeading = xsens->getHeading() - 45;
-    targetHeading = Angles::deg2deg(targetHeading);
 
     QObject::connect( xsens, SIGNAL(dataChanged(RobotModule*)),
                       this, SLOT(xsensUpdate(RobotModule*)) );
@@ -80,15 +73,13 @@ void Behaviour_BallFollowing::startBehaviour()
 
     tracker.reset();
 
-    state = BALL_STATE_TURN_45;
-    targetHeading = Angles::deg2deg(xsens->getHeading() - 45);
+    state = BALL_STATE_SEARCH_BALL;
+    cutHeading = 0;
 
     active = true;
     if(!isEnabled()){
         setEnabled(true);
     }
-
-    emit setAngularSpeed(-0.4);
 
     if (sim->isEnabled()) {
         updateTimer.start(250);
@@ -139,7 +130,9 @@ void Behaviour_BallFollowing::update()
         return;
     }
 
-    tracker.update(frame);
+    if (!frame.empty()) {
+        tracker.update(frame);
+    }
 
     QString ballState = tracker.getState();
     double x = tracker.getMeanX();
@@ -147,49 +140,99 @@ void Behaviour_BallFollowing::update()
     double radius = std::sqrt(area / M_PI);
     double approxDistance = 0.15 * 326.7 / radius; // d = R * F / r (in m)
 
-    if (ballState == STATE_IS_SEEN) {
-        double robCenterX = this->getSettingsValue("robCenterX").toDouble();
-        double diffX = robCenterX - x;
-        float angleSpeed = 0.0;
+    if (state == BALL_STATE_SEARCH_BALL) {
 
-        if (fabs(diffX) > this->getSettingsValue("deltaBall").toFloat()) {
-            angleSpeed = this->getSettingsValue("kpBall").toFloat() * (diffX / this->getSettingsValue("maxDistance").toFloat());
+        if (ballState == STATE_IS_SEEN) {
+            double robCenterX = this->getSettingsValue("robCenterX").toDouble();
+            double diffX = robCenterX - x;
+            float angularSpeed = 0.0;
+
+            if (approxDistance < 2) {
+                if (fabs(diffX) < this->getSettingsValue("deltaBall").toFloat()) {
+                    // Wegpunkt setzen, weitermachen
+                    state = BALL_STATE_FOUND_BALL;
+                } else {
+                    // Ausrichten
+                    angularSpeed = this->getSettingsValue("kpBall").toFloat() * (diffX / this->getSettingsValue("maxDistance").toFloat());
+                }
+                emit setAngularSpeed(angularSpeed);
+                emit setForwardSpeed(0);
+            } else {
+                if (fabs(diffX) > this->getSettingsValue("deltaBall").toFloat()) {
+                    angularSpeed = this->getSettingsValue("kpBall").toFloat() * (diffX / this->getSettingsValue("maxDistance").toFloat());
+                }
+
+                emit setAngularSpeed(angularSpeed);
+                emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+            }
+        } else {
+            // Do search for ball...
         }
 
-        emit setAngularSpeed(angleSpeed);
-        emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
-    } else if (ballState == STATE_PASSED) {
-        emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+    } else if (state == BALL_STATE_FOUND_BALL) {
 
-    } else {
-        // Do search for ball...
+    } else if (state == BALL_STATE_CUT_BALL) {
+
+        if (ballState == STATE_IS_SEEN) {
+            double robCenterX = this->getSettingsValue("robCenterX").toDouble();
+            double diffX = robCenterX - x;
+            float angularSpeed = 0.0;
+            float forwardSpeed = 0.0;
+
+            if (fabs(diffX) > this->getSettingsValue("deltaBall").toFloat()) {
+                angularSpeed = this->getSettingsValue("kpBall").toFloat() * (diffX / this->getSettingsValue("maxDistance").toFloat());
+            }
+
+            if (fabs(diffX) < 2 * this->getSettingsValue("deltaBall").toFloat()) {
+                forwardSpeed = this->getSettingsValue("fwSpeed").toFloat();
+            }
+
+            emit setAngularSpeed(angularSpeed);
+            emit setForwardSpeed(forwardSpeed);
+        } else if (ballState == STATE_PASSED) {
+            cutHeading = xsens->getHeading();
+            emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+            cutTimer.singleShot(15000, this, SLOT(stopCut()));
+        } else {
+            // Do search for ball...
+        }
+
+    } else if (state == BALL_STATE_DO_CUT) {
+
     }
+
     emit newBallState(ballState);
 
-    ellipse(frame, RotatedRect(Point(x, tracker.getMeanY()), Size(std::sqrt(tracker.getArea()), std::sqrt(tracker.getArea())), 0.0f), Scalar(255,0,0), 5);
+    if (ballState == STATE_IS_SEEN) {
+        ellipse(frame, RotatedRect(Point(x, tracker.getMeanY()), Size(std::sqrt(tracker.getArea()), std::sqrt(tracker.getArea())), 0.0f), Scalar(255,0,0), 5);
+    }
+
     addData("state", ballState);
+    addData("ball state", ballState);
     addData("x", x);
     addData("distance", approxDistance);
 
-    emit printFrame(new IplImage(frame));
     emit dataChanged(this);
 }
 
 void Behaviour_BallFollowing::xsensUpdate( RobotModule * )
 {
-    if (!isActive()){
+    if (!isActive()) {
         return;
     }
-    if (state == BALL_STATE_TURN_45 )
+
+    if (state == BALL_STATE_DO_CUT)
     {
         double currentHeading = xsens->getHeading();
-        double diffHeading = fabs( targetHeading - currentHeading );
-        if ( diffHeading < 5 )
-        {
-            state = BALL_STATE_TRACK_BALL;
-            emit setAngularSpeed(0.0);
-            emit setForwardSpeed(0.0);
+        double diffHeading = cutHeading - currentHeading;
+        float angularSpeed = 0.0;
+
+        if (fabs(diffHeading) > 5) {
+            angularSpeed = 0.01 * diffHeading;
         }
+
+        emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+        emit setAngularSpeed(angularSpeed);
     }
 }
 
@@ -203,7 +246,7 @@ void Behaviour_BallFollowing::stop()
     active = false;
     setEnabled(false);
 
-    state = BALL_STATE_IDLE;
+    state = BALL_STATE_SEARCH_BALL;
     updateTimer.stop();
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
@@ -252,20 +295,18 @@ void Behaviour_BallFollowing::testBehaviour(QString path)
         frame = imread( filePath.toStdString() );
 
         update();
-        imshow("Ball", tracker.getGray());
-
-        cvWaitKey( 200 );
     }
 }
 
-void Behaviour_BallFollowing::timerSlot()
+void Behaviour_BallFollowing::stopCut()
 {
     if (!isActive()){
         return;
     }
 
-    timerNoBall.stop();
-    stop();
+    state = BALL_STATE_SEARCH_BALL;
+    emit setForwardSpeed(0.0);
+    emit setAngularSpeed(0.0);
 }
 
 void Behaviour_BallFollowing::controlEnabledChanged(bool enabled){
@@ -288,6 +329,8 @@ void Behaviour_BallFollowing::grabFrame(cv::Mat &image)
         return;
     }
 
-    this->frame.copyTo(image);
-    cvtColor(image, image, CV_HSV2RGB);
+    if (!frame.empty()) {
+        this->frame.copyTo(image);
+        cvtColor(image, image, CV_HSV2RGB);
+    }
 }

@@ -2,7 +2,7 @@
 
 using namespace cv;
 
-BallTracker::BallTracker() : ObjectTracker(CHANNEL_H)
+BallTracker::BallTracker() : ObjectTracker(CHANNEL_S)
 {
 }
 
@@ -11,7 +11,7 @@ void BallTracker::update(cv::Mat frame)
     ObjectTracker::update(frame);
 
     gray = getThresholdChannel(frame);
-    applyThreshold(gray);
+    double T = applyThreshold(gray);
     extractLargestBlob(gray);
 
     // The midwater target is seen if:
@@ -21,7 +21,7 @@ void BallTracker::update(cv::Mat frame)
     //      1. we do not see the ball
     //      2. the ball was last seen in the top or bottom center of the image
 
-    if (area > 500 && area < 0.5 * gray.cols * gray.rows) {
+    if (area > 500 && area < 0.5 * gray.cols * gray.rows && T > 50) {
         state = STATE_IS_SEEN;
     } else {
         if (state == STATE_IS_SEEN) {

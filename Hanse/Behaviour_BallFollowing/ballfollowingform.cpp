@@ -68,8 +68,10 @@ void BallFollowingForm::printFrame(RobotModule*)
 {
     cv::Mat frame;
     ballfollow->grabFrame(frame);
-    QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
-    ui->outputLabel->setPixmap(QPixmap::fromImage(image1.rgbSwapped()));
+    if (!frame.empty()) {
+        QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
+        ui->outputLabel->setPixmap(QPixmap::fromImage(image1));
+    }
 }
 
 void BallFollowingForm::on_testVideoButton_clicked()

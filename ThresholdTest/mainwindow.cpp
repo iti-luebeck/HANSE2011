@@ -105,8 +105,15 @@ void MainWindow::refreshThreshold()
         if (method == 1) {
             cvThreshold( tempImage, binary, highThreshold, 255, CV_THRESH_TOZERO_INV );
             cvThreshold( binary, binary, lowThreshold, 255, CV_THRESH_BINARY );
+            if (inverted) {
+                cvNot(binary, binary);
+            }
         } else if (method == 2) {
-            cvThreshold(tempImage, binary, 100, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+            if (inverted) {
+                cvThreshold(tempImage, binary, 100, 255, CV_THRESH_BINARY_INV | CV_THRESH_OTSU);
+            } else {
+                cvThreshold(tempImage, binary, 100, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+            }
         } else if (method == 3) {
             CvMat *samples = cvCreateMat(w*h, 1, CV_32F);
             CvMat *labels = cvCreateMat(w*h, 1, CV_32S);
@@ -136,10 +143,18 @@ void MainWindow::refreshThreshold()
 
             for (int i = 0; i < w; i++) {
                 for (int j = 0; j < h; j++) {
-                    if (s1 > s0) {
-                        cvSet2D(binary, i, j, cvScalar(255*cvGet2D(labels, i*h + j, 0).val[0]));
+                    if (inverted) {
+                        if (s1 < s0) {
+                            cvSet2D(binary, i, j, cvScalar(255*cvGet2D(labels, i*h + j, 0).val[0]));
+                        } else {
+                            cvSet2D(binary, i, j, cvScalar(255*(1 - cvGet2D(labels, i*h + j, 0).val[0])));
+                        }
                     } else {
-                        cvSet2D(binary, i, j, cvScalar(255*(1 - cvGet2D(labels, i*h + j, 0).val[0])));
+                        if (s1 > s0) {
+                            cvSet2D(binary, i, j, cvScalar(255*cvGet2D(labels, i*h + j, 0).val[0]));
+                        } else {
+                            cvSet2D(binary, i, j, cvScalar(255*(1 - cvGet2D(labels, i*h + j, 0).val[0])));
+                        }
                     }
                 }
             }
@@ -148,16 +163,11 @@ void MainWindow::refreshThreshold()
             cvReleaseMat(&labels);
         }
 
-        if ( inverted )
-        {
-            cvNot( binary, binary );
-        }
-
         IplImage *rgbBinary = cvCreateImage( cvGetSize( binary ), IPL_DEPTH_8U, 3 );
         IplImage *rgbChannel = cvCreateImage( cvGetSize( tempImage ), IPL_DEPTH_8U, 3 );
 
-        cvDilate( binary, binary, NULL, 5 );
-        cvErode( binary, binary, NULL, 10 );
+//        cvDilate( binary, binary, NULL, 20 );
+//        cvErode( binary, binary, NULL, 20 );
 
         CvMoments M;
         cvMoments( binary, &M, 1 );
@@ -184,11 +194,13 @@ void MainWindow::refreshThreshold()
         ui->originalLabel->setPixmap(QPixmap::fromImage(rgb));
         cvCvtColor(rgbImage, rgbImage, CV_RGB2BGR);
         cvSaveImage("threshold_rgb.jpg", rgbImage);
+        cvCvtColor(rgbImage, rgbImage, CV_BGR2RGB);
 
         QImage cha((unsigned char*)rgbChannel->imageData, rgbChannel->width, rgbChannel->height, QImage::Format_RGB888);
         ui->channelLabel->setPixmap(QPixmap::fromImage(cha));
         cvCvtColor(rgbChannel, rgbChannel, CV_RGB2BGR);
         cvSaveImage("threshold_channel.jpg", rgbChannel);
+        cvCvtColor(rgbChannel, rgbChannel, CV_BGR2RGB);
 
         QImage b((unsigned char*)rgbBinary->imageData, rgbBinary->width, rgbBinary->height, QImage::Format_RGB888);
         ui->label->setPixmap(QPixmap::fromImage(b));

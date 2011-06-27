@@ -36,7 +36,7 @@ public:
 
 protected:
     cv::Mat getThresholdChannel(cv::Mat frame);
-    void applyThreshold(cv::Mat &gray);
+    double applyThreshold(cv::Mat &gray);
     void extractLargestBlob(cv::Mat &gray);
     void estimateMoments(cv::Mat &gray);
 

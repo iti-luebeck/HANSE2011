@@ -4,9 +4,10 @@
 #include <Framework/robotbehaviour.h>
 #include <Behaviour_BallFollowing/balltracker.h>
 
-#define BALL_STATE_TURN_45       100
-#define BALL_STATE_TRACK_BALL    101
-#define BALL_STATE_IDLE          102
+#define BALL_STATE_SEARCH_BALL  "search ball"
+#define BALL_STATE_FOUND_BALL   "found ball"
+#define BALL_STATE_CUT_BALL     "cut ball"
+#define BALL_STATE_DO_CUT       "do cut"
 
 class Module_ThrusterControlLoop;
 class Module_Webcams;
@@ -46,12 +47,11 @@ private:
     cv::Mat frame;
 
     QDateTime last;
-    QTimer timerNoBall;
+    QTimer cutTimer;
     QTimer updateTimer;
-    int state;
-    double targetHeading;
+    QString state;
+    float cutHeading;
 
-    void ctrBallFollowing();
     void init();
 
 public slots:
@@ -66,7 +66,7 @@ public slots:
 
 private slots:
     void newData();
-    void timerSlot();
+    void stopCut();
 
 
 signals:

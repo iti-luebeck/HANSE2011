@@ -52,9 +52,9 @@ cv::Mat ObjectTracker::getThresholdChannel(cv::Mat frame)
     return gray;
 }
 
-void ObjectTracker::applyThreshold(cv::Mat &gray)
+double ObjectTracker::applyThreshold(cv::Mat &gray)
 {
-    threshold(gray, gray, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    return threshold(gray, gray, 0, 255, THRESH_BINARY | THRESH_OTSU);
 }
 
 void ObjectTracker::extractLargestBlob(cv::Mat &gray)
