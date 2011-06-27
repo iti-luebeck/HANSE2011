@@ -24,6 +24,7 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     setDefaultValue("maxAngSpeed", 100);
     setDefaultValue("maxVertSpeed", 10);
     setDefaultValue("resetTime", 500);
+    setDefaultValue("enableGamepad", true);
 
 
 }

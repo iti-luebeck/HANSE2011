@@ -22,10 +22,9 @@ private:
     Ui::HandControl_Form *ui;
     Module_HandControl *module;
 
+    QTimer speedTimer;
     QTimer forTimer;
     QTimer angTimer;
-
-    QTimer testTimer;
 
     QAction *forward;
     QAction *backward;
@@ -57,11 +56,11 @@ private slots:
 //    void dataChanged(RobotModule* m);
     void resetForSpeeds();
     void resetAngSpeeds();
-
-    void setSpeeds();
+    //void setSpeeds();
 
 signals:
-    void updateControls(int forwardSpeed, int angularSpeed, int speedUpDown);
+void updateControls();
+    //    void updateControls(int forwardSpeed, int angularSpeed, int speedUpDown);
 };
 
 #endif // HANDCONTROL_FORM_H
