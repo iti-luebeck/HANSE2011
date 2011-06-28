@@ -116,6 +116,8 @@ void TeleopHanse::timerCallback(const ros::TimerEvent &e)
     if (emergency_stop) {
         ROS_INFO("Pressed emergency_stop button");
         emergency_stop = 0;
+	value_depth = 0;
+	ROS_INFO("value_depth set to 0");
     }
     if (enable_handcontrol) {
         ROS_INFO("Pressed enable_handcontrol button");
