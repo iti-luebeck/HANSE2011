@@ -5,9 +5,12 @@
 
 using namespace cv;
 
-ObjectTracker::ObjectTracker(int channel)
+ObjectTracker::ObjectTracker(int channel, bool automatic, int thres, bool inverted)
 {
     this->channel = channel;
+    this->automatic = automatic;
+    this->thres = thres;
+    this->inverted = inverted;
     init();
 }
 
@@ -54,7 +57,19 @@ cv::Mat ObjectTracker::getThresholdChannel(cv::Mat frame)
 
 double ObjectTracker::applyThreshold(cv::Mat &gray)
 {
-    return threshold(gray, gray, 0, 255, THRESH_BINARY | THRESH_OTSU);
+    if (inverted) {
+        if (automatic) {
+            return threshold(gray, gray, 0, 255, THRESH_BINARY_INV | THRESH_OTSU);
+        } else {
+            return threshold(gray, gray, thres, 255, THRESH_BINARY_INV);
+        }
+    } else {
+        if (automatic) {
+            return threshold(gray, gray, 0, 255, THRESH_BINARY | THRESH_OTSU);
+        } else {
+            return threshold(gray, gray, thres, 255, THRESH_BINARY);
+        }
+    }
 }
 
 void ObjectTracker::extractLargestBlob(cv::Mat &gray)

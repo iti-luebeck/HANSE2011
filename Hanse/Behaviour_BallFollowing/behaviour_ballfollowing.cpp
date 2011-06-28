@@ -104,8 +104,10 @@ void Behaviour_BallFollowing::newData()
     if(sim->isEnabled()) {
         emit requestFrame();
     } else {
+        this->dataLockerMutex.lock();
         cams->grabLeft(frame);
         update();
+        this->dataLockerMutex.unlock();
     }
 
 }
@@ -119,9 +121,8 @@ void Behaviour_BallFollowing::simFrame(cv::Mat simFrame)
 
     this->dataLockerMutex.lock();
     simFrame.copyTo(frame);
-    this->dataLockerMutex.unlock();
-
     update();
+    this->dataLockerMutex.unlock();
 }
 
 void Behaviour_BallFollowing::update()
@@ -286,15 +287,18 @@ void Behaviour_BallFollowing::testBehaviour(QString path)
     dir.setNameFilters( filters );
     QStringList files = dir.entryList();
 
-    namedWindow("Ball");
     for ( int i = 0; i < files.count(); i++ )
     {
         QString filePath = path;
         filePath.append( "/" );
         filePath.append( files[i] );
+        this->dataLockerMutex.lock();
         frame = imread( filePath.toStdString() );
+        cvtColor(frame, frame, CV_RGB2BGR);
+        this->dataLockerMutex.unlock();
 
         update();
+        msleep(200);
     }
 }
 
@@ -330,7 +334,9 @@ void Behaviour_BallFollowing::grabFrame(cv::Mat &image)
     }
 
     if (!frame.empty()) {
-        this->frame.copyTo(image);
+        this->dataLockerMutex.lock();
+        image = this->frame.clone();
         cvtColor(image, image, CV_HSV2RGB);
+        this->dataLockerMutex.unlock();
     }
 }

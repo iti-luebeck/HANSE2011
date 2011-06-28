@@ -2,7 +2,7 @@
 
 using namespace cv;
 
-BallTracker::BallTracker() : ObjectTracker(CHANNEL_S)
+BallTracker::BallTracker() : ObjectTracker(CHANNEL_S, false, 100, true)
 {
 }
 

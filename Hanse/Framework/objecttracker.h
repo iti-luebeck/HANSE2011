@@ -23,7 +23,7 @@
 class ObjectTracker
 {
 public:
-    ObjectTracker(int channel);
+    ObjectTracker(int channel, bool automatic = true, int thres = 0, bool inverted = false);
     void init();
     void reset();
     void update(cv::Mat frame);
@@ -42,6 +42,9 @@ protected:
 
 protected:
     int channel;
+    bool automatic;
+    int thres;
+    bool inverted;
     QString state;
 
     double area;

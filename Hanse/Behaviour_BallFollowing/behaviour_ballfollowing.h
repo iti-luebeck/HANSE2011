@@ -33,9 +33,11 @@ public:
 
 private:
     void update();
+    void init();
 
 
 private:
+
     bool active;
 
     Module_ThrusterControlLoop* tcl;
@@ -51,8 +53,6 @@ private:
     QTimer updateTimer;
     QString state;
     float cutHeading;
-
-    void init();
 
 public slots:
     void testBehaviour( QString path );
