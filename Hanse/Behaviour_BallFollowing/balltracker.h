@@ -3,15 +3,13 @@
 
 #include <Framework/objecttracker.h>
 
+class Behaviour_BallFollowing;
+
 class BallTracker : public ObjectTracker
 {
 public:
-    BallTracker();
-    void update(cv::Mat frame);
-    cv::Mat getGray();
-
-private:
-    cv::Mat gray;
+    BallTracker(Behaviour_BallFollowing *behave);
+    void update(cv::Mat &frame);
 };
 
 #endif // BALLTRACKER_H

@@ -32,8 +32,6 @@ void Behaviour_PipeFollowing::init()
     connect(this,SIGNAL(angularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
 
     frame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-    displayFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-    segmentationFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC1 );
     this->noPipeCnt = 0;
 
     this->updateFromSettings();
@@ -165,14 +163,6 @@ void Behaviour_PipeFollowing::timerSlotExecute()
         tracker.update(frame);
         addData("time (msec)", run.elapsed());
 
-        // Draw ideal line and robot center.
-        line(frame, Point(frame.cols / 2, 0.0), Point(frame.cols / 2, frame.rows), Scalar(255,0,0), 3, 8);
-        circle(frame, robCenter, 3, Scalar(255,0,255), 3, 8);
-        // Draw pipe.
-        line(frame, Point(tracker.getMeanX(), tracker.getMeanY()), Point(tracker.getMeanX() + 200 * sin(tracker.getOrientation()),
-                                                                         tracker.getMeanY() - 200 * cos(tracker.getOrientation())), Scalar(255,0,0), 4, CV_FILLED);
-        frame.copyTo(displayFrame);
-
         controlPipeFollow();
     } else {
         this->setHealthToSick("empty frame");
@@ -256,10 +246,13 @@ void Behaviour_PipeFollowing::analyzeVideo()
         filePath.append( "/" );
         filePath.append( files[i] );
         frame = imread( filePath.toStdString() );
+        if (filePath.endsWith(".jpg")) {
+            cvtColor(frame, frame, CV_RGB2BGR);
+        }
 
         timerSlotExecute();
 
-        msleep(2000);
+        msleep(200);
     }
 }
 
@@ -279,23 +272,6 @@ void Behaviour_PipeFollowing::updateFromSettings()
     this->robCenter = Point(this->getSettingsValue("robCenterX",320).toDouble(),this->getSettingsValue("robCenterY",240).toDouble());
     this->maxDistance = this->getSettingsValue("maxDistance",320).toFloat();
     this->dataLockerMutex.unlock();
-}
-
-void Behaviour_PipeFollowing::grabFrame(cv::Mat &frame)
-{
-    if(!isActive()){
-        return;
-    }
-
-    dataLockerMutex.lock();
-    if(getSettingsValue("frameOutput").toBool()) {
-        displayFrame.copyTo(frame);
-    } else {
-        cv::Mat tmp(WEBCAM_HEIGHT,WEBCAM_WIDTH,CV_8UC3);
-        cvtColor(segmentationFrame,tmp,CV_GRAY2RGB);
-        tmp.copyTo(frame);
-    }
-    dataLockerMutex.unlock();
 }
 
 void Behaviour_PipeFollowing::setUpdatePixmapSlot(bool bol){
@@ -319,4 +295,9 @@ void Behaviour_PipeFollowing::controlEnabledChanged(bool enabled){
 void Behaviour_PipeFollowing::failed()
 {
     // Bla
+}
+
+PipeTracker *Behaviour_PipeFollowing::getTracker()
+{
+    return &tracker;
 }

@@ -1,6 +1,8 @@
 #include "ballfollowingform.h"
 #include "ui_ballfollowingform.h"
 #include <QFileDialog>
+#include <Framework/objecttrackerwidget.h>
+#include <QBoxLayout>
 
 BallFollowingForm::BallFollowingForm(QWidget *parent, Behaviour_BallFollowing *ballfollowing) :
     QWidget(parent),
@@ -17,10 +19,13 @@ BallFollowingForm::BallFollowingForm(QWidget *parent, Behaviour_BallFollowing *b
     ui->maxDistanceLineEdit->setText(ballfollow->getSettingsValue("maxDistance").toString());
     ui->thresholdEdit->setText( ballfollow->getSettingsValue( "threshold", 100 ).toString() );
 
-    QObject::connect( ballfollowing, SIGNAL(dataChanged(RobotModule*)),
-                      this, SLOT(printFrame(RobotModule*)) );
     QObject::connect( this, SIGNAL(doTest(QString)),
                       ballfollowing, SLOT(testBehaviour(QString)) );
+
+
+    QLayout *l = new QBoxLayout(QBoxLayout::LeftToRight, ui->trackerFrame);
+    ObjectTrackerWidget *trackerWidget = new ObjectTrackerWidget(ballfollowing->getTracker(), this);
+    l->addWidget(trackerWidget);
  }
 
 BallFollowingForm::~BallFollowingForm()
@@ -62,16 +67,6 @@ void BallFollowingForm::on_saveAndApplyButton_clicked()
     ballfollow->setSettingsValue("fwSpeed",ui->fwSpeedLineEdit->text().toFloat());
     ballfollow->setSettingsValue("maxDistance",ui->maxDistanceLineEdit->text().toFloat());
     ballfollow->setSettingsValue("threshold",ui->thresholdEdit->text().toInt());
-}
-
-void BallFollowingForm::printFrame(RobotModule*)
-{
-    cv::Mat frame;
-    ballfollow->grabFrame(frame);
-    if (!frame.empty()) {
-        QImage image1((unsigned char*)frame.data, frame.cols, frame.rows, QImage::Format_RGB888);
-        ui->outputLabel->setPixmap(QPixmap::fromImage(image1));
-    }
 }
 
 void BallFollowingForm::on_testVideoButton_clicked()

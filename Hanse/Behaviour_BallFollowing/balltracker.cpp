@@ -1,18 +1,18 @@
 #include "balltracker.h"
+#include <Behaviour_BallFollowing/behaviour_ballfollowing.h>
 
 using namespace cv;
 
-BallTracker::BallTracker() : ObjectTracker(CHANNEL_S, false, 100, true)
+BallTracker::BallTracker(Behaviour_BallFollowing *behave) : ObjectTracker(behave)
 {
 }
 
-void BallTracker::update(cv::Mat frame)
+void BallTracker::update(cv::Mat &frame)
 {
     ObjectTracker::update(frame);
 
-    gray = getThresholdChannel(frame);
-    double T = applyThreshold(gray);
-    extractLargestBlob(gray);
+    applyThreshold();
+    extractLargestBlob();
 
     // The midwater target is seen if:
     //      1. at least 500 pixels of the image are "ball"
@@ -21,7 +21,7 @@ void BallTracker::update(cv::Mat frame)
     //      1. we do not see the ball
     //      2. the ball was last seen in the top or bottom center of the image
 
-    if (area > 500 && area < 0.5 * gray.cols * gray.rows && T > 50) {
+    if (area > 500 && area < 0.5 * gray.cols * gray.rows) {
         state = STATE_IS_SEEN;
     } else {
         if (state == STATE_IS_SEEN) {
@@ -42,9 +42,10 @@ void BallTracker::update(cv::Mat frame)
             }
         }
     }
-}
 
-Mat BallTracker::getGray()
-{
-    return gray;
+    if (state == STATE_IS_SEEN) {
+        ellipse(this->frame, RotatedRect(Point(meanX, meanY), Size(std::sqrt(area), std::sqrt(area)), 0.0f), Scalar(255,0,0), 5);
+    }
+
+    emit updateComplete();
 }

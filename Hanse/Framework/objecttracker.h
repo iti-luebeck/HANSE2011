@@ -4,13 +4,6 @@
 #include <QtCore>
 #include <opencv/cxcore.h>
 
-#define CHANNEL_R   0
-#define CHANNEL_G   1
-#define CHANNEL_B   2
-#define CHANNEL_H   3
-#define CHANNEL_S   4
-#define CHANNEL_V   5
-
 #define STATE_NOT_SEEN_YET     "not seen"
 #define STATE_IS_SEEN          "is seen"
 #define STATE_PASSED           "was passed"
@@ -20,13 +13,32 @@
 #define STATE_LOST_BOTTOM      "lost bottom"
 #define STATE_LOST_TOP         "lost top"
 
-class ObjectTracker
+class RobotModule;
+
+class ObjectTracker : public QObject
 {
+    Q_OBJECT
+
 public:
-    ObjectTracker(int channel, bool automatic = true, int thres = 0, bool inverted = false);
+    ObjectTracker(RobotModule *parent);
     void init();
     void reset();
-    void update(cv::Mat frame);
+    void update(cv::Mat &frame);
+
+    QString getColorSpace();
+    void setColorSpace(QString colorSpace);
+    int getChannel();
+    void setChannel(int channel);
+    bool isAutomaticThreshold();
+    void setAutomaticThreshold(bool automatic);
+    double getThreshold();
+    void setThreshold(double thres);
+    bool isInverted();
+    void setInverted(bool inverted);
+
+    void grabFrame(cv::Mat &frame);
+    void grabGray(cv::Mat &gray);
+    void grabBinary(cv::Mat &binary);
 
     double getArea();
     double getMeanX();
@@ -35,15 +47,25 @@ public:
     QString getState();
 
 protected:
-    cv::Mat getThresholdChannel(cv::Mat frame);
-    double applyThreshold(cv::Mat &gray);
-    void extractLargestBlob(cv::Mat &gray);
-    void estimateMoments(cv::Mat &gray);
+    void getThresholdChannel();
+    double applyThreshold();
+    void extractLargestBlob();
+    void estimateMoments();
+    void updateSettings();
+    void loadFromSettings();
 
 protected:
+    RobotModule *parent;
+
+    cv::Mat frame;
+    cv::Mat gray;
+    cv::Mat binary;
+
+    QString colorSpace;
     int channel;
+
     bool automatic;
-    int thres;
+    double thres;
     bool inverted;
     QString state;
 
@@ -56,6 +78,9 @@ protected:
     double lastMeanX;
     double lastMeanY;
     double lastOrientation;
+
+signals:
+    void updateComplete();
 };
 
 #endif // OBJECTTRACKER_H

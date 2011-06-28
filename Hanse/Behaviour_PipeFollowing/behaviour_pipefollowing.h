@@ -29,10 +29,7 @@ public:
     */
     bool isActive();
 
-    /**
-      * gibt den aktuellen Frame zurueck
-      */
-    void grabFrame(cv::Mat &frame);
+    PipeTracker *getTracker();
 
 private:
     void init();
@@ -40,9 +37,6 @@ private:
 
     /** the p-controller. controls the angle speed of the robot */
     void controlPipeFollow();
-
-    /** use cv moments to compute pipe */
-    void moments(Mat &frame);
 
     /** computation */
     void timerSlotExecute();
@@ -67,8 +61,6 @@ private:
     float kpAngle;
     float maxDistance;
     cv::Mat frame;
-    cv::Mat displayFrame;
-    cv::Mat segmentationFrame;
 
     int noPipeCnt;
 

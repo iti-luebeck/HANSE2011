@@ -31,9 +31,6 @@ private slots:
     void on_stopBallFollowingButton_clicked();
     void on_startBallFollwoingButton_clicked();
 
-public slots:
-    void printFrame(RobotModule *module);
-
 signals:
     void doTest( QString path );
 };

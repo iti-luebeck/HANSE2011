@@ -11,7 +11,7 @@ public:
     PipeTracker(Behaviour_PipeFollowing *behave);
     void init();
     void reset();
-    void update(cv::Mat frame);
+    void update(cv::Mat &frame);
     double getDistanceToCenter();
 
 private:

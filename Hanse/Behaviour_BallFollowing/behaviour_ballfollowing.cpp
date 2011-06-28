@@ -15,7 +15,7 @@ using namespace cv;
 
 Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterControlLoop *tcl,
                                                  Module_Webcams *cams, Module_XsensMTi *xsens, Module_Simulation *sim)
-    : RobotBehaviour(id)
+    : RobotBehaviour(id), tracker(this)
 {
     this->tcl = tcl;
     this->cams = cams;
@@ -204,14 +204,11 @@ void Behaviour_BallFollowing::update()
 
     emit newBallState(ballState);
 
-    if (ballState == STATE_IS_SEEN) {
-        ellipse(frame, RotatedRect(Point(x, tracker.getMeanY()), Size(std::sqrt(tracker.getArea()), std::sqrt(tracker.getArea())), 0.0f), Scalar(255,0,0), 5);
-    }
-
-    addData("state", ballState);
+    addData("state", state);
     addData("ball state", ballState);
     addData("x", x);
     addData("distance", approxDistance);
+    addData("area", area);
 
     emit dataChanged(this);
 }
@@ -292,14 +289,18 @@ void Behaviour_BallFollowing::testBehaviour(QString path)
         QString filePath = path;
         filePath.append( "/" );
         filePath.append( files[i] );
+        qDebug() << filePath;
         this->dataLockerMutex.lock();
         frame = imread( filePath.toStdString() );
-        cvtColor(frame, frame, CV_RGB2BGR);
+        if (filePath.endsWith(".jpg")) {
+            cvtColor(frame, frame, CV_RGB2BGR);
+        }
         this->dataLockerMutex.unlock();
 
         update();
-        msleep(200);
+        msleep(500);
     }
+    qDebug("done");
 }
 
 void Behaviour_BallFollowing::stopCut()
@@ -327,16 +328,7 @@ void Behaviour_BallFollowing::controlEnabledChanged(bool enabled){
     }
 }
 
-void Behaviour_BallFollowing::grabFrame(cv::Mat &image)
+BallTracker *Behaviour_BallFollowing::getTracker()
 {
-    if (!isActive()){
-        return;
-    }
-
-    if (!frame.empty()) {
-        this->dataLockerMutex.lock();
-        image = this->frame.clone();
-        cvtColor(image, image, CV_HSV2RGB);
-        this->dataLockerMutex.unlock();
-    }
+    return &tracker;
 }

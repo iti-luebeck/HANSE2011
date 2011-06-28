@@ -34,11 +34,11 @@ void Module_Webcams::init()
     rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
 
-    this->setSettingsValue("leftEnabled",false);
-    this->setSettingsValue("rightEnabled",false);
-    this->setSettingsValue("bottomEnabled",false);
+    this->setSettingsValue("leftEnabled", false);
+    this->setSettingsValue("rightEnabled", false);
+    this->setSettingsValue("bottomEnabled", false);
 
-        settingsChanged();
+    settingsChanged();
 }
 
 void Module_Webcams::stopWebcams()
@@ -83,7 +83,6 @@ void Module_Webcams::grabRight( cv::Mat &right )
     dataLockerMutex.lock();
     if ( rightCap != NULL )
     {
-
         IplImage* img = cvQueryFrame(rightCap);
         if(img)
         {
@@ -107,7 +106,6 @@ void Module_Webcams::grabBottom( cv::Mat &bottom )
             cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
             cv::Mat mat(img);
             bottom = mat.clone();
-
         }
     }
     dataLockerMutex.unlock();
@@ -118,7 +116,6 @@ void Module_Webcams::grabLeft(IplImage *left)
     dataLockerMutex.lock();
     if(leftCap != NULL)
     {
-
         assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(leftCap),left);
         cvConvertImage(left,left,CV_CVTIMG_SWAP_RB);
@@ -131,7 +128,6 @@ void Module_Webcams::grabRight(IplImage *right)
     dataLockerMutex.lock();
     if(rightCap != NULL)
     {
-
         assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(rightCap),right);
         cvConvertImage(right,right,CV_CVTIMG_SWAP_RB);
@@ -144,7 +140,6 @@ void Module_Webcams::grabBottom(IplImage *bottom)
     dataLockerMutex.lock();
     if(bottomCap != NULL)
     {
-
         assert( bottom->width == WEBCAM_WIDTH && bottom->height == WEBCAM_HEIGHT );
         cvCopy(cvQueryFrame(bottomCap),bottom);
         cvShowImage("buhu",bottom);
@@ -152,21 +147,6 @@ void Module_Webcams::grabBottom(IplImage *bottom)
     }
     dataLockerMutex.unlock();
 }
-//
-//void Module_Webcams::grabBottom(QImage bottom1)
-//{
-//    cv::Mat bottom;
-//    bottom.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-//    if ( bottomConnected )//&& VI.isFrameNew(bottomID))
-//    {
-//        mutex.lock();
-//        assert( bottom.cols == WEBCAM_WIDTH && bottom.rows == WEBCAM_HEIGHT );
-//        VI.getPixels( bottomID, (unsigned char *)bottom.data, true, true );
-//        mutex.unlock();
-//    }
-//     QImage image1((unsigned char*)bottom.data, bottom.cols, bottom.rows, QImage::Format_RGB888);
-//     bottom1 = image1.copy();
-//}
 
 void Module_Webcams::reset()
 {

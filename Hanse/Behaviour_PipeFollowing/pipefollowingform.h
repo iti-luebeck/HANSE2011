@@ -27,14 +27,9 @@ private:
 
 private slots:
     void on_testButton_clicked();
-    void on_frameColorCB_clicked();
-    void on_checkBox_clicked();
     void on_stopButton_clicked();
     void on_saveApplyButton_clicked();
     void on_startPipeFollowingButton_clicked();
-
-public slots:
-    void updatePixmap(RobotModule*);
 
 signals:
    void startPipeFollow();

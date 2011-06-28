@@ -1,7 +1,8 @@
 #include "pipetracker.h"
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
+#include <vector>
 
-PipeTracker::PipeTracker(Behaviour_PipeFollowing *behave) : ObjectTracker(CHANNEL_B)
+PipeTracker::PipeTracker(Behaviour_PipeFollowing *behave) : ObjectTracker(behave)
 {
     this->behave = behave;
     reset();
@@ -19,14 +20,13 @@ void PipeTracker::reset()
     lastDistanceFromCenter = 0;
 }
 
-void PipeTracker::update(Mat frame)
+void PipeTracker::update(Mat &frame)
 {
     ObjectTracker::update(frame);
     lastDistanceFromCenter = distanceFromCenter;
 
-    Mat gray = getThresholdChannel(frame);
-    applyThreshold(gray);
-    estimateMoments(gray);
+    double T = applyThreshold();
+    estimateMoments();
 
     // The pipe is seen if:
     //      1. at least 1/20th of the image is "pipe"
@@ -36,7 +36,7 @@ void PipeTracker::update(Mat frame)
     //      2. the pipe angle is about 0
     //      3. the pipe center is in the lower quater of the image.
     // If there is a small part of the pipe seen, we set states to lost at that particular direction.
-    if (area < 0.5 * gray.cols * gray.rows) {
+    if (area < 0.5 * gray.cols * gray.rows && T > 130) {
 
         if (area > 0.05 * gray.cols * gray.rows) {
             state = STATE_IS_SEEN;
@@ -77,6 +77,14 @@ void PipeTracker::update(Mat frame)
             }
         }
     }
+
+    line(this->frame, Point(behave->getSettingsValue("robCenterX", 320).toDouble(), 0.0), Point(behave->getSettingsValue("robCenterX", 320).toDouble(), frame.rows), Scalar(255,0,0), 3, 8);
+    circle(this->frame, Point(behave->getSettingsValue("robCenterX", 320).toDouble(), behave->getSettingsValue("robCenterY", 240).toDouble()), 3, Scalar(255,0,255), 3, 8);
+    if (state == STATE_IS_SEEN) {
+        line(this->frame, Point(meanX, meanY), Point(meanX + 200 * sin(orientation), meanY - 200 * cos(orientation)), Scalar(255,0,0), 4, CV_FILLED);
+    }
+
+    emit updateComplete();
 }
 
 double PipeTracker::computeIntersection(double meanX, double meanY, double theta)

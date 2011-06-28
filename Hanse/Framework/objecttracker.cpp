@@ -2,21 +2,21 @@
 #include <opencv/cv.h>
 #include <Behaviour_BallFollowing/blobs/blob.h>
 #include <Behaviour_BallFollowing/blobs/BlobResult.h>
+#include <Framework/robotmodule.h>
+#include <vector>
 
 using namespace cv;
 
-ObjectTracker::ObjectTracker(int channel, bool automatic, int thres, bool inverted)
+ObjectTracker::ObjectTracker(RobotModule *parent)
 {
-    this->channel = channel;
-    this->automatic = automatic;
-    this->thres = thres;
-    this->inverted = inverted;
+    this->parent = parent;
     init();
 }
 
 void ObjectTracker::init()
 {
     reset();
+    loadFromSettings();
 }
 
 void ObjectTracker::reset()
@@ -34,47 +34,54 @@ void ObjectTracker::reset()
     lastOrientation = 0;
 }
 
-void ObjectTracker::update(cv::Mat)
+void ObjectTracker::update(cv::Mat &frame)
 {
     lastArea = area;
     lastMeanX = meanX;
     lastMeanY = meanY;
     lastOrientation = orientation;
+
+    frame.copyTo(this->frame);
+    getThresholdChannel();
 }
 
-cv::Mat ObjectTracker::getThresholdChannel(cv::Mat frame)
+void ObjectTracker::getThresholdChannel()
 {
     vector<Mat> colors;
-    Mat gray(frame.rows, frame.cols, CV_8UC1);
+    gray.create(frame.rows, frame.cols, CV_8UC1);
 
-    if (channel >= 3) {
-        cvtColor(frame, frame, CV_RGB2HSV);
+    if (colorSpace == "rgb") {
+        split(frame, colors);
+        colors[channel % 3].copyTo(gray);
+    } else {
+        Mat hsvFrame(frame.size(), frame.type());
+        cvtColor(frame, hsvFrame, CV_RGB2HSV);
+        split(hsvFrame, colors);
+        colors[channel % 3].copyTo(gray);
     }
-    split(frame, colors);
-    colors[channel % 3].copyTo(gray);
-    return gray;
 }
 
-double ObjectTracker::applyThreshold(cv::Mat &gray)
+double ObjectTracker::applyThreshold()
 {
+    binary.create(gray.size(), gray.type());
     if (inverted) {
         if (automatic) {
-            return threshold(gray, gray, 0, 255, THRESH_BINARY_INV | THRESH_OTSU);
+            return threshold(gray, binary, 0, 255, THRESH_BINARY_INV | THRESH_OTSU);
         } else {
-            return threshold(gray, gray, thres, 255, THRESH_BINARY_INV);
+            return threshold(gray, binary, thres, 255, THRESH_BINARY_INV);
         }
     } else {
         if (automatic) {
-            return threshold(gray, gray, 0, 255, THRESH_BINARY | THRESH_OTSU);
+            return threshold(gray, binary, 0, 255, THRESH_BINARY | THRESH_OTSU);
         } else {
-            return threshold(gray, gray, thres, 255, THRESH_BINARY);
+            return threshold(gray, binary, thres, 255, THRESH_BINARY);
         }
     }
 }
 
-void ObjectTracker::extractLargestBlob(cv::Mat &gray)
+void ObjectTracker::extractLargestBlob()
 {
-    IplImage *thresh = new IplImage(gray);
+    IplImage *thresh = new IplImage(binary);
 
     CBlobResult blobs(thresh, NULL, 0);
     blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_LESS, 500 );
@@ -106,16 +113,16 @@ void ObjectTracker::extractLargestBlob(cv::Mat &gray)
         orientation = 0.5 * atan2( 2 * mu11 , ( mu20 - mu02 ) );
 
         // Draw blob to gray image.
-        gray = gray.setTo(Scalar(0));
+        binary = binary.setTo(Scalar(0));
         blobs.GetBlob(maxBlob)->FillBlob(thresh, cvScalar(255), 0, 0);
     } else {
-
+        area = 0;
     }
 }
 
-void ObjectTracker::estimateMoments(cv::Mat &gray)
+void ObjectTracker::estimateMoments()
 {
-    IplImage *ipl = new IplImage(gray);
+    IplImage *ipl = new IplImage(binary);
     CvMoments M;
     cvMoments(ipl, &M, 1);
 
@@ -172,4 +179,100 @@ double ObjectTracker::getOrientation()
 QString ObjectTracker::getState()
 {
     return state;
+}
+
+QString ObjectTracker::getColorSpace()
+{
+    return colorSpace;
+}
+
+void ObjectTracker::setColorSpace(QString colorSpace)
+{
+    this->colorSpace = colorSpace;
+    updateSettings();
+}
+
+int ObjectTracker::getChannel()
+{
+    return channel;
+}
+
+void ObjectTracker::setChannel(int channel)
+{
+    this->channel = channel;
+    updateSettings();
+}
+
+bool ObjectTracker::isAutomaticThreshold()
+{
+    return automatic;
+}
+
+void ObjectTracker::setAutomaticThreshold(bool automatic)
+{
+    this->automatic = automatic;
+    updateSettings();
+}
+
+double ObjectTracker::getThreshold()
+{
+    return thres;
+}
+
+void ObjectTracker::setThreshold(double thres)
+{
+    this->thres = thres;
+    updateSettings();
+}
+
+bool ObjectTracker::isInverted()
+{
+    return this->inverted;
+}
+
+void ObjectTracker::setInverted(bool inverted)
+{
+    this->inverted = inverted;
+    updateSettings();
+}
+
+void ObjectTracker::loadFromSettings()
+{
+    colorSpace = parent->getSettingsValue("color space", "rgb").toString();
+    channel = parent->getSettingsValue("channel", 0).toInt();
+    automatic = parent->getSettingsValue("automatic threshold", true).toBool();
+    inverted = parent->getSettingsValue("inverted threshold", false).toBool();
+    thres = parent->getSettingsValue("threshold", 0).toDouble();
+}
+
+void ObjectTracker::updateSettings()
+{
+    parent->setSettingsValue("color space", colorSpace);
+    parent->setSettingsValue("channel", channel);
+    parent->setSettingsValue("automatic threshold", automatic);
+    parent->setSettingsValue("inverted threshold", inverted);
+    parent->setSettingsValue("threshold", thres);
+}
+
+void ObjectTracker::grabFrame(cv::Mat &frame)
+{
+    this->frame.copyTo(frame);
+}
+
+void ObjectTracker::grabGray(cv::Mat &gray)
+{
+    std::vector<Mat> grays;
+    grays.push_back(this->gray);
+    grays.push_back(this->gray);
+    grays.push_back(this->gray);
+    merge(grays, gray);
+}
+
+void ObjectTracker::grabBinary(cv::Mat &binary)
+{
+    std::vector<Mat> binaries;
+    binaries.push_back(this->binary);
+    binaries.push_back(this->binary);
+    binaries.push_back(this->binary);
+    merge(binaries, binary);
 }

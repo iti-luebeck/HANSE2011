@@ -29,7 +29,7 @@ public:
         return false if the Behaviour is not active
     */
     bool isActive();
-    void grabFrame(cv::Mat &frame);
+    BallTracker *getTracker();
 
 private:
     void update();
