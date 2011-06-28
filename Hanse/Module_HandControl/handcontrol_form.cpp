@@ -13,7 +13,8 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
     stepsize = module->getSettingsValue("diveStepsize").toFloat();
     resetTime = module->getSettingsValue("resetTime").toInt();
     upDownSpeed = 0.0;
-    qDebug() << "maxForwardSpeed: " << maxForwardSpeed << ",maxAngSpeed: " << maxAngularSpeed << ",stepsize: " << stepsize << ", resetTime: " << resetTime << "upDownSpeed: " << upDownSpeed;
+    //qDebug() << "maxForwardSpeed: " << maxForwardSpeed << ",maxAngSpeed: " << maxAngularSpeed << ",stepsize: " << stepsize << ", resetTime: " << resetTime << "upDownSpeed: " << upDownSpeed;
+    enableGamepad = module->getSettingsValue("enableGamepad").toBool();
 
     ui->port->setText(module->getSettingsValue("port").toString());
     ui->divFw->setText(module->getSettingsValue("divFw").toString());
@@ -23,6 +24,7 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
     ui->maxAngSpeed->setText(module->getSettingsValue("maxAngSpeed").toString());
     ui->maxVertSpeed->setText(module->getSettingsValue("diveStepsize").toString());
     ui->resetTime->setText(module->getSettingsValue("resetTime").toString());
+    ui->enableGamepad->setChecked(enableGamepad);
 
     if (module->getSettingsValue("receiver").toString()=="thruster") {
         ui->controlThruster->setChecked(true);
@@ -106,21 +108,25 @@ void HandControl_Form::connectionStatusChanged()
 void HandControl_Form::on_forwardButton_clicked()
 {
     fwd =  maxForwardSpeed;
+    emit updateControls();
 }
 
 void HandControl_Form::on_leftButton_clicked()
 {
     ang = -maxAngularSpeed;
+    emit updateControls();
 }
 
 void HandControl_Form::on_backwardButton_clicked()
 {
     fwd =  -maxForwardSpeed;
+    emit updateControls();
 }
 
 void HandControl_Form::on_rightButton_clicked()
 {
     ang = maxAngularSpeed;
+    emit updateControls();
 }
 
 void HandControl_Form::on_upButton_clicked()
@@ -144,14 +150,14 @@ void HandControl_Form::on_resetDepthButton_clicked()
 {
     upDownSpeed = 0.0;
     module->addData("speedUpDown", upDownSpeed);
-    updateControls();
+    emit updateControls();
     dep = upDownSpeed;
 }
 
 void HandControl_Form::setSpeeds(){
     module->addData("forwardSpeed", fwd);
     module->addData("angularSpeed", ang);
-    updateControls();
+    emit updateControls();
     fwd = 0;
     ang = 0;
 }

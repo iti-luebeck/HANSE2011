@@ -22,8 +22,8 @@ Module_HandControl::Module_HandControl(QString id, Module_ThrusterControlLoop *t
     setDefaultValue("divUD",50);
     setDefaultValue("maxForSpeed", 100);
     setDefaultValue("maxAngSpeed", 100);
-    setDefaultValue("diveStepsize", 10); // ursprünglich 10 => schrittweite soll 10cm sein.
-    setDefaultValue("resetTime", 500);
+    setDefaultValue("diveStepsize", 5); // ursprünglich 10 => schrittweite soll 10cm sein.
+    setDefaultValue("resetTime", 200);
     setDefaultValue("enableGamepad", true);
 
 
@@ -93,10 +93,11 @@ void Module_HandControl::emergencyStopReceived()
 {
     logger->debug("emergency handctr");
 
-     if (getSettingsValue("receiver").toString()=="thruster")
+    if (getSettingsValue("receiver").toString()=="thruster"){
         emit setUpDownSpeed(100.0);
-     else
-         emit setDepth(0.0);
+    }else{
+        emit setDepth(0.0);
+    }
     emit emergencyStop();
 }
 
@@ -134,29 +135,29 @@ void Module_HandControl::sendNewControls()
 
     dataLockerMutex.lock();
 
-//    if (getSettingsValue("receiver").toString()=="thruster") {
-//        controlLoop->setEnabled(false);
+    //    if (getSettingsValue("receiver").toString()=="thruster") {
+    //        controlLoop->setEnabled(false);
 
-//        logger->debug("set thruster direct");
-//        float left = forwardSpeed/divFw+angularSpeed/divLR;
-//        float right = forwardSpeed/divFw-angularSpeed/divLR;
-//        float updown = (float)speedUpDown / divUD;
+    //        logger->debug("set thruster direct");
+    //        float left = forwardSpeed/divFw+angularSpeed/divLR;
+    //        float right = forwardSpeed/divFw-angularSpeed/divLR;
+    //        float updown = (float)speedUpDown / divUD;
 
-//        emit setUpDownSpeed(updown);
-//        emit setRightSpeed(right);
-//        emit setLeftSpeed(left);
+    //        emit setUpDownSpeed(updown);
+    //        emit setRightSpeed(right);
+    //        emit setLeftSpeed(left);
 
-//    } else {
-        if (!controlLoop->isEnabled())
-            controlLoop->setEnabled(true);
+    //    } else {
+    if (!controlLoop->isEnabled())
+        controlLoop->setEnabled(true);
 
 
-        emit setAngularSpeed(angularSpeed/divLR);
-        emit setForwardSpeed(forwardSpeed/divFw);
-        if(speedUpDown < 0)
-            speedUpDown = 0;
-        emit setDepth(speedUpDown/divUD);
-//    }
+    emit setAngularSpeed(angularSpeed/divLR);
+    emit setForwardSpeed(forwardSpeed/divFw);
+    if(speedUpDown < 0)
+        speedUpDown = 0;
+    emit setDepth(speedUpDown/divUD);
+    //    }
 
     dataLockerMutex.unlock();
 

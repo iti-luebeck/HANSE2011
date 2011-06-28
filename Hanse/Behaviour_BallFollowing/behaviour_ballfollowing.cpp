@@ -150,7 +150,7 @@ void Behaviour_BallFollowing::update()
             if (approxDistance < 2) {
                 if (fabs(diffX) < this->getSettingsValue("deltaBall").toFloat()) {
                     // Wegpunkt setzen, weitermachen
-                    state = BALL_STATE_FOUND_BALL;
+//                    state = BALL_STATE_FOUND_BALL;
                 } else {
                     // Ausrichten
                     angularSpeed = this->getSettingsValue("kpBall").toFloat() * (diffX / this->getSettingsValue("maxDistance").toFloat());

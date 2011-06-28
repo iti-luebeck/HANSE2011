@@ -38,6 +38,7 @@ private:
     float upDownSpeed;
     float stepsize;
     int resetTime;
+    bool enableGamepad;
 
     float fwd;
     float ang;
