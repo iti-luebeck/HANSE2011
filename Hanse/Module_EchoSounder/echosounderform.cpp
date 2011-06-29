@@ -16,7 +16,7 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
 
     QLinearGradient gi(0,0,0,279);
     gi.setColorAt(0,QColor("white"));
-    gi.setColorAt(279,QColor("white"));
+    gi.setColorAt(1,QColor("white"));
     for(int i =0; i<ui->graphicsView->width()/1; i++)
     {
         //        QGraphicsRectItem *rit = scene.addRect((i*10),1,(i+1)*10,274,(Qt::NoPen));
@@ -38,7 +38,6 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->recordFile->setText(DataLogHelper::getLogDir()+"echolog.XXX");
     ui->updateView->setChecked(false);
 
-    ui->averageWindow->setText(echo->getSettingsValue("averageWindow").toString());
     ui->averageWindowInput->setText(echo->getSettingsValue("averageWindow").toString());
 
     ui->thresholdInput->setText(echo->getSettingsValue("threshold").toString());
@@ -50,7 +49,7 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->factorInput->setText(echo->getSettingsValue("calcFactor").toString());
 
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
-    QObject::connect(echo,SIGNAL(newEchoUiData(float, int)),this,SLOT(updateEchoUi(float, int)));
+    QObject::connect(echo,SIGNAL(newEchoUiData(float)),this,SLOT(updateEchoUi(float)));
 
     avgTemp = -1.0;
     einheit = -1.0;
@@ -148,7 +147,7 @@ void EchoSounderForm::updateSounderView(const EchoReturnData data)
 }
 
 
-void EchoSounderForm::updateEchoUi(float avgDistance, int averageWindow){
+void EchoSounderForm::updateEchoUi(float avgDistance){
     //qDebug("Array Pos");
     avgTemp = avgDistance*einheit;
     //qDebug()<< avgTemp;
@@ -156,12 +155,6 @@ void EchoSounderForm::updateEchoUi(float avgDistance, int averageWindow){
     sprintf(a,"%f",avgDistance);
     ui->avgDistance->setText(a);
     //qDebug(a);
-
-    char b[4];
-    sprintf(b,"%i",averageWindow);
-    ui->averageWindow->setText(b);
-    // qDebug(b);
-
 }
 
 void EchoSounderForm::on_save_clicked()
@@ -175,6 +168,11 @@ void EchoSounderForm::on_save_clicked()
     echo->setSettingsValue("scanTimer", ui->timerInput->text());
     ui->timer->setText(echo->getSettingsValue("scanTimer").toString());
     echo->setSettingsValue("calcFactor",ui->factorInput->text());
+
+    echo->setSettingsValue("threshold", ui->thresholdInput->text());
+    ui->thresholdInput->setText(echo->getSettingsValue("threshold").toString());
+    ui->thresholdText->setText(echo->getSettingsValue("threshold").toString());
+    echo->setSettingsValue("averageWindow", ui->averageWindowInput->text());
     QTimer::singleShot(0,echo,SLOT(reset()));
 
     // Hier fehlt ggf. noch ein löschen der view, wenn die range geändert wird.
@@ -200,13 +198,3 @@ void EchoSounderForm::on_selFile_clicked()
         ui->fileName->setText(fileName);
 }
 
-
-void EchoSounderForm::on_save2_clicked(){
-    echo->setSettingsValue("threshold", ui->thresholdInput->text());
-    ui->thresholdInput->setText(echo->getSettingsValue("threshold").toString());
-    ui->thresholdText->setText(echo->getSettingsValue("threshold").toString());
-    echo->setSettingsValue("averageWindow", ui->averageWindowInput->text());
-    ui->averageWindow->setText(echo->getSettingsValue("averageWindow").toString());
-
-    QTimer::singleShot(0,echo,SLOT(reset()));
-}

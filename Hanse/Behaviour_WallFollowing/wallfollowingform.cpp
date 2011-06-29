@@ -24,7 +24,7 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
 
     QLinearGradient gi(0,0,0,279);
     gi.setColorAt(0,QColor("white"));
-    gi.setColorAt(279,QColor("white"));
+    gi.setColorAt(1,QColor("white"));
     for(int i =0; i<ui->graphicsView->width()/1; i++)
     {
         dataQueue.append(gi);

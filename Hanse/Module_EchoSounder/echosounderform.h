@@ -27,7 +27,7 @@ protected:
 
 public slots:
     void updateSounderView(const EchoReturnData data);
-    void updateEchoUi(float avgPos, int averageWindow);
+    void updateEchoUi(float avgPos);
 
 
 private:
@@ -43,7 +43,6 @@ private slots:
     void on_save_clicked();
     void on_applyButton_clicked();
     void on_selFile_clicked();
-    void on_save2_clicked();
 
 };
 

@@ -61,7 +61,7 @@ signals:
     void requestSonarSideSignal();
 
     // Module_EchoSounder -> EchoSounderForm
-    void newEchoUiData(float avgDistance, int averageWindow);
+    void newEchoUiData(float avgDistance);
 
     // Module_EchoSounder -> Behaviour_WallFollowing (ggf. weiter)
     void newWallBehaviourData(const EchoReturnData data, float avgDistance);

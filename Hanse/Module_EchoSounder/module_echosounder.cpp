@@ -256,7 +256,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     addData("distance average", avgDistance);
     addData("count", count);
     addData("window average", averageWindow);
-    emit newEchoUiData(avgDistance,averageWindow);
+    emit newEchoUiData(avgDistance);
     emit newWallBehaviourData(data, avgDistance);
     emit dataChanged(this);
 
