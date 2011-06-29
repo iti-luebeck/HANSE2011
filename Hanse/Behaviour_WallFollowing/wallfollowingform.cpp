@@ -40,6 +40,7 @@ WallFollowingForm::WallFollowingForm(QWidget *parent, Behaviour_WallFollowing *w
     this->ui->useP->setChecked(wallfollow->getSettingsValue("useP").toBool());
     this->ui->allowedInput->setText(wallfollow->getSettingsValue("allowedDist").toString());
     this->ui->driveInput->setText(wallfollow->getSettingsValue("driveTime").toString());
+    this->ui->useStartAdjust->setChecked(wallfollow->getSettingsValue("useStartAdjust").toBool());
 }
 
 WallFollowingForm::~WallFollowingForm()
@@ -70,7 +71,8 @@ void WallFollowingForm::on_startButton_clicked()
     wallfollow->setSettingsValue("updateView", this->ui->updateView->isChecked());
     wallfollow->setSettingsValue("allowedDist", ui->allowedInput->text());
     wallfollow->setSettingsValue("driveTime", ui->driveInput->text());
-
+    wallfollow->setSettingsValue("useStartAdjust", this->ui->useStartAdjust->isChecked());
+    QTimer::singleShot(0, wallfollow, SLOT(updateFromSettings()));
     emit startBehaviour();
 
 }
@@ -85,6 +87,7 @@ void WallFollowingForm::on_applyButton_clicked(){
     wallfollow->setSettingsValue("allowedDist", ui->allowedInput->text());
     wallfollow->setSettingsValue("driveTime", ui->driveInput->text());
     wallfollow->setSettingsValue("updateView", this->ui->updateView->isChecked());
+    wallfollow->setSettingsValue("useStartAdjust", this->ui->useStartAdjust->isChecked());
     QTimer::singleShot(0, wallfollow, SLOT(updateFromSettings()));
 }
 
@@ -165,5 +168,6 @@ void WallFollowingForm::updateUiView(){
     this->ui->pInput->setText(wallfollow->getSettingsValue("p").toString());
     this->ui->allowedInput->setText(wallfollow->getSettingsValue("allowedDist").toString());
     this->ui->driveInput->setText(wallfollow->getSettingsValue("driveTime").toString());
+    this->ui->useStartAdjust->setChecked(wallfollow->getSettingsValue("useStartAdjust").toBool());
 }
 

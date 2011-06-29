@@ -35,8 +35,8 @@ void TaskWallFollowing::init(){
     this->setDefaultValue("taskStartPoint", "SP");
     this->setDefaultValue("wallAdjustPoint", "AP");
     this->setDefaultValue("useAdjustPoint", true);
-    this->setDefaultValue("goal1point1", "go1p2");
-    this->setDefaultValue("goal1point2", "go2p1");
+    this->setDefaultValue("goal1point1", "go1p1");
+    this->setDefaultValue("goal1point2", "go2p2");
     this->setDefaultValue("apDist" , 1.5);
 
     // Default turn180 settings
@@ -89,12 +89,9 @@ void TaskWallFollowing::startBehaviour(){
     }
 
 
-
-
-
     emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
     emit newStateOverview(TASK_STATE_WALLFOLLOW_PART1);
-    if(this->getSettingsValue("useAdjustPoint").toBool()){
+    if(this->getSettingsValue("v").toBool()){
         emit newStateOverview(TASK_STATE_ADJUST_HEADING);
         emit newStateOverview(TASK_STATE_WALLFOLLOW_PART2);
     }
@@ -155,6 +152,17 @@ void TaskWallFollowing::controlTaskStates(){
 void TaskWallFollowing::showTaskState(){
     logger->info(taskState);
     emit newState(taskState);
+
+
+    addData("taskStartPoint", this->getSettingsValue("taskStartPoint").toString());
+    addData("wallAdjustPoint", this->getSettingsValue("wallAdjustPoint").toString());
+    addData("useAdjustPoint", this->getSettingsValue("useAdjustPoint").toString());
+    addData("apDist", this->getSettingsValue("apDist").toString());
+    addData("timerActivated", this->getSettingsValue("timerActivated").toString());
+    addData("taskStopTime", this->getSettingsValue("taskStopTime").toString());
+    addData("goal1point1", this->getSettingsValue("goal1point1").toString());
+    addData("goal1point2", this->getSettingsValue("goal1point2").toString());
+
     addData("taskState", taskState);
     emit dataChanged(this);
 }

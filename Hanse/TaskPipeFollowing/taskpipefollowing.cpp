@@ -43,7 +43,6 @@ void TaskPipeFollowing::init(){
     this->setDefaultValue("goal3point2", "go3p2");
     this->setDefaultValue("gate1point", "ga1p");
     this->setDefaultValue("gate2point", "ga2p");
-    this->setDefaultValue("angle", 15);
 
     // Default turn180 settings
     this->setDefaultValue("hysteresis", 10);
@@ -124,13 +123,13 @@ void TaskPipeFollowing::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_MOVE_TO_PIPE_INIT){
         showTaskState();
-         qDebug("State 2");
+        qDebug("State 2");
         this->navi->gotoWayPoint(this->getSettingsValue("pipeStartPoint").toString());
 
     } else if(taskState == TASK_STATE_PIPEFOLLOW_PART1){
         showTaskState();
 
-         qDebug("State 3");
+        qDebug("State 3");
         if(this->pipe->getHealthStatus().isHealthOk()){
             if (!this->pipe->isActive()) {
                 logger->info("Activate pipefollowing");
@@ -146,7 +145,7 @@ void TaskPipeFollowing::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_MOVE_TO_GATEWAYPOINT1){
         showTaskState();
-         qDebug("State 4");
+        qDebug("State 4");
         if(pipe->isActive()){
             QTimer::singleShot(0, pipe, SLOT(stop()));
         }
@@ -270,6 +269,15 @@ void TaskPipeFollowing::initBehaviourParameters(){
 void TaskPipeFollowing::showTaskState(){
     logger->info(taskState);
     emit newState(taskState);
+
+
+    addData("taskStartPoint", getSettingsValue("taskStartPoint").toString());
+    addData("pipeStartPoint", getSettingsValue("pipeStartPoint").toString());
+    addData("gate1point", getSettingsValue("gate1point").toString());
+    addData("gate2point", getSettingsValue("gate2point").toString());
+    addData("taskStopTime", getSettingsValue("taskStopTime").toString());
+    addData("timerActivated", getSettingsValue("timerActivated").toString());
+
     addData("taskState", taskState);
     emit dataChanged(this);
 }

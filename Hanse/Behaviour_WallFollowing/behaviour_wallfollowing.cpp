@@ -37,6 +37,7 @@ void Behaviour_WallFollowing::init()
     setDefaultValue("useP", false);
 
     setDefaultValue("allowedDist", 0.8);
+    setDefaultValue("useStartAdjust", true);
 
 
     QObject::connect(echo,SIGNAL(newWallBehaviourData(const EchoReturnData, float)),this,SLOT(newData(const EchoReturnData, float)));
@@ -169,17 +170,21 @@ void Behaviour_WallFollowing::controlWallFollow()
     diff = distanceInput - avgDistance;
 
     if(wallState == WALL_ADJUST_START){
-        if(adjustState == ADJUST_IDLE){
-            if((fabs(diff) < allowedDist)){
-                wallState = WALL_CONTROL_WALLFOLLOW;
-                updateOutput();
-            } else if(adjustState == ADJUST_IDLE){
-                initialHeading = this->xsens->getHeading();
-                adjustTurnOne();
+        if(getSettingsValue("useStartAdjust").toBool()){
+            if(adjustState == ADJUST_IDLE){
+                if((fabs(diff) < allowedDist)){
+                    wallState = WALL_CONTROL_WALLFOLLOW;
+                    updateOutput();
+                } else if(adjustState == ADJUST_IDLE){
+                    initialHeading = this->xsens->getHeading();
+                    adjustTurnOne();
+                }
             }
+        } else {
+            wallState = WALL_CONTROL_WALLFOLLOW;
+            updateOutput();
         }
     } else {
-        // WALL_CONTROL_WALLFOLLOW
         wallState = WALL_CONTROL_WALLFOLLOW;
         if(FLAG_SOUNDER_RIGHT){
             controlThrusterEchoRight();
