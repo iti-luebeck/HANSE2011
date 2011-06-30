@@ -37,7 +37,9 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
 
     connect(this,SIGNAL(updateControls()),module,SLOT(sendNewControls()));
     connect(&speedTimer, SIGNAL(timeout()), this, SLOT(setSpeeds()));
-    speedTimer.start(resetTime);
+    if(enableGamepad == false){
+        speedTimer.start(resetTime);
+    }
 }
 
 HandControl_Form::~HandControl_Form()
@@ -79,8 +81,15 @@ void HandControl_Form::on_save_clicked()
         module->setSettingsValue("receiver","controlLoop");
 
     module->setSettingsValue("enableGamepad", ui->enableGamepad->isChecked());
+    enableGamepad = ui->enableGamepad->isChecked();
 
     module->reset();
+
+    if(speedTimer.isActive() && enableGamepad == true){
+        speedTimer.stop();
+    }else if(enableGamepad == false){
+        speedTimer.start(resetTime);
+    }
 
 }
 
@@ -155,13 +164,12 @@ void HandControl_Form::on_resetDepthButton_clicked()
 }
 
 void HandControl_Form::setSpeeds(){
-    if(!enableGamepad){
-        return;
-    }
-
     module->addData("forwardSpeed", fwd);
     module->addData("angularSpeed", ang);
     emit updateControls();
     fwd = 0;
     ang = 0;
+    if(speedTimer.isActive() == true && enableGamepad == true){
+        speedTimer.stop();
+    }
 }
