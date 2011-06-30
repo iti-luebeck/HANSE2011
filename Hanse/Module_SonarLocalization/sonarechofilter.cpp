@@ -393,7 +393,7 @@ void SonarEchoFilter::sendImage()
     if (this->sloc->getSettingsValue("use xsens").toBool()) {
         for (int i = candidates.size() - 1; i >= 0; i--) {
             if (i != candidates.size() - 1 && this->sloc->getSettingsValue("use xsens").toBool()) {
-                accumulatedHeadingIncrement += (candidates[i].getCompassHeading() - candidates[i + 1].getCompassHeading());
+                accumulatedHeadingIncrement += (candidates[i + 1].getCompassHeading() - candidates[i].getCompassHeading());
             }
 
             QVector2D vec  = candidates[i].getEuclidean(accumulatedHeadingIncrement);

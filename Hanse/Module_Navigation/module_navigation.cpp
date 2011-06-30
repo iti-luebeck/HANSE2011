@@ -227,7 +227,7 @@ void Module_Navigation::xsensUpdate( RobotModule * )
         if (state == NAV_STATE_GO_TO_GOAL || state == NAV_STATE_REACHED_GOAL) {
 
             if (substate == NAV_SUBSTATE_ADJUST_HEADING) {
-                double diffXsens = Angles::deg2deg(xsensHeading - adjustHeadingInitialXsens);
+                double diffXsens = Angles::deg2deg(adjustHeadingInitialXsens - xsensHeading);
                 addData("heading xsens to position", diffXsens);
 
                 if (fabs(Angles::deg2deg(diffHeading - diffXsens)) < 5) {
@@ -248,7 +248,7 @@ void Module_Navigation::xsensUpdate( RobotModule * )
             }
 
             if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
-                float headingError = - Angles::deg2deg(xsensHeading - initialXsensHeading);
+                float headingError = Angles::deg2deg(xsensHeading - initialXsensHeading);
                 float val = getSettingsValue(QString("p_heading"), NAV_P_HEADING).toFloat() * headingError;
                 emit newANGSpeed(val);
                 addData("speed angular", val);
@@ -278,6 +278,10 @@ void Module_Navigation::sonarPositionUpdate()
         return;
     }
 
+    if (substate == NAV_SUBSTATE_MOVE_FORWARD) {
+        substate = NAV_SUBSTATE_ADJUST_HEADING;
+    }
+
     // Update all important values.
     float currentDepth = pressure->getDepth();
     currentPosition = sonarLoc->getLocalization();
@@ -285,7 +289,7 @@ void Module_Navigation::sonarPositionUpdate()
 
     // Adjust heading to compensate for movement after the last observation was captured.
     if (getSettingsValue("use xsens", true).toBool()) {
-        currentHeading += (mti->getHeading() - sonarLoc->sonarEchoFilter().getLastObservationHeading());
+        currentHeading -= (mti->getHeading() - sonarLoc->sonarEchoFilter().getLastObservationHeading());
         currentHeading = Angles::deg2deg(currentHeading);
     }
 
@@ -382,18 +386,18 @@ void Module_Navigation::sonarPositionUpdate()
 
                     // Move slower if we are close to the goal.
                     if ( distanceToGoal < getSettingsValue("forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble()) {
-                        speed -= 0.25 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
-                                 (distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
+                        speed -= 0.5 * getSettingsValue("forward_max_speed", NAV_FORWARD_MAX_SPEED).toFloat() *
+                                 (1 - distanceToGoal / getSettingsValue( "forward_max_dist", NAV_FORWARD_MAX_DIST ).toDouble());
                     }
 
                     angularSpeed = 0.0f;
                     forwardSpeed = speed;
 
-                    initialXsensHeading = mti->getHeading() + diffHeading;
+                    initialXsensHeading = mti->getHeading() - diffHeading;
 
                     // Move forward for "forward_time" seconds.
-                    QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
-                                        this, SLOT( forwardDone() ) );
+//                    QTimer::singleShot( 1000 * getSettingsValue("forward_time", NAV_FORWARD_TIME ).toDouble(),
+//                                        this, SLOT( forwardDone() ) );
                 }
             }
         }

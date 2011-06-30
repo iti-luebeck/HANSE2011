@@ -413,7 +413,7 @@ void SonarParticleFilter::updateParticleFilter(QList<QVector2D> observations)
         SonarParticle particle = oldParticles[i];
 
         // Add heading difference.
-        float newHeading = Angles::pi2pi(particle.getTheta() + diffHeading);
+        float newHeading = Angles::pi2pi(particle.getTheta() - diffHeading);
         particle.setTheta(newHeading);
 
         // Randomize pose.
