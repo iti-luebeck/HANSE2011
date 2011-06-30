@@ -155,6 +155,10 @@ void HandControl_Form::on_resetDepthButton_clicked()
 }
 
 void HandControl_Form::setSpeeds(){
+    if(!enableGamepad){
+        return;
+    }
+
     module->addData("forwardSpeed", fwd);
     module->addData("angularSpeed", ang);
     emit updateControls();
