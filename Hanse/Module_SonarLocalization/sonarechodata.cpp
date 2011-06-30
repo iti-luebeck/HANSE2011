@@ -7,7 +7,7 @@ SonarEchoData::SonarEchoData()
     this->gradient = QList<float>();
     for (int i = 0; i < 250; i++) this->gradient.append(0.0f);
     this->wallCandidate = -1;
-    this->headingIncrement = 0;
+    this->compassHeading = 0;
 }
 
 SonarEchoData::SonarEchoData(SonarReturnData data)
@@ -24,7 +24,6 @@ SonarEchoData::SonarEchoData(SonarReturnData data)
     this->gain = data.switchCommand.startGain;
 //    this->features = cv::Mat(1,9,CV_32F);
     this->timestamp = data.switchCommand.time;
-    this->headingIncrement = 0;
     this->compassHeading = 0;
 }
 
@@ -42,7 +41,6 @@ SonarEchoData::SonarEchoData(const SonarEchoData& dat)
     for (int i = 0; i < dat.gradient.size(); i++) {
         this->gradient.push_back(dat.gradient[i]);
     }
-    this->headingIncrement = dat.headingIncrement;
     this->compassHeading = dat.compassHeading;
 }
 
@@ -73,7 +71,7 @@ QDateTime SonarEchoData::getTimeStamp()
 
 float SonarEchoData::getHeadPosition()
 {
-    return this->headPosition + this->headingIncrement;
+    return this->headPosition;
 }
 
 float SonarEchoData::getRange()
@@ -84,16 +82,6 @@ float SonarEchoData::getRange()
 float SonarEchoData::getGain()
 {
     return this->gain;
-}
-
-float SonarEchoData::getHeadingIncrement()
-{
-    return this->headingIncrement;
-}
-
-void SonarEchoData::setHeadingIncrement(float inc)
-{
-    this->headingIncrement = inc;
 }
 
 void SonarEchoData::setFiltered(QByteArray data)
@@ -114,12 +102,12 @@ void SonarEchoData::setWallCandidate(int bin)
     this->wallCandidate = bin;
 }
 
-QVector2D SonarEchoData::getEuclidean()
+QVector2D SonarEchoData::getEuclidean(float headingOffset)
 {
     double x,y;
     float range = this->getRange();
-    x = cos(this->getHeadPosition() / 180 * M_PI) * this->getWallCandidate() * range / N;
-    y = sin(this->getHeadPosition() / 180 * M_PI) * this->getWallCandidate() * range / N;
+    x = cos((this->getHeadPosition() + headingOffset) / 180 * M_PI) * this->getWallCandidate() * range / N;
+    y = sin((this->getHeadPosition() + headingOffset) / 180 * M_PI) * this->getWallCandidate() * range / N;
     QVector2D vec = QVector2D(x,y);
     return vec;
 }

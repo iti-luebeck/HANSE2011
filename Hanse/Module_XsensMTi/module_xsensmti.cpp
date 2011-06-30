@@ -173,11 +173,3 @@ float Module_XsensMTi::getHeading() {
     return getDataValue("yaw").toFloat();
 }
 
-float Module_XsensMTi::getHeadingIncrement() {
-    float increment = 0;
-    increment = Angles::deg2deg(getDataValue("yaw").toFloat() - lastHeading);
-
-    lastHeading = getDataValue("yaw").toFloat();
-    return increment;
-}
-

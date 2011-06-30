@@ -24,7 +24,6 @@ public:
     QList<RobotModule*> getDependencies();
 
     float getHeading();
-    float getHeadingIncrement();
 
 private:
     void init();

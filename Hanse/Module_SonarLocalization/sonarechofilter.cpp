@@ -49,7 +49,6 @@ void SonarEchoFilter::newSonarData(SonarReturnData data)
 
     if (this->sloc->getSettingsValue("use xsens").toBool()) {
         currData.setCompassHeading(mti->getHeading());
-        currData.setHeadingIncrement(mti->getHeadingIncrement());
     }
 
     this->filterEcho(currData);
@@ -268,35 +267,17 @@ void SonarEchoFilter::grouping()
     int maxCutTH = this->sloc->getSettingsValue("groupingMaxArea",360).toInt();
     float diff = 0;
 
+    // Check direction.
+    float direction = 1;
+
     if (candidates.size() > 1) {
-        int i = candidates.size() - 1;
-
-        if (this->sloc->getSettingsValue("use xsens").toBool()) {
-            diff = (candidates[i-1].getHeadPosition()/* - candidates[i-1].getHeadingIncrement()*/) -
-                   (candidates[i].getHeadPosition() - candidates[i].getHeadingIncrement());
-        } else {
-            diff = candidates[i-1].getHeadPosition() - candidates[i].getHeadPosition();
-        }
-
-        diff = Angles::deg2deg(diff);
-
-        newDirection = candidates[i-1].getHeadPosition() - candidates[i].getHeadPosition();
-
-        if(newDirection > 0)
-            newDirection = 1;
-        else if(newDirection < 0)
-            newDirection = -1;
-        else
-            newDirection= 0;
-    } else {
-        newDirection = 1;
-        diff = 0;
+        direction = candidates[candidates.size() - 2].getHeadPosition() - candidates[candidates.size() - 1].getHeadPosition() > 0 ? 1 : -1;
+        diff = getHeadingDifference(candidates[candidates.size() - 1], candidates[candidates.size() - 2]);
     }
 
     // Add heading difference to total sonar head movement.
-    temp_area += fabs(diff);
-    mti->addData("degrees covered", temp_area);
-//    qDebug("%f", temp_area);
+    temp_area += direction * diff;
+    sloc->addData("degrees covered", temp_area);
 
     // Do grouping, if enough data was collected.
     if (temp_area >= maxCutTH) {
@@ -329,23 +310,15 @@ void SonarEchoFilter::grouping()
             QList<SonarEchoData> tmp;
 
             temp_area = 0;
-            diff = 0;
 
             //splitting candidates at cutIndex
             int total = candidates.size();
             for(int i = cutIndex; i < total; i++)
             {
-                int last = candidates.size()-1;
-
-                if (this->sloc->getSettingsValue("use xsens").toBool()) {
-                    diff = (candidates[last-1].getHeadPosition()/* - candidates[last-1].getHeadingIncrement()*/) -
-                           (candidates[last].getHeadPosition() + candidates[last].getHeadingIncrement());
-                } else {
-                    diff = candidates[last-1].getHeadPosition() - candidates[last].getHeadPosition();
-                }
-
-                diff = Angles::deg2deg(diff);
-                temp_area += abs(diff);
+                direction = candidates[candidates.size() - 2].getHeadPosition() - candidates[candidates.size() - 1].getHeadPosition() > 0 ? 1 : -1;
+                diff = getHeadingDifference(candidates[candidates.size() - 1], candidates[candidates.size() - 2]);
+                temp_area += direction * diff;
+                sloc->addData("degrees covered", temp_area);
 
                 tmp.append(candidates.takeLast());
             }
@@ -358,12 +331,23 @@ void SonarEchoFilter::grouping()
             this->sendImage();
             candidates.clear();
 
-            //restore candidates
-//            for (int i = 0; i < tmp.size(); i++)
-//                candidates.append(tmp.takeFirst());
+            // Restore candidates.
             candidates = tmp;
         }
     }
+}
+
+float SonarEchoFilter::getHeadingDifference(SonarEchoData from, SonarEchoData to)
+{
+    // Calc difference.
+    float difference = to.getHeadPosition() - from.getHeadPosition();
+
+    // Do Xsens corrention. Inverted, because of different coordinate systems.
+    if (this->sloc->getSettingsValue("use xsens").toBool()) {
+        difference -= (to.getCompassHeading() - from.getCompassHeading());
+    }
+
+    return Angles::deg2deg(difference);
 }
 
 void SonarEchoFilter::sendImage()
@@ -408,23 +392,18 @@ void SonarEchoFilter::sendImage()
     float accumulatedHeadingIncrement = 0;
     if (this->sloc->getSettingsValue("use xsens").toBool()) {
         for (int i = candidates.size() - 1; i >= 0; i--) {
-            float headingIncrement = candidates[i].getHeadingIncrement();
-            candidates[i].setHeadingIncrement(accumulatedHeadingIncrement);
-            accumulatedHeadingIncrement -= headingIncrement;
-        }
-    }
+            if (i != candidates.size() - 1 && this->sloc->getSettingsValue("use xsens").toBool()) {
+                accumulatedHeadingIncrement += (candidates[i].getCompassHeading() - candidates[i + 1].getCompassHeading());
+            }
 
-    // Get Euclidian representation of wall features.
-    for (int i = 0; i < candidates.size(); i++) {
-        if (candidates[i].getWallCandidate() > 0 ) {
-            QVector2D vec  = candidates[i].getEuclidean();
+            QVector2D vec  = candidates[i].getEuclidean(accumulatedHeadingIncrement);
             posArray.append(vec);
             wallFeatures.append(candidates[i]);
         }
     }
 
     if (wallFeatures.size() > 0) {
-        lastValidDataHeading = wallFeatures.last().getCompassHeading();
+        lastValidDataHeading = wallFeatures.first().getCompassHeading();
         sloc->addData("heading last observation", lastValidDataHeading);
     }
 

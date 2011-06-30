@@ -43,6 +43,14 @@ public:
 
     double lastObservationTime;
 
+private:
+    float getHeadingDifference(SonarEchoData from, SonarEchoData to);
+    void addToList(QList<QVector2D>& list, const QVector2D p);
+    void applyHeuristic();
+    void grouping();
+    void sendImage();
+    void initNoiseMat();
+
 signals:
     void newImage(QList<QVector2D> observations);
     void newSonarEchoData(QList<SonarEchoData> data);
@@ -68,10 +76,7 @@ private:
     QList<float> lastMaxValues;
     QList<int> ks;
 
-    void addToList(QList<QVector2D>& list, const QVector2D p);
-
     bool DEBUG;
-//    QSettings& s;
 
     Module_SonarLocalization* sloc;
     Module_XsensMTi *mti;
@@ -82,13 +87,7 @@ private:
       */
     Log4Qt::Logger *logger;
 
-    //filter chain
-    void applyHeuristic();
-    void grouping();
-    void sendImage();
-    //other
     cv::Mat noiseMat;
-    void initNoiseMat();
     float prevWallCandidate;
 
     float lastValidDataHeading;

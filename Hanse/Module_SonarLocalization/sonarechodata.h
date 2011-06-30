@@ -23,7 +23,6 @@ public:
     float getRange();
     float getHeadPosition();
     float getGain();
-    float getHeadingIncrement();
     QDateTime getTimeStamp();
     float getCompassHeading();
 
@@ -31,10 +30,9 @@ public:
     void setGradient(QList<float> data);
     void setWallCandidate(int bin);
     void addOffsetToHeadPos(float degree);
-    void setHeadingIncrement(float inc);
     void setCompassHeading(float head);
 
-    QVector2D getEuclidean();
+    QVector2D getEuclidean(float headingOffset);
 
     const static int N = 250;
 
@@ -49,7 +47,6 @@ private:
     float range;
     QDateTime timestamp;
     float gain;
-    float headingIncrement;
     float compassHeading;
 };
 
