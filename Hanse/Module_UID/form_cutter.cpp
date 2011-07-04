@@ -3,7 +3,7 @@
 
 FormCutter::FormCutter(Module_Cutter* module, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Form_UID)
+    ui(new Ui::Form_Cutter)
 {
     ui->setupUi(this);
     this->module = module;
