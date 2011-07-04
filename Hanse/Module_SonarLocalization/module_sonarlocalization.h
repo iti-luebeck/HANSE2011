@@ -10,6 +10,7 @@
 class Module_ScanningSonar;
 class Module_XsensMTi;
 class Module_Simulation;
+class Module_PressureSensor;
 
 class Module_SonarLocalization : public RobotModule {
     Q_OBJECT
@@ -17,7 +18,7 @@ class Module_SonarLocalization : public RobotModule {
     friend class Form_SonarLocalization;
 
 public:
-    Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti, Module_Simulation *sim);
+    Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti, Module_PressureSensor *pressure, Module_Simulation *sim);
 
     QWidget* createView(QWidget* parent);
 
@@ -75,6 +76,7 @@ signals:
 
 private:
     Module_XsensMTi *mti;
+    Module_PressureSensor *pressure;
 
     SonarEchoFilter filter;
     SonarParticleFilter pf;

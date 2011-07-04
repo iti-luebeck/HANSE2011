@@ -146,18 +146,6 @@ void TaskMidwaterTarget::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_XSENSFOLLOW){
 
-        Position currentPosition = this->navi->getCurrentPosition();
-        Waypoint newWP;
-        newWP.name = this->getSettingsValue("finishPoint").toString();
-        newWP.posX = currentPosition.getX();
-        newWP.posY = currentPosition.getY();
-        newWP.depth = currentPosition.getZ();
-        newWP.startAngle = 0.0;
-        newWP.useStartAngle = false;
-        newWP.exitAngle = currentPosition.getYaw();
-        newWP.useExitAngle = true;
-        this->navi->addWaypoint(this->getSettingsValue("finishPoint").toString(), newWP);
-
         initBehaviourParameters();
         showTaskState();
         if(this->xsensfollow->getHealthStatus().isHealthOk()){
@@ -209,7 +197,7 @@ void TaskMidwaterTarget::controlFinishedWaypoints(QString waypoint) {
     if (taskState == TASK_STATE_MOVE_TO_TASK_START) {
         if (waypoint == this->getSettingsValue("taskStartPoint").toString()) {
             logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-            taskState = TASK_STATE_BALLFOLLOWING;
+            taskState = TASK_STATE_FIND_BALL;
             controlTaskStates();
         } else {
             navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
@@ -293,10 +281,10 @@ void TaskMidwaterTarget::controlXsensState(QString newState){
 
 void TaskMidwaterTarget::initBehaviourParameters(){
     if(taskState == TASK_STATE_XSENSFOLLOW){
-        this->xsensfollow->setSettingsValue("driveTime", 10000);
+        this->xsensfollow->setSettingsValue("driveTime", 15000);
         this->xsensfollow->setSettingsValue("turnClockwise", false);
-        this->xsensfollow->setSettingsValue("nuberTurns", 3);
-        this->xsensfollow->setSettingsValue("enableTurn", true);
+        this->xsensfollow->setSettingsValue("numberTurns", 0);
+        this->xsensfollow->setSettingsValue("enableTurn", false);
     } else if(taskState == TASK_STATE_BALLFOLLOWING){
         // Nothing
     }
@@ -424,7 +412,7 @@ void TaskMidwaterTarget::markBallPosition()
     Waypoint targetWaypoint(this->getSettingsValue("target waypoint").toString(),
                             this->navi->getCurrentPosition().getX(),
                             this->navi->getCurrentPosition().getY(),
-                            this->navi->getCurrentPosition().getDepth(),
+                            1.7,
                             false,
                             0.0,
                             true,
@@ -436,6 +424,7 @@ void TaskMidwaterTarget::markBallPosition()
 
 void TaskMidwaterTarget::cutFinished()
 {
+    QTimer::singleShot(0, xsensfollow, SLOT(stop()));
     taskState = TASK_STATE_MOVE_INSPECT;
     controlTaskStates();
 }

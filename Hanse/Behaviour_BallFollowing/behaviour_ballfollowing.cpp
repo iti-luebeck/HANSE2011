@@ -82,7 +82,7 @@ void Behaviour_BallFollowing::startBehaviour()
     }
 
     if (sim->isEnabled()) {
-        updateTimer.start(250);
+        updateTimer.start(500);
     } else {
         updateTimer.start(100);
     }
@@ -150,8 +150,7 @@ void Behaviour_BallFollowing::update()
 
             if (approxDistance < 2) {
                 if (fabs(diffX) < this->getSettingsValue("deltaBall").toFloat()) {
-                    // Wegpunkt setzen, weitermachen
-//                    state = BALL_STATE_FOUND_BALL;
+                    state = BALL_STATE_FOUND_BALL;
                 } else {
                     // Ausrichten
                     angularSpeed = this->getSettingsValue("kpBall").toFloat() * (diffX / this->getSettingsValue("maxDistance").toFloat());
@@ -167,7 +166,8 @@ void Behaviour_BallFollowing::update()
                 emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
             }
         } else {
-            // Do search for ball...
+            emit setAngularSpeed(0.1);
+            emit setForwardSpeed(0.3);
         }
 
     } else if (state == BALL_STATE_FOUND_BALL) {
@@ -192,9 +192,10 @@ void Behaviour_BallFollowing::update()
             emit setAngularSpeed(angularSpeed);
             emit setForwardSpeed(forwardSpeed);
         } else if (ballState == STATE_PASSED) {
-            cutHeading = xsens->getHeading();
-            emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
-            cutTimer.singleShot(15000, this, SLOT(stopCut()));
+            state = BALL_STATE_DO_CUT;
+//            cutHeading = xsens->getHeading();
+//            emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
+//            cutTimer.singleShot(15000, this, SLOT(stopCut()));
         } else {
             // Do search for ball...
         }
@@ -203,7 +204,7 @@ void Behaviour_BallFollowing::update()
 
     }
 
-    emit newBallState(ballState);
+    emit newBallState(state);
 
     addData("state", state);
     addData("ball state", ballState);

@@ -89,7 +89,7 @@ void ModulesGraph::build()
     this->modules.append( cams );
 
     logger->debug("Creating Module_SonarLocalization");
-    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, xsens, sim);
+    Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, xsens, pressure, sim);
     this->modules.append(sonarLoc);
 
     logger->debug("Creating Module_Navigation");

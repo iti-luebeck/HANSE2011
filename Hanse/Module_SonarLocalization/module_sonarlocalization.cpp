@@ -8,7 +8,7 @@
 
 using namespace cv;
 
-Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti, Module_Simulation *sim)
+Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSonar *sonar, Module_XsensMTi *mti, Module_PressureSensor *pressure, Module_Simulation *sim)
     : RobotModule(id),
         filter(this, mti, sim),
         pf(*this, mti, filter)
@@ -18,6 +18,7 @@ Module_SonarLocalization::Module_SonarLocalization(QString id, Module_ScanningSo
 
     this->sonar = sonar;
     this->mti = mti;
+    this->pressure = pressure;
 }
 
 void Module_SonarLocalization::init()
@@ -91,7 +92,7 @@ Position Module_SonarLocalization::getLocalization()
     Position r;
     r.setX(p.x());
     r.setY(p.y());
-    r.setZ(0);
+    r.setZ(pressure->getDepth());
     r.setYaw(p.z()*180/M_PI);
     return r;
 }

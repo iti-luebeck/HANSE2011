@@ -130,7 +130,7 @@ void Module_Navigation::navigateToCurrentWaypoint()
     }
 
     state = NAV_STATE_GO_TO_GOAL;
-    substate = NAV_SUBSTATE_ADJUST_HEADING;
+    substate = NAV_SUBSTATE_ADJUST_DEPTH;
 
     Position currentPosition = sonarLoc->getLocalization();
     double dx = currentGoal.posX - currentPosition.getX();
@@ -138,7 +138,7 @@ void Module_Navigation::navigateToCurrentWaypoint()
     headingToGoal = atan2(dx, dy) * 180 / CV_PI + 90;
     distanceToGoal = sqrt(dx*dx + dy*dy);
 
-    emit newDepth(currentGoal.depth);
+//    emit newDepth(currentGoal.depth);
     emit newFFSpeed(.0);
     emit newANGSpeed(.0);
 
@@ -283,7 +283,7 @@ void Module_Navigation::sonarPositionUpdate()
     }
 
     // Update all important values.
-    float currentDepth = pressure->getDepth();
+//    float currentDepth = pressure->getDepth();
     currentPosition = sonarLoc->getLocalization();
     double currentHeading = currentPosition.getYaw();
 
@@ -349,10 +349,11 @@ void Module_Navigation::sonarPositionUpdate()
 
                 // First adjust the depth.
                 if (substate == NAV_SUBSTATE_ADJUST_DEPTH) {
-                    if ( fabs( currentDepth - currentGoal.depth ) <
-                         getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() ) {
-                        substate = NAV_SUBSTATE_ADJUST_HEADING;
-                    }
+//                    if ( fabs( currentDepth - currentGoal.depth ) <
+//                         getSettingsValue( QString( "depth_hysteresis" ), NAV_HYSTERESIS_DEPTH ).toDouble() ) {
+//                        substate = NAV_SUBSTATE_ADJUST_HEADING;
+//                    }
+                    substate = NAV_SUBSTATE_ADJUST_HEADING;
                 }
 
                 // Then adjust the heading towards the goal.
