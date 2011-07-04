@@ -216,7 +216,7 @@ void TaskXsensNavigation::stateChanged()
 
     addData("state", state);
     emit dataChanged(this);
-    emit newState(state);
+    emit newState(this->getId(),state);
 }
 
 void TaskXsensNavigation::initBehaviourParameters()

@@ -68,7 +68,7 @@ void TaskHandControl::startBehaviour(){
     if(!this->thrustercontrolloop->isEnabled()){
         this->thrustercontrolloop->setEnabled(true);
     }
-    emit newState("HandControl");
+    emit newState("HandControl","HandControl");
 }
 
 void TaskHandControl::stop(){

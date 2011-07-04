@@ -304,7 +304,7 @@ void TaskMidwaterTarget::initBehaviourParameters(){
 
 void TaskMidwaterTarget::showTaskState(){
     logger->info(taskState);
-    emit newState(taskState);
+    emit newState(this->getId(), taskState);
     addData("taskState", taskState);
     emit dataChanged(this);
 }

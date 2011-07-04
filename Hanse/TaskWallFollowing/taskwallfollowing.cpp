@@ -151,7 +151,7 @@ void TaskWallFollowing::controlTaskStates(){
 
 void TaskWallFollowing::showTaskState(){
     logger->info(taskState);
-    emit newState(taskState);
+    emit newState(this->getId(),taskState);
 
 
     addData("taskStartPoint", this->getSettingsValue("taskStartPoint").toString());

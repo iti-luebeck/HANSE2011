@@ -271,7 +271,7 @@ void TaskPipeFollowing::initBehaviourParameters(){
 void TaskPipeFollowing::showTaskState(){
     qDebug("showTaskState...");
     logger->info(taskState);
-    emit newState(taskState);
+    emit newState(this->getId(), taskState);
 
 
     addData("taskStartPoint", getSettingsValue("taskStartPoint").toString());

@@ -48,7 +48,7 @@ signals:
     void angularSpeed(float anSpeed);
     void setDepth(float depth);
     void handControlFinished();
-    void newState(QString state);
+    void newState(QString task, QString state);
     void newStateOverview(QString state);
 
 public slots:

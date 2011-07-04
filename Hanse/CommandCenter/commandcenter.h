@@ -77,17 +77,18 @@ private:
 
     QFile *sauceLog;
     int filecount;
-    QTime newTime;
+    QTime startTime;
+
     int logTime;
     double xKoord;
     double yKoord;
     double zKoord;
-    QString currentState;
+    QString currentTask;
     QString comment;
     QTextStream* stream;
 
 
-    void sauceLogger(QString state);
+    void sauceLogger(QString task, QString state);
     void close();
 
 
@@ -115,7 +116,7 @@ private slots:
     void addTask(QString listName, QString taskName);
     void removeTask();
     void clearList(QString listName);
-    void updateState(QString state);
+    void updateState(QString task, QString state);
     void updateStateOverview(QString state);
     void skipTask();
 

@@ -63,7 +63,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     {
         connect(b, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(finishedControl(RobotBehaviour*,bool)));
         connect(this,SIGNAL(stopAllTasks()),b,SLOT(emergencyStop()));
-        connect(b, SIGNAL(newState(QString)), this, SLOT(updateState(QString)));
+        connect(b, SIGNAL(newState(QString, QString)), this, SLOT(updateState(QString, QString)));
         connect(b, SIGNAL(newStateOverview(QString)), this, SLOT(updateStateOverview(QString)));
     }
 
@@ -90,7 +90,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this,SIGNAL(startTaskHandControl()),taskhandcontrol,SLOT(startBehaviour()));
     connect(this,SIGNAL(stopTaskHandControl()),taskhandcontrol,SLOT(stop()));
     connect(this,SIGNAL(stopAllTasks()),taskhandcontrol,SLOT(emergencyStop()));
-    connect(taskhandcontrol, SIGNAL(newState(QString)), this, SLOT(updateState(QString)));
+    connect(taskhandcontrol, SIGNAL(newState(QString,QString)), this, SLOT(updateState(QString,QString)));
 
     // Add task to GUI list
     for(int i = 0; i < this->taskList.length(); i++){
@@ -142,7 +142,7 @@ void CommandCenter::init(){
 
 void CommandCenter::startCommandCenter(){
     RobotModule::reset();
-
+    startTime.start();
     emit newMessage("CommandCenter started!");
 
     this->abortedList.clear();
@@ -452,12 +452,12 @@ void CommandCenter::skipTask(){
     emit updateGUI();
 }
 
-void CommandCenter::updateState(QString state){
+void CommandCenter::updateState(QString task, QString state){
     if (!isActive()){
         logger->info("Not active!");
         return;
     }
-    sauceLogger(state);
+    sauceLogger(task, state);
     emit newState(state);
 }
 
@@ -563,9 +563,10 @@ void CommandCenter::handControlFinishedCC(RobotBehaviour *name, bool success){
     emit updateGUI();
 }
 
-void CommandCenter::sauceLogger(QString state){
-    newTime = QTime::currentTime();
-    logTime = newTime.second() + (newTime.minute()*60) + (newTime.hour()*3600);
+void CommandCenter::sauceLogger(QString task, QString state){
+
+    logTime = startTime.elapsed()/1000;
+    QString sTime = QString::number(logTime,10).rightJustified(5,'0');
 
     if(this->navi->isEnabled()){
         xKoord = navi->getCurrentPosition().getX();
@@ -573,15 +574,19 @@ void CommandCenter::sauceLogger(QString state){
         zKoord = navi->getCurrentPosition().getDepth();
     }
 
-    if(state != NULL){
-        currentState = state;
+    if(task != NULL){
+        currentTask = task;
     }else{
         qDebug() << "ganz grosses Problem!";
     }
 
-    comment = "...";
+    if(state != NULL){
+        comment = state;
+    }else{
+        qDebug() << "ganz grosses Problem!";
+    }
 
-    *stream << logTime << "," << xKoord << "," << yKoord << "," << zKoord << "," << currentState << "," << comment << "\r\n";
+    *stream << sTime << "," << xKoord << "," << yKoord << "," << zKoord << "," << currentTask << "," << comment << "\r\n";
 
     stream->flush();
 }

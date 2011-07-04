@@ -51,7 +51,7 @@ signals:
     // Update GUI input
     void updateSettings();
     // Show current state at command center
-    void newState(QString state);
+    void newState(QString task, QString state);
     // Overview of all task states at command center
     void newStateOverview(QString state);
 

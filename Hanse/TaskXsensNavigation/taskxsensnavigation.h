@@ -73,7 +73,7 @@ signals:
     void dataError();
     void stopSignal();
     void updateSettings();
-    void newState(QString state);
+    void newState(QString task, QString state);
     void newStateOverview(QString state);
     void setNewWaypoint(QString waypoint);
 
