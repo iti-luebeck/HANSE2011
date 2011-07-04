@@ -8,8 +8,9 @@ FormCutter::FormCutter(Module_Cutter* module, QWidget *parent) :
     ui->setupUi(this);
     this->module = module;
 
-    ui->uidId->setText(module->getSettingsValue("uidId").toString());
+    ui->i2cAddress->setText(module->getSettingsValue("i2cAddress").toString());
     ui->timeout->setText(module->getSettingsValue("timeout").toString());
+
 }
 
 FormCutter::~FormCutter()
@@ -31,15 +32,6 @@ void FormCutter::changeEvent(QEvent *e)
 
 void FormCutter::on_save_clicked()
 {
-    module->setSettingsValue("uidId", ui->uidId->text());
-    module->setSettingsValue("timeout", ui->timeout->text());
-}
-
-void FormCutter::on_scan_clicked()
-{
-    QVector<unsigned char> slaves = module->I2C_Scan();
-    ui->slaves->clear();
-    foreach (unsigned int slave, slaves) {
-        ui->slaves->addItem("0x"+QString::number(slave,16));
-    }
+    module->setSettingsValue("i2cAddress", ui->i2cAddress->text());
+    module->setSettingsValue("timeout",ui->timeout->text());
 }

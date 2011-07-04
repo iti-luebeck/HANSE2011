@@ -34,7 +34,7 @@
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLineEdit" name="uidId"/>
+     <widget class="QLineEdit" name="i2cAddress"/>
     </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_2">

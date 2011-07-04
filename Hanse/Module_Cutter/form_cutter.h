@@ -1,7 +1,7 @@
 #ifndef FORM_H
 #define FORM_H
 
-#include "Module_Cutter.h"
+#include <Module_Cutter/module_cutter.h>
 #include <QWidget>
 
 namespace Ui {
@@ -22,7 +22,6 @@ private:
     Module_Cutter *module;
 
 private slots:
-    void on_scan_clicked();
     void on_save_clicked();
 };
 
