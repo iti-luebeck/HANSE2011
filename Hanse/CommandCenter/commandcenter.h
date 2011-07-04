@@ -119,6 +119,7 @@ private slots:
     void updateState(QString task, QString state);
     void updateStateOverview(QString state);
     void skipTask();
+    void logPosition();
 
 signals:
     void setDepth(float depth);

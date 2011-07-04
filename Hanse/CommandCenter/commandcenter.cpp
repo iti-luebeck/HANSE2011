@@ -117,6 +117,8 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     controlTimer.moveToThread(this);
     timer.moveToThread(this);
 
+    connect(&timer, SIGNAL(timeout()), this, SLOT(logPosition()));
+
     sauceLog = new QFile(DataLogHelper::getLogDir()+"sauceLog.csv");
     filecount = 0;
 
@@ -144,11 +146,11 @@ void CommandCenter::startCommandCenter(){
     RobotModule::reset();
     startTime.start();
     emit newMessage("CommandCenter started!");
-
+    sauceLogger("CommandCenter", "CommandCenter started");
     this->abortedList.clear();
     this->finishedList.clear();
     emit updateGUI();
-
+    timer.start(10000);
 
     // No Handcontrol, it is commandcenter time!
     if(this->handControl->isEnabled()){
@@ -561,6 +563,12 @@ void CommandCenter::handControlFinishedCC(RobotBehaviour *name, bool success){
 
     activeTask = "";
     emit updateGUI();
+}
+
+void CommandCenter::logPosition(){
+    QString temp1 = "Localization";
+    QString temp2 = "Position";
+    sauceLogger(temp1, temp2);
 }
 
 void CommandCenter::sauceLogger(QString task, QString state){
