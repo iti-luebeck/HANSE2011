@@ -307,15 +307,15 @@ void Behaviour_WallFollowing::adjustTurnOne(){
 
         if(FLAG_SOUNDER_RIGHT == false){
             if(diff < 0){
-                targetHeading = Angles::deg2deg(initialHeading - 90);
-            } else {
                 targetHeading = Angles::deg2deg(initialHeading + 90);
+            } else {
+                targetHeading = Angles::deg2deg(initialHeading - 90);
             }
         } else {
             if(diff < 0){
-                targetHeading = Angles::deg2deg(initialHeading + 90);
-            } else {
                 targetHeading = Angles::deg2deg(initialHeading - 90);
+            } else {
+                targetHeading = Angles::deg2deg(initialHeading + 90);
             }
         }
     }
@@ -335,7 +335,7 @@ void Behaviour_WallFollowing::adjustTurnOne(){
 
     } else {
 
-        double angularSpeedValue = 0.2 * diffHeading;
+        double angularSpeedValue = -0.2 * diffHeading;
         emit angularSpeed(angularSpeedValue);
         emit forwardSpeed(0.0);
         QTimer::singleShot(100, this, SLOT(adjustTurnOne()));
@@ -388,7 +388,7 @@ void Behaviour_WallFollowing::adjustTurnTwo(){
         updateOutput();
     } else {
 
-        double angularSpeedValue = 0.2 * diffHeading;
+        double angularSpeedValue = -0.2 * diffHeading;
         emit angularSpeed(angularSpeedValue);
         emit forwardSpeed(0.0);
         QTimer::singleShot(100, this, SLOT(adjustTurnTwo()));
