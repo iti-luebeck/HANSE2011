@@ -25,7 +25,7 @@ void PipeTracker::update(Mat &frame)
     ObjectTracker::update(frame);
     lastDistanceFromCenter = distanceFromCenter;
 
-    double T = applyThreshold();
+    applyThreshold();
     estimateMoments();
 
     // The pipe is seen if:
@@ -36,7 +36,7 @@ void PipeTracker::update(Mat &frame)
     //      2. the pipe angle is about 0
     //      3. the pipe center is in the lower quater of the image.
     // If there is a small part of the pipe seen, we set states to lost at that particular direction.
-    if (area < 0.5 * gray.cols * gray.rows && T > 130) {
+    if (area < 0.5 * gray.cols * gray.rows /*&& T > 130*/) {
 
         if (area > 0.05 * gray.cols * gray.rows) {
             state = STATE_IS_SEEN;
