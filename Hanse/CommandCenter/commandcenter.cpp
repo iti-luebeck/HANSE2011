@@ -117,6 +117,16 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     controlTimer.moveToThread(this);
     timer.moveToThread(this);
 
+    sauceLog = new QFile(DataLogHelper::getLogDir()+"sauceLog.csv");
+    filecount = 0;
+
+    if (sauceLog->open(QFile::WriteOnly | QIODevice::Append)) {
+        stream = new QTextStream(sauceLog);
+    } else {
+        logger->error("Could not open file "+sauceLog->fileName());
+        return;
+    }
+
     active = true;
     setEnabled(true);
 }
@@ -277,11 +287,11 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
     emit setAngularSpeed(0.0);
     emit setForwardSpeed(0.0);
 
-        if(this->getSettingsValue("subEx").toBool() == true){
-            emit setDepth(this->getSettingsValue("targetDepth").toFloat());
-        } else {
-            emit setDepth(0.0);
-        }
+    if(this->getSettingsValue("subEx").toBool() == true){
+        emit setDepth(this->getSettingsValue("targetDepth").toFloat());
+    } else {
+        emit setDepth(0.0);
+    }
 
 
     if(success==true){
@@ -295,10 +305,10 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
     }
 
 
-        // Stop thruster, then make next task...
-        if(this->taskhandcontrol->isEnabled()  == false &&  active){
-            controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
-        }
+    // Stop thruster, then make next task...
+    if(this->taskhandcontrol->isEnabled()  == false &&  active){
+        controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+    }
 
     // Update finished/aborted list
     emit updateGUI();
@@ -327,6 +337,7 @@ void CommandCenter::submergedExecute(){
 
 void CommandCenter::terminate(){
     RobotModule::terminate();
+    this->close();
     logger->info("Terminate, stop all tasks");
     emit stopAllTasks();
     this->stopCommandCenter();
@@ -446,7 +457,7 @@ void CommandCenter::updateState(QString state){
         logger->info("Not active!");
         return;
     }
-
+    sauceLogger(state);
     emit newState(state);
 }
 
@@ -550,4 +561,40 @@ void CommandCenter::handControlFinishedCC(RobotBehaviour *name, bool success){
 
     activeTask = "";
     emit updateGUI();
+}
+
+void CommandCenter::sauceLogger(QString state){
+    newTime = QTime::currentTime();
+    logTime = newTime.second() + (newTime.minute()*60) + (newTime.hour()*3600);
+
+    if(this->navi->isEnabled()){
+        xKoord = navi->getCurrentPosition().getX();
+        yKoord = navi->getCurrentPosition().getY();
+        zKoord = navi->getCurrentPosition().getDepth();
+    }
+
+    if(state != NULL){
+        currentState = state;
+    }else{
+        qDebug() << "ganz grosses Problem!";
+    }
+
+    comment = "...";
+
+    *stream << logTime << "," << xKoord << "," << yKoord << "," << zKoord << "," << currentState << "," << comment << "\r\n";
+
+    stream->flush();
+}
+
+void CommandCenter::close(){
+    logger->debug("Closing data log file for SAUC-E Log");
+
+    if (stream != NULL) {
+        delete stream;
+        stream = NULL;
+    }
+    if (sauceLog != NULL) {
+        delete sauceLog;
+        sauceLog = NULL;
+    }
 }

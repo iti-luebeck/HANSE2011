@@ -2,6 +2,7 @@
 #define COMMANDCENTER_H
 
 #include <Framework/robotmodule.h>
+#include <Framework/dataloghelper.h>
 #include <QtCore>
 
 class Module_Simulation;
@@ -73,6 +74,21 @@ private:
 
     void commandCenterControl();
     void submergedExecute();
+
+    QFile *sauceLog;
+    int filecount;
+    QTime newTime;
+    int logTime;
+    double xKoord;
+    double yKoord;
+    double zKoord;
+    QString currentState;
+    QString comment;
+    QTextStream* stream;
+
+
+    void sauceLogger(QString state);
+    void close();
 
 
 
