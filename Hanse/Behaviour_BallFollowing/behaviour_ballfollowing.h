@@ -30,6 +30,7 @@ public:
     */
     bool isActive();
     BallTracker *getTracker();
+    void setState(QString state);
 
 private:
     void update();

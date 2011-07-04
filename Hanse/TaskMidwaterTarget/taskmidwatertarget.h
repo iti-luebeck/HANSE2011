@@ -10,9 +10,12 @@ class Behaviour_XsensFollowing;
 
 #define TASK_STATE_START                    "task started"
 #define TASK_STATE_MOVE_TO_TASK_START       "move to task start"
+#define TASK_STATE_FIND_BALL                "find ball"
+#define TASK_STATE_AVOID_BALL               "avoid ball"
 #define TASK_STATE_BALLFOLLOWING            "ballfollowing"
 #define TASK_STATE_XSENSFOLLOW              "xsensfollowing"
-#define TASK_STATE_FINISH_INSPECTION        "finish xsensfollowing with waypoint"
+#define TASK_STATE_MOVE_INSPECT             "move to inspect midwater target"
+#define TASK_STATE_INSPECT                  "inspect midwater target"
 #define TASK_STATE_END                      "task finished"
 #define TASK_STATE_END_FAILED               "task finished - unsuccessful"
 
@@ -47,7 +50,9 @@ private:
     Behaviour_BallFollowing *ballfollow;
 
     QTimer taskTimer;
+    QTimer searchBallTimer;
     QString taskState;
+    int tries;
 
 signals:
     // Update GUI input
@@ -70,6 +75,11 @@ public slots:
     void controlFinishedWaypoints(QString waypoint);
     void controlBallState(QString newState);
     void controlXsensState(QString newState);
+
+private slots:
+    void markBallPosition();
+    void cutFinished();
+    void ballNotFound();
 };
 
 #endif // TASKMIDWATERTARGET_H

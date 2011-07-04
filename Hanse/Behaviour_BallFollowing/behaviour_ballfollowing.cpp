@@ -171,7 +171,8 @@ void Behaviour_BallFollowing::update()
         }
 
     } else if (state == BALL_STATE_FOUND_BALL) {
-
+        emit setAngularSpeed(0.0);
+        emit setForwardSpeed(0.0);
     } else if (state == BALL_STATE_CUT_BALL) {
 
         if (ballState == STATE_IS_SEEN) {
@@ -331,4 +332,9 @@ void Behaviour_BallFollowing::controlEnabledChanged(bool enabled){
 BallTracker *Behaviour_BallFollowing::getTracker()
 {
     return &tracker;
+}
+
+void Behaviour_BallFollowing::setState(QString state)
+{
+    this->state = state;
 }
