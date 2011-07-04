@@ -56,7 +56,6 @@ include(Module_EchoSounder/Module_EchoSounder.pri)
 include(Module_HandControl/Module_HandControl.pri)
 include(Module_Navigation/Module_Navigation.pri)
 include(Module_PressureSensor/Module_PressureSensor.pri)
-include(Module_Cutter/Module_Cutter.pri)
 # Disabled as we currently don't use them
 #include(Module_ADC/Module_ADC.pri)
 #include(Module_IMU/Module_IMU.pri)
@@ -74,11 +73,3 @@ include(TaskXsensNavigation/TaskXsensNavigation.pri)
 include(TaskPipeFollowing/TaskPipeFollowing.pri)
 include(TaskWallFollowing/TaskWallFollowing.pri)
 include(TaskMidwaterTarget/TaskMidwaterTarget.pri)
-
-HEADERS += \
-    Module_Cutter/module_cutter.h \
-    Module_Cutter/form_cutter.h
-
-SOURCES +=
-
-FORMS +=
