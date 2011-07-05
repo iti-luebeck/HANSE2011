@@ -38,6 +38,7 @@ void TaskWallFollowing::init(){
     this->setDefaultValue("goal1point1", "go1p1");
     this->setDefaultValue("goal1point2", "go2p2");
     this->setDefaultValue("apDist" , 1.5);
+    this->setDefaultValue("distP1Input", 4);
 
     // Default turn180 settings
     this->setDefaultValue("hysteresis", 10);
@@ -162,6 +163,7 @@ void TaskWallFollowing::showTaskState(){
     addData("taskStopTime", this->getSettingsValue("taskStopTime").toString());
     addData("goal1point1", this->getSettingsValue("goal1point1").toString());
     addData("goal1point2", this->getSettingsValue("goal1point2").toString());
+    addData("distP1Input", this->getSettingsValue("distP1Input").toString());
 
     addData("taskState", taskState);
     emit dataChanged(this);
@@ -212,7 +214,7 @@ void TaskWallFollowing::controlAngleDistance(){
         } else if(taskState == TASK_STATE_WALLFOLLOW_PART2){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
-            if(alpha < 0 && dist < 7){
+            if(alpha < 0 && dist < this->getSettingsValue("distP1Input").toFloat()){
                 taskState = TASK_STATE_END;
                 controlTaskStates();
             }

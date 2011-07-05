@@ -58,6 +58,7 @@ include(Module_HandControl/Module_HandControl.pri)
 include(Module_Navigation/Module_Navigation.pri)
 include(Module_PressureSensor/Module_PressureSensor.pri)
 include(Module_Cutter/Module_Cutter.pri)
+include(Module_Pinger/Module_Pinger.pri)
 # Disabled as we currently don't use them
 #include(Module_ADC/Module_ADC.pri)
 #include(Module_IMU/Module_IMU.pri)
@@ -68,6 +69,7 @@ include(Behaviour_PipeFollowing/Behaviour_PipeFollowing.pri)
 include(Behaviour_TurnOneEighty/Behaviour_TurnOneEighty.pri)
 include(Behaviour_WallFollowing/Behaviour_WallFollowing.pri)
 include(Behaviour_XsensFollowing/Behaviour_XsensFollowing.pri)
+include(Behaviour_PingerFollowing/Behaviour_PingerFollowing.pri)
 
 # tasks
 include(TaskHandControl/TaskHandControl.pri)
@@ -76,4 +78,5 @@ include(TaskPipeFollowing/TaskPipeFollowing.pri)
 include(TaskWallFollowing/TaskWallFollowing.pri)
 include(TaskMidwaterTarget/TaskMidwaterTarget.pri)
 include(TaskTimerSubmerged/TaskTimerSubmerged.pri)
+include(TaskSurface/TaskSurface.pri)
 
