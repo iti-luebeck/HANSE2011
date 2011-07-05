@@ -13,10 +13,16 @@ public:
     QList<RobotModule*> getDependencies();
     bool shutdown();
 
+    QWidget* createView(QWidget* parent);
+
 private:
         Module_UID *uid;
         QTimer timer;
-        char cutterPosition[1];
+        bool isClosed;
+        char cut;
+
+        void closeCutter();
+        void openCutter();
 
 protected:
         void init();
@@ -24,10 +30,11 @@ protected:
 public slots:
     void reset();
     void terminate();
-    void setEnabled(bool value);
+    void gotEnabled(bool value);
 
 private slots:
     void changeCutDirection();
+
 
 protected slots:
     void doHealthCheck();

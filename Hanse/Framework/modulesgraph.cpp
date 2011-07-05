@@ -20,6 +20,7 @@
 #include "SoToSleep.h"
 #include <TaskHandControl/taskhandcontrol.h>
 #include <TaskWallFollowing/taskwallfollowing.h>
+#include <Module_Cutter/module_cutter.h>
 #include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 //#include <Module_IMU/module_imu.h>
 //#include <Module_ADC/module_adc.h>
@@ -88,6 +89,10 @@ void ModulesGraph::build()
     logger->debug("Creating Module_Webcams");
     Module_Webcams *cams = new Module_Webcams( "cams" );
     this->modules.append( cams );
+
+    logger->debug("Creating Module_Cutter");
+    Module_Cutter *cutter = new Module_Cutter( "cutter" ,uid);
+    this->modules.append( cutter );
 
     logger->debug("Creating Module_SonarLocalization");
     Module_SonarLocalization* sonarLoc = new Module_SonarLocalization("sonarLocalize", sonar, xsens, pressure, sim);
