@@ -38,6 +38,7 @@ include(../OpenCV.pri)
 include(../qwt.pri)
 include(../qextserialport/qextserialport.pri)
 
+
 # core stuff
 include(Framework/Framework.pri)
 include(CommandCenter/CommandCenter.pri)
@@ -74,3 +75,5 @@ include(TaskXsensNavigation/TaskXsensNavigation.pri)
 include(TaskPipeFollowing/TaskPipeFollowing.pri)
 include(TaskWallFollowing/TaskWallFollowing.pri)
 include(TaskMidwaterTarget/TaskMidwaterTarget.pri)
+include(TaskTimerSubmerged/TaskTimerSubmerged.pri)
+

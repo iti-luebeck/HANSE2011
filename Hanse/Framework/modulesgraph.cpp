@@ -26,6 +26,7 @@
 #include <TaskXsensNavigation/taskxsensnavigation.h>
 #include <TaskPipeFollowing/taskpipefollowing.h>
 #include <TaskMidwaterTarget/taskmidwatertarget.h>
+#include <TaskTimerSubmerged/tasktimersubmerged.h>
 
 ModulesGraph::ModulesGraph()
 {
@@ -136,9 +137,12 @@ void ModulesGraph::build()
     TaskMidwaterTarget *taskmidwatertarget = new TaskMidwaterTarget("taskMidwater", sim, navi, behavBall, behavXsens);
     this->modules.append(taskmidwatertarget);
 
+    logger->debug("Creating TaskTimerSubmerged");
+    TaskTimerSubmerged *tasktimersubmerged = new TaskTimerSubmerged("taskTSub", controlLoop, sim);
+    this->modules.append(tasktimersubmerged);
 
     logger->debug("Creating CommandCenter");
-    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallfollowing, taskxsensnavigation, taskpipefollowing, taskmidwatertarget);
+    CommandCenter* commCent = new CommandCenter("comandCenter", controlLoop, handControl, pressure, sim, navi, behavPipe, behavBall, behavTurn, behavWall, behavXsens, taskhandcontrol, taskwallfollowing, taskxsensnavigation, taskpipefollowing, taskmidwatertarget, tasktimersubmerged);
     this->modules.append(commCent);
 
     logger->info("Loading all Modules... Done");
