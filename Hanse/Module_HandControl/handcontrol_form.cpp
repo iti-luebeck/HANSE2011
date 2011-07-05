@@ -34,7 +34,7 @@ HandControl_Form::HandControl_Form(Module_HandControl *module, QWidget *parent) 
 
     //    connect(module->server, SIGNAL(statusChanged()), this, SLOT(connectionStatusChanged()));
     //    connect(module, SIGNAL(dataChanged(RobotModule*)), this, SLOT(dataChanged(RobotModule*)));
-
+    connect(module,SIGNAL(emergencyStop()),this,SLOT(emergencyStopReceived()));
     connect(this,SIGNAL(updateControls()),module,SLOT(sendNewControls()));
     connect(&speedTimer, SIGNAL(timeout()), this, SLOT(setSpeeds()));
     if(enableGamepad == false){
@@ -189,4 +189,10 @@ void HandControl_Form::setSpeeds(){
         speedTimer.stop();
         return;
     }
+}
+
+void HandControl_Form::emergencyStopReceived(){
+    fwd = 0;
+    ang = 0;
+    upDownSpeed = 0.0;
 }

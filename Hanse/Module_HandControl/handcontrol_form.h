@@ -56,6 +56,7 @@ private slots:
     void connectionStatusChanged();
     //void dataChanged(RobotModule* m);
     void setSpeeds();
+    void emergencyStopReceived();
 
 signals:
     void updateControls();
