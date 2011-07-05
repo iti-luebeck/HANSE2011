@@ -116,60 +116,77 @@ void HandControl_Form::connectionStatusChanged()
 
 void HandControl_Form::on_forwardButton_clicked()
 {
-    fwd =  maxForwardSpeed;
-    emit updateControls();
+    if(!enableGamepad){
+        fwd =  maxForwardSpeed;
+        emit updateControls();
+    }
 }
 
 void HandControl_Form::on_leftButton_clicked()
 {
-    ang = -maxAngularSpeed;
-    emit updateControls();
+    if(!enableGamepad){
+        ang = -maxAngularSpeed;
+        emit updateControls();
+    }
 }
 
 void HandControl_Form::on_backwardButton_clicked()
 {
-    fwd =  -maxForwardSpeed;
-    emit updateControls();
+    if(!enableGamepad){
+        fwd =  -maxForwardSpeed;
+        emit updateControls();
+    }
 }
 
 void HandControl_Form::on_rightButton_clicked()
 {
-    ang = maxAngularSpeed;
-    emit updateControls();
+    if(!enableGamepad){
+        ang = maxAngularSpeed;
+        emit updateControls();
+    }
 }
 
 void HandControl_Form::on_upButton_clicked()
 {
-    upDownSpeed = upDownSpeed - stepsize;
-    if(upDownSpeed < 0.0){
-        upDownSpeed = 0.0;
+    if(!enableGamepad){
+        upDownSpeed = upDownSpeed - stepsize;
+        if(upDownSpeed < 0.0){
+            upDownSpeed = 0.0;
+        }
+        module->addData("speedUpDown", upDownSpeed);
+        emit updateControls();
     }
-    module->addData("speedUpDown", upDownSpeed);
-    emit updateControls();
 }
 
 void HandControl_Form::on_downButton_clicked()
 {
-    upDownSpeed = upDownSpeed + stepsize;
-    module->addData("speedUpDown", upDownSpeed);
-    emit updateControls();
+    if(!enableGamepad){
+        upDownSpeed = upDownSpeed + stepsize;
+        module->addData("speedUpDown", upDownSpeed);
+        emit updateControls();
+    }
 }
 
 void HandControl_Form::on_resetDepthButton_clicked()
 {
-    upDownSpeed = 0.0;
-    module->addData("speedUpDown", upDownSpeed);
-    emit updateControls();
-    dep = upDownSpeed;
+    if(!enableGamepad){
+        upDownSpeed = 0.0;
+        module->addData("speedUpDown", upDownSpeed);
+        emit updateControls();
+        dep = upDownSpeed;
+    }
 }
 
 void HandControl_Form::setSpeeds(){
-    module->addData("forwardSpeed", fwd);
-    module->addData("angularSpeed", ang);
-    emit updateControls();
-    fwd = 0;
-    ang = 0;
-    if(speedTimer.isActive() == true && enableGamepad == true){
+
+    if(!enableGamepad){
+        module->addData("forwardSpeed", fwd);
+        module->addData("angularSpeed", ang);
+        emit updateControls();
+        fwd = 0;
+        ang = 0;
+    }else{
         speedTimer.stop();
+        return;
     }
 }
