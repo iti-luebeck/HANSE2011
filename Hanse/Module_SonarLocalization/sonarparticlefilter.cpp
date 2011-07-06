@@ -140,8 +140,8 @@ void SonarParticleFilter::loadMap()
     for(int i=0;i<mapPoints.size();i++) {
         mapPointsMat.at<float>(i,0) = mapPoints[i].x();
         mapPointsMat.at<float>(i,1) = mapPoints[i].y();
-        logger->trace("Adding point x="+QString::number(mapPointsMat.at<float>(i,0))
-                      +" y="+QString::number(mapPointsMat.at<float>(i,1)));
+        // logger->trace("Adding point x="+QString::number(mapPointsMat.at<float>(i,0))
+        //              +" y="+QString::number(mapPointsMat.at<float>(i,1)));
     }
 
     //this->mapPointsFlann = new cv::flann::Index(*mapPointsMat, cv::flann::KDTreeIndexParams(4));

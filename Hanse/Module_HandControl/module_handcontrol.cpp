@@ -110,7 +110,7 @@ void Module_HandControl::newMessage(int forwardSpeed, int angularSpeed, int spee
     addData("angularSpeed", angularSpeed);
     addData("speedUpDown", speedUpDown);
 
-    logger->trace("Received new message");
+    // logger->trace("Received new message");
 
     QTimer::singleShot(0, this, SLOT(sendNewControls()));
 
@@ -189,6 +189,6 @@ bool Module_HandControl::isActive()
 
 void Module_HandControl::startHandControlReceived()
 {
-    logger->debug("start handctr");
+    logger->info("start handctr");
     emit startHandControl();
 }
