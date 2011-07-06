@@ -203,11 +203,11 @@ void CommandCenter::stopCommandCenter(){
     emit setForwardSpeed(0.0);
     emit setAngularSpeed(0.0);
 
-
-    emit updateGUI();
-
     if (sim->isEnabled())
     {
+
+
+    emit updateGUI();
 
     }
 }

@@ -225,7 +225,7 @@ void TaskWallFollowing::controlAngleDistance(){
         if(taskState == TASK_STATE_WALLFOLLOW_PART1){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
-            if(alpha < 0 && dist < 3){
+            if(alpha < 0 && dist < this->getSettingsValue("distP1Input").toFloat()){
                 taskState = TASK_STATE_END;
                 controlTaskStates();
             }

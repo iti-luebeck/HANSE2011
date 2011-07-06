@@ -39,8 +39,6 @@ void TaskPipeFollowing::init(){
     this->setDefaultValue("goal1point2", "go1p2");
     this->setDefaultValue("goal2point1", "go2p1");
     this->setDefaultValue("goal2point2", "go2p2");
-    this->setDefaultValue("goal3point1", "go3p1");
-    this->setDefaultValue("goal3point2", "go3p2");
     this->setDefaultValue("gate1point", "ga1p");
     this->setDefaultValue("gate2point", "ga2p");
 

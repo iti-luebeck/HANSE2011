@@ -21,8 +21,6 @@ TaskPipeFollowingForm::TaskPipeFollowingForm(TaskPipeFollowing *tpf, QWidget *pa
     this->ui->goal1point2->setText(this->taskpipefollowing->getSettingsValue("goal1point2").toString());
     this->ui->goal2point1->setText(this->taskpipefollowing->getSettingsValue("goal2point1").toString());
     this->ui->goal2point2->setText(this->taskpipefollowing->getSettingsValue("goal2point2").toString());
-    this->ui->goal3point1->setText(this->taskpipefollowing->getSettingsValue("goal3point1").toString());
-    this->ui->goal3point2->setText(this->taskpipefollowing->getSettingsValue("goal3point2").toString());
     this->ui->gate1point->setText(this->taskpipefollowing->getSettingsValue("gate1point").toString());
     this->ui->gate2point->setText(this->taskpipefollowing->getSettingsValue("gate2point").toString());
 
@@ -62,8 +60,6 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     this->taskpipefollowing->setSettingsValue("goal1point2", this->ui->goal1point2->text());
     this->taskpipefollowing->setSettingsValue("goal2point1", this->ui->goal2point1->text());
     this->taskpipefollowing->setSettingsValue("goal2point2", this->ui->goal2point2->text());
-    this->taskpipefollowing->setSettingsValue("goal3point1", this->ui->goal3point1->text());
-    this->taskpipefollowing->setSettingsValue("goal3point2", this->ui->goal3point2->text());
     this->taskpipefollowing->setSettingsValue("gate1point", this->ui->gate1point->text());
     this->taskpipefollowing->setSettingsValue("gate2point", this->ui->gate2point->text());
 

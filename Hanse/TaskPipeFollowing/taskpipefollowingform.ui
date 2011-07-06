@@ -137,7 +137,7 @@
       <rect>
        <x>180</x>
        <y>170</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -163,7 +163,7 @@
       <rect>
        <x>180</x>
        <y>150</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -186,7 +186,7 @@
       <rect>
        <x>180</x>
        <y>220</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -212,7 +212,7 @@
       <rect>
        <x>180</x>
        <y>200</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -228,58 +228,6 @@
      </property>
      <property name="text">
       <string>Pipe Goal 2: Point 2:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_11">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>250</y>
-       <width>121</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Pipe Goal 3: Point 1:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_12">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>270</y>
-       <width>121</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Pipe Goal 3: Point 2:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="goal3point1">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>250</y>
-       <width>71</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="goal3point2">
-     <property name="geometry">
-      <rect>
-       <x>180</x>
-       <y>270</y>
-       <width>71</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
      </property>
     </widget>
     <widget class="QLabel" name="label_2">
@@ -300,7 +248,7 @@
       <rect>
        <x>180</x>
        <y>50</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -336,7 +284,7 @@
       <rect>
        <x>180</x>
        <y>120</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -349,7 +297,7 @@
       <rect>
        <x>180</x>
        <y>100</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
@@ -362,7 +310,7 @@
       <rect>
        <x>180</x>
        <y>70</y>
-       <width>71</width>
+       <width>141</width>
        <height>20</height>
       </rect>
      </property>
