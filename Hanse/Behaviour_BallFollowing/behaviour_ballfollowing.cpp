@@ -167,7 +167,7 @@ void Behaviour_BallFollowing::update()
             }
         } else {
             emit setAngularSpeed(0.1);
-            emit setForwardSpeed(0.3);
+            emit setForwardSpeed(0.4);
         }
 
     } else if (state == BALL_STATE_FOUND_BALL) {
