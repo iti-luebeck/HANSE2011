@@ -84,7 +84,7 @@ void Behaviour_BallFollowing::startBehaviour()
     if (sim->isEnabled()) {
         updateTimer.start(500);
     } else {
-        updateTimer.start(100);
+        updateTimer.start(250);
     }
     emit started(this);
 }
