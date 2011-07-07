@@ -76,6 +76,11 @@ public:
 
     Waypoint getCurrentGoal();
 
+    /**
+      * Returns true if the waypoint exists
+      */
+    bool containsWaypoint(QString name);
+
 private:
     void init();
 

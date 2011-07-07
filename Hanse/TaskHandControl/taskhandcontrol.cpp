@@ -18,17 +18,10 @@ bool TaskHandControl::isActive(){
 
 
 void TaskHandControl::init(){
-    logger->debug("taskthrustercontrol init");
+    logger->debug("taskhandcontrol init");
 
     active = false;
-
-    // Default settings
-    this->setDefaultValue("forwardSpeed1",0.5);
-    this->setDefaultValue("angularSpeed1",0.0);
-    this->setDefaultValue("desiredDepth1",0.0);
-    this->setDefaultValue("taskDuration1",10000);
-    this->setDefaultValue("description1", "task 1");
-
+    setEnabled(false);
 
     testTimer.setSingleShot(true);
     testTimer.moveToThread(this);

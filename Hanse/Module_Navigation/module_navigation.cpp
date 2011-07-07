@@ -145,6 +145,7 @@ void Module_Navigation::navigateToCurrentWaypoint()
     addData("state", state);
     addData("substate", substate);
     addData("heading absolute position to goal", headingToGoal);
+    addData("remaining distance to goal", distanceToGoal);
     dataChanged(this);
 }
 
@@ -574,4 +575,12 @@ double Module_Navigation::getAlpha(QString name1, QString name2) {
         }
     }
     return alpha;
+}
+
+bool Module_Navigation::containsWaypoint(QString name){
+     if (waypoints.contains(name)){
+         return true;
+     } else {
+         return false;
+     }
 }

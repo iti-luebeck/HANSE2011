@@ -212,6 +212,14 @@ void TaskWallFollowing::controlAngleDistance(){
                 controlTaskStates();
             }
         } else if(taskState == TASK_STATE_WALLFOLLOW_PART2){
+            if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point1").toString())){
+                logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
+            }
+
+            if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point2").toString())){
+                logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
+            }
+
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
             if(alpha < 0 && dist < this->getSettingsValue("distP1Input").toFloat()){
@@ -223,6 +231,14 @@ void TaskWallFollowing::controlAngleDistance(){
     } else {
 
         if(taskState == TASK_STATE_WALLFOLLOW_PART1){
+            if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point1").toString())){
+                logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
+            }
+
+            if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point2").toString())){
+                logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
+            }
+
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
             if(alpha < 0 && dist < this->getSettingsValue("distP1Input").toFloat()){

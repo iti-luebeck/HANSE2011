@@ -41,6 +41,7 @@ void TaskPipeFollowing::init(){
     this->setDefaultValue("goal2point2", "go2p2");
     this->setDefaultValue("gate1point", "ga1p");
     this->setDefaultValue("gate2point", "ga2p");
+    this->setDefaultValue("dist", 5);
 
     // Default turn180 settings
     this->setDefaultValue("hysteresis", 10);
@@ -236,21 +237,38 @@ void TaskPipeFollowing::controlAngleDistance(){
     if(!isActive()){
         return;
     }
+
     double alpha = 0.0;
     double dist = 0.0;
     if(taskState == TASK_STATE_PIPEFOLLOW_PART1){
+        if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point1").toString())){
+            logger->info("ERROR!!! Waypoint goal1point1 doesnt exist!!!!");
+        }
+
+        if(this->navi->containsWaypoint(this->getSettingsValue("goal1point2").toString())){
+            logger->info("ERROR!!! Waypoint goal1point2 doesnt exist!!!!");
+        }
+
         alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
         dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
-        if(alpha <  0 && dist < 3){
+        if(alpha <  0 && dist < this->getSettingsValue("dist").toInt()){
             this->dataLockerMutex.lock();
             taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
             this->dataLockerMutex.unlock();
             controlTaskStates();
         }
     } else if(taskState == TASK_STATE_PIPEFOLLOW_PART2){
+        if(!this->navi->containsWaypoint(this->getSettingsValue("goal2point1").toString())){
+            logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
+        }
+
+        if(!this->navi->containsWaypoint(this->getSettingsValue("goal2point2").toString())){
+            logger->info("ERROR!!! Waypoint goal2point2 doesnt exist!!!!");
+        }
+
         alpha = this->navi->getAlpha(this->getSettingsValue("goal2point1").toString(), this->getSettingsValue("goal2point2").toString());
         dist = this->navi->getDistance(this->getSettingsValue("goal2point2").toString());
-        if(alpha <  0 && dist < 3){
+        if(alpha <  0 && dist < this->getSettingsValue("dist").toInt()){
             this->dataLockerMutex.lock();
             taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT2;
             this->dataLockerMutex.unlock();
@@ -267,18 +285,16 @@ void TaskPipeFollowing::initBehaviourParameters(){
 }
 
 void TaskPipeFollowing::showTaskState(){
-    qDebug("showTaskState...");
     logger->info(taskState);
     emit newState(this->getId(), taskState);
 
 
-    addData("taskStartPoint", getSettingsValue("taskStartPoint").toString());
-    addData("pipeStartPoint", getSettingsValue("pipeStartPoint").toString());
-    addData("gate1point", getSettingsValue("gate1point").toString());
-    addData("gate2point", getSettingsValue("gate2point").toString());
-    addData("taskStopTime", getSettingsValue("taskStopTime").toString());
-    addData("timerActivated", getSettingsValue("timerActivated").toString());
-
+    addData("taskStartPoint", this->getSettingsValue("taskStartPoint"));
+    addData("pipeStartPoint", this->getSettingsValue("pipeStartPoint"));
+    addData("gate1point", this->getSettingsValue("gate1point"));
+    addData("gate2point", this->getSettingsValue("gate2point"));
+    addData("taskStopTime", this->getSettingsValue("taskStopTime"));
+    addData("timerActivated", this->getSettingsValue("timerActivated"));
     addData("taskState", taskState);
     emit dataChanged(this);
 }
