@@ -56,8 +56,11 @@ void Behaviour_XsensFollowing::startBehaviour()
 
     if(this->getSettingsValue("enableTurn").toBool()){
         connect(&turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
+        logger->info("Turn enabled");
     } else {
         connect(&turnTimer,SIGNAL(timeout()),this,SLOT(stop()));
+        logger->info("Turn disabled");
+        qDebug()<<"Stop after"<< this->getSettingsValue("driveTime").toInt() << "seconds";
     }
 
     active = true;
