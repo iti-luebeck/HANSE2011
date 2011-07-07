@@ -135,7 +135,7 @@ void ModulesGraph::build()
     this->modules.append(taskhandcontrol);
 
     logger->debug("Creating TaskPipeFollowing");
-    TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipeFollow", behavPipe, sim, navi, behavTurn);
+    TaskPipeFollowing *taskpipefollowing = new TaskPipeFollowing("taskPipeFollow", behavPipe, sim, navi, behavTurn, behavXsens);
     this->modules.append(taskpipefollowing);
 
     logger->debug("Creating TaskMidwaterTarget");

@@ -5,14 +5,16 @@
 #include <Module_Navigation/module_navigation.h>
 #include <Behaviour_PipeFollowing/behaviour_pipefollowing.h>
 #include <Behaviour_TurnOneEighty/behaviour_turnoneeighty.h>
+#include <Behaviour_XsensFollowing/behaviour_xsensfollowing.h>
 
-TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Module_Simulation *sim, Module_Navigation *n, Behaviour_TurnOneEighty *o180)
+TaskPipeFollowing::TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Module_Simulation *sim, Module_Navigation *n, Behaviour_TurnOneEighty *o180, Behaviour_XsensFollowing *xf)
     : RobotBehaviour(id)
 {
     this->sim = sim;
     this->pipe = w;
     this->turn180 = o180;
     this->navi = n;
+    this->xsensfollow = xf;
 }
 
 bool TaskPipeFollowing::isActive(){
@@ -56,6 +58,8 @@ void TaskPipeFollowing::init(){
     connect(navi, SIGNAL(reachedWaypoint(QString)), this, SLOT(controlFinishedWaypoints(QString)));
     connect(pipe, SIGNAL(newPipeState(QString)), this, SLOT(controlPipeState(QString)));
     connect(&calcTimer,SIGNAL(timeout()),this,SLOT(controlAngleDistance()));
+
+    connect(xsensfollow, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(controlXsensFollow(RobotBehaviour*, bool )));
 }
 
 void TaskPipeFollowing::reset() {
@@ -87,8 +91,8 @@ void TaskPipeFollowing::startBehaviour(){
 
     emit newStateOverview(TASK_STATE_MOVE_TO_PIPE_INIT);
     emit newStateOverview(TASK_STATE_PIPEFOLLOW_PART1);
+    emit newStateOverview(TASK_STATE_XSENSFOLLOW);
     emit newStateOverview(TASK_STATE_MOVE_TO_GATEWAYPOINT1);
-    //emit newStateOverview(TASK_STATE_MOVE_TO_PIPE);
     emit newStateOverview(TASK_STATE_PIPEFOLLOW_PART2);
     emit newStateOverview(TASK_STATE_MOVE_TO_GATEWAYPOINT2);
 
@@ -127,7 +131,6 @@ void TaskPipeFollowing::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_PIPEFOLLOW_PART1){
         showTaskState();
-
         qDebug("State 3");
         if(this->pipe->getHealthStatus().isHealthOk()){
             if (!this->pipe->isActive()) {
@@ -138,13 +141,30 @@ void TaskPipeFollowing::controlTaskStates(){
             }
         } else {
             logger->info("Pipefollowing not possible");
+            taskState = TASK_STATE_XSENSFOLLOW;
+            controlTaskStates();
+        }
+    } else if(taskState == TASK_STATE_XSENSFOLLOW){
+        showTaskState();
+        initBehaviourParameters();
+        qDebug("State 4");
+        if(this->xsensfollow->getHealthStatus().isHealthOk()){
+            if (!this->xsensfollow->isActive()) {
+                logger->info("Activate xsensfollowing");
+                QTimer::singleShot(0, xsensfollow, SLOT(startBehaviour()));
+            } else {
+                QTimer::singleShot(0, xsensfollow, SLOT(reset()));
+            }
+        } else {
+            logger->info("Xsensfollowing not possible");
             taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
             controlTaskStates();
         }
 
+
     } else if(taskState == TASK_STATE_MOVE_TO_GATEWAYPOINT1){
         showTaskState();
-        qDebug("State 4");
+        qDebug("State 5");
         if(pipe->isActive()){
             QTimer::singleShot(0, pipe, SLOT(stop()));
         }
@@ -153,7 +173,7 @@ void TaskPipeFollowing::controlTaskStates(){
 
     } else if(taskState == TASK_STATE_PIPEFOLLOW_PART2){
         showTaskState();
-        qDebug("State 5");
+        qDebug("State 6");
         if(this->pipe->getHealthStatus().isHealthOk()){
             if (!this->pipe->isActive()) {
                 logger->info("Activate pipefollowing");
@@ -168,7 +188,7 @@ void TaskPipeFollowing::controlTaskStates(){
         }
 
     } else if(taskState == TASK_STATE_MOVE_TO_GATEWAYPOINT2){
-        qDebug("State 6");
+        qDebug("State 7");
         showTaskState();
         QTimer::singleShot(0, pipe, SLOT(stop()));
         this->navi->gotoWayPoint(this->getSettingsValue("gate2point").toString());
@@ -219,7 +239,7 @@ void TaskPipeFollowing::controlPipeState(QString newState){
 
     if(newState == STATE_PASSED && taskState == TASK_STATE_PIPEFOLLOW_PART1){
         this->dataLockerMutex.lock();
-        taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
+        taskState = TASK_STATE_XSENSFOLLOW;
         this->dataLockerMutex.unlock();
         controlTaskStates();
 
@@ -231,7 +251,15 @@ void TaskPipeFollowing::controlPipeState(QString newState){
     }
 }
 
-
+void TaskPipeFollowing::controlXsensFollow(RobotBehaviour* module, bool success){
+    Q_UNUSED(module);
+    Q_UNUSED(success);
+    qDebug("Xsensfollow finished");
+    this->dataLockerMutex.lock();
+    taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
+    this->dataLockerMutex.unlock();
+    controlTaskStates();
+}
 
 void TaskPipeFollowing::controlAngleDistance(){
     if(!isActive()){
@@ -281,7 +309,12 @@ void TaskPipeFollowing::controlAngleDistance(){
 }
 
 void TaskPipeFollowing::initBehaviourParameters(){
-    // Maybe TODO
+
+    if(taskState == TASK_STATE_XSENSFOLLOW){
+        this->xsensfollow->setSettingsValue("driveTime", 6000);
+        this->xsensfollow->setSettingsValue("numberTurns", 0);
+        this->xsensfollow->setSettingsValue("enableTurn", false);
+    }
 }
 
 void TaskPipeFollowing::showTaskState(){

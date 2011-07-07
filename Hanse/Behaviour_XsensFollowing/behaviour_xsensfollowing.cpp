@@ -28,13 +28,12 @@ void Behaviour_XsensFollowing::init()
     this->setDefaultValue("ffSpeed",0.5);
     this->setDefaultValue("kp",0.3);
     this->setDefaultValue("delta",10);
-    this->setDefaultValue("nuberTurns", 3);
+    this->setDefaultValue("numberTurns", 3);
     this->setDefaultValue("turnClockwise", false);
 
     connect(this,SIGNAL(newAngularSpeed(float)),tcl,SLOT(setAngularSpeed(float)));
     connect(this,SIGNAL(newForwardSpeed(float)),tcl,SLOT(setForwardSpeed(float)));
     connect(&timer,SIGNAL(timeout()),this,SLOT(controlLoop()));
-    connect(&turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
     connect(this, SIGNAL(enabled(bool)), this, SLOT(controlEnabledChanged(bool)));
 }
 
@@ -50,10 +49,16 @@ void Behaviour_XsensFollowing::startBehaviour()
     targetHeading = xsens->getHeading();
 
     emit dataChanged(this);
-    turnCounter = this->getSettingsValue("nuberTurns").toInt();
+    turnCounter = this->getSettingsValue("numberTurns").toInt();
 
     timer.start(getSettingsValue("timer").toInt());
     turnTimer.start(getSettingsValue("driveTime").toInt());
+
+    if(this->getSettingsValue("enableTurn").toBool()){
+        connect(&turnTimer,SIGNAL(timeout()),this,SLOT(turnNinety()));
+    } else {
+        connect(&turnTimer,SIGNAL(timeout()),this,SLOT(stop()));
+    }
 
     active = true;
     if(!isEnabled()){
@@ -94,7 +99,7 @@ void Behaviour_XsensFollowing::reset()
     logger->info("Xsens follow reset");
     timer.stop();
     turnTimer.stop();
-    turnCounter = this->getSettingsValue("nuberTurns").toInt();
+    turnCounter = this->getSettingsValue("numberTurns").toInt();
     behavState = STATE_RUNNING;
     emit newAngularSpeed(0.0);
     emit newForwardSpeed(0.0);
@@ -127,24 +132,24 @@ void Behaviour_XsensFollowing::controlLoop()
     }
 
 
-        double currentHeading = xsens->getHeading();
-        double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
-        double ctrAngleSpeed = 0.0;
+    double currentHeading = xsens->getHeading();
+    double diffHeading = Angles::deg2deg(targetHeading - currentHeading);
+    double ctrAngleSpeed = 0.0;
 
-        if(fabs(diffHeading) < getSettingsValue("delta").toDouble())
-        {
-            ctrAngleSpeed = 0.0;
-        } else {
-            ctrAngleSpeed = getSettingsValue("kp").toFloat()*diffHeading;
-        }
+    if(fabs(diffHeading) < getSettingsValue("delta").toDouble())
+    {
+        ctrAngleSpeed = 0.0;
+    } else {
+        ctrAngleSpeed = getSettingsValue("kp").toFloat()*diffHeading;
+    }
 
 
-        addData("heading current",currentHeading);
-        addData("heading target", targetHeading);
-        addData("heading difference", diffHeading);
-        emit dataChanged(this);
-        emit newAngularSpeed(ctrAngleSpeed);
-        emit newForwardSpeed(getSettingsValue("ffSpeed").toFloat());
+    addData("heading current",currentHeading);
+    addData("heading target", targetHeading);
+    addData("heading difference", diffHeading);
+    emit dataChanged(this);
+    emit newAngularSpeed(ctrAngleSpeed);
+    emit newForwardSpeed(getSettingsValue("ffSpeed").toFloat());
 
 }
 
@@ -155,13 +160,13 @@ void Behaviour_XsensFollowing::turnNinety()
     }
 
     logger->info("Turn 90");
-    if(getSettingsValue("enableTurn").toBool()){
-        if(getSettingsValue("turnClockwise").toBool()){
-            targetHeading = Angles::deg2deg(targetHeading+90);
-        } else {
-            targetHeading = Angles::deg2deg(targetHeading-90);
-        }
+
+    if(getSettingsValue("turnClockwise").toBool()){
+        targetHeading = Angles::deg2deg(targetHeading+90);
+    } else {
+        targetHeading = Angles::deg2deg(targetHeading-90);
     }
+
 
     turnCounter = turnCounter - 1;
     if(turnCounter == 0){
@@ -170,6 +175,7 @@ void Behaviour_XsensFollowing::turnNinety()
         turnTimer.stop();
         QTimer::singleShot(2000, this, SLOT(stop()));
     }
+
 }
 
 void Behaviour_XsensFollowing::refreshHeading()

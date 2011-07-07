@@ -30,6 +30,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     ui->setupUi(this);
     ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
+    ui->subBox->setChecked(com->getSettingsValue("subEx").toBool());
 
 
     ui->scheduleInput->clear();

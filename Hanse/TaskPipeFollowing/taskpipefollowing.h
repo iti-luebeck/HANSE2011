@@ -7,11 +7,13 @@ class Module_Simulation;
 class Module_Navigation;
 class Behaviour_PipeFollowing;
 class Behaviour_TurnOneEighty;
+class Behaviour_XsensFollowing;
 
 #define TASK_STATE_START                    "task started"
 #define TASK_STATE_MOVE_TO_TASK_START       "move to task start"
 #define TASK_STATE_MOVE_TO_PIPE_INIT        "move to pipe initial"
 #define TASK_STATE_PIPEFOLLOW_PART1         "pipefollowing part 1"
+#define TASK_STATE_XSENSFOLLOW              "xsensfollowing"
 #define TASK_STATE_MOVE_TO_GATEWAYPOINT1    "move to gatewaypoint 1"
 #define TASK_STATE_MOVE_TO_PIPE             "move back to pipe"
 #define TASK_STATE_PIPEFOLLOW_PART2         "pipefollowing part 2"
@@ -24,7 +26,7 @@ class TaskPipeFollowing : public RobotBehaviour
     Q_OBJECT
 public:
     // Methods
-    TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Module_Simulation *sim, Module_Navigation *n, Behaviour_TurnOneEighty *o180);
+    TaskPipeFollowing(QString id, Behaviour_PipeFollowing *w, Module_Simulation *sim, Module_Navigation *n, Behaviour_TurnOneEighty *o180, Behaviour_XsensFollowing *xf);
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
     bool isActive();
@@ -46,6 +48,7 @@ private:
     Module_Simulation *sim;
     Module_Navigation *navi;
     Behaviour_TurnOneEighty *turn180;
+    Behaviour_XsensFollowing *xsensfollow;
 
     QTimer taskTimer;
     QTimer calcTimer;
@@ -75,6 +78,7 @@ public slots:
     void controlAngleDistance();
     void controlFinishedWaypoints(QString waypoint);
     void controlPipeState(QString newState);
+    void controlXsensFollow(RobotBehaviour* module, bool success);
 
 };
 

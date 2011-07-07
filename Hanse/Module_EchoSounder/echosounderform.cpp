@@ -43,10 +43,11 @@ EchoSounderForm::EchoSounderForm(Module_EchoSounder* echo, QWidget *parent) :
     ui->thresholdInput->setText(echo->getSettingsValue("threshold").toString());
     ui->thresholdText->setText(echo->getSettingsValue("threshold").toString());
     ui->gainText->setText(echo->getSettingsValue("gain").toString());
-    ui->gain->setValue(echo->getSettingsValue("gain").toInt());
+    ui->gain->setText(echo->getSettingsValue("gain").toString());
     ui->timer->setText(echo->getSettingsValue("scanTimer").toString());
     ui->timerInput->setText(echo->getSettingsValue("scanTimer").toString());
     ui->factorInput->setText(echo->getSettingsValue("calcFactor").toString());
+    ui->range->setText(echo->getSettingsValue("range").toString());
 
     QObject::connect(echo,SIGNAL(newEchoData(EchoReturnData)),this,SLOT(updateSounderView(EchoReturnData)));
     QObject::connect(echo,SIGNAL(newEchoUiData(float)),this,SLOT(updateEchoUi(float)));
@@ -161,9 +162,9 @@ void EchoSounderForm::on_save_clicked()
 {
     echo->setSettingsValue("serialPort",ui->serialPort->text());
     ui->port->setText(echo->getSettingsValue("serialPort").toString());
-    echo->setSettingsValue("range",ui->range->currentText());
+    echo->setSettingsValue("range",ui->range->text());
     ui->echoRange->setText(echo->getSettingsValue("range").toString());
-    echo->setSettingsValue("gain", ui->gain->value());
+    echo->setSettingsValue("gain", ui->gain->text());
     ui->gainText->setText(echo->getSettingsValue("gain").toString());
     echo->setSettingsValue("scanTimer", ui->timerInput->text());
     ui->timer->setText(echo->getSettingsValue("scanTimer").toString());
