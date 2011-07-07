@@ -131,10 +131,18 @@ bool Module_EchoSounder::doNextScan(){
 }
 
 void Module_EchoSounder::scanningOutput(const EchoReturnData data){
+
     // qDebug("Scanning output");
     float dataLength = data.getEchoData().length();
+    float temp[(int)dataLength];
+
+    for(int i=0; i<(int)dataLength; i++){
+        temp[i] = data.getEchoData()[i];
+    }
+
+
     // Gewünschte Ausgabeeinheit
-    float einheit = dataLength/data.getRange();
+   float einheit = dataLength/data.getRange();
 
     // Variable die Angibt, wie viele Datenwerte gleichzeitig angeguckt werden,
     // um über einen Schwellwert zu kommen.
@@ -152,47 +160,47 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
     // 5 Datenarrays werden für die Distanzberechnung gefüllt
     if(count%5==4){
         for (int i = 0; i < dataLength; i++) {
-            c = data.getEchoData()[i];
+            c = temp[i];
             if(c < threshold){
                 fewSigAvg[0][i] = 0;
             }else{
-                fewSigAvg[0][i] = data.getEchoData()[i];
+                fewSigAvg[0][i] = temp[i];
             }
         }
     } else if(count%5==3){
         for (int i = 0; i < dataLength; i++) {
-            c = data.getEchoData()[i];
+            c = temp[i];
             if(c < threshold){
                 fewSigAvg[1][i] = 0;
             }else{
-                fewSigAvg[1][i] = data.getEchoData()[i];
+                fewSigAvg[1][i] = temp[i];
             }
         }
     } else if(count%5==2){
         for (int i = 0; i < dataLength; i++) {
-            c = data.getEchoData()[i];
+            c = temp[i];
             if(c < threshold){
                 fewSigAvg[2][i] = 0;
             }else{
-                fewSigAvg[2][i] = data.getEchoData()[i];
+                fewSigAvg[2][i] = temp[i];
             }
         }
     } else if(count%5==1){
         for (int i = 0; i < dataLength; i++) {
-            c = data.getEchoData()[i];
+            c = temp[i];
             if(c < threshold){
                 fewSigAvg[3][i] = 0;
             }else{
-                fewSigAvg[3][i] = data.getEchoData()[i];
+                fewSigAvg[3][i] = temp[i];
             }
         }
     } else if(count%5==0){
         for (int i = 0; i < dataLength; i++) {
-            c = data.getEchoData()[i];
+            c = temp[i];
             if(c < threshold){
                 fewSigAvg[4][i] = 0;
             }else{
-                fewSigAvg[4][i] = data.getEchoData()[i];
+                fewSigAvg[4][i] = temp[i];
             }
         }
     }
@@ -227,25 +235,22 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
             }
         }
 
+        float calcFactor = getSettingsValue("calcFactor").toFloat();
+
         // Prüfen, ob die naechsten X Datenwerte den Schwellwert überschreiten
-        for(int x = 0; x < dataLength-averageWindow; x++){
-           // qDebug()<<"dataLength"<<dataLength;
-           // qDebug()<<"averageWindow"<<averageWindow;
-           // qDebug()<<"x"<<x;
+       for(int x = 0; x < dataLength-averageWindow; x++){
 
             for(int y = x; y<x+averageWindow-1; y++){
                 avgFilter = avgFilter+avgSig[y];
                 // qDebug()<<"avgFilter berechnung"<<avgFilter;
             }
 
-            calcFactor = getSettingsValue("calcFactor").toFloat();
-
             float a = ((calcFactor)*(float)averageWindow * aktMax);
-           // qDebug()<<"a"<<a;
-           // qDebug()<<"avgFilter"<<avgFilter;
+
             if(avgFilter>a){
                 avgDistance = (x+3)/einheit;
                 // Berechnung abgeschlossen, also raus hier!
+                qDebug("ok");
                 break;
             } else {
                 avgDistance = 0.0;
@@ -253,6 +258,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
             }
         }
     }
+
     addData("distance average", avgDistance);
     addData("count", count);
     addData("window average", averageWindow);

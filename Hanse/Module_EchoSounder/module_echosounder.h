@@ -37,7 +37,6 @@ protected:
     int threshold;
     float avgSig[251];
     float fewSigAvg[5][251];
-    float calcFactor;
 
 public slots:
     bool doNextScan();
