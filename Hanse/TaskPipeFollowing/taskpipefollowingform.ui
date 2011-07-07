@@ -28,8 +28,8 @@
    <widget class="QPushButton" name="applyButton">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>380</y>
+      <x>10</x>
+      <y>410</y>
       <width>611</width>
       <height>23</height>
      </rect>
@@ -44,7 +44,7 @@
       <x>50</x>
       <y>200</y>
       <width>281</width>
-      <height>161</height>
+      <height>131</height>
      </rect>
     </property>
     <property name="title">
@@ -398,6 +398,42 @@
        <width>113</width>
        <height>27</height>
       </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>340</y>
+      <width>281</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Xsensfollow Settings</string>
+    </property>
+    <widget class="QLineEdit" name="xdrive">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>30</y>
+       <width>101</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>151</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Drive time (ms):</string>
      </property>
     </widget>
    </widget>

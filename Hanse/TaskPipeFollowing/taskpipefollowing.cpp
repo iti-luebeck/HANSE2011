@@ -50,6 +50,8 @@ void TaskPipeFollowing::init(){
     this->setDefaultValue("p", 0.4);
     this->setDefaultValue("degree", 180);
 
+    this->setDefaultValue("xdrive", 5000);
+
     taskTimer.setSingleShot(true);
     taskTimer.moveToThread(this);
     calcTimer.moveToThread(this);
@@ -146,6 +148,9 @@ void TaskPipeFollowing::controlTaskStates(){
         }
     } else if(taskState == TASK_STATE_XSENSFOLLOW){
         showTaskState();
+        if(pipe->isActive()){
+            QTimer::singleShot(0, pipe, SLOT(stop()));
+        }
         initBehaviourParameters();
         qDebug("State 4");
         if(this->xsensfollow->getHealthStatus().isHealthOk()){
@@ -311,7 +316,9 @@ void TaskPipeFollowing::controlAngleDistance(){
 void TaskPipeFollowing::initBehaviourParameters(){
 
     if(taskState == TASK_STATE_XSENSFOLLOW){
-        this->xsensfollow->setSettingsValue("driveTime", 6000);
+        this->xsensfollow->setSettingsValue("driveTime", this->getSettingsValue("xdrive").toInt());
+        addData("drive time", this->getSettingsValue("xdrive").toInt());
+        emit dataChanged(this);
         this->xsensfollow->setSettingsValue("numberTurns", 0);
         this->xsensfollow->setSettingsValue("enableTurn", false);
     }

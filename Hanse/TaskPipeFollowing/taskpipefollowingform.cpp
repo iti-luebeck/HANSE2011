@@ -29,6 +29,8 @@ TaskPipeFollowingForm::TaskPipeFollowingForm(TaskPipeFollowing *tpf, QWidget *pa
     this->ui->pEdit->setText(this->taskpipefollowing->getSettingsValue("p").toString());
     this->ui->degreeInput->setText(this->taskpipefollowing->getSettingsValue("degree").toString());
 
+    this->ui->xdrive->setText(this->taskpipefollowing->getSettingsValue("xdrive").toString());
+
 }
 
 TaskPipeFollowingForm::~TaskPipeFollowingForm()
@@ -68,5 +70,7 @@ void TaskPipeFollowingForm::on_applyButton_clicked(){
     this->taskpipefollowing->setSettingsValue("hysteresis", this->ui->hysteresisEdit->text());
     this->taskpipefollowing->setSettingsValue("p", this->ui->pEdit->text());
     this->taskpipefollowing->setSettingsValue("degree", this->ui->degreeInput->text());
+
+    this->taskpipefollowing->setSettingsValue("xdrive", this->ui->xdrive->text());
 }
 
