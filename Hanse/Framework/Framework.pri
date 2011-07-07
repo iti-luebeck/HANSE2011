@@ -18,7 +18,8 @@ HEADERS += Framework/healthstatus.h \
     Framework/Angles.h \
     Framework/SoToSleep.h \
     Framework/objecttracker.h \
-    Framework/objecttrackerwidget.h
+    Framework/objecttrackerwidget.h \
+    Framework/clahe.h
 
 SOURCES += Framework/robotmodule.cpp \
     Framework/healthstatus.cpp \
@@ -38,7 +39,8 @@ SOURCES += Framework/robotmodule.cpp \
     Framework/qclosabledockwidget.cpp \
     Framework/pidwidget.cpp \
     Framework/objecttracker.cpp \
-    Framework/objecttrackerwidget.cpp
+    Framework/objecttrackerwidget.cpp \
+    Framework/clahe.cpp
 
 FORMS += Framework/mainwindow.ui \
     Framework/moduledataview.ui \

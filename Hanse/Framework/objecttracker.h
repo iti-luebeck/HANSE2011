@@ -54,12 +54,17 @@ protected:
     void updateSettings();
     void loadFromSettings();
 
+    void applyHomomorphic();
+    void applyClahe();
+    void findMovingObject();
+
 protected:
     RobotModule *parent;
 
     cv::Mat frame;
     cv::Mat gray;
     cv::Mat binary;
+    cv::Mat lastGray;
 
     QString colorSpace;
     int channel;

@@ -11,10 +11,12 @@ void BallTracker::update(cv::Mat &frame)
 {
     ObjectTracker::update(frame);
 
-    double T = applyThreshold();
-    extractLargestBlob();
+//    applyHomomorphic();
+//    applyClahe();
+    findMovingObject();
 
-    qDebug("thres %f", T);
+    applyThreshold();
+    extractLargestBlob();
 
     // The midwater target is seen if:
     //      1. at least 500 pixels of the image are "ball"
@@ -23,7 +25,7 @@ void BallTracker::update(cv::Mat &frame)
     //      1. we do not see the ball
     //      2. the ball was last seen in the top or bottom center of the image
 
-    if (area > 500 && area < 0.5 * gray.cols * gray.rows && T > 20) {
+    if (area > 300 && area < 0.3 * gray.cols * gray.rows) {
         state = STATE_IS_SEEN;
     } else {
         if (state == STATE_IS_SEEN) {

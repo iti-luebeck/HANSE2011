@@ -3,6 +3,7 @@
 #include <Behaviour_BallFollowing/blobs/blob.h>
 #include <Behaviour_BallFollowing/blobs/BlobResult.h>
 #include <Framework/robotmodule.h>
+#include <Framework/clahe.h>
 #include <vector>
 
 using namespace cv;
@@ -82,9 +83,11 @@ double ObjectTracker::applyThreshold()
 void ObjectTracker::extractLargestBlob()
 {
     IplImage *thresh = new IplImage(binary);
+    cvDilate(thresh, thresh, NULL, 20);
+    cvErode(thresh, thresh, NULL, 20);
 
     CBlobResult blobs(thresh, NULL, 0);
-    blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_LESS, 500 );
+    blobs.Filter(blobs, B_EXCLUDE, CBlobGetArea(), B_LESS, 100 );
 
     // Get largest blob.
     int maxArea = 0;
@@ -125,7 +128,6 @@ void ObjectTracker::estimateMoments()
     IplImage *ipl = new IplImage(binary);
     CvMoments M;
     cvMoments(ipl, &M, 1);
-
     // Get number of pipe pixels.
     area = cvGetSpatialMoment(&M, 0, 0);
 
@@ -154,6 +156,122 @@ void ObjectTracker::estimateMoments()
         orientation -= CV_PI;
     }
 
+}
+
+void ObjectTracker::applyHomomorphic()
+{
+    int order = 0;
+    int d = 10;
+
+    IplImage *img = new IplImage(gray);
+    cv::Mat A, H;
+    IplImage* im_l, * im_f, * im_nf, * im_n, * im_e;
+
+    int rows = img->height;
+    int cols = img->width;
+
+    im_l  = cvCreateImage(cvSize(cols,rows), 32, 1);
+    im_f  = cvCreateImage(cvSize(cols,rows), 32, 1);
+    im_nf = cvCreateImage(cvSize(cols,rows), 32, 1);
+    im_n  = cvCreateImage(cvSize(cols,rows), 32, 1);
+    im_e  = cvCreateImage(cvSize(cols,rows), 32, 1);
+
+    A.create(rows,cols, CV_32F);
+    H.create(rows,cols,CV_32F);
+
+    // Filter mask for Butterworth high pass filter
+    for(int i = 0; i < rows; i++) {
+       for(int j = 0; j < cols; j++) {
+            A.at<float>(i,j) =  sqrt(pow((i-(rows/2)),2)+ pow((j-(cols/2)),2));
+            H.at<float>(i,j) =  1 /(1+(pow((d / A.at<float>(i,j)),(2*order))));
+        }
+    }
+
+    // Threshholds:
+    float alphaL = 0.999;
+    float alphaH = 1.01;
+    for(int i = 0; i < H.rows; i++) {
+        for (int j = 0; j < H.cols; j++) {
+            H.at<float>(i,j) = 1 - ((alphaH-alphaL)*H.at<float>(i,j))+alphaL;
+        }
+    }
+    // scale image
+    cvConvertScale(img, im_l,1/255.0f);
+
+    // Add to every pixel value + 1
+    for(int i = 0; i < im_l->height; i++) {
+        for (int j = 0; j < im_l->width; j++) {
+            CvScalar scalar = cvGet2D(im_l,i,j);
+            scalar.val[0] = scalar.val[0] + 1;
+            cvSet2D(im_l,i,j,scalar);
+        }
+    }
+
+    // log of image
+    cvLog(im_l, im_l);
+    // DFT of logged image
+    cvDFT(im_l, im_f, CV_DXT_SCALE);
+    //Filter Applying DFT Image
+    float tmp;
+    for(int i = 0; i < im_f->height; i++) {
+        for (int j = 0; j < im_f->width; j++) {
+            CvScalar scalar = cvGet2D(im_f,i,j);
+            tmp = (float) scalar.val[0];
+            tmp = tmp * H.at<float>(i,j);
+            scalar.val[0] = tmp;
+            cvSet2D(im_nf,i,j,scalar);
+        }
+    }
+
+    // Inverse DFT of filtered image
+    cvDFT(im_nf,im_n,CV_DXT_INVERSE);
+    cvAbs(im_n,im_n);
+    // Inverse logarithmus
+    cvExp(im_n,im_e);
+    // Add to every pixel value + 1
+    for(int i = 0; i < im_e->height; i++) {
+        for (int j = 0; j < im_e->width; j++) {
+            CvScalar scalar = cvGet2D(im_e,i,j);
+            scalar.val[0] = scalar.val[0] - 1;
+            cvSet2D(im_e,i,j,scalar);
+        }
+    }
+
+    cvConvertScale(im_e, img, 255);
+
+    cvReleaseImage(&im_l);
+    cvReleaseImage(&im_f);
+    cvReleaseImage(&im_nf);
+    cvReleaseImage(&im_n);
+    cvReleaseImage(&im_e);
+
+}
+
+void ObjectTracker::applyClahe()
+{
+    IplImage *ipl_gray = new IplImage(gray);
+    cvCLAdaptEqualize(ipl_gray, ipl_gray, 10, 10, 255, 1.0f, CV_CLAHE_RANGE_FULL);
+}
+
+void ObjectTracker::findMovingObject()
+{
+    if (!lastGray.empty()) {
+        Mat temp = gray - lastGray;
+        temp = temp + (lastGray - gray);
+//        temp = 0.5 * gray + temp;
+//        for (int i = 0; i < temp.rows; i++) {
+//            for (int j = 0; j < temp.cols; j++) {
+//                int score = (int)temp.at<unsigned char>(i,j) + (int)gray.at<unsigned char>(i,j);
+//                score /= 2;
+//                temp.at<unsigned char>(i,j) = (unsigned char)score;
+//            }
+//        }
+
+        gray.copyTo(lastGray);
+        temp.copyTo(gray);
+    } else {
+        gray.copyTo(lastGray);
+    }
 }
 
 double ObjectTracker::getArea()

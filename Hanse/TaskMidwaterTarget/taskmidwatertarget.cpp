@@ -253,14 +253,15 @@ void TaskMidwaterTarget::controlBallState(QString newState){
             tries++;
 
             if (tries > 2) {
+                searchBallTimer.stop();
                 logger->info("failed to cut ball 2 times, proceeding with next task");
                 QTimer::singleShot(0, ballfollow, SLOT(stop()));
                 taskState = TASK_STATE_END;
                 controlTaskStates();
             } else {
+                searchBallTimer.stop();
                 ballfollow->setState(BALL_STATE_CUT_BALL);
                 taskState = TASK_STATE_BALLFOLLOWING;
-                controlTaskStates();
             }
         }
     }
