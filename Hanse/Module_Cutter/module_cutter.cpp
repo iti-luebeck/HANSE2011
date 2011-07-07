@@ -78,18 +78,18 @@ void Module_Cutter::doHealthCheck()
     addData("rev",data[0]);
     if (!ret)
         setHealthToSick(uid->getLastError());
-    else if (data[0] != 2)
+    else if (data[0] != 4)
         setHealthToSick("sw revision register doesn't match magic value: is="+QString::number(data[0]));
     else
         setHealthToOk();
 
-    for (int i=0; i<20; i++) {
-        char data[1];
-        bool ret = uid->I2C_ReadRegisters(address,i,1,data);
-        addData("reg"+QString::number(i),data[0]);
-        if (!ret)
-            setHealthToSick(uid->getLastError());
-    }
+//    for (int i=0; i<20; i++) {
+//        char data[1];
+//        bool ret = uid->I2C_ReadRegisters(address,i,1,data);
+//        addData("reg"+QString::number(i),data[0]);
+//        if (!ret)
+//            setHealthToSick(uid->getLastError());
+//    }
 }
 
 void Module_Cutter::closeCutter()
