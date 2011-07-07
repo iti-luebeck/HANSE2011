@@ -31,7 +31,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
     ui->subBox->setChecked(com->getSettingsValue("subEx").toBool());
-
+    ui->stopInput->setText(com->getSettingsValue("stopTime").toString());
 
     ui->scheduleInput->clear();
     for(int i = 0; i < this->com->taskInputList.length(); i++){
@@ -94,6 +94,7 @@ void CommandCenterForm::on_startButton_clicked(){
             com->setSettingsValue("targetDepth", ui->depthInput->text());
             com->setSettingsValue("subEx", ui->subBox->isChecked());
             com->setSettingsValue("waitTime", ui->waitInput->text());
+            com->setSettingsValue("stopTime", ui->stopInput->text());
             emit startCommandCenter();
         } else {
             qDebug("No task...");

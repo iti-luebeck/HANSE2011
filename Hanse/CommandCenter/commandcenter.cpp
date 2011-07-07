@@ -124,7 +124,11 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     controlTimer.moveToThread(this);
     timer.moveToThread(this);
 
+    stopTimer.moveToThread(this);
+
     connect(&timer, SIGNAL(timeout()), this, SLOT(logPosition()));
+
+    connect(&stopTimer, SIGNAL(timeout()), this, SLOT(emergencyStopCommandCenter()));
 
     sauceLog = new QFile(DataLogHelper::getLogDir()+"sauceLog.csv");
     filecount = 0;
@@ -158,6 +162,7 @@ void CommandCenter::startCommandCenter(){
     this->finishedList.clear();
     emit updateGUI();
     timer.start(10000);
+    stopTimer.start(getSettingsValue("stopTime").toInt()*60000);
 
     // No Handcontrol, it is commandcenter time!
     if(this->handControl->isEnabled()){
@@ -198,6 +203,9 @@ void CommandCenter::stopCommandCenter(){
     scheduleList.clear();
     emit stopAllTasks();
     emit resetTCL();
+
+    timer.stop();
+    stopTimer.stop();
 
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);
@@ -395,6 +403,9 @@ void CommandCenter::emergencyStopCommandCenter(){
     logger ->info("Emergency stop, stop and deactivate all task - handcontrol active");
     emit stopAllTasks();
     emit resetTCL();
+
+    timer.stop();
+    stopTimer.stop();
 
     emit setDepth(0.0);
     emit setForwardSpeed(0.0);

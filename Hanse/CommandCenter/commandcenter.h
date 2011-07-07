@@ -46,6 +46,7 @@ public:
 private:
     void init();
     QTimer timer;
+    QTimer stopTimer;
 
     CommandCenter* c;
     Module_Simulation* sim;
