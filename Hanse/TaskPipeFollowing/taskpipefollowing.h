@@ -9,17 +9,17 @@ class Behaviour_PipeFollowing;
 class Behaviour_TurnOneEighty;
 class Behaviour_XsensFollowing;
 
-#define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
-#define TASK_STATE_MOVE_TO_PIPE_INIT        "move to pipe initial"
-#define TASK_STATE_PIPEFOLLOW_PART1         "pipefollowing part 1"
-#define TASK_STATE_XSENSFOLLOW              "xsensfollowing"
-#define TASK_STATE_MOVE_TO_GATEWAYPOINT1    "move to gatewaypoint 1"
-#define TASK_STATE_MOVE_TO_PIPE             "move back to pipe"
-#define TASK_STATE_PIPEFOLLOW_PART2         "pipefollowing part 2"
-#define TASK_STATE_MOVE_TO_GATEWAYPOINT2    "move to gatewaypoint 2"
-#define TASK_STATE_END                      "task finished"
-#define TASK_STATE_END_FAILED               "task finished - unsuccessful"
+#define PIPE_STATE_START                    "task started"
+#define PIPE_STATE_MOVE_TO_TASK_START       "move to startpoint"
+#define PIPE_STATE_MOVE_TO_PIPE_INIT        "move to pipe initial"
+#define PIPE_STATE_PIPEFOLLOW_PART1         "pipefollowing part 1"
+#define PIPE_STATE_XSENSFOLLOW              "xsensfollowing"
+#define PIPE_STATE_MOVE_TO_GATEWAYPOINT1    "move to gatewaypoint 1"
+#define PIPE_STATE_MOVE_TO_PIPE             "move back to pipe"
+#define PIPE_STATE_PIPEFOLLOW_PART2         "pipefollowing part 2"
+#define PIPE_STATE_MOVE_TO_GATEWAYPOINT2    "move to gatewaypoint 2"
+#define PIPE_STATE_END                      "task finished"
+#define PIPE_STATE_END_FAILED               "task finished - unsuccessful"
 
 class TaskPipeFollowing : public RobotBehaviour
 {

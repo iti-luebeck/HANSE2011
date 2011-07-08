@@ -8,12 +8,12 @@ class Module_Navigation;
 class Behaviour_PingerFollowing;
 class Behaviour_XsensFollowing;
 
-#define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
-#define TASK_STATE_PINGERFOLLOWING          "pingerfollowing"
-#define TASK_STATE_END                      "   "
-#define TASK_STATE_FIND_PING                "  "
-#define TASK_STATE_END_FAILED               " "
+#define SURFACE_STATE_START                    "task started"
+#define SURFACE_STATE_MOVE_TO_TASK_START       "move to startpoint"
+#define SURFACE_STATE_PINGERFOLLOWING          "pingerfollowing"
+#define SURFACE_STATE_END                      "   "
+#define SURFACE_STATE_FIND_PING                "  "
+#define SURFACE_STATE_END_FAILED               " "
 class TaskSurface : public RobotBehaviour
 {
     Q_OBJECT

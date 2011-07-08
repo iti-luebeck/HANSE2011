@@ -72,7 +72,7 @@ void TaskSurface::startBehaviour(){
         this->navi->setEnabled(true);
     }
 
-    taskState = TASK_STATE_START;
+    taskState = SURFACE_STATE_START;
     showTaskState();
 
     emit updateSettings();
@@ -86,18 +86,18 @@ void TaskSurface::startBehaviour(){
         taskTimer.start();
     }
 
-    taskState = TASK_STATE_MOVE_TO_TASK_START;
+    taskState = SURFACE_STATE_MOVE_TO_TASK_START;
     controlTaskStates();
 }
 
 
 void TaskSurface::controlTaskStates(){
-    if (taskState == TASK_STATE_MOVE_TO_TASK_START) {
+    if (taskState == SURFACE_STATE_MOVE_TO_TASK_START) {
 
         showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
 
-    }  else if(taskState == TASK_STATE_PINGERFOLLOWING){
+    }  else if(taskState == SURFACE_STATE_PINGERFOLLOWING){
         showTaskState();
         if(this->pingerfollow->getHealthStatus().isHealthOk()){
             if (!this->pingerfollow->isActive()) {
@@ -108,11 +108,11 @@ void TaskSurface::controlTaskStates(){
             }
         } else {
             logger->info("Pingerfollowing not possible");
-            //taskState = TASK_STATE_XSENSFOLLOW;
+            //taskState = SURFACE_STATE_XSENSFOLLOW;
             controlTaskStates();
         }
 
-    } else if(taskState == TASK_STATE_END){
+    } else if(taskState == SURFACE_STATE_END){
 
         showTaskState();
         stop();
@@ -127,10 +127,10 @@ void TaskSurface::controlFinishedWaypoints(QString waypoint) {
         return;
     }
 
-    if (taskState == TASK_STATE_MOVE_TO_TASK_START) {
+    if (taskState == SURFACE_STATE_MOVE_TO_TASK_START) {
         if (waypoint == this->getSettingsValue("taskStartPoint").toString()) {
             logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-            taskState = TASK_STATE_FIND_PING;
+            taskState = SURFACE_STATE_FIND_PING;
             controlTaskStates();
         } else {
             navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
@@ -148,7 +148,7 @@ void TaskSurface::controlPingerState(QString newState){
 
     Q_UNUSED(newState);
 
-    if (taskState == TASK_STATE_PINGERFOLLOWING) {
+    if (taskState == SURFACE_STATE_PINGERFOLLOWING) {
 
     }
 
@@ -187,7 +187,7 @@ void TaskSurface::stop(){
     active = false;
     setEnabled(false);
 
-    taskState = TASK_STATE_END;
+    taskState = SURFACE_STATE_END;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -209,7 +209,7 @@ void TaskSurface::timeoutStop(){
     active = false;
     setEnabled(false);
 
-    taskState = TASK_STATE_END_FAILED;
+    taskState = SURFACE_STATE_END_FAILED;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -234,7 +234,7 @@ void TaskSurface::emergencyStop(){
     active = false;
     setEnabled(false);
 
-    taskState = TASK_STATE_END_FAILED;
+    taskState = SURFACE_STATE_END_FAILED;
     showTaskState();
 
     if(navi->hasGoal()){

@@ -8,16 +8,16 @@ class Module_Navigation;
 class Behaviour_BallFollowing;
 class Behaviour_XsensFollowing;
 
-#define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
-#define TASK_STATE_FIND_BALL                "find ball"
-#define TASK_STATE_AVOID_BALL               "avoid ball"
-#define TASK_STATE_BALLFOLLOWING            "ballfollowing"
-#define TASK_STATE_XSENSFOLLOW              "xsensfollowing"
-#define TASK_STATE_MOVE_INSPECT             "move to inspect midwater target"
-#define TASK_STATE_INSPECT                  "inspect midwater target"
-#define TASK_STATE_END                      "task finished"
-#define TASK_STATE_END_FAILED               "task finished - unsuccessful"
+#define MIDWATER_STATE_START                    "task started"
+#define MIDWATER_STATE_MOVE_TO_TASK_START       "move to startpoint"
+#define MIDWATER_STATE_FIND_BALL                "find ball"
+#define MIDWATER_STATE_AVOID_BALL               "avoid ball"
+#define MIDWATER_STATE_BALLFOLLOWING            "ballfollowing"
+#define MIDWATER_STATE_XSENSFOLLOW              "xsensfollowing"
+#define MIDWATER_STATE_MOVE_INSPECT             "move to inspect midwater target"
+#define MIDWATER_STATE_INSPECT                  "inspect midwater target"
+#define MIDWATER_STATE_END                      "task finished"
+#define MIDWATER_STATE_END_FAILED               "task finished - unsuccessful"
 
 class TaskMidwaterTarget : public RobotBehaviour
 {

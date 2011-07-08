@@ -58,7 +58,7 @@ void TaskWallFollowing::init(){
 void TaskWallFollowing::reset() {
     RobotModule::reset();
 
-    taskState = TASK_STATE_START;
+    taskState = WALL_STATE_START;
 }
 
 
@@ -71,7 +71,7 @@ void TaskWallFollowing::startBehaviour(){
     reset();
     setHealthToOk();
 
-    taskState = TASK_STATE_START;
+    taskState = WALL_STATE_START;
     showTaskState();
 
     emit updateSettings();
@@ -90,11 +90,11 @@ void TaskWallFollowing::startBehaviour(){
     }
 
 
-    emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
-    emit newStateOverview(TASK_STATE_WALLFOLLOW_PART1);
+    emit newStateOverview(WALL_STATE_MOVE_TO_TASK_START);
+    emit newStateOverview(WALL_STATE_WALLFOLLOW_PART1);
     if(this->getSettingsValue("v").toBool()){
-        emit newStateOverview(TASK_STATE_ADJUST_HEADING);
-        emit newStateOverview(TASK_STATE_WALLFOLLOW_PART2);
+        emit newStateOverview(WALL_STATE_ADJUST_HEADING);
+        emit newStateOverview(WALL_STATE_WALLFOLLOW_PART2);
     }
 
     if(this->getSettingsValue("timerActivated").toBool()){
@@ -107,7 +107,7 @@ void TaskWallFollowing::startBehaviour(){
     }
 
 
-    taskState = TASK_STATE_MOVE_TO_TASK_START;
+    taskState = WALL_STATE_MOVE_TO_TASK_START;
     controlTaskStates();
 }
 
@@ -117,11 +117,11 @@ void TaskWallFollowing::controlTaskStates(){
         return;
     }
 
-    if(taskState == TASK_STATE_MOVE_TO_TASK_START){
+    if(taskState == WALL_STATE_MOVE_TO_TASK_START){
         showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
 
-    } else if(taskState == TASK_STATE_WALLFOLLOW_PART1){
+    } else if(taskState == WALL_STATE_WALLFOLLOW_PART1){
         showTaskState();
         if(this->wall->getHealthStatus().isHealthOk()){
             if (!this->wall->isActive()) {
@@ -132,19 +132,19 @@ void TaskWallFollowing::controlTaskStates(){
             }
         } else {
             logger->info("Wallfollowing not possible");
-            taskState = TASK_STATE_ADJUST_HEADING;
+            taskState = WALL_STATE_ADJUST_HEADING;
             controlTaskStates();
         }
 
-    } else if(taskState == TASK_STATE_ADJUST_HEADING){
+    } else if(taskState == WALL_STATE_ADJUST_HEADING){
         showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("wallAdjustPoint").toString());
 
-    } else if(taskState == TASK_STATE_WALLFOLLOW_PART2){
+    } else if(taskState == WALL_STATE_WALLFOLLOW_PART2){
         showTaskState();
 
 
-    } else if(taskState == TASK_STATE_END){
+    } else if(taskState == WALL_STATE_END){
         showTaskState();
         if(wall->isActive()){
             QTimer::singleShot(0, wall, SLOT(stop()));
@@ -182,13 +182,13 @@ void TaskWallFollowing::controlFinishedWaypoints(QString waypoint){
 
     if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
         logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-        taskState = TASK_STATE_WALLFOLLOW_PART1;
+        taskState = WALL_STATE_WALLFOLLOW_PART1;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("wallAdjustPoint").toString()){
         logger->info(this->getSettingsValue("wallAdjustPoint").toString() +" reached");
         QTimer::singleShot(0, navi, SLOT(clearGoal()));
-        taskState = TASK_STATE_WALLFOLLOW_PART2;
+        taskState = WALL_STATE_WALLFOLLOW_PART2;
         controlTaskStates();
 
     } else {
@@ -210,13 +210,13 @@ void TaskWallFollowing::controlAngleDistance(){
 
     if(this->getSettingsValue("useAdjustPoint").toBool()){
 
-        if(taskState == TASK_STATE_WALLFOLLOW_PART1){
+        if(taskState == WALL_STATE_WALLFOLLOW_PART1){
             dist = this->navi->getDistance(this->getSettingsValue("wallAdjustPoint").toString());
             if(dist < this->getSettingsValue("apDist").toDouble()){
-                taskState = TASK_STATE_WALLFOLLOW_PART2;
+                taskState = WALL_STATE_WALLFOLLOW_PART2;
                 controlTaskStates();
             }
-        } else if(taskState == TASK_STATE_WALLFOLLOW_PART2){
+        } else if(taskState == WALL_STATE_WALLFOLLOW_PART2){
             if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point1").toString())){
                 logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
             }
@@ -228,14 +228,14 @@ void TaskWallFollowing::controlAngleDistance(){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
             if(alpha < 0 && dist < this->getSettingsValue("distP1Input").toFloat()){
-                taskState = TASK_STATE_END;
+                taskState = WALL_STATE_END;
                 controlTaskStates();
             }
         }
 
     } else {
 
-        if(taskState == TASK_STATE_WALLFOLLOW_PART1){
+        if(taskState == WALL_STATE_WALLFOLLOW_PART1){
             if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point1").toString())){
                 logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
             }
@@ -247,7 +247,7 @@ void TaskWallFollowing::controlAngleDistance(){
             alpha = this->navi->getAlpha(this->getSettingsValue("goal1point1").toString(), this->getSettingsValue("goal1point2").toString());
             dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
             if(alpha < 0 && dist < this->getSettingsValue("distP1Input").toFloat()){
-                taskState = TASK_STATE_END;
+                taskState = WALL_STATE_END;
                 controlTaskStates();
             }
         }
@@ -267,7 +267,7 @@ void TaskWallFollowing::stop(){
     }
 
     taskStopTimer.stop();
-    taskState = TASK_STATE_END;
+    taskState = WALL_STATE_END;
     showTaskState();
 
     calcTimer.stop();
@@ -292,7 +292,7 @@ void TaskWallFollowing::timeoutStop(){
     }
 
     taskStopTimer.stop();
-    taskState = TASK_STATE_END_FAILED;
+    taskState = WALL_STATE_END_FAILED;
     showTaskState();
 
     calcTimer.stop();
@@ -319,7 +319,7 @@ void TaskWallFollowing::emergencyStop(){
     }
 
     taskStopTimer.stop();
-    taskState = TASK_STATE_END_FAILED;
+    taskState = WALL_STATE_END_FAILED;
     showTaskState();
 
     calcTimer.stop();

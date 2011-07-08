@@ -67,7 +67,7 @@ void TaskPipeFollowing::init(){
 void TaskPipeFollowing::reset() {
     RobotModule::reset();
 
-    taskState = TASK_STATE_START;
+    taskState = PIPE_STATE_START;
 }
 
 
@@ -82,7 +82,7 @@ void TaskPipeFollowing::startBehaviour(){
 
     setHealthToOk();
 
-    taskState = TASK_STATE_START;
+    taskState = PIPE_STATE_START;
     showTaskState();
 
     active = true;
@@ -91,12 +91,12 @@ void TaskPipeFollowing::startBehaviour(){
     }
     emit started(this);
 
-    emit newStateOverview(TASK_STATE_MOVE_TO_PIPE_INIT);
-    emit newStateOverview(TASK_STATE_PIPEFOLLOW_PART1);
-    emit newStateOverview(TASK_STATE_XSENSFOLLOW);
-    emit newStateOverview(TASK_STATE_MOVE_TO_GATEWAYPOINT1);
-    emit newStateOverview(TASK_STATE_PIPEFOLLOW_PART2);
-    emit newStateOverview(TASK_STATE_MOVE_TO_GATEWAYPOINT2);
+    emit newStateOverview(PIPE_STATE_MOVE_TO_PIPE_INIT);
+    emit newStateOverview(PIPE_STATE_PIPEFOLLOW_PART1);
+    emit newStateOverview(PIPE_STATE_XSENSFOLLOW);
+    emit newStateOverview(PIPE_STATE_MOVE_TO_GATEWAYPOINT1);
+    emit newStateOverview(PIPE_STATE_PIPEFOLLOW_PART2);
+    emit newStateOverview(PIPE_STATE_MOVE_TO_GATEWAYPOINT2);
 
     calcTimer.start(100);
 
@@ -115,7 +115,7 @@ void TaskPipeFollowing::startBehaviour(){
         taskTimer.start();
     }
 
-    taskState = TASK_STATE_MOVE_TO_TASK_START;
+    taskState = PIPE_STATE_MOVE_TO_TASK_START;
     controlTaskStates();
 }
 
@@ -124,17 +124,17 @@ void TaskPipeFollowing::controlTaskStates(){
         return;
     }
 
-    if(taskState == TASK_STATE_MOVE_TO_TASK_START){
+    if(taskState == PIPE_STATE_MOVE_TO_TASK_START){
         showTaskState();
         qDebug("State 1");
         this->navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
 
-    } else if(taskState == TASK_STATE_MOVE_TO_PIPE_INIT){
+    } else if(taskState == PIPE_STATE_MOVE_TO_PIPE_INIT){
         showTaskState();
         qDebug("State 2");
         this->navi->gotoWayPoint(this->getSettingsValue("pipeStartPoint").toString());
 
-    } else if(taskState == TASK_STATE_PIPEFOLLOW_PART1){
+    } else if(taskState == PIPE_STATE_PIPEFOLLOW_PART1){
         showTaskState();
         qDebug("State 3");
         if(this->pipe->getHealthStatus().isHealthOk()){
@@ -146,10 +146,10 @@ void TaskPipeFollowing::controlTaskStates(){
             }
         } else {
             logger->info("Pipefollowing not possible");
-            taskState = TASK_STATE_XSENSFOLLOW;
+            taskState = PIPE_STATE_XSENSFOLLOW;
             controlTaskStates();
         }
-    } else if(taskState == TASK_STATE_XSENSFOLLOW){
+    } else if(taskState == PIPE_STATE_XSENSFOLLOW){
         showTaskState();
         if(pipe->isActive()){
             QTimer::singleShot(0, pipe, SLOT(stop()));
@@ -165,12 +165,12 @@ void TaskPipeFollowing::controlTaskStates(){
             }
         } else {
             logger->info("Xsensfollowing not possible");
-            taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
+            taskState = PIPE_STATE_MOVE_TO_GATEWAYPOINT1;
             controlTaskStates();
         }
 
 
-    } else if(taskState == TASK_STATE_MOVE_TO_GATEWAYPOINT1){
+    } else if(taskState == PIPE_STATE_MOVE_TO_GATEWAYPOINT1){
         showTaskState();
         qDebug("State 5");
         if(pipe->isActive()){
@@ -179,7 +179,7 @@ void TaskPipeFollowing::controlTaskStates(){
         this->navi->gotoWayPoint(this->getSettingsValue("gate1point").toString());
 
 
-    } else if(taskState == TASK_STATE_PIPEFOLLOW_PART2){
+    } else if(taskState == PIPE_STATE_PIPEFOLLOW_PART2){
         showTaskState();
         qDebug("State 6");
         if(this->pipe->getHealthStatus().isHealthOk()){
@@ -191,17 +191,17 @@ void TaskPipeFollowing::controlTaskStates(){
             }
         } else {
             logger->info("Pipefollowing not possible");
-            taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT2;
+            taskState = PIPE_STATE_MOVE_TO_GATEWAYPOINT2;
             controlTaskStates();
         }
 
-    } else if(taskState == TASK_STATE_MOVE_TO_GATEWAYPOINT2){
+    } else if(taskState == PIPE_STATE_MOVE_TO_GATEWAYPOINT2){
         qDebug("State 7");
         showTaskState();
         QTimer::singleShot(0, pipe, SLOT(stop()));
         this->navi->gotoWayPoint(this->getSettingsValue("gate2point").toString());
 
-    } else if(taskState == TASK_STATE_END){
+    } else if(taskState == PIPE_STATE_END){
         showTaskState();
         stop();
     }
@@ -214,22 +214,22 @@ void TaskPipeFollowing::controlFinishedWaypoints(QString waypoint){
 
     if(waypoint == this->getSettingsValue("taskStartPoint").toString()){
         logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-        taskState = TASK_STATE_MOVE_TO_PIPE_INIT;
+        taskState = PIPE_STATE_MOVE_TO_PIPE_INIT;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("pipeStartPoint").toString()){
         logger->info(this->getSettingsValue("pipeStartPoint").toString() +" reached");
-        taskState = TASK_STATE_PIPEFOLLOW_PART1;
+        taskState = PIPE_STATE_PIPEFOLLOW_PART1;
         controlTaskStates();
 
     }else if(waypoint ==  this->getSettingsValue("gate1point").toString()){
         logger->info(this->getSettingsValue("gate1point").toString() +" reached");
-        taskState = TASK_STATE_PIPEFOLLOW_PART2;
+        taskState = PIPE_STATE_PIPEFOLLOW_PART2;
         controlTaskStates();
 
     } else if(waypoint ==  this->getSettingsValue("gate2point").toString()){
         logger->info(this->getSettingsValue("gate2point").toString() +" reached");
-        taskState = TASK_STATE_END;
+        taskState = PIPE_STATE_END;
         controlTaskStates();
 
     } else {
@@ -245,15 +245,15 @@ void TaskPipeFollowing::controlPipeState(QString newState){
         return;
     }
 
-    if(newState == STATE_PASSED && taskState == TASK_STATE_PIPEFOLLOW_PART1){
+    if(newState == STATE_PASSED && taskState == PIPE_STATE_PIPEFOLLOW_PART1){
         this->dataLockerMutex.lock();
-        taskState = TASK_STATE_XSENSFOLLOW;
+        taskState = PIPE_STATE_XSENSFOLLOW;
         this->dataLockerMutex.unlock();
         controlTaskStates();
 
-    } else if(newState == STATE_PASSED && taskState == TASK_STATE_PIPEFOLLOW_PART2){
+    } else if(newState == STATE_PASSED && taskState == PIPE_STATE_PIPEFOLLOW_PART2){
         this->dataLockerMutex.lock();
-        taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT2;
+        taskState = PIPE_STATE_MOVE_TO_GATEWAYPOINT2;
         this->dataLockerMutex.unlock();
         controlTaskStates();
     }
@@ -264,7 +264,7 @@ void TaskPipeFollowing::controlXsensFollow(RobotBehaviour* module, bool success)
     Q_UNUSED(success);
     qDebug("Xsensfollow finished");
     this->dataLockerMutex.lock();
-    taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
+    taskState = PIPE_STATE_MOVE_TO_GATEWAYPOINT1;
     this->dataLockerMutex.unlock();
     controlTaskStates();
 }
@@ -276,7 +276,7 @@ void TaskPipeFollowing::controlAngleDistance(){
 
     double alpha = 0.0;
     double dist = 0.0;
-    if(taskState == TASK_STATE_PIPEFOLLOW_PART1){
+    if(taskState == PIPE_STATE_PIPEFOLLOW_PART1){
         if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point1").toString())){
             logger->info("ERROR!!! Waypoint goal1point1 doesnt exist!!!!");
         }
@@ -289,11 +289,11 @@ void TaskPipeFollowing::controlAngleDistance(){
         dist = this->navi->getDistance(this->getSettingsValue("goal1point2").toString());
         if(alpha <  0 && dist < this->getSettingsValue("dist").toInt()){
             this->dataLockerMutex.lock();
-            taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT1;
+            taskState = PIPE_STATE_MOVE_TO_GATEWAYPOINT1;
             this->dataLockerMutex.unlock();
             controlTaskStates();
         }
-    } else if(taskState == TASK_STATE_PIPEFOLLOW_PART2){
+    } else if(taskState == PIPE_STATE_PIPEFOLLOW_PART2){
         if(!this->navi->containsWaypoint(this->getSettingsValue("goal2point1").toString())){
             logger->info("ERROR!!! Waypoint goal2point1 doesnt exist!!!!");
         }
@@ -306,7 +306,7 @@ void TaskPipeFollowing::controlAngleDistance(){
         dist = this->navi->getDistance(this->getSettingsValue("goal2point2").toString());
         if(alpha <  0 && dist < this->getSettingsValue("dist").toInt()){
             this->dataLockerMutex.lock();
-            taskState = TASK_STATE_MOVE_TO_GATEWAYPOINT2;
+            taskState = PIPE_STATE_MOVE_TO_GATEWAYPOINT2;
             this->dataLockerMutex.unlock();
             controlTaskStates();
         }
@@ -318,7 +318,7 @@ void TaskPipeFollowing::controlAngleDistance(){
 
 void TaskPipeFollowing::initBehaviourParameters(){
 
-    if(taskState == TASK_STATE_XSENSFOLLOW){
+    if(taskState == PIPE_STATE_XSENSFOLLOW){
         this->xsensfollow->setSettingsValue("driveTime", this->getSettingsValue("xdrive").toInt());
         addData("drive time", this->getSettingsValue("xdrive").toInt());
         emit dataChanged(this);
@@ -355,7 +355,7 @@ void TaskPipeFollowing::stop(){
     active = false;
     setEnabled(false);
     calcTimer.stop();
-    taskState = TASK_STATE_END;
+    taskState = PIPE_STATE_END;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -381,7 +381,7 @@ void TaskPipeFollowing::timeoutStop(){
     active = false;
     setEnabled(false);
     calcTimer.stop();
-    taskState = TASK_STATE_END_FAILED;
+    taskState = PIPE_STATE_END_FAILED;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -408,7 +408,7 @@ void TaskPipeFollowing::emergencyStop(){
     active = false;
     setEnabled(false);
     calcTimer.stop();
-    taskState = TASK_STATE_END_FAILED;
+    taskState = PIPE_STATE_END_FAILED;
     showTaskState();
 
     if(navi->hasGoal()){

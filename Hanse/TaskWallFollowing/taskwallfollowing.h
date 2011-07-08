@@ -8,13 +8,13 @@ class Module_Navigation;
 class Behaviour_WallFollowing;
 class Behaviour_TurnOneEighty;
 
-#define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
-#define TASK_STATE_WALLFOLLOW_PART1         "wallfollowing part 1"
-#define TASK_STATE_ADJUST_HEADING           "adjust heading"
-#define TASK_STATE_WALLFOLLOW_PART2         "wallfollowing part 2"
-#define TASK_STATE_END                      "task finished"
-#define TASK_STATE_END_FAILED               "task finished - unsuccessful"
+#define WALL_STATE_START                    "task started"
+#define WALL_STATE_MOVE_TO_TASK_START       "move to startpoint"
+#define WALL_STATE_WALLFOLLOW_PART1         "wallfollowing part 1"
+#define WALL_STATE_ADJUST_HEADING           "adjust heading"
+#define WALL_STATE_WALLFOLLOW_PART2         "wallfollowing part 2"
+#define WALL_STATE_END                      "task finished"
+#define WALL_STATE_END_FAILED               "task finished - unsuccessful"
 
 class TaskWallFollowing : public RobotBehaviour
 {

@@ -76,17 +76,17 @@ void TaskMidwaterTarget::startBehaviour(){
         this->navi->setEnabled(true);
     }
 
-    emit newStateOverview(TASK_STATE_MOVE_TO_TASK_START);
-    emit newStateOverview(TASK_STATE_FIND_BALL);
-    emit newStateOverview(TASK_STATE_AVOID_BALL);
-    emit newStateOverview(TASK_STATE_BALLFOLLOWING);
-    emit newStateOverview(TASK_STATE_XSENSFOLLOW);
-    emit newStateOverview(TASK_STATE_MOVE_INSPECT);
-    emit newStateOverview(TASK_STATE_INSPECT);
-    emit newStateOverview(TASK_STATE_XSENSFOLLOW);
+    emit newStateOverview(MIDWATER_STATE_MOVE_TO_TASK_START);
+    emit newStateOverview(MIDWATER_STATE_FIND_BALL);
+    emit newStateOverview(MIDWATER_STATE_AVOID_BALL);
+    emit newStateOverview(MIDWATER_STATE_BALLFOLLOWING);
+    emit newStateOverview(MIDWATER_STATE_XSENSFOLLOW);
+    emit newStateOverview(MIDWATER_STATE_MOVE_INSPECT);
+    emit newStateOverview(MIDWATER_STATE_INSPECT);
+    emit newStateOverview(MIDWATER_STATE_XSENSFOLLOW);
 
 
-    taskState = TASK_STATE_START;
+    taskState = MIDWATER_STATE_START;
     showTaskState();
 
     emit updateSettings();
@@ -99,18 +99,18 @@ void TaskMidwaterTarget::startBehaviour(){
         taskTimer.start();
     }
 
-    taskState = TASK_STATE_MOVE_TO_TASK_START;
+    taskState = MIDWATER_STATE_MOVE_TO_TASK_START;
     controlTaskStates();
 }
 
 
 void TaskMidwaterTarget::controlTaskStates(){
-    if (taskState == TASK_STATE_MOVE_TO_TASK_START) {
+    if (taskState == MIDWATER_STATE_MOVE_TO_TASK_START) {
 
         showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
 
-    } else if (taskState == TASK_STATE_FIND_BALL) {
+    } else if (taskState == MIDWATER_STATE_FIND_BALL) {
 
         showTaskState();
         if(this->ballfollow->getHealthStatus().isHealthOk()){
@@ -122,16 +122,16 @@ void TaskMidwaterTarget::controlTaskStates(){
             }
         } else {
             logger->info("Ballfollowing not possible");
-            taskState = TASK_STATE_XSENSFOLLOW;
+            taskState = MIDWATER_STATE_XSENSFOLLOW;
             controlTaskStates();
         }
 
-    } else if (taskState == TASK_STATE_AVOID_BALL) {
+    } else if (taskState == MIDWATER_STATE_AVOID_BALL) {
 
         showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("avoid waypoint right").toString());
 
-    } else if(taskState == TASK_STATE_BALLFOLLOWING){
+    } else if(taskState == MIDWATER_STATE_BALLFOLLOWING){
         showTaskState();
         if(this->ballfollow->getHealthStatus().isHealthOk()){
             if (!this->ballfollow->isActive()) {
@@ -142,11 +142,11 @@ void TaskMidwaterTarget::controlTaskStates(){
             }
         } else {
             logger->info("Ballfollowing not possible");
-            taskState = TASK_STATE_XSENSFOLLOW;
+            taskState = MIDWATER_STATE_XSENSFOLLOW;
             controlTaskStates();
         }
 
-    } else if(taskState == TASK_STATE_XSENSFOLLOW){
+    } else if(taskState == MIDWATER_STATE_XSENSFOLLOW){
 
         initBehaviourParameters();
         showTaskState();
@@ -161,16 +161,16 @@ void TaskMidwaterTarget::controlTaskStates(){
             searchBallTimer.singleShot(15000, this, SLOT(cutFinished()));
         } else {
             logger->info("Xsensfollowing not possible");
-            taskState = TASK_STATE_MOVE_INSPECT;
+            taskState = MIDWATER_STATE_MOVE_INSPECT;
             controlTaskStates();
         }
 
-    } else if (taskState == TASK_STATE_MOVE_INSPECT) {
+    } else if (taskState == MIDWATER_STATE_MOVE_INSPECT) {
 
         showTaskState();
         this->navi->gotoWayPoint(this->getSettingsValue("target waypoint").toString());
 
-    } else if (taskState == TASK_STATE_INSPECT) {
+    } else if (taskState == MIDWATER_STATE_INSPECT) {
 
         showTaskState();
         if (!this->ballfollow->isActive()) {
@@ -181,7 +181,7 @@ void TaskMidwaterTarget::controlTaskStates(){
         }
         searchBallTimer.singleShot(30000, this, SLOT(ballNotFound()));
 
-    } else if(taskState == TASK_STATE_END){
+    } else if(taskState == MIDWATER_STATE_END){
 
         showTaskState();
         stop();
@@ -196,32 +196,32 @@ void TaskMidwaterTarget::controlFinishedWaypoints(QString waypoint) {
         return;
     }
 
-    if (taskState == TASK_STATE_MOVE_TO_TASK_START) {
+    if (taskState == MIDWATER_STATE_MOVE_TO_TASK_START) {
         if (waypoint == this->getSettingsValue("taskStartPoint").toString()) {
             logger->info(this->getSettingsValue("taskStartPoint").toString() +" reached");
-            taskState = TASK_STATE_FIND_BALL;
+            taskState = MIDWATER_STATE_FIND_BALL;
             controlTaskStates();
         } else {
             navi->gotoWayPoint(this->getSettingsValue("taskStartPoint").toString());
         }
     }
 
-    if (taskState == TASK_STATE_AVOID_BALL) {
+    if (taskState == MIDWATER_STATE_AVOID_BALL) {
         if (waypoint == this->getSettingsValue("avoid waypoint right").toString()) {
             navi->gotoWayPoint(this->getSettingsValue("avoid waypoint left").toString());
         } else if (waypoint == this->getSettingsValue("avoid waypoint left").toString()) {
             navi->gotoWayPoint(this->getSettingsValue("target waypoint").toString());
         } else if (waypoint == this->getSettingsValue("target waypoint").toString()) {
             logger->info("avoid midwater target success");
-            taskState = TASK_STATE_BALLFOLLOWING;
+            taskState = MIDWATER_STATE_BALLFOLLOWING;
             controlTaskStates();
         } else {
             navi->gotoWayPoint(this->getSettingsValue("avoid waypoint right").toString());
         }
     }
 
-    if (taskState == TASK_STATE_MOVE_INSPECT) {
-        taskState = TASK_STATE_INSPECT;
+    if (taskState == MIDWATER_STATE_MOVE_INSPECT) {
+        taskState = MIDWATER_STATE_INSPECT;
         controlTaskStates();
     }
 
@@ -233,24 +233,24 @@ void TaskMidwaterTarget::controlBallState(QString newState){
         return;
     }
 
-    if (taskState == TASK_STATE_FIND_BALL) {
+    if (taskState == MIDWATER_STATE_FIND_BALL) {
         if (newState == BALL_STATE_FOUND_BALL) {
             QTimer::singleShot(0, ballfollow, SLOT(stop()));
             searchBallTimer.singleShot(10000, this, SLOT(markBallPosition()));
         }
     }
 
-    if (taskState == TASK_STATE_BALLFOLLOWING) {
+    if (taskState == MIDWATER_STATE_BALLFOLLOWING) {
         if (newState == BALL_STATE_FOUND_BALL) {
             ballfollow->setState(BALL_STATE_CUT_BALL);
         } else if (newState == BALL_STATE_DO_CUT) {
             QTimer::singleShot(0, ballfollow, SLOT(stop()));
-            taskState = TASK_STATE_XSENSFOLLOW;
+            taskState = MIDWATER_STATE_XSENSFOLLOW;
             controlTaskStates();
         }
     }
 
-    if (taskState == TASK_STATE_INSPECT) {
+    if (taskState == MIDWATER_STATE_INSPECT) {
         if (newState == BALL_STATE_FOUND_BALL) {
             tries++;
 
@@ -258,12 +258,12 @@ void TaskMidwaterTarget::controlBallState(QString newState){
                 searchBallTimer.stop();
                 logger->info("failed to cut ball 2 times, proceeding with next task");
                 QTimer::singleShot(0, ballfollow, SLOT(stop()));
-                taskState = TASK_STATE_END;
+                taskState = MIDWATER_STATE_END;
                 controlTaskStates();
             } else {
                 searchBallTimer.stop();
                 ballfollow->setState(BALL_STATE_CUT_BALL);
-                taskState = TASK_STATE_BALLFOLLOWING;
+                taskState = MIDWATER_STATE_BALLFOLLOWING;
             }
         }
     }
@@ -275,20 +275,20 @@ void TaskMidwaterTarget::controlXsensState(QString newState){
         return;
     }
 
-    if(newState == STATE_FINISHED && taskState == TASK_STATE_XSENSFOLLOW){
-        taskState = TASK_STATE_MOVE_INSPECT;
+    if(newState == STATE_FINISHED && taskState == MIDWATER_STATE_XSENSFOLLOW){
+        taskState = MIDWATER_STATE_MOVE_INSPECT;
         QTimer::singleShot(0, xsensfollow, SLOT(stop()));
         controlTaskStates();
     }
 }
 
 void TaskMidwaterTarget::initBehaviourParameters(){
-    if(taskState == TASK_STATE_XSENSFOLLOW){
+    if(taskState == MIDWATER_STATE_XSENSFOLLOW){
         this->xsensfollow->setSettingsValue("driveTime", 15000);
         this->xsensfollow->setSettingsValue("turnClockwise", false);
         this->xsensfollow->setSettingsValue("numberTurns", 0);
         this->xsensfollow->setSettingsValue("enableTurn", false);
-    } else if(taskState == TASK_STATE_BALLFOLLOWING){
+    } else if(taskState == MIDWATER_STATE_BALLFOLLOWING){
         // Nothing
     }
 }
@@ -312,7 +312,7 @@ void TaskMidwaterTarget::stop(){
     active = false;
     setEnabled(false);
 
-    taskState = TASK_STATE_END;
+    taskState = MIDWATER_STATE_END;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -334,7 +334,7 @@ void TaskMidwaterTarget::timeoutStop(){
     active = false;
     setEnabled(false);
 
-    taskState = TASK_STATE_END_FAILED;
+    taskState = MIDWATER_STATE_END_FAILED;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -359,7 +359,7 @@ void TaskMidwaterTarget::emergencyStop(){
     active = false;
     setEnabled(false);
 
-    taskState = TASK_STATE_END_FAILED;
+    taskState = MIDWATER_STATE_END_FAILED;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -421,20 +421,20 @@ void TaskMidwaterTarget::markBallPosition()
                             true,
                             this->navi->getCurrentPosition().getYaw());
     this->navi->addWaypoint(this->getSettingsValue("target waypoint").toString(), targetWaypoint);
-    taskState = TASK_STATE_AVOID_BALL;
+    taskState = MIDWATER_STATE_AVOID_BALL;
     controlTaskStates();
 }
 
 void TaskMidwaterTarget::cutFinished()
 {
     QTimer::singleShot(0, xsensfollow, SLOT(stop()));
-    taskState = TASK_STATE_MOVE_INSPECT;
+    taskState = MIDWATER_STATE_MOVE_INSPECT;
     controlTaskStates();
 }
 
 void TaskMidwaterTarget::ballNotFound()
 {
     QTimer::singleShot(0, ballfollow, SLOT(stop()));
-    taskState = TASK_STATE_END;
+    taskState = MIDWATER_STATE_END;
     controlTaskStates();
 }
