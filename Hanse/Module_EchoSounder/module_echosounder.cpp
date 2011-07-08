@@ -44,7 +44,7 @@ Module_EchoSounder::Module_EchoSounder(QString id, Module_Simulation *sim)
     recorder = NULL;
     source = NULL;
 
-    for(int i = 0; i < 4; i++){
+    for(int i = 0; i < 5; i++){
         for (int j = 0; j < 252; j++){
             fewSigAvg[i][j] = 0;
             avgSig[j] = 0;
