@@ -9,7 +9,7 @@ class Behaviour_PingerFollowing;
 class Behaviour_XsensFollowing;
 
 #define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to task start"
+#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
 #define TASK_STATE_PINGERFOLLOWING          "pingerfollowing"
 #define TASK_STATE_END                      "   "
 #define TASK_STATE_FIND_PING                "  "
