@@ -152,9 +152,7 @@ void EchoSounderForm::updateEchoUi(float avgDistance){
     //qDebug("Array Pos");
     avgTemp = avgDistance*einheit;
     //qDebug()<< avgTemp;
-    char a[20];
-    sprintf(a,"%f",avgDistance);
-    ui->avgDistance->setText(a);
+    ui->avgDistance->setText(QString::number(avgDistance));
     //qDebug(a);
 }
 

@@ -35,8 +35,8 @@ protected:
     int averageWindow;
 
     int threshold;
-    float avgSig[251];
-    float fewSigAvg[5][251];
+    float avgSig[252];
+    float fewSigAvg[5][252];
 
 public slots:
     bool doNextScan();
