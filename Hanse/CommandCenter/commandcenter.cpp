@@ -161,7 +161,7 @@ void CommandCenter::startCommandCenter(){
     this->abortedList.clear();
     this->finishedList.clear();
     emit updateGUI();
-    timer.start(10000);
+    timer.start(30000);
     stopTimer.start(getSettingsValue("stopTime").toInt()*60000);
 
     // No Handcontrol, it is commandcenter time!
@@ -587,9 +587,8 @@ void CommandCenter::handControlFinishedCC(RobotBehaviour *name, bool success){
 }
 
 void CommandCenter::logPosition(){
-    QString temp1 = "Localization";
-    QString temp2 = "Position";
-    sauceLogger(temp1, temp2);
+    QString temp2 = "Logging current Position.";
+    sauceLogger(this->currentTask, temp2);
 }
 
 void CommandCenter::sauceLogger(QString task, QString state){
@@ -615,7 +614,7 @@ void CommandCenter::sauceLogger(QString task, QString state){
         qDebug() << "ganz grosses Problem!";
     }
 
-    *stream << sTime << "," << xKoord << "," << yKoord << "," << zKoord << "," << currentTask << "," << comment << "\r\n";
+    *stream << sTime << "," << xKoord << "," << yKoord << "," << zKoord << "," << currentTask << ",'" << comment << "'\r\n";
 
     stream->flush();
 }
