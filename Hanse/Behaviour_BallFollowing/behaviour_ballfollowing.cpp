@@ -149,7 +149,7 @@ void Behaviour_BallFollowing::update()
             float angularSpeed = 0.0;
 
             if (approxDistance < 2) {
-                if (fabs(diffX) < this->getSettingsValue("deltaBall").toFloat()) {
+                if (fabs(diffX) < 2 * this->getSettingsValue("deltaBall").toFloat()) {
                     state = BALL_STATE_FOUND_BALL;
                 } else {
                     // Ausrichten
