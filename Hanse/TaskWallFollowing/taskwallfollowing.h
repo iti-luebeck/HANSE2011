@@ -9,7 +9,7 @@ class Behaviour_WallFollowing;
 class Behaviour_TurnOneEighty;
 
 #define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to task start"
+#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
 #define TASK_STATE_WALLFOLLOW_PART1         "wallfollowing part 1"
 #define TASK_STATE_ADJUST_HEADING           "adjust heading"
 #define TASK_STATE_WALLFOLLOW_PART2         "wallfollowing part 2"

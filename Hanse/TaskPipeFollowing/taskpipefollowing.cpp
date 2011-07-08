@@ -328,8 +328,10 @@ void TaskPipeFollowing::initBehaviourParameters(){
 }
 
 void TaskPipeFollowing::showTaskState(){
+    QString pipestate = getDataValue("pipe state").toString();
+    QString stateComment = taskState + " - "+pipestate;
     logger->info(taskState);
-    emit newState(this->getId(), taskState);
+    emit newState(this->getId(), stateComment);
 
 
     addData("taskStartPoint", this->getSettingsValue("taskStartPoint"));

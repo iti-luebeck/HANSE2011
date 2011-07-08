@@ -154,8 +154,10 @@ void TaskWallFollowing::controlTaskStates(){
 }
 
 void TaskWallFollowing::showTaskState(){
+    QString wallstate = getDataValue("wallstate").toString();
     logger->info(taskState);
-    emit newState(this->getId(),taskState);
+    QString stateComment = taskState + " - " + wallstate;
+    emit newState(this->getId(),stateComment);
 
 
     addData("taskStartPoint", this->getSettingsValue("taskStartPoint").toString());

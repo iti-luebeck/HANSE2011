@@ -9,7 +9,7 @@ class Behaviour_BallFollowing;
 class Behaviour_XsensFollowing;
 
 #define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to task start"
+#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
 #define TASK_STATE_FIND_BALL                "find ball"
 #define TASK_STATE_AVOID_BALL               "avoid ball"
 #define TASK_STATE_BALLFOLLOWING            "ballfollowing"

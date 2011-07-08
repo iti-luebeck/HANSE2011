@@ -10,7 +10,7 @@ class Behaviour_TurnOneEighty;
 class Behaviour_XsensFollowing;
 
 #define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_TASK_START       "move to task start"
+#define TASK_STATE_MOVE_TO_TASK_START       "move to startpoint"
 #define TASK_STATE_MOVE_TO_PIPE_INIT        "move to pipe initial"
 #define TASK_STATE_PIPEFOLLOW_PART1         "pipefollowing part 1"
 #define TASK_STATE_XSENSFOLLOW              "xsensfollowing"
