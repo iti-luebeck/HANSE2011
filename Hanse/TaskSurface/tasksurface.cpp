@@ -79,7 +79,10 @@ void TaskSurface::startBehaviour(){
 
     if(this->getSettingsValue("timerActivated").toBool()){
         logger->info("TaskSurface with timer stop");
-        taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
+        int temp = this->getSettingsValue("taskStopTime").toInt()*60000;
+        taskTimer.singleShot(temp,this, SLOT(timeoutStop()));
+        addData("task stop time", temp);
+        emit dataChanged(this);
         taskTimer.start();
     }
 

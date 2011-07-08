@@ -99,8 +99,11 @@ void TaskWallFollowing::startBehaviour(){
 
     if(this->getSettingsValue("timerActivated").toBool()){
         logger->info("TaskWallFollowing with timer stop");
-        taskStopTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
-        taskStopTimer.start();
+        int temp = this->getSettingsValue("taskStopTime").toInt()*60000;
+        taskTimer.singleShot(temp,this, SLOT(timeoutStop()));
+        addData("task stop time", temp);
+        emit dataChanged(this);
+        taskTimer.start();
     }
 
 

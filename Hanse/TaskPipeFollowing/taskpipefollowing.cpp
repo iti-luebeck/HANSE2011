@@ -31,7 +31,7 @@ void TaskPipeFollowing::init(){
     connect(this,SIGNAL(setUpdatePixmapSignal(bool)),pipe,SLOT(setUpdatePixmapSlot(bool)));
 
     // Default task settings
-    this->setDefaultValue("taskStopTime",120000);
+    this->setDefaultValue("taskStopTime",8);
     this->setDefaultValue("timerActivated", true);
 
     // Default navigation settings
@@ -108,7 +108,10 @@ void TaskPipeFollowing::startBehaviour(){
 
     if(this->getSettingsValue("timerActivated").toBool()){
         logger->info("TaskPipeFollowing with timer stop");
-        taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
+        int temp = this->getSettingsValue("taskStopTime").toInt()*60000;
+        taskTimer.singleShot(temp,this, SLOT(timeoutStop()));
+        addData("task stop time", temp);
+        emit dataChanged(this);
         taskTimer.start();
     }
 

@@ -27,7 +27,7 @@ bool TaskMidwaterTarget::isActive(){
 void TaskMidwaterTarget::init(){
     logger->debug("taskmidwatertarget init");
 
-    this->setDefaultValue("taskStopTime",120000);
+    this->setDefaultValue("taskStopTime",3);
     this->setDefaultValue("timerActivated", true);
 
     this->setDefaultValue("taskStartPoint", "mid start");
@@ -93,7 +93,9 @@ void TaskMidwaterTarget::startBehaviour(){
 
     if(this->getSettingsValue("timerActivated").toBool()){
         logger->info("TaskMidwaterTarget with timer stop");
-        taskTimer.singleShot(this->getSettingsValue("taskStopTime").toInt(),this, SLOT(timeoutStop()));
+        int temp = this->getSettingsValue("taskStopTime").toInt()*60000;
+        taskTimer.singleShot(temp,this, SLOT(timeoutStop()));
+        addData("task stop time", temp);
         taskTimer.start();
     }
 
