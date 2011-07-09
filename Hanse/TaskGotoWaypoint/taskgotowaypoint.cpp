@@ -107,23 +107,30 @@ void TaskGotoWaypoint::controlTaskStates(){
         if(waypointCounter < 7){
             if(waypointCounter == 1 && this->navi->containsWaypoint(this->getSettingsValue("point1").toString())){
                 this->navi->gotoWayPoint(this->getSettingsValue("point1").toString());
+                logger->info(this->getSettingsValue("point1").toString());
             } else if(waypointCounter == 2 && this->navi->containsWaypoint(this->getSettingsValue("point2").toString())){
                 this->navi->gotoWayPoint(this->getSettingsValue("point2").toString());
+                logger->info(this->getSettingsValue("point2").toString());
             } else if(waypointCounter == 3 && this->navi->containsWaypoint(this->getSettingsValue("point3").toString())){
                 this->navi->gotoWayPoint(this->getSettingsValue("point3").toString());
+                logger->info(this->getSettingsValue("point3").toString());
             } else if(waypointCounter == 4 && this->navi->containsWaypoint(this->getSettingsValue("point4").toString())){
                 this->navi->gotoWayPoint(this->getSettingsValue("point4").toString());
+                logger->info(this->getSettingsValue("point4").toString());
             } else if(waypointCounter == 5 && this->navi->containsWaypoint(this->getSettingsValue("point5").toString())){
                 this->navi->gotoWayPoint(this->getSettingsValue("point5").toString());
+                logger->info(this->getSettingsValue("point5").toString());
             } else if(waypointCounter == 6 && this->navi->containsWaypoint(this->getSettingsValue("point6").toString())){
                 this->navi->gotoWayPoint(this->getSettingsValue("point6").toString());
+                logger->info(this->getSettingsValue("point6").toString());
             } else {
                 logger->error("Waypoint doesnt exists, trying next waypoint...");
                 waypointCounter = waypointCounter+1;
                 controlTaskStates();
             }
+            addData("count", waypointCounter);
         } else {
-            taskState == GTW_STATE_END;
+            taskState = GTW_STATE_END;
             controlTaskStates();
         }
     } else {
