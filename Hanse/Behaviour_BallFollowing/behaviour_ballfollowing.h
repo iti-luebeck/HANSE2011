@@ -63,7 +63,7 @@ public slots:
     void reset();
     void terminate();
     void controlEnabledChanged(bool);
-    void simFrame(cv::Mat simFrame);
+    void newFrame(cv::Mat frame);
 
 private slots:
     void newData();

@@ -63,6 +63,7 @@ public slots:
     void retrieveSonarEchoData(QList<SonarEchoData> data);
     void retrieveSonarPlotData(QList<SonarEchoData> data);
     void setLocalization(QVector2D position);
+    void particleFilterDone(QVector3D position);
 
     virtual void doHealthCheck();
 

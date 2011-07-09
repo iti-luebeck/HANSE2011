@@ -124,6 +124,11 @@ void Module_SonarLocalization::retrieveSonarPlotData(QList<SonarEchoData> data)
     emit newSonarPlotData(data);
 }
 
+void Module_SonarLocalization::particleFilterDone(QVector3D)
+{
+    emit dataChanged(this);
+}
+
 void Module_SonarLocalization::doHealthCheck() {
     if(!isEnabled()){
         setHealthToOk();

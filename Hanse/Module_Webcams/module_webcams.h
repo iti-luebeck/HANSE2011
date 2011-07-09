@@ -20,23 +20,17 @@ public:
     QWidget* createView(QWidget* parent);
     QList<RobotModule*> getDependencies();
 
-
-    /**
-      * Grab current Frame from Webcam
-      * @param left / right / bottom - cv::Mat or IplImage to store
-      */
-    void grabLeft( IplImage *left );
-    void grabRight( IplImage *right );
-    void grabBottom( IplImage *bottom );
-    void grabLeft( cv::Mat &left );
-    void grabRight( cv::Mat &right );
-    void grabBottom( cv::Mat &bottom );
-
     /**
       * Returns Vector containing Indices of available Cams
       * @return Vector containing Indices of available Cams
       */
     std::vector<int> numOfCams();
+
+private:
+
+    void init();
+    void stopWebcams();
+    int numAvailableCams();
 
 public slots:
 
@@ -44,43 +38,30 @@ public slots:
     void reset();
     void terminate();
 
+private slots:
+
+    void grabCams();
+
+signals:
+    void newFrontImage(cv::Mat image);
+    void newBottomImage(cv::Mat image);
+
 private:
 
-     void init();
-    /**
-      * disconnects all connected devices
-      */
-    void stopWebcams();
-
-    /**
-      * Returns number of available video devices
-      * @return int - number of cams available
-      */
-    int numAvailableCams();
-
-
-    CvCapture* leftCap;
-    CvCapture* rightCap;
+    CvCapture* frontCap;
     CvCapture* bottomCap;
 
     std::vector<int> camInd;
     int nCams;
-    int leftID;
-    bool leftConnected;
-    bool leftEnabled;
-    int leftFramerate;
-    int rightID;
-    bool rightConnected;
-    bool rightEnabled;
-    int rightFramerate;
+    int frontID;
+    bool frontEnabled;
     int bottomID;
-    bool bottomConnected;
     bool bottomEnabled;
-    int bottomFramerate;
 
-    IplImage *leftFrame;
-    IplImage *rightFrame;
+    IplImage *frontFrame;
     IplImage *bottomFrame;
+
+    QTimer updateTimer;
 };
 
 #endif // MODULE_WEBCAMS_H

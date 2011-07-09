@@ -15,6 +15,7 @@ Behaviour_PipeFollowing::Behaviour_PipeFollowing(QString id, Module_ThrusterCont
     this->sim = sim;
 
     timer.moveToThread(this);
+    QObject::connect(cam, SIGNAL(newBottomImage(cv::Mat)), this, SLOT(newFrame(cv::Mat)));
 }
 
 bool Behaviour_PipeFollowing::isActive()
@@ -121,17 +122,15 @@ QWidget* Behaviour_PipeFollowing::createView(QWidget* parent)
     return new PipeFollowingForm( parent, this);
 }
 
-void Behaviour_PipeFollowing::simFrame(cv::Mat simFrame)
+void Behaviour_PipeFollowing::newFrame(cv::Mat frame)
 {
-  //  logger->debug(" simu data");
-    if(!isActive()){
+    if (!isActive()) {
         return;
     }
-    //  QMutexLocker l(&this->dataLockerMutex);
+
     this->dataLockerMutex.lock();
-    simFrame.copyTo(frame);
+    frame.copyTo(this->frame);
     this->dataLockerMutex.unlock();
-//    imshow("blub",frame);
     timerSlotExecute();
 }
 
@@ -143,9 +142,6 @@ void Behaviour_PipeFollowing::timerSlot()
 
     if(sim->isEnabled()) {
         emit requestBottomFrame();
-    } else {
-        cam->grabBottom(frame);
-        timerSlotExecute();
     }
 }
 

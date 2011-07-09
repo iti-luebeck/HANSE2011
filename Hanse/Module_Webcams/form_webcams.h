@@ -22,29 +22,27 @@ protected:
 
 private:
     void refreshLists();
-    void refreshFrames();
 
 private:
     Ui::Form_Webcams *ui;
     Module_Webcams *cams;
     QTimer captureTimer;
 
-    cv::Mat leftFrame;
+    cv::Mat frontFrame;
     cv::Mat bottomFrame;
-    int count;
+    int frontCount;
+    int bottomCount;
 
 private slots:
-    void on_bottomFrameRateSlider_sliderMoved(int position);
-    void on_leftFrameRateSlider_sliderMoved(int position);
+    void on_frontConnectCheckBox_clicked();
     void on_bottomConnectCheckBox_clicked();
     void on_leftConnectCheckBox_clicked();
     void on_checkBox_clicked();
     void on_updateListButton_clicked();
-    void on_refreshButton_clicked();
-    void on_applyButtn_clicked();
 
 public slots:
-    void captureWebcams();
+    void newFrontImage(cv::Mat front);
+    void newBottomImage(cv::Mat bottom);
 
 signals:
     void changedSettings();

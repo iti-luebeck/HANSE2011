@@ -11,76 +11,27 @@ Form_Webcams::Form_Webcams( Module_Webcams *cams, QWidget *parent ) :
     ui->setupUi(this);
     this->cams = cams;
 
-    ui->leftConnectCheckBox->setChecked(false);
+    ui->frontConnectCheckBox->setChecked(false);
     ui->bottomConnectCheckBox->setChecked(false);
 
-    int pos = cams->getSettingsValue("leftFramerate",5).toInt();
-    ui->leftFrameRateSlider->setValue(pos/5);
-    ui->leftFramerateLabel->setText("Framerate: " +QString::number(pos)
-                                    +" ("+QString::number(pos)+")");
-  pos = cams->getSettingsValue("bottomFramerate",5).toInt();
-    ui->bottomFrameRateSlider->setValue(pos/5);
-    ui->bottomFramerateLabel->setText("Framerate: " +QString::number(pos)
-                                      +" ("+QString::number(pos)+")");
-
-    leftFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
-   bottomFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+    frontFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
+    bottomFrame.create( WEBCAM_HEIGHT, WEBCAM_WIDTH, CV_8UC3 );
 
     refreshLists();
 
     QObject::connect( this, SIGNAL( changedSettings() ),
                       cams, SLOT( settingsChanged() ) );
-    count = 0;
-    QObject::connect( &captureTimer, SIGNAL( timeout() ),
-                      this, SLOT( captureWebcams() ) );
-
-    if ( cams->getSettingsValue( "capture", false ).toBool() )
-    {
-        ui->checkBox->setChecked( true );
-        captureTimer.start( 500 );
-    }
-    else
-    {
-        ui->checkBox->setChecked( false );
-        captureTimer.stop();
-        this->refreshFrames();
-    }
+    QObject::connect(cams, SIGNAL(newFrontImage(cv::Mat)), this, SLOT(newFrontImage(cv::Mat)));
+    QObject::connect(cams, SIGNAL(newBottomImage(cv::Mat)), this, SLOT(newBottomImage(cv::Mat)));
+    frontCount = 0;
+    bottomCount = 0;
 }
 
 Form_Webcams::~Form_Webcams()
 {
     delete ui;
-    leftFrame.release();
+    frontFrame.release();
     bottomFrame.release();
-}
-
-void Form_Webcams::captureWebcams()
-{
-    QString dir = DataLogHelper::getLogDir();
-    QDir d( dir );
-    if ( !d.cd( "cam" ) )
-    {
-        d.mkdir( "cam" );
-        d.cd( "cam" );
-    }
-
-    refreshFrames();
-
-    if(this->cams->getSettingsValue("leftEnabled").toBool())
-    {
-        char leftName[100];
-        sprintf( leftName, d.absolutePath().append( "/left%04d.jpg" ).toStdString().c_str(), count );
-        IplImage* lefty = new IplImage(leftFrame);
-        cvSaveImage( leftName, lefty );
-    }
-    if(this->cams->getSettingsValue("bottomEnabled").toBool())
-    {
-        char bottomName[100];
-        sprintf( bottomName, d.absolutePath().append( "/bottom%04d.jpg" ).toStdString().c_str(), count );
-        IplImage* bottomy = new IplImage(bottomFrame);
-        cvSaveImage( bottomName, bottomy );
-    }
-    count++;
 }
 
 void Form_Webcams::changeEvent(QEvent *e)
@@ -97,56 +48,63 @@ void Form_Webcams::changeEvent(QEvent *e)
 
 void Form_Webcams::refreshLists()
 {
-    ui->leftBox->clear();
+    ui->frontBox->clear();
     ui->bottomBox->clear();
 
     std::vector<int> camsInd = this->cams->numOfCams();
     for (unsigned int i = 0; i < camsInd.size(); i++ )
     {
         QString boxName = QString::number(camsInd.at(i));
-        ui->leftBox->addItem( boxName );
+        ui->frontBox->addItem( boxName );
         ui->bottomBox->addItem( boxName );
 
-        if(camsInd.at(i) == cams->getSettingsValue("leftID",0).toInt())
-            ui->leftBox->setCurrentIndex(i);
+        if(camsInd.at(i) == cams->getSettingsValue("frontID",0).toInt())
+            ui->frontBox->setCurrentIndex(i);
         if(camsInd.at(i) == cams->getSettingsValue("bottomID",2).toInt())
             ui->bottomBox->setCurrentIndex(i);
     }
 }
 
-void Form_Webcams::on_applyButtn_clicked()
+void Form_Webcams::newFrontImage(cv::Mat front)
 {
-    cams->setSettingsValue("leftEnabled",ui->leftConnectCheckBox->isChecked());
-   cams->setSettingsValue("bottomEnabled",ui->bottomConnectCheckBox->isChecked());
+    if (ui->captureCheckBox->isChecked()) {
+        QImage imagefront((unsigned char*)front.data, front.cols, front.rows, QImage::Format_RGB888);
+        ui->frontLabel->setPixmap( QPixmap::fromImage( imagefront ) );
 
-    int pos = ui->leftFrameRateSlider->value() *5;
-    cams->setSettingsValue("leftFramerate",pos);
-    ui->leftFramerateLabel->setText("Framerate: " +QString::number(pos)
-                                    +" ("+QString::number(pos)+")");
+        QString dir = DataLogHelper::getLogDir();
+        QDir d(dir);
+        if (!d.cd("cam")) {
+            d.mkdir("cam");
+            d.cd("cam");
+        }
 
-    pos = ui->bottomFrameRateSlider->value() * 5;
-    cams->setSettingsValue("bottomFramerate",pos);
-    ui->bottomFramerateLabel->setText("Framerate: " +QString::number(pos)
-                                      +" ("+QString::number(pos)+")");
-
-    emit changedSettings();
+        char frontName[100];
+        sprintf( frontName, d.absolutePath().append( "/front%04d.jpg" ).toStdString().c_str(), frontCount );
+        IplImage* fronty = new IplImage(frontFrame);
+        cvSaveImage( frontName, fronty );
+        frontCount++;
+    }
 }
 
-void Form_Webcams::on_refreshButton_clicked()
+void Form_Webcams::newBottomImage(cv::Mat bottom)
 {
-    refreshFrames();
-}
+    if (ui->captureCheckBox->isChecked()) {
+        QImage imagebottom((unsigned char*)bottom.data, bottom.cols, bottom.rows, QImage::Format_RGB888);
+        ui->bottomLabel->setPixmap( QPixmap::fromImage( imagebottom ) );
 
-void Form_Webcams::refreshFrames()
-{
-    cams->grabLeft( leftFrame );
-    cams->grabBottom( bottomFrame);
+        QString dir = DataLogHelper::getLogDir();
+        QDir d(dir);
+        if (!d.cd("cam")) {
+            d.mkdir("cam");
+            d.cd("cam");
+        }
 
-    QImage imageLeft((unsigned char*)leftFrame.data, leftFrame.cols, leftFrame.rows, QImage::Format_RGB888);
-    ui->leftLabel->setPixmap( QPixmap::fromImage( imageLeft ) );
-
-       QImage imageBottom((unsigned char*)bottomFrame.data, bottomFrame.cols, bottomFrame.rows, QImage::Format_RGB888);
-    ui->bottomLabel->setPixmap( QPixmap::fromImage( imageBottom ) );
+        char bottomName[100];
+        sprintf( bottomName, d.absolutePath().append( "/bottom%04d.jpg" ).toStdString().c_str(), bottomCount );
+        IplImage* bottomy = new IplImage(bottomFrame);
+        cvSaveImage( bottomName, bottomy );
+        bottomCount++;
+    }
 }
 
 void Form_Webcams::on_updateListButton_clicked()
@@ -154,39 +112,25 @@ void Form_Webcams::on_updateListButton_clicked()
     refreshLists();
 }
 
-void Form_Webcams::on_checkBox_clicked()
+void Form_Webcams::on_frontConnectCheckBox_clicked()
 {
-    cams->setSettingsValue( "capture", ui->checkBox->isChecked() );
-    if ( ui->checkBox->isChecked() )
+    if(ui->frontBox->count() == 0)
     {
-        captureTimer.start( 500 );
-    }
-    else
-    {
-        captureTimer.stop();
-    }
-}
-
-void Form_Webcams::on_leftConnectCheckBox_clicked()
-{
-    if(ui->leftBox->count() == 0)
-    {
-        ui->leftErrorLabel->setText("Error, no Webcam Available");
-        ui->leftConnectCheckBox->setChecked(false);
+        ui->frontErrorLabel->setText("Error, no Webcam Available");
+        ui->frontConnectCheckBox->setChecked(false);
         return;
     }
 
-    if(  (ui->bottomConnectCheckBox->isChecked() && (ui->bottomBox->currentIndex() == ui->leftBox->currentIndex())))
+    if(  (ui->bottomConnectCheckBox->isChecked() && (ui->bottomBox->currentIndex() == ui->frontBox->currentIndex())))
     {
-        ui->leftErrorLabel->setText("The cam you selected is already in use");
-        ui->leftConnectCheckBox->setChecked(false);
+        ui->frontErrorLabel->setText("The cam you selected is already in use");
+        ui->frontConnectCheckBox->setChecked(false);
         return;
     }
 
-    ui->leftErrorLabel->clear();
-    cams->setSettingsValue("leftEnabled",ui->leftConnectCheckBox->isChecked());
-    cams->setSettingsValue("leftFramerate",ui->leftFrameRateSlider->value());
-    cams->setSettingsValue("leftID",ui->leftBox->currentText());
+    ui->frontErrorLabel->clear();
+    cams->setSettingsValue("frontEnabled",ui->frontConnectCheckBox->isChecked());
+    cams->setSettingsValue("frontID",ui->frontBox->currentText());
     emit changedSettings();
 }
 
@@ -199,7 +143,7 @@ void Form_Webcams::on_bottomConnectCheckBox_clicked()
         return;
     }
 
-    if( (ui->leftConnectCheckBox->isChecked() && (ui->bottomBox->currentIndex() == ui->leftBox->currentIndex())))
+    if( (ui->frontConnectCheckBox->isChecked() && (ui->bottomBox->currentIndex() == ui->frontBox->currentIndex())))
     {
         ui->bottomErrorLabel->setText("The cam you selected is already in use");
         ui->bottomConnectCheckBox->setChecked(false);
@@ -208,24 +152,6 @@ void Form_Webcams::on_bottomConnectCheckBox_clicked()
 
     ui->bottomErrorLabel->clear();
     cams->setSettingsValue("bottomEnabled",ui->bottomConnectCheckBox->isChecked());
-    cams->setSettingsValue("bottomFramerate",ui->bottomFrameRateSlider->value());
     cams->setSettingsValue("bottomID",ui->bottomBox->currentText());
     emit changedSettings();
-}
-
-void Form_Webcams::on_leftFrameRateSlider_sliderMoved(int position)
-{
-    position *= 5;
-    ui->leftFramerateLabel->setText("Framerate: " +QString::number(position)
-                                    +"("+QString::number(cams->getSettingsValue("leftFramerate").toInt())
-                                                         +")");
-}
-
-
-void Form_Webcams::on_bottomFrameRateSlider_sliderMoved(int position)
-{
-    position *= 5;
-    ui->bottomFramerateLabel->setText("Framerate: " +QString::number(position)
-                                    +"("+QString::number(cams->getSettingsValue("bottomFramerate").toInt())
-                                                         +")");
 }

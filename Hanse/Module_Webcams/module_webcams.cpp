@@ -2,150 +2,58 @@
 #include <Module_Webcams/form_webcams.h>
 #include <assert.h>
 
+using namespace cv;
+
 Module_Webcams::Module_Webcams( QString id ) :
         RobotModule( id )
 {
-    leftFramerate = 5;
-    rightFramerate = 5;
-    bottomFramerate = 5;
+    frontCap = NULL;
+    frontID = 1;
+    frontEnabled = false;
 
-    leftCap = NULL;
-    rightCap = NULL;
     bottomCap = NULL;
-
-    leftID = 1;
-    rightID = 0;
     bottomID = 2;
+    bottomEnabled = false;
+
+    updateTimer.moveToThread(this);
+    QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(grabCams()));
 }
 
 Module_Webcams::~Module_Webcams()
 {
     stopWebcams();
-    cvReleaseImage( &leftFrame );
-    cvReleaseImage( &rightFrame );
-    cvReleaseImage( &bottomFrame );
+    if (frontFrame) cvReleaseImage(&frontFrame);
+    if (bottomFrame) cvReleaseImage(&bottomFrame);
+    if (frontCap) cvReleaseCapture(&frontCap);
+    if (bottomCap) cvReleaseCapture(&bottomCap);
 }
 
 void Module_Webcams::init()
 {
+    dataLockerMutex.lock();
     nCams = this->numAvailableCams();
 
-    leftFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
-    rightFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    frontFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
     bottomFrame = cvCreateImage( cvSize( WEBCAM_WIDTH, WEBCAM_HEIGHT ), IPL_DEPTH_8U, 3 );
+    dataLockerMutex.unlock();
 
-    this->setSettingsValue("leftEnabled", false);
-    this->setSettingsValue("rightEnabled", false);
+    this->setSettingsValue("frontEnabled", false);
     this->setSettingsValue("bottomEnabled", false);
 
     settingsChanged();
+    updateTimer.start(250);
 }
 
 void Module_Webcams::stopWebcams()
 {
-    if ( leftCap != NULL )
-    {
-        cvReleaseCapture(&leftCap);
-        leftCap = NULL;
+    if ( frontCap != NULL ) {
+        cvReleaseCapture(&frontCap);
+        frontCap = NULL;
     }
-    if ( rightCap != NULL )
-    {
-        cvReleaseCapture(&rightCap);
-        rightCap = NULL;
-    }
-    if ( bottomCap != NULL  )
-    {
+    if ( bottomCap != NULL  ) {
         cvReleaseCapture(&bottomCap);
         bottomCap = NULL;
     }
-}
-
-void Module_Webcams::grabLeft( cv::Mat &left )
-{
-    dataLockerMutex.lock();
-    if ( leftCap != NULL )
-    {
-
-        IplImage* img = cvQueryFrame(leftCap);
-        if(img)
-        {
-            cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
-            cv::Mat mtx(img);
-
-            left = mtx.clone();
-        }
-    }
-    dataLockerMutex.unlock();
-}
-
-void Module_Webcams::grabRight( cv::Mat &right )
-{
-    dataLockerMutex.lock();
-    if ( rightCap != NULL )
-    {
-        IplImage* img = cvQueryFrame(rightCap);
-        if(img)
-        {
-            cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
-            cv::Mat mat(img);
-
-            right = mat.clone();
-        }
-    }
-    dataLockerMutex.unlock();
-}
-
-void Module_Webcams::grabBottom( cv::Mat &bottom )
-{
-    dataLockerMutex.lock();
-    if ( bottomCap != NULL )
-    {
-        IplImage* img = cvQueryFrame(bottomCap);
-        if(img)
-        {
-            cvConvertImage(img,img,CV_CVTIMG_SWAP_RB);
-            cv::Mat mat(img);
-            bottom = mat.clone();
-        }
-    }
-    dataLockerMutex.unlock();
-}
-
-void Module_Webcams::grabLeft(IplImage *left)
-{
-    dataLockerMutex.lock();
-    if(leftCap != NULL)
-    {
-        assert( left->width == WEBCAM_WIDTH && left->height == WEBCAM_HEIGHT );
-        cvCopy(cvQueryFrame(leftCap),left);
-        cvConvertImage(left,left,CV_CVTIMG_SWAP_RB);
-    }
-    dataLockerMutex.unlock();
-}
-
-void Module_Webcams::grabRight(IplImage *right)
-{
-    dataLockerMutex.lock();
-    if(rightCap != NULL)
-    {
-        assert( right->width == WEBCAM_WIDTH && right->height == WEBCAM_HEIGHT );
-        cvCopy(cvQueryFrame(rightCap),right);
-        cvConvertImage(right,right,CV_CVTIMG_SWAP_RB);
-    }
-    dataLockerMutex.unlock();
-}
-
-void Module_Webcams::grabBottom(IplImage *bottom)
-{
-    dataLockerMutex.lock();
-    if(bottomCap != NULL)
-    {
-        assert( bottom->width == WEBCAM_WIDTH && bottom->height == WEBCAM_HEIGHT );
-        cvCopy(cvQueryFrame(bottomCap),bottom);
-        cvShowImage("buhu",bottom);
-        cvConvertImage(bottom,bottom,CV_CVTIMG_SWAP_RB);
-    }
-    dataLockerMutex.unlock();
 }
 
 void Module_Webcams::reset()
@@ -163,58 +71,34 @@ void Module_Webcams::reset()
         {
             logger->debug("Trying to Connect bottom Cam with ID "+QString::number(bottomID));
             bottomCap = cvCaptureFromCAM(bottomID);
-            if(bottomCap)
-            {
+            if (bottomCap) {
                 logger->debug("...ok");
                 connectedCams++;
-                cvSetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_WIDTH,640);
-                cvSetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_HEIGHT,480);
-                cvSetCaptureProperty(bottomCap,CV_CAP_PROP_GAIN,0);
-                qDebug() << QString::number(cvGetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_WIDTH));
-                qDebug() << QString::number(cvGetCaptureProperty(bottomCap,CV_CAP_PROP_FRAME_HEIGHT));
-            }
-            else
-            {
+                cvSetCaptureProperty(bottomCap, CV_CAP_PROP_FRAME_WIDTH, 640);
+                cvSetCaptureProperty(bottomCap, CV_CAP_PROP_FRAME_HEIGHT, 480);
+            } else {
                 logger->debug("...fail");
                 bottomCap = NULL;
             }
         }
 
-        if ( 0 <= leftID && leftEnabled && connectedCams < nCams && (leftID != bottomID || !bottomEnabled) )
+        if ( 0 <= frontID && frontEnabled && connectedCams < nCams && (frontID != bottomID || !bottomEnabled) )
         {
-            logger->debug("Trying to Connect left Cam with ID "+QString::number(leftID));
-            leftCap = cvCaptureFromCAM(leftID);
-            if (leftCap)
+            logger->debug("Trying to Connect front Cam with ID "+QString::number(frontID));
+            frontCap = cvCaptureFromCAM(frontID);
+            if (frontCap)
             {
                 logger->debug("...ok");
                 connectedCams++;
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_WIDTH,640);
-                cvSetCaptureProperty(leftCap,CV_CAP_PROP_FRAME_HEIGHT,480);
+                cvSetCaptureProperty(frontCap,CV_CAP_PROP_FRAME_WIDTH,640);
+                cvSetCaptureProperty(frontCap,CV_CAP_PROP_FRAME_HEIGHT,480);
             }
             else
             {
                 logger->debug("...fail");
-                leftCap = NULL;
+                frontCap = NULL;
             }
 
-        }
-        if ( 0 <= rightID && rightEnabled && connectedCams < nCams && (rightID != leftID || !leftEnabled) && (rightID != bottomID || bottomEnabled))
-        {
-            logger->debug("Trying to Connect right Cam with ID "+QString::number(rightID));
-            rightCap = cvCaptureFromCAM(rightID);
-            if(rightCap)
-            {
-                logger->debug("...ok");
-                connectedCams++;
-                cvSetCaptureProperty(rightCap,CV_CAP_PROP_FRAME_WIDTH,640);
-                cvSetCaptureProperty(rightCap,CV_CAP_PROP_FRAME_HEIGHT,480);
-                cvSetCaptureProperty(rightCap,CV_CAP_PROP_GAIN,0);
-            }
-            else
-            {
-                logger->debug("...fail");
-                rightCap = NULL;
-            }
         }
     }
     dataLockerMutex.unlock();
@@ -250,26 +134,60 @@ int Module_Webcams::numAvailableCams()
     return camInd.size();
 }
 
-void Module_Webcams::terminate()
+void Module_Webcams::grabCams()
 {
+    if (!isEnabled())
+        return;
+
+    bool bottomSetToSick = false;
+    dataLockerMutex.lock();
+    if (bottomEnabled) {
+        if (bottomCap != NULL) {
+            IplImage *frame = cvQueryFrame(bottomCap);
+            if (frame) {
+                this->setHealthToOk();
+                cvConvertImage(frame, bottomFrame, CV_CVTIMG_SWAP_RB);
+                emit newBottomImage(Mat(bottomFrame));
+            } else {
+                this->setHealthToSick("bottom image is null (camera died in operation?)");
+                bottomSetToSick = true;
+            }
+        } else {
+            this->setHealthToSick("bottom cap is null (camera not connected?)");
+            bottomSetToSick = true;
+        }
+    }
+    if (frontEnabled) {
+        if (frontCap != NULL) {
+            IplImage *frame = cvQueryFrame(frontCap);
+            if (frame) {
+                if (!bottomSetToSick) {
+                    this->setHealthToOk();
+                }
+                cvConvertImage(frame, frontFrame, CV_CVTIMG_SWAP_RB);
+                emit newFrontImage(Mat(frontFrame));
+            } else {
+                this->setHealthToSick("front image is null (camera died in operation?)");
+            }
+        } else {
+            this->setHealthToSick("front cap is null (camera not connected?)");
+        }
+    }
+    dataLockerMutex.unlock();
+}
+
+void Module_Webcams::terminate() {
     stopWebcams();
     RobotModule::terminate();
 }
 
-void Module_Webcams::settingsChanged()
-{
-    leftID = this->getSettingsValue("leftID",0).toInt();
-    rightID = this->getSettingsValue("rightID",1).toInt();
+void Module_Webcams::settingsChanged() {
+    frontID = this->getSettingsValue("frontID",0).toInt();
     bottomID = this->getSettingsValue("bottomID",2).toInt();
-    leftEnabled = this->getSettingsValue("leftEnabled",false).toBool();
-    rightEnabled = this->getSettingsValue("rightEnabled",false).toBool();
+    frontEnabled = this->getSettingsValue("frontEnabled",false).toBool();
     bottomEnabled = this->getSettingsValue("bottomEnabled",false).toBool();
-    leftFramerate = this->getSettingsValue("leftFramerate",5).toInt();
-    rightFramerate = this->getSettingsValue("rightFramerate",5).toInt();
-    bottomFramerate = this->getSettingsValue("bottomFramerate",5).toInt();
 
-    if ( isEnabled() )
-    {
+    if ( isEnabled() ) {
         reset();
     }
 }

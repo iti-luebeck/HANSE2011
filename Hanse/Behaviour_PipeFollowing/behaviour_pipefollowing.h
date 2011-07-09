@@ -77,7 +77,7 @@ public slots:
     void stop();
     void reset();
     void terminate();
-    void simFrame(cv::Mat simFrame);
+    void newFrame(cv::Mat frame);
     void setUpdatePixmapSlot(bool bol);
     void controlEnabledChanged(bool);
 

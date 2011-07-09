@@ -26,6 +26,8 @@ Behaviour_BallFollowing::Behaviour_BallFollowing(QString id, Module_ThrusterCont
     state = BALL_STATE_SEARCH_BALL;
     updateTimer.moveToThread(this);
     cutTimer.moveToThread(this);
+
+    QObject::connect(cams, SIGNAL(newFrontImage(cv::Mat)), this, SLOT(newFrame(cv::Mat)));
 }
 
 void Behaviour_BallFollowing::init()
@@ -101,26 +103,20 @@ void Behaviour_BallFollowing::newData()
         return;
     }
 
-    if(sim->isEnabled()) {
+    if (sim->isEnabled()) {
         emit requestFrame();
-    } else {
-        this->dataLockerMutex.lock();
-        cams->grabLeft(frame);
-        update();
-        this->dataLockerMutex.unlock();
     }
-
 }
 
 
-void Behaviour_BallFollowing::simFrame(cv::Mat simFrame)
+void Behaviour_BallFollowing::newFrame(cv::Mat frame)
 {
-    if (!isActive()){
+    if (!isActive()) {
         return;
     }
 
     this->dataLockerMutex.lock();
-    simFrame.copyTo(frame);
+    frame.copyTo(this->frame);
     update();
     this->dataLockerMutex.unlock();
 }

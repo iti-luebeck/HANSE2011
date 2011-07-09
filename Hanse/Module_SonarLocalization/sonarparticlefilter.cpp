@@ -24,6 +24,8 @@ SonarParticleFilter::SonarParticleFilter(Module_SonarLocalization& sonar, Module
     logger->debug("ParticleFilter constructor");
 
     reset();
+
+    QObject::connect(this, SIGNAL(newPosition(QVector3D)), &sonar, SLOT(particleFilterDone(QVector3D)));
 }
 
 void SonarParticleFilter::newImage(QList<QVector2D> observations)
