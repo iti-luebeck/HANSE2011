@@ -36,8 +36,6 @@ private:
 private slots:
     void on_frontConnectCheckBox_clicked();
     void on_bottomConnectCheckBox_clicked();
-    void on_leftConnectCheckBox_clicked();
-    void on_checkBox_clicked();
     void on_updateListButton_clicked();
 
 public slots:
