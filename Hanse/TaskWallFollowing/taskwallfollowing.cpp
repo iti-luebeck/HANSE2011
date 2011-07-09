@@ -154,9 +154,9 @@ void TaskWallFollowing::controlTaskStates(){
 }
 
 void TaskWallFollowing::showTaskState(){
-    QString wallstate = getDataValue("wallstate").toString();
-    QString ctrAngle = getDataValue("turnspeed").toString();
     logger->info(taskState);
+    QString wallstate = this->wall->getDataValue("wallstate").toString();
+    QString ctrAngle = this->wall->getDataValue("turnspeed").toString();
     QString stateComment = taskState + " - " + wallstate + " - " + ctrAngle;
     emit newState(this->getId(),stateComment);
 
