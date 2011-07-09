@@ -163,11 +163,12 @@ void Behaviour_WallFollowing::controlWallFollow()
         return;
     }
 
+    diff = distanceInput - avgDistance;
+
+    addData("Distance-Diverence",diff);
     addData("Distance target",distanceInput);
     addData("Distance average",avgDistance);
     emit dataChanged(this);
-
-    diff = distanceInput - avgDistance;
 
     if(wallState == WALL_ADJUST_START){
         if(getSettingsValue("useStartAdjust").toBool()){

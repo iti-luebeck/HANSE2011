@@ -68,20 +68,24 @@ void Form_Webcams::refreshLists()
 void Form_Webcams::newFrontImage(cv::Mat front)
 {
     if (ui->captureCheckBox->isChecked()) {
-        QImage imagefront((unsigned char*)front.data, front.cols, front.rows, QImage::Format_RGB888);
-        ui->frontLabel->setPixmap( QPixmap::fromImage( imagefront ) );
+        if (frontCount % 4 == 0) {
+            if (frontCount % 8 == 0) {
+                QImage imagefront((unsigned char*)front.data, front.cols, front.rows, QImage::Format_RGB888);
+                ui->frontLabel->setPixmap( QPixmap::fromImage( imagefront ) );
+            }
 
-        QString dir = DataLogHelper::getLogDir();
-        QDir d(dir);
-        if (!d.cd("cam")) {
-            d.mkdir("cam");
-            d.cd("cam");
+            QString dir = DataLogHelper::getLogDir();
+            QDir d(dir);
+            if (!d.cd("cam")) {
+                d.mkdir("cam");
+                d.cd("cam");
+            }
+
+            char frontName[100];
+            sprintf( frontName, d.absolutePath().append( "/front%04d.jpg" ).toStdString().c_str(), frontCount );
+            IplImage* fronty = new IplImage(frontFrame);
+            cvSaveImage( frontName, fronty );
         }
-
-        char frontName[100];
-        sprintf( frontName, d.absolutePath().append( "/front%04d.jpg" ).toStdString().c_str(), frontCount );
-        IplImage* fronty = new IplImage(frontFrame);
-        cvSaveImage( frontName, fronty );
         frontCount++;
     }
 }
@@ -89,20 +93,24 @@ void Form_Webcams::newFrontImage(cv::Mat front)
 void Form_Webcams::newBottomImage(cv::Mat bottom)
 {
     if (ui->captureCheckBox->isChecked()) {
-        QImage imagebottom((unsigned char*)bottom.data, bottom.cols, bottom.rows, QImage::Format_RGB888);
-        ui->bottomLabel->setPixmap( QPixmap::fromImage( imagebottom ) );
+        if (bottomCount % 4 == 0) {
+            if (bottomCount % 8 == 0) {
+                QImage imagebottom((unsigned char*)bottom.data, bottom.cols, bottom.rows, QImage::Format_RGB888);
+                ui->bottomLabel->setPixmap( QPixmap::fromImage( imagebottom ) );
+            }
 
-        QString dir = DataLogHelper::getLogDir();
-        QDir d(dir);
-        if (!d.cd("cam")) {
-            d.mkdir("cam");
-            d.cd("cam");
+            QString dir = DataLogHelper::getLogDir();
+            QDir d(dir);
+            if (!d.cd("cam")) {
+                d.mkdir("cam");
+                d.cd("cam");
+            }
+
+            char bottomName[100];
+            sprintf( bottomName, d.absolutePath().append( "/bottom%04d.jpg" ).toStdString().c_str(), bottomCount );
+            IplImage* bottomy = new IplImage(bottomFrame);
+            cvSaveImage( bottomName, bottomy );
         }
-
-        char bottomName[100];
-        sprintf( bottomName, d.absolutePath().append( "/bottom%04d.jpg" ).toStdString().c_str(), bottomCount );
-        IplImage* bottomy = new IplImage(bottomFrame);
-        cvSaveImage( bottomName, bottomy );
         bottomCount++;
     }
 }

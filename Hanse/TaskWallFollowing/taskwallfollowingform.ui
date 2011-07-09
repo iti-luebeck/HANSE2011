@@ -328,7 +328,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Task stop timer (msec):</string>
+      <string>Task stop timer (min):</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="taskStopInput">

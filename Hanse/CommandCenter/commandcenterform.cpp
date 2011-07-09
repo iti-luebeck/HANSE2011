@@ -98,11 +98,13 @@ void CommandCenterForm::on_startButton_clicked(){
             com->setSettingsValue("subEx", ui->subBox->isChecked());
             com->setSettingsValue("waitTime", ui->waitInput->text());
             com->setSettingsValue("stopTime", ui->stopInput->text());
+            com->setSettingsValue("useStartTimer", ui->useStartTimer->isChecked());
             if(ui->useStartTimer->isChecked()){
                 emit timerStartCommandCenter();
             } else {
                 emit startCommandCenter();
             }
+            this->ui->startButton->setDisabled(true);
         } else {
             qDebug("No task...");
             ui->errorOutput->setText("No existing schedule!");
@@ -129,6 +131,7 @@ void CommandCenterForm::on_stopButton_clicked(){
             emit addTask("abortedList", temp);
         }
     }
+    this->ui->startButton->setDisabled(false);
     ui->errorOutput->setText("Commandcenter stopped!");
     emit stopCommandCenter();
     emit updateGUISignal();

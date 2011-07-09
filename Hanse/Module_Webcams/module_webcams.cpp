@@ -58,6 +58,7 @@ void Module_Webcams::stopWebcams()
 
 void Module_Webcams::reset()
 {
+    this->updateTimer.stop();
     qDebug() << "cams reset";
     dataLockerMutex.lock();
     stopWebcams();
@@ -72,7 +73,6 @@ void Module_Webcams::reset()
             logger->debug("Trying to Connect bottom Cam with ID "+QString::number(bottomID));
             bottomCap = cvCaptureFromCAM(bottomID);
             if (bottomCap) {
-                logger->debug("...ok");
                 connectedCams++;
                 cvSetCaptureProperty(bottomCap, CV_CAP_PROP_FRAME_WIDTH, 640);
                 cvSetCaptureProperty(bottomCap, CV_CAP_PROP_FRAME_HEIGHT, 480);
@@ -102,6 +102,8 @@ void Module_Webcams::reset()
         }
     }
     dataLockerMutex.unlock();
+
+    this->updateTimer.start(250);
 }
 
 std::vector<int> Module_Webcams::numOfCams()

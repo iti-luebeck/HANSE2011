@@ -134,8 +134,6 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     stopTimer.moveToThread(this);
     startTimer.moveToThread(this);
 
-    connect(&startTimer, SIGNAL(timeout()), this, SLOT(startCommandCenter()));
-
     connect(&timer, SIGNAL(timeout()), this, SLOT(logPosition()));
 
     connect(&stopTimer, SIGNAL(timeout()), this, SLOT(emergencyStopCommandCenter()));
@@ -165,43 +163,17 @@ void CommandCenter::init(){
 
 void CommandCenter::timerStartCommandCenter(){
 
-    startTime.start();
-    emit newMessage("CommandCenter started!");
-    sauceLogger("CommandCenter", "CommandCenter started with timer");
 
-    int temp = this->getSettingsValue("waitTimer").toInt()*60000;
-    startTimer.start(temp);
-    QString out = "CommandCenter started with timer: " + this->getSettingsValue("waitTimer").toString();
+    sauceLogger(this->getId(), "CommandCenter: Start timer");
+    int temp = this->getSettingsValue("waitTime").toInt()*60000;
+    QString out = "CommandCenter started with timer: ";
     logger->info(out);
+    logger->info(this->getSettingsValue("waitTime").toString());
+    QTimer::singleShot(temp, this, SLOT(startCommandCenter()));
 
-
-    this->abortedList.clear();
-    this->finishedList.clear();
-    emit updateGUI();
-    timer.start(30000);
-    stopTimer.start(getSettingsValue("stopTime").toInt()*60000);
-
-    // No Handcontrol, it is commandcenter time!
-    if(this->handControl->isEnabled()){
-        this->handControl->setEnabled(false);
-    }
-
-    // Every task needs thruster
-    if(!this->tcl->isEnabled()){
-        this->tcl->setEnabled(true);
-    }
-
-
-    if(this->getSettingsValue("subEx").toBool() == true){
-        logger->debug("Submerged execution!");
-        addData("Submerged",true);
-        emit dataChanged(this);
-        submergedExecute();
-    } else {
-        addData("Submerged",false);
-        emit dataChanged(this);
-    }
-    commandCenterControl();
+    emit newMessage("CommandCenter started with timer!");
+    addData("Minutes until commandcenter start", this->getSettingsValue("waitTime").toInt());
+    emit dataChanged(this);
 }
 
 
@@ -209,7 +181,7 @@ void CommandCenter::startCommandCenter(){
     RobotModule::reset();
     startTime.start();
     emit newMessage("CommandCenter started!");
-    sauceLogger("CommandCenter", "CommandCenter started");
+    sauceLogger(this->getId(), "CommandCenter started");
     this->abortedList.clear();
     this->finishedList.clear();
     emit updateGUI();
@@ -646,9 +618,10 @@ void CommandCenter::logPosition(){
 }
 
 void CommandCenter::sauceLogger(QString task, QString state){
-
-    logTime = startTime.elapsed()/1000;
-    QString sTime = QString::number(logTime,10).rightJustified(5,'0');
+    qint64 time = QDateTime::currentMSecsSinceEpoch();
+    QString sTime = QString::number(time);
+//    logTime = startTime.elapsed()/1000;
+//    QString sTime = QString::number(logTime,10).rightJustified(5,'0');
 
     if(this->navi->isEnabled()){
         xKoord = navi->getCurrentPosition().getX();
