@@ -166,8 +166,8 @@ void Behaviour_BallFollowing::update()
                 emit setForwardSpeed(this->getSettingsValue("fwSpeed").toFloat());
             }
         } else {
-            emit setAngularSpeed(0.1);
-            emit setForwardSpeed(0.4);
+            emit setAngularSpeed(0.2);
+            emit setForwardSpeed(0.3);
         }
 
     } else if (state == BALL_STATE_FOUND_BALL) {
@@ -198,6 +198,30 @@ void Behaviour_BallFollowing::update()
 //            cutTimer.singleShot(15000, this, SLOT(stopCut()));
         } else {
             // Do search for ball...
+            float angularSpeed = 0.0;
+            float forwardSpeed = 0.0;
+            if (ballState == STATE_LOST_LEFT) {
+                angularSpeed = -0.2;
+                forwardSpeed = 0.4;
+            } else if (ballState == STATE_LOST_RIGHT) {
+                angularSpeed = 0.2;
+                forwardSpeed = 0.4;
+            } else if (ballState == STATE_LOST_BOTTOM) {
+                state = BALL_STATE_DO_CUT;
+                angularSpeed = 0.0;
+                forwardSpeed = 0.4;
+            } else if (ballState == STATE_LOST_TOP) {
+                state = BALL_STATE_DO_CUT;
+                angularSpeed = 0.0;
+                forwardSpeed = 0.4;
+            } else if (ballState == STATE_LOST) {
+                // PANIC
+                state = BALL_STATE_DO_CUT;
+                angularSpeed = 0.0;
+                forwardSpeed = 0.0f;
+            }
+            emit setAngularSpeed(angularSpeed);
+            emit setForwardSpeed(forwardSpeed);
         }
 
     } else if (state == BALL_STATE_DO_CUT) {
