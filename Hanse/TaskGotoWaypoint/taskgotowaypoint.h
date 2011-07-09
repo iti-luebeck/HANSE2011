@@ -6,10 +6,10 @@
 class Module_Simulation;
 class Module_Navigation;
 
-#define TASK_STATE_START                    "task started"
-#define TASK_STATE_MOVE_TO_WAYPOINT         "move to waypoint"
-#define TASK_STATE_END                      "task finished"
-#define TASK_STATE_END_FAILED               "task finished - unsuccessful"
+#define GTW_STATE_START                    "task started"
+#define GTW_STATE_MOVE_TO_WAYPOINT         "move to waypoint"
+#define GTW_STATE_END                      "task finished"
+#define GTW_STATE_END_FAILED               "task finished - unsuccessful"
 
 class TaskGotoWaypoint : public RobotBehaviour
 {

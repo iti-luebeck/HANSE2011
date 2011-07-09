@@ -52,7 +52,7 @@ void TaskGotoWaypoint::init(){
 void TaskGotoWaypoint::reset() {
     RobotModule::reset();
 
-    taskState = TASK_STATE_START;
+    taskState = GTW_STATE_START;
 }
 
 
@@ -67,7 +67,7 @@ void TaskGotoWaypoint::startBehaviour(){
 
     setHealthToOk();
 
-    taskState = TASK_STATE_START;
+    taskState = GTW_STATE_START;
     showTaskState();
 
     active = true;
@@ -76,7 +76,7 @@ void TaskGotoWaypoint::startBehaviour(){
     }
     emit started(this);
 
-    emit newStateOverview(TASK_STATE_MOVE_TO_WAYPOINT);
+    emit newStateOverview(GTW_STATE_MOVE_TO_WAYPOINT);
 
     if(!this->navi->isEnabled()){
         this->navi->setEnabled(true);
@@ -92,7 +92,7 @@ void TaskGotoWaypoint::startBehaviour(){
         taskTimer.start();
     }
 
-    taskState = TASK_STATE_MOVE_TO_WAYPOINT;
+    taskState = GTW_STATE_MOVE_TO_WAYPOINT;
     waypointCounter = 1;
     controlTaskStates();
 }
@@ -102,7 +102,7 @@ void TaskGotoWaypoint::controlTaskStates(){
         return;
     }
 
-    if(taskState == TASK_STATE_MOVE_TO_WAYPOINT){
+    if(taskState == GTW_STATE_MOVE_TO_WAYPOINT){
         showTaskState();
         if(waypointCounter < 7){
             if(waypointCounter == 1 && this->navi->containsWaypoint(this->getSettingsValue("point1").toString())){
@@ -123,7 +123,7 @@ void TaskGotoWaypoint::controlTaskStates(){
                 controlTaskStates();
             }
         } else {
-            taskState == TASK_STATE_END;
+            taskState == GTW_STATE_END;
             controlTaskStates();
         }
     } else {
@@ -187,7 +187,7 @@ void TaskGotoWaypoint::stop(){
     taskTimer.stop();
     active = false;
     setEnabled(false);
-    taskState = TASK_STATE_END;
+    taskState = GTW_STATE_END;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -207,7 +207,7 @@ void TaskGotoWaypoint::timeoutStop(){
     taskTimer.stop();
     active = false;
     setEnabled(false);
-    taskState = TASK_STATE_END;
+    taskState = GTW_STATE_END;
     showTaskState();
 
     if(navi->hasGoal()){
@@ -228,7 +228,7 @@ void TaskGotoWaypoint::emergencyStop(){
     taskTimer.stop();
     active = false;
     setEnabled(false);
-    taskState = TASK_STATE_END;
+    taskState = GTW_STATE_END;
     showTaskState();
 
     if(navi->hasGoal()){

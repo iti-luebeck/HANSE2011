@@ -216,8 +216,8 @@ void TaskXsensNavigation::stateChanged()
 
     addData("state", state);
     emit dataChanged(this);
-    QString navstate = getDataValue("state").toString();
-    QString navsubstate = getDataValue("substate").toString();
+    QString navstate = this->navi->getDataValue("state").toString();
+    QString navsubstate = this->navi->getDataValue("substate").toString();
     QString stateComment = state + " - "+ navstate + " - " + navsubstate;
     emit newState(this->getId(),stateComment);
 }
