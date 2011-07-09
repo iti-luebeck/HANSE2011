@@ -23,13 +23,14 @@ class Module_Navigation;
 class TaskPipeFollowing;
 class TaskMidwaterTarget;
 class TaskTimerSubmerged;
+class TaskGotoWaypoint;
 
 
 class CommandCenter : public RobotModule
 {
     Q_OBJECT
 public:
-    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation* n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallFollowing *twf, TaskXsensNavigation *txn, TaskPipeFollowing *tpf, TaskMidwaterTarget *mwt, TaskTimerSubmerged *tts);
+    CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation* n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallFollowing *twf, TaskXsensNavigation *txn, TaskPipeFollowing *tpf, TaskMidwaterTarget *mwt, TaskTimerSubmerged *tts, TaskGotoWaypoint* tgw);
 
     QWidget* createView(QWidget *parent);
     QList<RobotModule*> getDependencies();
@@ -47,6 +48,7 @@ private:
     void init();
     QTimer timer;
     QTimer stopTimer;
+    QTimer startTimer;
 
     CommandCenter* c;
     Module_Simulation* sim;
@@ -70,6 +72,7 @@ private:
     TaskPipeFollowing *taskpipefollowing;
     TaskMidwaterTarget *taskmidwatertarget;
     TaskTimerSubmerged *tasktimersubmerged;
+    TaskGotoWaypoint *taskgotowaypoint;
 
     QTimer controlTimer;
 
@@ -98,6 +101,7 @@ private:
 
 public slots:
     void startCommandCenter();
+    void timerStartCommandCenter();
     void stopCommandCenter();
 
     void emergencyStopCommandCenter();
@@ -160,6 +164,9 @@ signals:
 
     void startTaskTimerSubmerged();
     void stopTaskTimerSubmerged();
+
+    void startTaskGotoWaypoint();
+    void stopTaskGotoWaypoint();
 };
 
 #endif // COMMANDCENTER_H

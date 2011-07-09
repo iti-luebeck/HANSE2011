@@ -10,6 +10,7 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
 
     connect(this,SIGNAL(startCommandCenter()),com,SLOT(startCommandCenter()));
     connect(this,SIGNAL(stopCommandCenter()),com,SLOT(stopCommandCenter()));
+    connect(this, SIGNAL(timerStartCommandCenter()), com, SLOT(timerStartCommandCenter()));
 
     // GUI-updating slots
     connect(com,SIGNAL(newMessage(QString)),this,SLOT(updateMessage(QString)));
@@ -32,6 +33,8 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
     ui->subBox->setChecked(com->getSettingsValue("subEx").toBool());
     ui->stopInput->setText(com->getSettingsValue("stopTime").toString());
+
+    ui->useStartTimer->setChecked(com->getSettingsValue("useStartTimer").toBool());
 
     ui->scheduleInput->clear();
     for(int i = 0; i < this->com->taskInputList.length(); i++){
@@ -95,7 +98,11 @@ void CommandCenterForm::on_startButton_clicked(){
             com->setSettingsValue("subEx", ui->subBox->isChecked());
             com->setSettingsValue("waitTime", ui->waitInput->text());
             com->setSettingsValue("stopTime", ui->stopInput->text());
-            emit startCommandCenter();
+            if(ui->useStartTimer->isChecked()){
+                emit timerStartCommandCenter();
+            } else {
+                emit startCommandCenter();
+            }
         } else {
             qDebug("No task...");
             ui->errorOutput->setText("No existing schedule!");

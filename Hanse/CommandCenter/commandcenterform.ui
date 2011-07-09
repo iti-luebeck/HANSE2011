@@ -210,7 +210,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>340</y>
+      <y>310</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -220,13 +220,13 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>340</y>
-      <width>131</width>
+      <y>310</y>
+      <width>121</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Wait timer (msec):</string>
+     <string>Start wait timer (min):</string>
     </property>
    </widget>
    <widget class="QPushButton" name="skipButton">
@@ -246,7 +246,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>290</y>
+      <y>270</y>
       <width>113</width>
       <height>27</height>
      </rect>
@@ -256,13 +256,26 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>290</y>
+      <y>270</y>
       <width>111</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
      <string>Stop timer (min)</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="useStartTimer">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>340</y>
+      <width>131</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Use start wait timer</string>
     </property>
    </widget>
   </widget>

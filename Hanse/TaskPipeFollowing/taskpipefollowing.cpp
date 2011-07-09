@@ -281,7 +281,7 @@ void TaskPipeFollowing::controlAngleDistance(){
             logger->info("ERROR!!! Waypoint goal1point1 doesnt exist!!!!");
         }
 
-        if(this->navi->containsWaypoint(this->getSettingsValue("goal1point2").toString())){
+        if(!this->navi->containsWaypoint(this->getSettingsValue("goal1point2").toString())){
             logger->info("ERROR!!! Waypoint goal1point2 doesnt exist!!!!");
         }
 

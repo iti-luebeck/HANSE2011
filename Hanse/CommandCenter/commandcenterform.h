@@ -31,6 +31,7 @@ private:
 signals:
     void startCommandCenter();
     void stopCommandCenter();
+    void timerStartCommandCenter();
     void updateGUISignal();
     void addTask(QString listName, QString taskName);
     void removeTask();

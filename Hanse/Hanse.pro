@@ -19,9 +19,7 @@ MOC_DIR = tmp/moc
 OBJECTS_DIR = tmp/obj
 
 # so they show up the the project tree, for convenience
-OTHER_FILES += bin/log4qt.properties \
-    TaskPipeFollowing/TaskPipeFollowing.pri \
-    TaskWallFollowing/TaskWallFollowing.pri
+OTHER_FILES += bin/log4qt.properties
 
 # do more code optimizations
 # (-O2 would improve speed further, but would also make using the debugger harder)
@@ -79,4 +77,5 @@ include(TaskWallFollowing/TaskWallFollowing.pri)
 include(TaskMidwaterTarget/TaskMidwaterTarget.pri)
 include(TaskTimerSubmerged/TaskTimerSubmerged.pri)
 include(TaskSurface/TaskSurface.pri)
+include(TaskGotoWaypoint/TaskGotoWaypoint.pri)
 

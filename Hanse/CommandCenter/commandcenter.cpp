@@ -21,8 +21,9 @@
 #include <TaskPipeFollowing/taskpipefollowing.h>
 #include <TaskMidwaterTarget/taskmidwatertarget.h>
 #include <TaskTimerSubmerged/tasktimersubmerged.h>
+#include <TaskGotoWaypoint/taskgotowaypoint.h>
 
-CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation *n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallFollowing *twf,TaskXsensNavigation *txn, TaskPipeFollowing *tpf, TaskMidwaterTarget *mwt, TaskTimerSubmerged *tts)
+CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module_HandControl* handControl, Module_PressureSensor* pressure, Module_Simulation *sim, Module_Navigation *n, Behaviour_PipeFollowing* pipe, Behaviour_BallFollowing* ball, Behaviour_TurnOneEighty* o80, Behaviour_WallFollowing* wall, Behaviour_XsensFollowing* xsens, TaskHandControl *thc, TaskWallFollowing *twf,TaskXsensNavigation *txn, TaskPipeFollowing *tpf, TaskMidwaterTarget *mwt, TaskTimerSubmerged *tts, TaskGotoWaypoint *tgw)
     : RobotModule(id)
 {
     this->tcl = tcl;
@@ -42,6 +43,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->taskpipefollowing = tpf;
     this->taskmidwatertarget = mwt;
     this->tasktimersubmerged = tts;
+    this->taskgotowaypoint = tgw;
 
     this->behaviour.append(pipe);
     this->behaviour.append(ball);
@@ -61,6 +63,7 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     this->taskList.append(taskpipefollowing);
     this->taskList.append(taskmidwatertarget);
     this->taskList.append(tasktimersubmerged);
+    this->taskList.append(taskgotowaypoint);
 
     foreach (RobotBehaviour* b, taskList)
     {
@@ -91,6 +94,10 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     connect(this, SIGNAL(startTaskTimerSubmerged()), tasktimersubmerged, SLOT(startBehaviour()));
     connect(this, SIGNAL(stopTaskTimerSubmerged()), tasktimersubmerged, SLOT(stop()));
 
+    // Task TaskGotoWaypoint
+    connect(this, SIGNAL(startTaskGotoWaypoint()), taskgotowaypoint, SLOT(startBehaviour()));
+    connect(this, SIGNAL(stopTaskGotoWaypoint()), taskgotowaypoint, SLOT(stop()));
+
     // Task HandControl
     this->taskList.append(taskhandcontrol);
     connect(taskhandcontrol, SIGNAL(finished(RobotBehaviour*,bool)), this, SLOT(handControlFinishedCC(RobotBehaviour*,bool)));
@@ -119,12 +126,15 @@ CommandCenter::CommandCenter(QString id, Module_ThrusterControlLoop* tcl, Module
     // Default values
     setDefaultValue("targetDepth",0.42);
     setDefaultValue("subEx", false);
-    setDefaultValue("waitTime",500);
+    setDefaultValue("waitTime",1);
 
     controlTimer.moveToThread(this);
     timer.moveToThread(this);
 
     stopTimer.moveToThread(this);
+    startTimer.moveToThread(this);
+
+    connect(&startTimer, SIGNAL(timeout()), this, SLOT(startCommandCenter()));
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(logPosition()));
 
@@ -152,6 +162,48 @@ bool CommandCenter::isActive(){
 void CommandCenter::init(){
     logger->debug("Commandcenter init");
 }
+
+void CommandCenter::timerStartCommandCenter(){
+
+    startTime.start();
+    emit newMessage("CommandCenter started!");
+    sauceLogger("CommandCenter", "CommandCenter started with timer");
+
+    int temp = this->getSettingsValue("waitTimer").toInt()*60000;
+    startTimer.start(temp);
+    QString out = "CommandCenter started with timer: " + this->getSettingsValue("waitTimer").toString();
+    logger->info(out);
+
+
+    this->abortedList.clear();
+    this->finishedList.clear();
+    emit updateGUI();
+    timer.start(30000);
+    stopTimer.start(getSettingsValue("stopTime").toInt()*60000);
+
+    // No Handcontrol, it is commandcenter time!
+    if(this->handControl->isEnabled()){
+        this->handControl->setEnabled(false);
+    }
+
+    // Every task needs thruster
+    if(!this->tcl->isEnabled()){
+        this->tcl->setEnabled(true);
+    }
+
+
+    if(this->getSettingsValue("subEx").toBool() == true){
+        logger->debug("Submerged execution!");
+        addData("Submerged",true);
+        emit dataChanged(this);
+        submergedExecute();
+    } else {
+        addData("Submerged",false);
+        emit dataChanged(this);
+    }
+    commandCenterControl();
+}
+
 
 void CommandCenter::startCommandCenter(){
     RobotModule::reset();
@@ -185,8 +237,7 @@ void CommandCenter::startCommandCenter(){
         addData("Submerged",false);
         emit dataChanged(this);
     }
-    addData("Waittime", this->getSettingsValue("waitTime"));
-    emit dataChanged(this);
+
     commandCenterControl();
 }
 
@@ -264,8 +315,11 @@ void CommandCenter::commandCenterControl(){
             emit startTaskMidwaterTarget();
             activeTask = tempAkt;
         } else if(tempAkt == "taskTSub"){
-        emit startTaskTimerSubmerged();
-        activeTask = tempAkt;
+            emit startTaskTimerSubmerged();
+            activeTask = tempAkt;
+        } else if(tempAkt == "taskGTWay"){
+            emit startTaskGotoWaypoint();
+            activeTask = tempAkt;
     } else  {
             logger->info("Task not found, skip task!");
             emit newError("Task not found, skip task!");
@@ -327,7 +381,7 @@ void CommandCenter::finishedControl(RobotBehaviour *name, bool success){
 
     // Stop thruster, then make next task...
     if(this->taskhandcontrol->isEnabled()  == false &&  active){
-        controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+        controlTimer.singleShot(100,this, SLOT(doNextTask()));
     }
 
     // Update finished/aborted list
@@ -580,7 +634,7 @@ void CommandCenter::handControlFinishedCC(RobotBehaviour *name, bool success){
         this->abortedList.append(name->getTabName());
     }
     // Stop thruster, then make next task...
-    controlTimer.singleShot(this->getSettingsValue("waitTime").toInt(),this, SLOT(doNextTask()));
+    controlTimer.singleShot(100,this, SLOT(doNextTask()));
 
     activeTask = "";
     emit updateGUI();
