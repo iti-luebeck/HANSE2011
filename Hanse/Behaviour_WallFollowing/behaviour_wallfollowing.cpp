@@ -149,8 +149,8 @@ void Behaviour_WallFollowing::newData(const EchoReturnData data, float avgDist)
             emit angularSpeed(-angSpeed);
         }
         wallState = WALL_NO_WALL;
-        emit updateGUI(WALL_NO_WALL);
-        addData("wall",WALL_NO_WALL);
+        emit updateGUI(wallState);
+        addData("wallstate",wallState);
         emit dataChanged(this);
     }
 }
@@ -212,6 +212,9 @@ void Behaviour_WallFollowing::controlThrusterEchoRight(){
             emit updateGUI(wallState);
         }
         ctrAngle = this->getSettingsValue("p").toFloat()*diff*(-1);
+        addData("wallstate", wallState);
+        addData("turnspeed", ctrAngle);
+        emit dataChanged(this);
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(ctrAngle);
 
@@ -241,6 +244,9 @@ void Behaviour_WallFollowing::controlThrusterEchoRight(){
             emit angularSpeed(angSpeed);
 
         }
+        addData("wallstate", wallState);
+        addData("turnspeed", angSpeed);
+        emit dataChanged(this);
     }
 }
 
@@ -262,6 +268,9 @@ void Behaviour_WallFollowing::controlThrusterEchoLeft(){
             emit updateGUI(wallState);
         }
         ctrAngle = this->getSettingsValue("p").toFloat()*diff*(-1);
+        addData("wallstate", wallState);
+        addData("turnspeed", ctrAngle);
+        emit dataChanged(this);
         emit forwardSpeed(fwdSpeed);
         emit angularSpeed(ctrAngle);
 
@@ -291,6 +300,9 @@ void Behaviour_WallFollowing::controlThrusterEchoLeft(){
             emit angularSpeed(angSpeed);
 
         }
+        addData("wallstate", wallState);
+        addData("turnspeed", angSpeed);
+        emit dataChanged(this);
     }
 }
 
@@ -418,13 +430,13 @@ void Behaviour_WallFollowing::stopOnEchoError(){
     emit angularSpeed(0.0);
     wallState = WALL_ERROR;
     emit updateGUI(wallState);
-    addData("wallState",wallState);
+    addData("wallstate",wallState);
     emit dataChanged(this);
 }
 
 void Behaviour_WallFollowing::updateOutput(){
 
-    addData("wallState",wallState);
+    addData("wallstate",wallState);
     addData("adjustState", adjustState);
     emit dataChanged(this);
     if(guiShow != ""){

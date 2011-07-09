@@ -250,7 +250,7 @@ void Module_EchoSounder::scanningOutput(const EchoReturnData data){
             if(avgFilter>a){
                 avgDistance = (x+3)/einheit;
                 // Berechnung abgeschlossen, also raus hier!
-                qDebug("ok");
+                //qDebug("ok");
                 break;
             } else {
                 avgDistance = 0.0;
