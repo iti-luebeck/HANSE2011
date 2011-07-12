@@ -5,5 +5,5 @@ set -e
 source /opt/ros/diamondback/setup.bash
 export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$PWD
 
-roslaunch GamepadTNG teleop_joy.launch
+rosmake GamepadTNG
 
