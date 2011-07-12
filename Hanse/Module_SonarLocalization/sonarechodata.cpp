@@ -71,7 +71,7 @@ QDateTime SonarEchoData::getTimeStamp()
 
 float SonarEchoData::getHeadPosition()
 {
-    return this->headPosition;
+    return this->headPosition + 180;
 }
 
 float SonarEchoData::getRange()
