@@ -146,6 +146,8 @@ signals:
 
     void updateGUI();
 
+    void eSB();
+
     // Start and stop signal for every tasks
     void startTaskHandControl();
     void stopTaskHandControl();

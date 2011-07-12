@@ -28,6 +28,8 @@ CommandCenterForm::CommandCenterForm(CommandCenter *commandcenter, QWidget *pare
 
     connect(this, SIGNAL(skipTask()), com, SLOT(skipTask()));
 
+    connect(com, SIGNAL(eSB()), this, SLOT(enableStartButton()));
+
     ui->setupUi(this);
     ui->depthInput->setText(com->getSettingsValue("targetDepth").toString());
     ui->waitInput->setText(com->getSettingsValue("waitTime").toString());
@@ -183,3 +185,6 @@ void CommandCenterForm::updateStateOverview(QString s){
     }
 }
 
+void CommandCenterForm::enableStartButton(){
+    this->ui->startButton->setDisabled(false);
+}

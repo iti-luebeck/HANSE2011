@@ -40,6 +40,7 @@ signals:
 
 public slots:
     void updateGUI();
+    void enableStartButton();
 
 private slots:
     void on_addButton_clicked();

@@ -312,6 +312,7 @@ void CommandCenter::commandCenterControl(){
             emit setDepth(0.0);
             emit setForwardSpeed(0.0);
             emit setAngularSpeed(0.0);
+            emit eSB();
         }
     }
     emit updateGUI();
